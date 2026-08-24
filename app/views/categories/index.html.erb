@@ -1,0 +1,22 @@
+<% content_for :title, "Categorias | Bola Cinco" %>
+
+<div class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <h1 class="text-3xl font-black">Categorias</h1>
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead><tr><th>Nome</th><th>Campeonato</th><th>Equipes</th><th></th></tr></thead>
+        <tbody>
+          <% @categories.each do |category| %>
+            <tr>
+              <td><%= category.name %></td>
+              <td><%= category.championship.name %></td>
+              <td><%= category.teams.size %></td>
+              <td><%= link_to "Abrir", category_path(category), class: "link link-primary" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

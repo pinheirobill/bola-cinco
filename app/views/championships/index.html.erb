@@ -1,0 +1,37 @@
+<% content_for :title, "Campeonatos | Bola Cinco" %>
+
+<div class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-black">Campeonatos</h1>
+        <p class="text-sm text-base-content/70">Visão geral dos campeonatos importados.</p>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Temporada</th>
+            <th>Status</th>
+            <th>Categorias</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @championships.each do |championship| %>
+            <tr>
+              <td class="font-medium"><%= championship.name %></td>
+              <td><%= championship.season %></td>
+              <td><%= status_badge(championship.status) %></td>
+              <td><%= championship.categories.size %></td>
+              <td><%= link_to "Abrir", championship_path(championship), class: "link link-primary" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

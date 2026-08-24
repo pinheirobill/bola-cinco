@@ -1,0 +1,32 @@
+<div class="flex h-full flex-col gap-6">
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50">Bola Cinco</p>
+    <h2 class="mt-2 text-2xl font-black tracking-tight">Gestão de campeonatos</h2>
+    <% if current_championship.present? %>
+      <p class="mt-2 text-sm text-base-content/70"><%= current_championship.name %></p>
+    <% end %>
+  </div>
+
+  <nav class="flex flex-1 flex-col gap-2">
+    <% nav_items = [
+      ["Dashboard", root_path],
+      ["Campeonatos", championships_path],
+      ["Categorias", categories_path],
+      ["Entidades", entities_path],
+      ["Equipes", teams_path],
+      ["Atletas", athletes_path],
+      ["Jogos", matches_path],
+      ["Classificação", standing_rows_path],
+      ["Financeiro", invoices_path]
+    ] %>
+
+    <% nav_items.each do |label, path| %>
+      <%= link_to label, path, class: "btn btn-ghost justify-start #{current_page?(path) ? 'btn-active' : ''}" %>
+    <% end %>
+  </nav>
+
+  <div class="rounded-2xl bg-base-200 p-4 text-sm text-base-content/70">
+    <p class="font-medium text-base-content">Importação demo</p>
+    <p class="mt-1">Dados semeados a partir do JSON de 2026 para acelerar a navegação inicial.</p>
+  </div>
+</div>

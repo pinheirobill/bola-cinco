@@ -1,0 +1,23 @@
+<% content_for :title, "Atletas | Bola Cinco" %>
+
+<div class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <h1 class="text-3xl font-black">Atletas</h1>
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead><tr><th>Nome</th><th>Equipe</th><th>Categoria</th><th>Número</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @athletes.each do |athlete| %>
+            <tr>
+              <td><%= athlete.name %></td>
+              <td><%= athlete.team.name %></td>
+              <td><%= athlete.category.name %></td>
+              <td><%= athlete.shirt_number.presence || "-" %></td>
+              <td><%= status_badge(athlete.status) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

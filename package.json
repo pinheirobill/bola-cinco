@@ -1,0 +1,11 @@
+{
+  "name": "bola-cinco",
+  "private": true,
+  "scripts": {
+    "build:css": "bin/rails tailwindcss:build",
+    "watch:css": "bin/rails tailwindcss:watch"
+  },
+  "dependencies": {
+    "daisyui": "^5.7.22"
+  }
+}

@@ -1,0 +1,477 @@
+<% content_for :title, "#{@championship.name} | Bola Cinco" %>
+
+<% step_labels = {
+  "data" => "Dados",
+  "format" => "Formato e regras",
+  "teams" => "Equipes"
+} %>
+
+<section class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body gap-6">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <div class="badge badge-outline">Wizard do campeonato</div>
+        <h1 class="mt-3 text-3xl font-black"><%= @championship.name %></h1>
+        <p class="mt-2 text-sm text-base-content/70">Temporada <%= @championship.season %> · <%= status_badge(@championship.status) %></p>
+      </div>
+
+      <div class="stats border border-base-300 bg-base-200 shadow-sm">
+        <div class="stat py-3">
+          <div class="stat-title">Jogos previstos</div>
+          <div class="stat-value text-2xl"><%= @championship.matches.count %></div>
+        </div>
+        <div class="stat py-3">
+          <div class="stat-title">Equipes</div>
+          <div class="stat-value text-2xl"><%= @championship.categories.sum { |category| category.teams.size } %></div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="steps steps-horizontal w-full">
+      <% step_labels.each do |key, label| %>
+        <li class="step <%= 'step-primary' if @step == key %>">
+          <%= link_to label, championship_path(@championship, step: key), class: "text-sm font-medium #{'text-primary' if @step == key}" %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</section>
+
+<% if @step == "data" %>
+  <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+    <div class="card border border-base-300 bg-base-100 shadow-sm">
+      <div class="card-body gap-6">
+        <div>
+          <h2 class="card-title text-2xl">Etapa 1. Dados</h2>
+          <p class="text-sm text-base-content/70">Atualize nome, temporada, datas e status do campeonato.</p>
+        </div>
+
+        <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-5" do %>
+          <%= hidden_field_tag :step, "data" %>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="form-control gap-2">
+              <%= label_tag "championship_name", "Nome", class: "label-text font-medium" %>
+              <%= text_field_tag "championship[name]", @championship.name, id: "championship_name", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_season", "Temporada", class: "label-text font-medium" %>
+              <%= number_field_tag "championship[season]", @championship.season, id: "championship_season", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_status", "Status", class: "label-text font-medium" %>
+              <%= select_tag "championship[status]", options_for_select(Championship.statuses.keys.map { |value| [value.tr("_", " ").humanize, value] }, @championship.status), id: "championship_status", class: "select select-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_registration_start", "Início das inscrições", class: "label-text font-medium" %>
+              <%= date_field_tag "championship[registration_start]", @championship.registration_start, id: "championship_registration_start", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_registration_end", "Fim das inscrições", class: "label-text font-medium" %>
+              <%= date_field_tag "championship[registration_end]", @championship.registration_end, id: "championship_registration_end", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_start_date", "Início do campeonato", class: "label-text font-medium" %>
+              <%= date_field_tag "championship[start_date]", @championship.start_date, id: "championship_start_date", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_end_date", "Fim do campeonato", class: "label-text font-medium" %>
+              <%= date_field_tag "championship[end_date]", @championship.end_date, id: "championship_end_date", class: "input input-bordered w-full" %>
+            </div>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_notes", "Regulamento / observações", class: "label-text font-medium" %>
+            <%= text_area_tag "championship[notes]", @championship.notes, id: "championship_notes", rows: 6, class: "textarea textarea-bordered w-full" %>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <%= submit_tag "Salvar dados", class: "btn btn-primary" %>
+            <%= link_to "Próxima etapa", championship_path(@championship, step: "format"), class: "btn btn-outline" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card border border-base-300 bg-base-100 shadow-sm">
+      <div class="card-body gap-4">
+        <h3 class="card-title text-xl">Resumo</h3>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status atual</p>
+          <p class="mt-2 text-lg font-semibold"><%= @championship.status.titleize %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Período de inscrição</p>
+          <p class="mt-2 text-lg font-semibold"><%= [@championship.registration_start, @championship.registration_end].compact.join(" até ").presence || "Não definido" %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Padrão importado</p>
+          <p class="mt-2 text-sm text-base-content/70">As datas e o regulamento podem ser ajustados sem recriar o campeonato.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+<% elsif @step == "format" %>
+  <section class="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+    <div class="card border border-base-300 bg-base-100 shadow-sm">
+      <div class="card-body gap-6">
+        <div>
+          <h2 class="card-title text-2xl">Etapa 2. Formato e regras</h2>
+          <p class="text-sm text-base-content/70">Configure o modo de disputa, pontuação e critérios de desempate.</p>
+        </div>
+
+        <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-6" do %>
+          <%= hidden_field_tag :step, "format" %>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="form-control gap-2">
+              <%= label_tag "championship_format_mode", "Modo de disputa", class: "label-text font-medium" %>
+              <%= select_tag "championship[format][mode]", options_for_select(Championship::COMPETITION_MODES.map { |key, label| [label, key] }, @championship.format_data["mode"]), id: "championship_format_mode", class: "select select-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_format_team_count", "Quantidade de equipes", class: "label-text font-medium" %>
+              <%= number_field_tag "championship[format][teamCount]", @championship.format_data["teamCount"], id: "championship_format_team_count", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_format_group_count", "Quantidade de chaves", class: "label-text font-medium" %>
+              <%= number_field_tag "championship[format][groupCount]", @championship.format_data["groupCount"], id: "championship_format_group_count", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_scoring_qualified_per_group", "Classificados por chave", class: "label-text font-medium" %>
+              <%= number_field_tag "championship[scoring][qualifiedPerGroup]", @championship.scoring_data["qualifiedPerGroup"], id: "championship_scoring_qualified_per_group", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_scoring_win", "Vitória", class: "label-text font-medium" %>
+              <%= number_field_tag "championship[scoring][win]", @championship.scoring_data["win"], id: "championship_scoring_win", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_scoring_draw", "Empate", class: "label-text font-medium" %>
+              <%= number_field_tag "championship[scoring][draw]", @championship.scoring_data["draw"], id: "championship_scoring_draw", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_scoring_loss", "Derrota", class: "label-text font-medium" %>
+              <%= number_field_tag "championship[scoring][loss]", @championship.scoring_data["loss"], id: "championship_scoring_loss", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_scoring_wo", "W.O. da equipe ausente", class: "label-text font-medium" %>
+              <%= number_field_tag "championship[scoring][wo]", @championship.scoring_data["wo"], id: "championship_scoring_wo", class: "input input-bordered w-full" %>
+            </div>
+
+            <div class="form-control gap-2">
+              <%= label_tag "championship_scoring_woScore", "Placar do W.O.", class: "label-text font-medium" %>
+              <%= number_field_tag "championship[scoring][woScore]", @championship.scoring_data["woScore"], id: "championship_scoring_woScore", class: "input input-bordered w-full" %>
+            </div>
+          </div>
+
+          <div>
+            <div class="mb-3 flex items-center justify-between">
+              <h3 class="font-semibold">Critérios de desempate</h3>
+              <span class="text-sm text-base-content/60">Ordem configurável por campeonato</span>
+            </div>
+            <div class="grid gap-3 md:grid-cols-2">
+              <% @championship.tiebreakers.each do |key| %>
+                <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
+                  <%= check_box_tag "championship[scoring][tiebreakers][]", key, true, class: "checkbox checkbox-primary" %>
+                  <span><%= Championship::TIEBREAKER_OPTIONS[key] || key.humanize %></span>
+                </label>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <%= submit_tag "Salvar regras", class: "btn btn-primary" %>
+            <%= link_to "Voltar", championship_path(@championship, step: "data"), class: "btn btn-outline" %>
+            <%= link_to "Próxima etapa", championship_path(@championship, step: "teams"), class: "btn btn-outline" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <div class="card border border-base-300 bg-base-100 shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title text-xl">Previsão</h3>
+          <p class="text-sm text-base-content/70">Com os dados atuais, a regra vigente é <%= @championship.competition_mode_label.downcase %>.</p>
+        </div>
+      </div>
+
+      <div class="card border border-base-300 bg-base-100 shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title text-xl">Rodapé da classificação</h3>
+          <div class="space-y-2 text-sm text-base-content/70">
+            <p>Vitória: <strong><%= @championship.scoring_data["win"] %></strong></p>
+            <p>Empate: <strong><%= @championship.scoring_data["draw"] %></strong></p>
+            <p>Derrota: <strong><%= @championship.scoring_data["loss"] %></strong></p>
+            <p>W.O.: <strong><%= @championship.scoring_data["wo"] %></strong> e placar <strong><%= @championship.scoring_data["woScore"] %>x0</strong></p>
+            <p>Desempates: <strong><%= @championship.tiebreaker_labels.join(" → ") %></strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<% else %>
+  <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+    <div class="card border border-base-300 bg-base-100 shadow-sm">
+      <div class="card-body gap-6">
+        <div>
+          <h2 class="card-title text-2xl">Etapa 3. Equipes</h2>
+          <p class="text-sm text-base-content/70">Veja as equipes participantes do campeonato e o convite público para o técnico.</p>
+        </div>
+
+        <% @championship.categories.each do |category| %>
+          <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <h3 class="text-lg font-bold"><%= category.name %></h3>
+                <p class="text-sm text-base-content/70"><%= category.teams.size %> equipes cadastradas</p>
+              </div>
+              <%= link_to "Abrir classificação", category_path(category), class: "btn btn-ghost btn-sm" %>
+            </div>
+
+            <div class="mt-4 overflow-x-auto">
+              <table class="table table-zebra">
+                <thead>
+                  <tr>
+                    <th>Equipe</th>
+                    <th>Entidade</th>
+                    <th>Inscrição</th>
+                    <th>Financeiro</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% category.teams.each do |team| %>
+                    <tr>
+                      <td><%= link_to team.name, team_path(team), class: "link link-primary" %></td>
+                      <td><%= team.entity.name %></td>
+                      <td><%= status_badge(team.registration_status) %></td>
+                      <td><%= status_badge(team.finance_status) %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <div class="card border border-base-300 bg-base-100 shadow-sm">
+        <div class="card-body gap-4">
+          <h3 class="card-title text-xl">Convite público</h3>
+          <p class="text-sm text-base-content/70">O perfil técnico vai usar uma URL pública para enviar a inscrição.</p>
+          <div class="rounded-2xl bg-base-200 p-4 font-mono text-xs break-all">
+            /convite/<%= @championship.id %>
+          </div>
+          <button class="btn btn-primary btn-sm" type="button">Copiar link</button>
+        </div>
+      </div>
+
+      <div class="card border border-base-300 bg-base-100 shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title text-xl">Ações futuras</h3>
+          <ul class="space-y-2 text-sm text-base-content/70">
+            <li>Adicionar equipe cadastrada</li>
+            <li>Gerar sorteio automático</li>
+            <li>Bloquear geração até a fase de grupos encerrar</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+<% end %>
+
+<section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+  <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body">
+      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Melhor jogador</p>
+      <% if @top_scorers.first.present? %>
+        <h2 class="mt-2 text-2xl font-black"><%= @top_scorers.first.name %></h2>
+        <p class="text-sm text-base-content/70"><%= @top_scorers.first.team_name %></p>
+        <div class="mt-3 badge badge-primary"><%= @top_scorers.first.goals %> gols</div>
+      <% else %>
+        <p class="mt-2 text-lg font-semibold">Sem dados de artilharia</p>
+        <p class="text-sm text-base-content/70">Os jogos importados ainda não trazem `scorers` preenchido.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body">
+      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Artilheiro</p>
+      <% if @top_scorers.first.present? %>
+        <h2 class="mt-2 text-2xl font-black"><%= @top_scorers.first.name %></h2>
+        <p class="text-sm text-base-content/70">Líder em gols do campeonato</p>
+      <% else %>
+        <p class="mt-2 text-lg font-semibold">Sem artilharia lançada</p>
+        <p class="text-sm text-base-content/70">A tela vai preencher isso assim que os gols forem informados por atleta.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body">
+      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Melhor defesa</p>
+      <% if @best_defense_row.present? %>
+        <h2 class="mt-2 text-2xl font-black"><%= @best_defense_row.team.name %></h2>
+        <p class="text-sm text-base-content/70"><%= @best_defense_row.category.name %></p>
+        <div class="mt-3 badge badge-success"><%= @best_defense_row.goals_against %> gols sofridos</div>
+      <% else %>
+        <p class="mt-2 text-lg font-semibold">Sem classificação</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body">
+      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Pior defesa</p>
+      <% if @worst_defense_row.present? %>
+        <h2 class="mt-2 text-2xl font-black"><%= @worst_defense_row.team.name %></h2>
+        <p class="text-sm text-base-content/70"><%= @worst_defense_row.category.name %></p>
+        <div class="mt-3 badge badge-error"><%= @worst_defense_row.goals_against %> gols sofridos</div>
+      <% else %>
+        <p class="mt-2 text-lg font-semibold">Sem classificação</p>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<section class="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+  <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="card-title text-2xl">Informações de jogo</h2>
+          <p class="text-sm text-base-content/70">Últimos jogos, com placar, data, local e situação.</p>
+        </div>
+        <span class="badge badge-outline"><%= @recent_matches.count %> jogos exibidos</span>
+      </div>
+
+      <div class="space-y-3">
+        <% @recent_matches.each do |match| %>
+          <div class="rounded-2xl bg-base-200 p-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p class="font-semibold"><%= match.code %> · <%= match.category.name %></p>
+                <p class="text-sm text-base-content/70">
+                  <%= [match.team_a&.name, match.team_b&.name].compact.join(" x ") %>
+                </p>
+                <p class="text-xs text-base-content/50">
+                  <%= [match.scheduled_on&.strftime("%d/%m/%Y"), match.scheduled_time, match.venue].compact.join(" • ") %>
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-2xl font-black"><%= match.score_a || "-" %> x <%= match.score_b || "-" %></p>
+                <div class="mt-2 flex flex-wrap justify-end gap-2">
+                  <%= status_badge(match.status) %>
+                  <% if match.phase.present? %>
+                    <span class="badge badge-neutral"><%= match.phase.tr("_", " ").humanize %></span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title text-2xl">Resumo do campeonato</h2>
+      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Jogos finalizados</p>
+          <p class="mt-2 text-3xl font-black"><%= @championship.completed_matches.count %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Classificações</p>
+          <p class="mt-2 text-3xl font-black"><%= @championship.standing_rows.count %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Modo</p>
+          <p class="mt-2 text-lg font-semibold"><%= @championship.competition_mode_label %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Regras vigentes</p>
+          <p class="mt-2 text-sm text-base-content/70"><%= @championship.tiebreaker_labels.join(" • ") %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <h2 class="card-title text-2xl">Classificação</h2>
+        <p class="text-sm text-base-content/70">A tabela por categoria com os dados importados.</p>
+      </div>
+    </div>
+
+    <% if @standings_by_category.present? %>
+      <div class="space-y-8">
+        <% @standings_by_category.each do |category, rows| %>
+          <div>
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <h3 class="text-xl font-bold"><%= category.name %></h3>
+              <span class="badge badge-outline"><%= rows.size %> equipes</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="table table-zebra">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Equipe</th>
+                    <th>J</th>
+                    <th>V</th>
+                    <th>E</th>
+                    <th>D</th>
+                    <th>GP</th>
+                    <th>GC</th>
+                    <th>SG</th>
+                    <th>Pts</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% rows.each do |row| %>
+                    <tr>
+                      <td><%= row.position %></td>
+                      <td class="font-medium"><%= link_to row.team.name, team_path(row.team), class: "link link-primary" %></td>
+                      <td><%= row.played %></td>
+                      <td><%= row.wins %></td>
+                      <td><%= row.draws %></td>
+                      <td><%= row.losses %></td>
+                      <td><%= row.goals_for %></td>
+                      <td><%= row.goals_against %></td>
+                      <td><%= row.goal_diff %></td>
+                      <td class="font-semibold"><%= row.points %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="alert alert-info mt-4">
+        <span>A classificação ainda não tem linhas importadas.</span>
+      </div>
+    <% end %>
+  </div>
+</section>

@@ -1,0 +1,24 @@
+<% content_for :title, "Financeiro | Bola Cinco" %>
+
+<div class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <h1 class="text-3xl font-black">Financeiro</h1>
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead><tr><th>Entidade</th><th>Campeonato</th><th>Categoria</th><th>Vencimento</th><th>Valor</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @invoices.each do |invoice| %>
+            <tr>
+              <td><%= invoice.entity.name %></td>
+              <td><%= invoice.championship.name %></td>
+              <td><%= invoice.category&.name || "-" %></td>
+              <td><%= invoice.due_date || "-" %></td>
+              <td><%= number_to_currency(invoice.amount) %></td>
+              <td><%= status_badge(invoice.status) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

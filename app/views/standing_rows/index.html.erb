@@ -1,0 +1,47 @@
+<% content_for :title, "Classificação | Bola Cinco" %>
+
+<div class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <h1 class="text-3xl font-black">Classificação</h1>
+
+    <% @standings_by_category.group_by(&:category).each do |category, rows| %>
+      <div class="mt-6">
+        <h2 class="text-xl font-bold"><%= category.name %></h2>
+        <div class="mt-3 overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Equipe</th>
+                <th>J</th>
+                <th>V</th>
+                <th>E</th>
+                <th>D</th>
+                <th>GP</th>
+                <th>GC</th>
+                <th>SG</th>
+                <th>Pts</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% rows.each do |row| %>
+                <tr>
+                  <td><%= row.position %></td>
+                  <td><%= row.team.name %></td>
+                  <td><%= row.played %></td>
+                  <td><%= row.wins %></td>
+                  <td><%= row.draws %></td>
+                  <td><%= row.losses %></td>
+                  <td><%= row.goals_for %></td>
+                  <td><%= row.goals_against %></td>
+                  <td><%= row.goal_diff %></td>
+                  <td><%= row.points %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<% content_for :title, "Criar conta | Bola Cinco" %>
+
+<div class="card mx-auto w-full max-w-lg border border-base-300 bg-base-100 shadow-xl">
+  <div class="card-body gap-6">
+    <div>
+      <h1 class="card-title text-3xl">Criar conta</h1>
+      <p class="mt-2 text-sm text-base-content/70">Abra seu acesso e comece a usar a base do projeto.</p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-5" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="form-control gap-2">
+        <%= f.label :email, class: "label-text font-medium" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered w-full" %>
+      </div>
+
+      <div class="form-control gap-2">
+        <div class="flex items-center justify-between">
+          <%= f.label :password, class: "label-text font-medium" %>
+          <% if @minimum_password_length %>
+            <span class="text-xs text-base-content/60"><%= @minimum_password_length %> caracteres mínimos</span>
+          <% end %>
+        </div>
+        <%= f.password_field :password, autocomplete: "new-password", class: "input input-bordered w-full" %>
+      </div>
+
+      <div class="form-control gap-2">
+        <%= f.label :password_confirmation, class: "label-text font-medium" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input input-bordered w-full" %>
+      </div>
+
+      <%= f.submit "Criar conta", class: "btn btn-primary w-full" %>
+    <% end %>
+
+    <div class="flex flex-col gap-2 border-t border-base-300 pt-4 text-sm">
+      <%= render "devise/shared/links" %>
+    </div>
+  </div>
+</div>

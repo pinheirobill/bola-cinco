@@ -1,0 +1,22 @@
+<% content_for :title, "Entidades | Bola Cinco" %>
+
+<div class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <h1 class="text-3xl font-black">Entidades</h1>
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead><tr><th>Nome</th><th>Cidade</th><th>Equipes</th><th></th></tr></thead>
+        <tbody>
+          <% @entities.each do |entity| %>
+            <tr>
+              <td><%= entity.name %></td>
+              <td><%= entity.city.presence || "-" %></td>
+              <td><%= entity.teams.size %></td>
+              <td><%= link_to "Abrir", entity_path(entity), class: "link link-primary" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

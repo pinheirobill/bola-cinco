@@ -1,0 +1,24 @@
+<% content_for :title, "Jogos | Bola Cinco" %>
+
+<div class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <h1 class="text-3xl font-black">Jogos</h1>
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead><tr><th>Código</th><th>Categoria</th><th>Confronto</th><th>Data</th><th>Placar</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @matches.each do |match| %>
+            <tr>
+              <td><%= link_to match.code, match_path(match), class: "link link-primary" %></td>
+              <td><%= match.category.name %></td>
+              <td><%= [match.team_a&.name, match.team_b&.name].compact.join(" x ") %></td>
+              <td><%= [match.scheduled_on, match.scheduled_time].compact.join(" ") %></td>
+              <td><%= match.score_a || "-" %> x <%= match.score_b || "-" %></td>
+              <td><%= status_badge(match.status) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

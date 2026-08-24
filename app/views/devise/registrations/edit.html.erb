@@ -1,0 +1,54 @@
+<% content_for :title, "Minha conta | Bola Cinco" %>
+
+<div class="card mx-auto w-full max-w-2xl border border-base-300 bg-base-100 shadow-xl">
+  <div class="card-body gap-6">
+    <div>
+      <h1 class="card-title text-3xl">Minha conta</h1>
+      <p class="mt-2 text-sm text-base-content/70">Atualize seus dados e senha com confirmação do password atual.</p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "space-y-5" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="form-control gap-2">
+        <%= f.label :email, class: "label-text font-medium" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered w-full" %>
+      </div>
+
+      <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+        <div class="alert alert-info">
+          <span>Confirmando novo e-mail: <%= resource.unconfirmed_email %></span>
+        </div>
+      <% end %>
+
+      <div class="form-control gap-2">
+        <div class="flex items-center justify-between">
+          <%= f.label :password, class: "label-text font-medium" %>
+          <% if @minimum_password_length %>
+            <span class="text-xs text-base-content/60"><%= @minimum_password_length %> caracteres mínimos</span>
+          <% end %>
+        </div>
+        <%= f.password_field :password, autocomplete: "new-password", class: "input input-bordered w-full" %>
+      </div>
+
+      <div class="form-control gap-2">
+        <%= f.label :password_confirmation, class: "label-text font-medium" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input input-bordered w-full" %>
+      </div>
+
+      <div class="form-control gap-2">
+        <%= f.label :current_password, class: "label-text font-medium" %>
+        <%= f.password_field :current_password, autocomplete: "current-password", class: "input input-bordered w-full" %>
+      </div>
+
+      <%= f.submit "Atualizar conta", class: "btn btn-primary" %>
+    <% end %>
+
+    <div class="divider my-0">Zona perigosa</div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <%= link_to "Cancelar conta", registration_path(resource_name), data: { turbo_method: :delete, turbo_confirm: "Tem certeza que quer cancelar a conta?" }, class: "btn btn-error" %>
+      <%= link_to "Voltar", root_path, class: "btn btn-ghost" %>
+    </div>
+  </div>
+</div>

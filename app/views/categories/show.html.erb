@@ -1,0 +1,23 @@
+<% content_for :title, "#{@category.name} | Bola Cinco" %>
+
+<div class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <h1 class="text-3xl font-black"><%= @category.name %></h1>
+    <p class="text-sm text-base-content/70"><%= @category.championship.name %></p>
+    <div class="mt-4 overflow-x-auto">
+      <table class="table">
+        <thead><tr><th>Equipe</th><th>Entidade</th><th>Inscrição</th><th>Financeiro</th></tr></thead>
+        <tbody>
+          <% @category.teams.each do |team| %>
+            <tr>
+              <td><%= link_to team.name, team_path(team), class: "link link-primary" %></td>
+              <td><%= team.entity.name %></td>
+              <td><%= status_badge(team.registration_status) %></td>
+              <td><%= status_badge(team.finance_status) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

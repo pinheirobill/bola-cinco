@@ -1,0 +1,64 @@
+<% content_for :title, "#{@team.name} | Bola Cinco" %>
+
+<section class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <h1 class="text-3xl font-black"><%= @team.name %></h1>
+    <p class="text-sm text-base-content/70"><%= @team.entity.name %> · <%= @team.category.name %></p>
+
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Inscrição</p>
+        <p class="mt-2 text-2xl font-bold"><%= @team.registration_status.titleize %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Financeiro</p>
+        <p class="mt-2 text-2xl font-bold"><%= @team.finance_status.titleize %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Atletas</p>
+        <p class="mt-2 text-2xl font-bold"><%= @team.athletes.count %></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="grid gap-6 xl:grid-cols-2">
+  <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title text-2xl">Atletas</h2>
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead><tr><th>Nome</th><th>Número</th><th>Status</th></tr></thead>
+          <tbody>
+            <% @team.athletes.each do |athlete| %>
+              <tr>
+                <td><%= athlete.name %></td>
+                <td><%= athlete.shirt_number.presence || "-" %></td>
+                <td><%= status_badge(athlete.status) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title text-2xl">Jogos</h2>
+      <div class="space-y-3">
+        <% (@team.home_matches + @team.away_matches).sort_by { |match| [match.scheduled_on || Date.new(9999), match.id] }.each do |match| %>
+          <div class="rounded-2xl bg-base-200 p-4">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="font-semibold"><%= match.code %> · <%= match.category.name %></p>
+                <p class="text-sm text-base-content/70"><%= [match.team_a&.name, match.team_b&.name].compact.join(" x ") %></p>
+              </div>
+              <%= status_badge(match.status) %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

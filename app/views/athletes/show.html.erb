@@ -1,0 +1,12 @@
+<% content_for :title, "#{@athlete.name} | Bola Cinco" %>
+
+<div class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <h1 class="text-3xl font-black"><%= @athlete.name %></h1>
+    <p class="text-sm text-base-content/70"><%= @athlete.team.name %> · <%= @athlete.category.name %></p>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <div class="badge badge-neutral"><%= @athlete.shirt_number.presence || "Sem número" %></div>
+      <%= status_badge(@athlete.status) %>
+    </div>
+  </div>
+</div>
