@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+export SECRET_KEY_BASE="${SECRET_KEY_BASE:-3f2c4fbf2b9f4f2d8c4f6b0d4b2f1b0c8b9e4d0f3a6b7c8d9e0f1a2b3c4d5e6f}"
+
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
