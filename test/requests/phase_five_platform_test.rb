@@ -176,13 +176,21 @@ class PhaseFivePlatformTest < ActionDispatch::IntegrationTest
       name: "Time T"
     )
 
+    second_team = Team.create!(
+      source_id: "team-phase-five-attach-team-2",
+      entity: entity,
+      category: source_category,
+      name: "Time U"
+    )
+
     patch attach_team_championship_path(@championship_2), params: {
-      team_id: team.id,
+      team_ids: [team.id, second_team.id],
       category_id: destination_category.id
     }
 
     assert_redirected_to setup_championship_path(@championship_2, step: "teams")
     assert_equal destination_category, team.reload.category
+    assert_equal destination_category, second_team.reload.category
   end
 
   test "forbids selecting championship without access" do

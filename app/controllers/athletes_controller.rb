@@ -42,6 +42,7 @@ class AthletesController < ApplicationController
   def create
     team = Team.find(athlete_params[:team_id])
     championship = current_championship || team.championship || team.category.championship || team.category.championships.first
+    return forbidden! if championship.blank?
     return forbidden! unless current_user.admin? || (championship.athlete_registration_open? && current_user.can_manage_team?(team))
     return forbidden! if championship.athlete_limit_reached_for?(team) && !current_user.admin?
 
@@ -57,6 +58,7 @@ class AthletesController < ApplicationController
 
   def update
     championship = current_championship || athlete.team.championship || athlete.team.category.championship || athlete.team.category.championships.first
+    return forbidden! if championship.blank?
     return forbidden! unless current_user.admin? || (championship.athlete_editing_open? && athlete.manageable_by?(current_user))
 
     if athlete.update(athlete_params)
@@ -68,6 +70,7 @@ class AthletesController < ApplicationController
 
   def destroy
     championship = current_championship || athlete.team.championship || athlete.team.category.championship || athlete.team.category.championships.first
+    return forbidden! if championship.blank?
     return forbidden! unless current_user.admin? || (championship.athlete_removal_open? && athlete.manageable_by?(current_user))
 
     athlete.destroy!

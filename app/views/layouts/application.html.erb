@@ -40,12 +40,7 @@
 
       <% if devise_controller? %>
         <main class="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-          <% if notice.present? %>
-            <div class="alert alert-success shadow-sm" role="status"><span><%= notice %></span></div>
-          <% end %>
-          <% if alert.present? %>
-            <div class="alert alert-error shadow-sm" role="alert"><span><%= alert %></span></div>
-          <% end %>
+          <%= render "shared/flash" %>
           <%= yield %>
         </main>
       <% elsif user_signed_in? %>
@@ -55,23 +50,13 @@
           </aside>
 
           <main id="content" class="flex min-w-0 flex-col gap-6">
-            <% if notice.present? %>
-              <div class="alert alert-success shadow-sm" role="status"><span><%= notice %></span></div>
-            <% end %>
-            <% if alert.present? %>
-              <div class="alert alert-error shadow-sm" role="alert"><span><%= alert %></span></div>
-            <% end %>
+            <%= render "shared/flash" %>
             <%= yield %>
           </main>
         </div>
       <% else %>
         <main id="content" class="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-          <% if notice.present? %>
-            <div class="alert alert-success shadow-sm" role="status"><span><%= notice %></span></div>
-          <% end %>
-          <% if alert.present? %>
-            <div class="alert alert-error shadow-sm" role="alert"><span><%= alert %></span></div>
-          <% end %>
+          <%= render "shared/flash" %>
           <%= yield %>
         </main>
       <% end %>

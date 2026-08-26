@@ -1,4 +1,5 @@
 import_path = Rails.root.join("db/seeds/bola_cinco_import_2026.json")
+raise ArgumentError, "Missing seed import file: #{import_path}" unless import_path.exist?
 
 users = [
   { email: "admin@bola-cinco.local", role: :adm_master },

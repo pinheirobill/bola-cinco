@@ -6,19 +6,23 @@ module BolaCinco
 
     def call
       payload = JSON.parse(File.read(path))
-      championship = upsert_championship(payload.fetch("championship"))
-      categories = upsert_categories(payload.fetch("categories"), championship)
-      entities = upsert_entities(payload.fetch("entities"))
-      teams = upsert_teams(payload.fetch("teams"), entities, categories)
+      championship = upsert_championship(required_section(payload, "championship"))
+      categories = upsert_categories(required_section(payload, "categories"), championship)
+      entities = upsert_entities(required_section(payload, "entities"))
+      teams = upsert_teams(required_section(payload, "teams"), entities, categories)
       upsert_athletes(payload.fetch("athletes", []), teams, categories)
-      upsert_matches(payload.fetch("matches"), championship, categories, teams)
-      upsert_standings(payload.fetch("standingsSnapshot"), championship, categories, teams)
+      upsert_matches(required_section(payload, "matches"), championship, categories, teams)
+      upsert_standings(required_section(payload, "standingsSnapshot"), championship, categories, teams)
       championship
     end
 
     private
 
     attr_reader :path
+
+    def required_section(payload, key)
+      payload.fetch(key) { raise ArgumentError, "Missing import payload section: #{key}" }
+    end
 
     def upsert_championship(attrs)
       Championship.find_or_initialize_by(source_id: attrs.fetch("id")).tap do |record|
@@ -41,6 +45,9 @@ module BolaCinco
           max_birth_year: item["maxBirthYear"],
           max_athletes: item["maxAthletes"]
         )
+        ChampionshipCategory.find_or_create_by!(championship: championship, category: record) do |membership|
+          membership.source_id = "championship-category-#{championship.id}-#{record.id}"
+        end
         hash[item.fetch("id")] = record
       end
     end
@@ -139,11 +146,15 @@ module BolaCinco
     end
 
     def upsert_standings(attrs, championship, categories, teams)
-      attrs.each_with_index do |item, index|
+      positions_by_category = Hash.new(0)
+
+      attrs.each do |item|
         team = teams.fetch(item.fetch("teamId"))
+        category = team.category
+        positions_by_category[category.id] += 1
         record = StandingRow.find_or_initialize_by(championship: championship, category: team.category, team: team)
         record.update!(
-          position: item["position"] || index + 1,
+          position: item["position"] || positions_by_category[category.id],
           played: item.fetch("played"),
           wins: item.fetch("wins"),
           draws: item.fetch("draws"),

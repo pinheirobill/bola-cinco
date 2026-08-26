@@ -1,0 +1,17 @@
+<% flash_types = { notice: "success", alert: "error" } %>
+
+<div class="space-y-3">
+  <% flash_types.each do |key, variant| %>
+    <% next if flash[key].blank? %>
+
+    <div
+      class="alert alert-<%= variant %> shadow-sm transition-opacity duration-200"
+      role="<%= key == :notice ? 'status' : 'alert' %>"
+      data-turbo-temporary
+      data-controller="flash"
+    >
+      <span class="min-w-0 break-words"><%= flash[key] %></span>
+      <button type="button" class="btn btn-ghost btn-xs" aria-label="Fechar aviso" data-action="flash#dismiss">Fechar</button>
+    </div>
+  <% end %>
+</div>

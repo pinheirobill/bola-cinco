@@ -77,11 +77,19 @@ class ChampionshipsController < ApplicationController
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
 
-    team = Team.find(params[:team_id])
     category = @championship.categories.find(params[:category_id])
-    team.update!(category: category)
+    team_ids = Array(params[:team_ids].presence || params[:team_id]).compact_blank.map(&:to_s)
+    raise ActiveRecord::RecordNotFound, "Equipe inválida" if team_ids.blank?
 
-    redirect_to setup_championship_path(@championship, step: "teams"), notice: "Equipe vinculada ao campeonato."
+    available_teams = Team.includes(:entity, :category).where.not(category_id: @championship.categories.select(:id))
+    teams = available_teams.where(id: team_ids).to_a
+    raise ActiveRecord::RecordNotFound, "Equipe inválida" if teams.size != team_ids.size
+
+    Team.transaction do
+      teams.each { |team| team.update!(category: category) }
+    end
+
+    redirect_to setup_championship_path(@championship, step: "teams"), notice: "#{teams.size} equipes vinculadas à categoria #{category.name}."
   rescue ActiveRecord::RecordNotFound
     redirect_to setup_championship_path(@championship, step: "teams"), alert: "Equipe ou categoria inválida."
   rescue ActiveRecord::RecordInvalid => e

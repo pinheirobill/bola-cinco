@@ -21,10 +21,12 @@ class MatchEventsController < ApplicationController
     @available_teams = Team.joins(category: :championships)
       .where(championships: { id: @available_championships.select(:id) })
       .includes(:category)
+      .distinct
       .order(:name)
     @available_athletes = Athlete.joins(category: :championships)
       .where(championships: { id: @available_championships.select(:id) })
       .includes(:team, :category)
+      .distinct
       .order(:name)
     @available_months = available_months
     @selected_championship_id = filter_value(:championship_id, current_championship&.id)

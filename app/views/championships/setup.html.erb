@@ -477,8 +477,8 @@
       <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <div class="space-y-3">
           <h4 class="font-semibold">Equipes vinculadas</h4>
-          <% if @championship.categories.any? && @championship.categories.any? { |category| category.teams.any? } %>
-            <% @championship.categories.each do |category| %>
+          <% if @championship_categories.any? && @championship_categories.any? { |category| category.teams.any? } %>
+            <% @championship_categories.each do |category| %>
               <% next if category.teams.blank? %>
               <div class="rounded-2xl bg-base-200 p-4">
                 <div class="flex items-center justify-between gap-3">
@@ -506,33 +506,55 @@
         </div>
 
         <div class="space-y-3">
-          <h4 class="font-semibold">Disponíveis para vincular</h4>
-          <% if @available_teams_to_link.any? %>
-            <% @available_teams_to_link.each do |team| %>
-              <div class="rounded-2xl bg-base-200 p-4">
-                <%= form_with url: attach_team_championship_path(@championship), method: :patch, class: "space-y-3" do %>
-                  <%= hidden_field_tag :team_id, team.id %>
-                  <div class="flex items-start justify-between gap-4">
-                    <div>
-                      <p class="font-medium"><%= team.name %></p>
-                      <p class="text-xs text-base-content/60"><%= [team.entity&.name, team.category&.name].compact.join(" · ").presence || "Sem contexto" %></p>
-                    </div>
-                    <%= link_to "Abrir", team_path(team), class: "link link-primary" %>
-                  </div>
-                  <div class="grid gap-3 md:grid-cols-[1fr_auto]">
-                    <div class="form-control gap-2">
-                      <%= label_tag "team_category_id_#{team.id}", "Categoria destino", class: "label-text font-medium" %>
-                      <%= select_tag :category_id, options_from_collection_for_select(@championship_categories, :id, :name), id: "team_category_id_#{team.id}", class: "select select-bordered w-full" %>
-                    </div>
-                    <div class="flex items-end">
-                      <%= submit_tag "Vincular", class: "btn btn-primary" %>
-                    </div>
-                  </div>
-                <% end %>
+          <%= form_with url: attach_team_championship_path(@championship), method: :patch, class: "space-y-4" do %>
+            <div class="flex items-center justify-between gap-4">
+              <h4 class="font-semibold">Disponíveis para vincular</h4>
+              <p class="text-xs text-base-content/60"><%= @available_teams_to_link.size %> equipes disponíveis</p>
+            </div>
+
+            <% if @available_teams_to_link.any? %>
+              <div class="grid gap-3 md:grid-cols-[1fr_auto]">
+                <div class="form-control gap-2">
+                  <%= label_tag :category_id, "Categoria destino", class: "label-text font-medium" %>
+                  <%= select_tag :category_id, options_from_collection_for_select(@championship_categories, :id, :name, @championship_categories.first&.id), class: "select select-bordered w-full" %>
+                </div>
+                <div class="flex items-end">
+                  <%= submit_tag "Vincular selecionadas", class: "btn btn-primary" %>
+                </div>
               </div>
+
+              <div class="overflow-x-auto rounded-2xl bg-base-200">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th class="w-12"></th>
+                      <th>Equipe</th>
+                      <th>Contexto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @available_teams_to_link.each do |team| %>
+                      <tr>
+                        <td>
+                          <%= check_box_tag "team_ids[]", team.id, false, id: "team_ids_#{team.id}", class: "checkbox checkbox-primary" %>
+                        </td>
+                        <td>
+                          <%= label_tag "team_ids_#{team.id}", class: "cursor-pointer" do %>
+                            <p class="font-medium"><%= team.name %></p>
+                            <p class="text-xs text-base-content/60">Selecione para vincular</p>
+                          <% end %>
+                        </td>
+                        <td class="text-sm text-base-content/70">
+                          <%= [team.entity&.name, team.category&.name].compact.join(" · ").presence || "Sem contexto" %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% else %>
+              <p class="text-sm text-base-content/60">Nenhuma equipe disponível para vincular.</p>
             <% end %>
-          <% else %>
-            <p class="text-sm text-base-content/60">Nenhuma equipe disponível para vincular.</p>
           <% end %>
         </div>
       </div>

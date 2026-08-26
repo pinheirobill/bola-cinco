@@ -18,6 +18,7 @@ class TeamsController < ApplicationController
   def create
     category = Category.find(team_params[:category_id])
     championship = current_championship || category.championship || category.championships.first
+    return forbidden! if championship.blank?
     return forbidden! unless current_user.admin? || championship.team_signup_open?
 
     record = Team.new(team_params)

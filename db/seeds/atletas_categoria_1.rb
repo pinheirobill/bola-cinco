@@ -1,6 +1,7 @@
 require "csv"
 
 csv_path = Rails.root.join("db/seeds/atletas_categoria_1.csv")
+raise ArgumentError, "Missing seed CSV: #{csv_path}" unless csv_path.exist?
 
 def blank_to_nil(value)
   value.to_s.strip.presence
@@ -37,6 +38,9 @@ category.update!(
   championship: championship,
   name: "Categoria 1"
 )
+ChampionshipCategory.find_or_create_by!(championship: championship, category: category) do |membership|
+  membership.source_id = "championship-category-#{championship.id}-#{category.id}"
+end
 
 CSV.foreach(csv_path, headers: true) do |row|
   team_name = row.fetch("team_name").to_s.strip
