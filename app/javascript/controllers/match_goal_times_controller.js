@@ -42,7 +42,6 @@ export default class extends Controller {
 
   renderSide(container, side, count, badgeTarget, teamName) {
     const currentValues = this.collectValues(container)
-    const values = currentValues.length > 0 ? currentValues : []
 
     container.replaceChildren()
 
@@ -59,26 +58,69 @@ export default class extends Controller {
     }
 
     for (let index = 0; index < count; index += 1) {
-      container.appendChild(this.buildGoalRow(side, index, values[index] || ""))
+      container.appendChild(this.buildGoalRow(side, index, currentValues[index] || { minute: "", penalty: false }))
     }
   }
 
   collectValues(container) {
-    return Array.from(container.querySelectorAll("[data-goal-minute-input]")).map((input) => input.value)
+    return Array.from(container.querySelectorAll("[data-goal-row]")).map((row) => {
+      const minuteInput = row.querySelector("[data-goal-minute-input]")
+      const penaltyInput = row.querySelector("[data-goal-penalty-input]")
+
+      return {
+        minute: minuteInput?.value || "",
+        penalty: penaltyInput?.checked || false
+      }
+    })
   }
 
   buildGoalRow(side, index, value) {
     const row = document.createElement("div")
-    row.className = "grid gap-2 sm:grid-cols-[5.5rem_minmax(0,1fr)]"
+    row.className = "rounded-2xl border border-base-300 bg-base-200 p-4 shadow-sm"
+    row.dataset.goalRow = "true"
 
-    const label = document.createElement("div")
-    label.className = "rounded-xl bg-base-200 px-3 py-3 text-sm font-semibold text-base-content/70"
+    const header = document.createElement("div")
+    header.className = "flex flex-wrap items-start justify-between gap-3"
+
+    const heading = document.createElement("div")
+    const label = document.createElement("p")
+    label.className = "text-sm font-semibold text-base-content/80"
     label.textContent = `Gol ${index + 1}`
+    const description = document.createElement("p")
+    description.className = "text-xs text-base-content/50"
+    description.textContent = "Adicione o minuto e marque se foi de pênalti."
+    heading.append(label, description)
+
+    const penaltyLabel = document.createElement("label")
+    penaltyLabel.className = "inline-flex items-center gap-2 rounded-full border border-base-300 bg-base-100 px-3 py-2 text-xs font-semibold"
+
+    const penaltyHidden = document.createElement("input")
+    penaltyHidden.type = "hidden"
+    penaltyHidden.name = `match[goal_penalties_${side}][${index}]`
+    penaltyHidden.value = "0"
+
+    const penalty = document.createElement("input")
+    penalty.type = "checkbox"
+    penalty.name = `match[goal_penalties_${side}][${index}]`
+    penalty.value = "1"
+    penalty.checked = Boolean(value?.penalty)
+    penalty.className = "checkbox checkbox-primary checkbox-sm"
+    penalty.dataset.goalPenaltyInput = "true"
+    penalty.dataset.action = "change->match-goal-times#refresh"
+
+    const penaltyText = document.createElement("span")
+    penaltyText.textContent = "Pênalti"
+
+    penaltyLabel.append(penaltyHidden, penalty, penaltyText)
+    header.append(heading, penaltyLabel)
+
+    const body = document.createElement("div")
+    body.className = "mt-4 grid gap-3 sm:grid-cols-[5.5rem_minmax(0,1fr)] sm:items-center"
 
     const input = document.createElement("input")
     input.type = "text"
     input.name = `match[goal_minutes_${side}][]`
-    input.value = value
+    input.value = value?.minute || ""
     input.maxLength = 2
     input.inputMode = "numeric"
     input.placeholder = "05"
@@ -86,7 +128,12 @@ export default class extends Controller {
     input.dataset.goalMinuteInput = "true"
     input.dataset.action = "input->match-goal-times#refresh"
 
-    row.append(label, input)
+    const minuteLabel = document.createElement("div")
+    minuteLabel.className = "rounded-xl bg-base-100 px-3 py-3 text-sm font-semibold text-base-content/70"
+    minuteLabel.textContent = `Minuto ${index + 1}`
+
+    body.append(minuteLabel, input)
+    row.append(header, body)
     return row
   }
 }

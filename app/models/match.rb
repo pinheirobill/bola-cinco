@@ -63,15 +63,22 @@ class Match < ApplicationRecord
     }
   end
 
+  def auto_goal_penalties_by_side
+    {
+      "a" => auto_goal_events_for("a").map { |event| event.source_data["penalty"] == true },
+      "b" => auto_goal_events_for("b").map { |event| event.source_data["penalty"] == true }
+    }
+  end
+
   def roster_athletes
     roster_athlete_entries.map(&:last).uniq(&:id).sort_by do |athlete|
       [athlete.team&.name.to_s.downcase, athlete.shirt_number_sort_key, athlete.quick_label.downcase, athlete.name.downcase]
     end
   end
 
-  def sync_auto_goal_events!(goal_minutes_a:, goal_minutes_b:)
-    sync_auto_goal_events_for!("a", team_a, score_a.to_i, Array(goal_minutes_a))
-    sync_auto_goal_events_for!("b", team_b, score_b.to_i, Array(goal_minutes_b))
+  def sync_auto_goal_events!(goal_minutes_a:, goal_minutes_b:, goal_penalties_a: [], goal_penalties_b: [])
+    sync_auto_goal_events_for!("a", team_a, score_a.to_i, Array(goal_minutes_a), Array(goal_penalties_a))
+    sync_auto_goal_events_for!("b", team_b, score_b.to_i, Array(goal_minutes_b), Array(goal_penalties_b))
   end
 
   def sync_pending_participations!
@@ -101,20 +108,22 @@ class Match < ApplicationRecord
     end
   end
 
-  def sync_auto_goal_events_for!(side, team, count, minutes)
+  def sync_auto_goal_events_for!(side, team, count, minutes, penalties)
     events = auto_goal_events_for(side)
 
     count.times do |index|
       event = events[index] || match_events.find_by(source_id: auto_goal_source_id(side, index + 1)) || match_events.new(source_id: auto_goal_source_id(side, index + 1))
+      penalty = [true, "true", 1, "1"].include?(penalties[index])
       event.assign_attributes(
         kind: :gol,
         team: team,
         minute: normalize_goal_minute(minutes[index]),
-        notes: "Gol automático",
+        notes: penalty ? "Gol automático de pênalti" : "Gol automático",
         source_data: event.source_data.merge(
           "auto_generated" => true,
           "auto_goal_side" => side.to_s,
-          "auto_goal_index" => index + 1
+          "auto_goal_index" => index + 1,
+          "penalty" => penalty
         )
       )
       event.save!

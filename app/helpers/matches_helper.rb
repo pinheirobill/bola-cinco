@@ -21,7 +21,9 @@ module MatchesHelper
 
   def match_event_marks_for(match_events, athlete, kind)
     Array(match_events).select { |event| event.athlete_id == athlete.id && event.kind == kind.to_s }.map do |event|
-      [event.minute.present? ? "#{event.minute}'" : nil, event.period.presence].compact.join(" · ").presence || kind.to_s.humanize
+      marks = [event.minute.present? ? "#{event.minute}'" : nil, event.period.presence]
+      marks << "Pênalti" if kind.to_s == "gol" && event.source_data["penalty"] == true
+      marks.compact.join(" · ").presence || kind.to_s.humanize
     end
   end
 

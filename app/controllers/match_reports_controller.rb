@@ -20,7 +20,12 @@ class MatchReportsController < ApplicationController
     record.source_id = default_source_id("report") if record.source_id.blank?
 
     if html_form_submission?
-      if record.new_record? ? record.save : record.update(match_report_params)
+      record.assign_attributes(match_report_params)
+      record.status = :rascunho
+      record.submitted_at = Time.current
+      record.approved_at = nil
+
+      if record.save
         redirect_to match_path(match), notice: "Relatório salvo."
       else
         @match_report = record
@@ -39,7 +44,12 @@ class MatchReportsController < ApplicationController
 
   def update
     if html_form_submission?
-      if match_report.update(match_report_params)
+      match_report.assign_attributes(match_report_params)
+      match_report.status = :rascunho
+      match_report.submitted_at = Time.current
+      match_report.approved_at = nil
+
+      if match_report.save
         redirect_to match_report_path(match_report), notice: "Relatório atualizado."
       else
         @match_report = match_report
@@ -50,6 +60,16 @@ class MatchReportsController < ApplicationController
     else
       render json: { errors: match_report.errors.full_messages }, status: :unprocessable_entity
     end
+  end
+
+  def approve
+    match_report.update!(
+      status: :aprovado,
+      approved_at: Time.current,
+      submitted_at: match_report.submitted_at || Time.current
+    )
+
+    redirect_to match_reports_path, notice: "Relatório aprovado."
   end
 
   def destroy

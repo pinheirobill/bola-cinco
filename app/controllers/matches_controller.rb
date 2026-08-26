@@ -19,9 +19,14 @@ class MatchesController < ApplicationController
 
     ActiveRecord::Base.transaction do
       @match.update!(match_params)
-      @match_report.assign_attributes(match_report_form_params)
-      @match_report.source_id ||= "report-#{@match.source_id}"
-      @match_report.save! if match_report_form_params.present?
+      if match_report_form_params.present?
+        @match_report.assign_attributes(match_report_form_params)
+        @match_report.source_id ||= "report-#{@match.source_id}"
+        @match_report.status = :rascunho
+        @match_report.submitted_at = Time.current
+        @match_report.approved_at = nil
+        @match_report.save!
+      end
       @match.sync_auto_goal_events!(**goal_minutes_params)
       @match.sync_competition_state!
     end
@@ -51,6 +56,7 @@ class MatchesController < ApplicationController
     @match_event = @match.match_events.new(kind: :gol)
     @match_participation = @match.match_participations.new(status: :pendente)
     @auto_goal_minutes_a, @auto_goal_minutes_b = @match.auto_goal_minutes_by_side.values_at("a", "b")
+    @auto_goal_penalties_a, @auto_goal_penalties_b = @match.auto_goal_penalties_by_side.values_at("a", "b")
     @available_referees = @match.championship.referees.order(:name)
     @available_athletes = @match.roster_athletes
     @available_participation_athletes = Athlete.ativos.for_picker
@@ -89,20 +95,15 @@ class MatchesController < ApplicationController
   end
 
   def match_report_form_params
-    params.fetch(:match_report, {}).permit(
-      :referee_id,
-      :status,
-      :submitted_at,
-      :approved_at,
-      :notes,
-      :sheet_url
-    )
+    params.fetch(:match_report, {}).permit(:referee_id)
   end
 
   def goal_minutes_params
-    params.fetch(:match, {}).permit(goal_minutes_a: [], goal_minutes_b: []).to_h.tap do |data|
+    params.fetch(:match, {}).permit(goal_minutes_a: [], goal_minutes_b: [], goal_penalties_a: {}, goal_penalties_b: {}).to_h.tap do |data|
       data[:goal_minutes_a] = Array(data[:goal_minutes_a]).flatten
       data[:goal_minutes_b] = Array(data[:goal_minutes_b]).flatten
+      data[:goal_penalties_a] = data.fetch(:goal_penalties_a, {}).to_h.sort_by { |key, _| key.to_i }.map { |_, value| value == "1" || value == 1 || value == true }
+      data[:goal_penalties_b] = data.fetch(:goal_penalties_b, {}).to_h.sort_by { |key, _| key.to_i }.map { |_, value| value == "1" || value == 1 || value == true }
     end.symbolize_keys
   end
 end

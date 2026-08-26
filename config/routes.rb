@@ -45,7 +45,9 @@ Rails.application.routes.draw do
     resources :match_participations, only: %i[create update destroy], shallow: true
   end
   resources :match_events, only: %i[index show create update destroy]
-  resources :match_reports, only: %i[index show update destroy]
+  resources :match_reports, only: %i[index show update destroy] do
+    patch :approve, on: :member
+  end
   resources :suspensions, only: %i[index show create update destroy]
   resource :championship_engagement, only: :show, path: "engajamento"
 

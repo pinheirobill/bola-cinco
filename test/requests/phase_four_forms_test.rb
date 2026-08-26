@@ -118,15 +118,17 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
   test "creates a match report from html form" do
     post match_match_reports_path(@match), params: {
       match_report: {
-        referee_id: @referee.id,
-        status: "enviado",
-        notes: "Relatório da rodada"
+        referee_id: @referee.id
       },
       commit: "Salvar relatório"
     }
 
     assert_redirected_to match_path(@match)
-    assert_equal "enviado", @match.reload.match_report.status
+    report = @match.reload.match_report
+    assert_equal "rascunho", report.status
+    assert_equal @referee, report.referee
+    assert report.submitted_at.present?
+    assert_nil report.approved_at
   end
 
   test "shows the match onboarding with report and event sections" do
@@ -200,12 +202,17 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
         score_b: 1,
         wo: @team_b.name,
         goal_minutes_a: %w[05 15],
-        goal_minutes_b: ["30"]
+        goal_minutes_b: ["30"],
+        goal_penalties_a: {
+          "0" => "1",
+          "1" => "0"
+        },
+        goal_penalties_b: {
+          "0" => "1"
+        }
       },
       match_report: {
-        referee_id: @referee.id,
-        status: "enviado",
-        notes: "Atualizado pelo editor"
+        referee_id: @referee.id
       }
     }
 
@@ -215,10 +222,33 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_equal 2, @match.score_a
     assert_equal @team, @match.winner
     assert_equal @team_b.name, @match.wo
-    assert_equal "enviado", @match.match_report.status
+    assert_equal "rascunho", @match.match_report.status
+    assert @match.match_report.submitted_at.present?
+    assert_nil @match.match_report.approved_at
     auto_goals = @match.match_events.where(kind: "gol").order(:created_at)
     assert_equal [5, 15, 30], auto_goals.pluck(:minute)
     assert_equal [nil, nil, nil], auto_goals.pluck(:athlete_id)
+    assert_equal [true, false, true], auto_goals.map { |event| event.source_data["penalty"] }
+    assert_includes auto_goals.first.notes, "pênalti"
+  end
+
+  test "approves a match report from the index" do
+    post match_match_reports_path(@match), params: {
+      match_report: {
+        referee_id: @referee.id
+      },
+      commit: "Salvar relatório"
+    }
+
+    report = @match.reload.match_report
+
+    patch approve_match_report_path(report)
+
+    assert_redirected_to match_reports_path
+    report.reload
+    assert_equal "aprovado", report.status
+    assert report.approved_at.present?
+    assert report.submitted_at.present?
   end
 
   test "creates a match event from the paper-like editor" do
