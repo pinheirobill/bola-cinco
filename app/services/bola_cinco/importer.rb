@@ -10,6 +10,7 @@ module BolaCinco
       categories = upsert_categories(payload.fetch("categories"), championship)
       entities = upsert_entities(payload.fetch("entities"))
       teams = upsert_teams(payload.fetch("teams"), entities, categories)
+      upsert_athletes(payload.fetch("athletes", []), teams, categories)
       upsert_matches(payload.fetch("matches"), championship, categories, teams)
       upsert_standings(payload.fetch("standingsSnapshot"), championship, categories, teams)
       championship
@@ -76,6 +77,34 @@ module BolaCinco
       end
     end
 
+    def upsert_athletes(attrs, teams, categories)
+      attrs.each do |item|
+        record = Athlete.find_or_initialize_by(source_id: item.fetch("id"))
+        record.update!(
+          team: teams.fetch(item.fetch("teamId")),
+          category: categories.fetch(item.fetch("categoryId")),
+          user: User.find_by(id: item["userId"]),
+          name: item.fetch("name"),
+          birth_date: item["birthDate"],
+          shirt_number: item["shirtNumber"],
+          document: item["document"],
+          photo_url: item["photoUrl"],
+          cpf: item["cpf"],
+          rg: item["rg"],
+          birth_certificate: item["birthCertificate"],
+          position: item["position"],
+          cell_phone: item["cellPhone"],
+          email: item["email"],
+          passport: item["passport"],
+          voter_id: item["voterId"],
+          gender: item["gender"],
+          documents_count: item["documentsCount"] || 0,
+          registration_submitted_at: item["registrationSubmittedAt"],
+          status: item["status"] || "pendente"
+        )
+      end
+    end
+
     def upsert_matches(attrs, championship, categories, teams)
       attrs.each do |item|
         record = Match.find_or_initialize_by(source_id: item.fetch("id"))
@@ -88,7 +117,6 @@ module BolaCinco
           round_number: item["round"],
           scheduled_on: item["date"],
           scheduled_time: item["time"],
-          venue: item["venue"],
           team_a: teams[item["teamAId"]],
           team_b: teams[item["teamBId"]],
           source_a: item["sourceA"],
@@ -105,6 +133,8 @@ module BolaCinco
           highlight_videos: item["highlightVideos"] || item["highlight_videos"] || [],
           source_data: item["_source"] || {}
         )
+        record[:venue] = item["venue"]
+        record.save! if record.changed?
       end
     end
 

@@ -1,22 +1,44 @@
 <% content_for :title, "Entidades | Bola Cinco" %>
 
-<div class="card border border-base-300 bg-base-100 shadow-sm">
-  <div class="card-body">
-    <h1 class="text-3xl font-black">Entidades</h1>
+<%= page_header(
+  title: "Entidades",
+  subtitle: "Base administrativa das equipes e times.",
+  badge: "Cadastro"
+) %>
+
+<%= stats_grid([
+  { label: "Entidades", value: @entities.size, value_class: "text-2xl" },
+  { label: "Equipes vinculadas", value: @entities.sum { |entity| entity.teams.size }, value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<%= surface_card do %>
+  <% if @entities.any? %>
     <div class="overflow-x-auto">
       <table class="table">
-        <thead><tr><th>Nome</th><th>Cidade</th><th>Equipes</th><th></th></tr></thead>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Cidade</th>
+            <th>Equipes</th>
+            <th></th>
+          </tr>
+        </thead>
         <tbody>
           <% @entities.each do |entity| %>
             <tr>
               <td><%= entity.name %></td>
               <td><%= entity.city.presence || "-" %></td>
               <td><%= entity.teams.size %></td>
-              <td><%= link_to "Abrir", entity_path(entity), class: "link link-primary" %></td>
+              <td><%= link_to "Ver", entity_path(entity), class: "link link-primary" %></td>
             </tr>
           <% end %>
         </tbody>
       </table>
     </div>
-  </div>
-</div>
+  <% else %>
+    <%= empty_state(
+      title: "Nenhuma entidade cadastrada",
+      description: "As entidades aparecem aqui quando times são organizados."
+    ) %>
+  <% end %>
+<% end %>

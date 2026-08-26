@@ -1,12 +1,14 @@
 <% content_for :title, "Fatura | Bola Cinco" %>
 
-<div class="card border border-base-300 bg-base-100 shadow-sm">
-  <div class="card-body">
-    <h1 class="text-3xl font-black"><%= @invoice.entity.name %></h1>
-    <p class="text-sm text-base-content/70"><%= @invoice.championship.name %> · <%= @invoice.category&.name || "Sem categoria" %></p>
-    <div class="mt-4 flex flex-wrap gap-3">
-      <div class="badge badge-neutral"><%= number_to_currency(@invoice.amount) %></div>
-      <%= status_badge(@invoice.status) %>
-    </div>
+<%= page_header(
+  title: @invoice.entity.name,
+  subtitle: "#{@invoice.championship.name} · #{@invoice.category&.name || 'Sem categoria'}",
+  badge: @invoice.status.to_s.tr("_", " ").humanize
+) %>
+
+<%= surface_card do %>
+  <div class="flex flex-wrap gap-3">
+    <div class="badge badge-neutral"><%= number_to_currency(@invoice.amount) %></div>
+    <div class="badge badge-outline"><%= @invoice.due_date || "Sem vencimento" %></div>
   </div>
-</div>
+<% end %>

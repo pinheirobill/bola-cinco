@@ -1,41 +1,270 @@
 <% content_for :title, "#{@match.code} | Bola Cinco" %>
 
-<section class="card border border-base-300 bg-base-100 shadow-sm">
-  <div class="card-body gap-4">
+<%= page_header(
+  title: @match.code,
+  subtitle: "#{@match.category.name} · #{[@match.team_a&.name, @match.team_b&.name].compact.join(' x ')}",
+  badge: "Jogos",
+  actions: [
+    link_to("Voltar", matches_path, class: "btn btn-outline"),
+    link_to("Editar súmula", edit_match_path(@match), class: "btn btn-outline"),
+    link_to("Classificação", standing_rows_path, class: "btn btn-primary")
+  ]
+) %>
+
+<section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm">
+  <div class="flex flex-wrap items-start justify-between gap-4">
     <div>
-      <div class="badge badge-outline">Jogos</div>
-      <h1 class="mt-3 text-3xl font-black"><%= @match.code %></h1>
-      <p class="text-sm text-base-content/70"><%= @match.category.name %> · <%= [@match.team_a&.name, @match.team_b&.name].compact.join(" x ") %></p>
+      <div class="badge badge-outline">Onboarding do jogo</div>
+      <h2 class="mt-3 text-3xl font-black tracking-tight">Súmula e evento</h2>
+      <p class="mt-2 text-sm text-base-content/70">
+        Organize a partida no mesmo fluxo visual da súmula impressa: cabeçalho, escalações, relatório e eventos.
+      </p>
     </div>
 
-    <div class="grid gap-4 md:grid-cols-3">
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Placar</p>
-        <p class="mt-2 text-3xl font-black"><%= @match.score_a || "-" %> x <%= @match.score_b || "-" %></p>
+    <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Placar atual</p>
+      <p class="mt-2 text-3xl font-black"><%= @match.score_a || "-" %> x <%= @match.score_b || "-" %></p>
+      <p class="mt-1 text-sm text-base-content/60"><%= @match.status.titleize %></p>
+      <div class="mt-3 rounded-2xl border border-primary/30 bg-primary/10 p-3">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Vencedor da partida</p>
+        <p class="mt-1 text-lg font-bold text-primary"><%= @match.winner_label %></p>
       </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status</p>
-        <p class="mt-2"><%= status_badge(@match.status) %></p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Campeonato</p>
-        <p class="mt-2 text-lg font-semibold"><%= @match.championship.name %></p>
-      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 grid gap-3 md:grid-cols-3">
+    <%= link_to "#cabecalho", class: "rounded-2xl border border-base-300 bg-base-200 px-4 py-3 text-left hover:border-primary" do %>
+      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Etapa 1</p>
+      <p class="mt-1 font-semibold">Cabeçalho da súmula</p>
+    <% end %>
+    <%= link_to edit_match_path(@match), class: "rounded-2xl border border-base-300 bg-base-200 px-4 py-3 text-left hover:border-primary" do %>
+      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Etapa 2</p>
+      <p class="mt-1 font-semibold">Abrir editor da súmula</p>
+    <% end %>
+    <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
+      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Etapa 3</p>
+      <p class="mt-1 font-semibold">Eventos registrados na súmula</p>
     </div>
   </div>
 </section>
 
-<section class="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
-  <div class="card border border-base-300 bg-base-100 shadow-sm">
-    <div class="card-body">
-      <div class="flex items-center justify-between gap-4">
-        <div>
-          <h2 class="card-title text-2xl">Melhores momentos</h2>
-          <p class="text-sm text-base-content/70">Vídeos do jogo, com suporte a links externos e arquivos de vídeo.</p>
-        </div>
-        <span class="badge badge-outline"><%= @match.highlight_video_urls.size %> vídeo(s)</span>
-      </div>
+<%= stats_grid([
+  { label: "Placar", value: "#{@match.score_a || '-'} x #{@match.score_b || '-'}", value_class: "text-3xl" },
+  { label: "Status", value: @match.status.titleize, value_class: "text-2xl" },
+  { label: "Campeonato", value: @match.championship.name, value_class: "text-lg" }
+], columns: "md:grid-cols-3") %>
 
+<section id="cabecalho" class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+  <%= surface_card(
+    title: "Cabeçalho da súmula",
+    subtitle: "Os dados centrais do jogo seguem em destaque, como na folha impressa."
+  ) do %>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Competição</p>
+        <p class="mt-2 text-lg font-semibold"><%= @match.championship.name %></p>
+      </div>
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Categoria</p>
+        <p class="mt-2 text-lg font-semibold"><%= @match.category.name %></p>
+      </div>
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Ginásio / Campo</p>
+        <p class="mt-2 text-lg font-semibold"><%= @match.venue_name || "-" %></p>
+      </div>
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Data e hora</p>
+        <p class="mt-2 text-lg font-semibold">
+          <%= [@match.scheduled_on&.strftime("%d/%m/%Y"), @match.scheduled_time].compact.join(" · ").presence || "-" %>
+        </p>
+      </div>
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4 md:col-span-2">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Partida</p>
+        <p class="mt-2 text-2xl font-black tracking-tight">
+          <%= [@match.team_a&.name, @match.team_b&.name].compact.join(" x ") %>
+        </p>
+      </div>
+    </div>
+  <% end %>
+
+  <%= surface_card(
+    title: "Resumo técnico",
+    subtitle: "Status da súmula, árbitro e controles rápidos."
+  ) do %>
+    <div class="space-y-3 text-sm">
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Relatório</p>
+        <p class="mt-2 font-semibold"><%= @match_report.status.titleize %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Árbitro</p>
+        <p class="mt-2 font-semibold"><%= @match_report.referee&.name || "-" %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Súmula</p>
+        <p class="mt-2 font-semibold"><%= @match_report.sheet_url.presence || "-" %></p>
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Enviado</p>
+          <p class="mt-2 font-semibold"><%= @match_report.submitted_at.present? ? l(@match_report.submitted_at, format: :short) : "-" %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Aprovado</p>
+          <p class="mt-2 font-semibold"><%= @match_report.approved_at.present? ? l(@match_report.approved_at, format: :short) : "-" %></p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</section>
+
+<section id="escalacoes" class="grid gap-6 xl:grid-cols-2">
+  <%= surface_card(title: "Equipe A", subtitle: @match.team_a&.name || "Sem equipe") do %>
+    <% if @team_a_athletes.any? %>
+      <div class="overflow-hidden rounded-3xl border border-base-300">
+        <table class="table">
+          <thead class="bg-base-200">
+            <tr>
+              <th>Nº</th>
+              <th>Atleta</th>
+              <th>Posição</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @team_a_athletes.each do |athlete| %>
+              <tr>
+                <td class="font-semibold"><%= athlete.shirt_number.presence || "-" %></td>
+                <td>
+                  <div class="font-medium"><%= athlete.name %></div>
+                  <div class="text-xs text-base-content/50"><%= athlete.registration_label.strftime("%d/%m/%Y %H:%M") %></div>
+                </td>
+                <td><%= athlete.position.presence || "-" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <%= empty_state(
+        title: "Sem atletas na equipe A",
+        description: "A escalação aparecerá aqui quando os atletas forem associados ao time."
+      ) %>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Equipe B", subtitle: @match.team_b&.name || "Sem equipe") do %>
+    <% if @team_b_athletes.any? %>
+      <div class="overflow-hidden rounded-3xl border border-base-300">
+        <table class="table">
+          <thead class="bg-base-200">
+            <tr>
+              <th>Nº</th>
+              <th>Atleta</th>
+              <th>Posição</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @team_b_athletes.each do |athlete| %>
+              <tr>
+                <td class="font-semibold"><%= athlete.shirt_number.presence || "-" %></td>
+                <td>
+                  <div class="font-medium"><%= athlete.name %></div>
+                  <div class="text-xs text-base-content/50"><%= athlete.registration_label.strftime("%d/%m/%Y %H:%M") %></div>
+                </td>
+                <td><%= athlete.position.presence || "-" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <%= empty_state(
+        title: "Sem atletas na equipe B",
+        description: "A escalação aparecerá aqui quando os atletas forem associados ao time."
+      ) %>
+    <% end %>
+  <% end %>
+</section>
+
+<section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h3 class="text-2xl font-bold">Participação do jogo</h3>
+      <p class="mt-2 text-sm text-base-content/70">
+        Registre quem entrou em quadra, quem faltou e até convidados ou substitutos fora da equipe.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('match-participation-modal').showModal()">Adicionar participação</button>
+    </div>
+  </div>
+
+  <div class="mt-6 grid gap-6 xl:grid-cols-2">
+    <%= render "participation_sheet_table",
+      title: "Equipe A",
+      team: @match.team_a,
+      participations: @team_a_participations %>
+    <%= render "participation_sheet_table",
+      title: "Equipe B",
+      team: @match.team_b,
+      participations: @team_b_participations %>
+  </div>
+</section>
+
+<dialog id="match-participation-modal" class="modal">
+  <div class="modal-box max-w-3xl">
+    <h3 class="text-2xl font-bold">Adicionar participação</h3>
+    <p class="mt-2 text-sm text-base-content/70">
+      Use este registro para confirmar presença, marcar ausência ou lançar um convidado.
+    </p>
+
+    <%= form_with(model: @match_participation, url: match_match_participations_path(@match), class: "mt-6 space-y-4") do |f| %>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= f.select :team_id, options_from_collection_for_select(@available_teams, :id, :name), { include_blank: "Equipe do jogo" }, class: "select select-bordered w-full" %>
+        <%= f.select :athlete_id, options_from_collection_for_select(@available_athletes, :id, :match_roster_label), { include_blank: "Atleta cadastrado" }, class: "select select-bordered w-full" %>
+        <%= f.text_field :athlete_name, class: "input input-bordered w-full", placeholder: "Nome do atleta ou convidado" %>
+        <%= f.text_field :shirt_number, class: "input input-bordered w-full", placeholder: "Nº da camisa" %>
+        <%= f.text_field :position, class: "input input-bordered w-full", placeholder: "Posição" %>
+        <%= f.select :status, match_participation_status_options, {}, class: "select select-bordered w-full" %>
+      </div>
+      <%= f.text_area :notes, rows: 3, class: "textarea textarea-bordered w-full", placeholder: "Observações" %>
+      <div class="flex flex-wrap gap-3">
+        <%= f.submit "Salvar participação", class: "btn btn-primary" %>
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('match-participation-modal').close()">Fechar</button>
+      </div>
+    <% end %>
+
+    <div class="mt-4 rounded-2xl border border-dashed border-base-300 p-4 text-sm text-base-content/70">
+      Se o atleta não estiver na equipe, preencha o nome manualmente e marque a equipe do jogo que ele defendeu.
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h3 class="text-2xl font-bold">Súmula centralizada</h3>
+      <p class="mt-2 text-sm text-base-content/70">
+        O relatório, os eventos e o restante do preenchimento são feitos na tela de edição da súmula.
+        Nesta visão ficam apenas o resultado, o vencedor e a consulta rápida da partida.
+      </p>
+    </div>
+    <div class="rounded-2xl bg-base-200 px-4 py-3 text-sm text-base-content/70">
+      <p class="font-semibold text-base-content">Preenchimento</p>
+      <p class="mt-1">Abra <%= link_to "Editar súmula", edit_match_path(@match), class: "link link-primary" %> para registrar tudo.</p>
+    </div>
+  </div>
+</section>
+
+  <section class="grid gap-6 xl:grid-cols-2">
+    <%= surface_card(
+      title: "Melhores momentos",
+      subtitle: "Vídeos do jogo, com suporte a links externos e arquivos de vídeo.",
+      actions: [tag.span("#{@match.highlight_video_urls.size} vídeo(s)", class: "badge badge-outline")]
+    ) do %>
       <% if @match.highlight_video_urls.present? %>
         <div class="grid gap-4 lg:grid-cols-2">
           <% @match.highlight_video_urls.each_with_index do |url, index| %>
@@ -56,44 +285,5 @@
           <span>Sem vídeos cadastrados para este jogo ainda.</span>
         </div>
       <% end %>
-    </div>
-  </div>
-
-  <div class="space-y-6">
-    <div class="card border border-base-300 bg-base-100 shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title text-2xl">Informações de jogo</h2>
-        <div class="grid gap-3">
-          <div class="rounded-2xl bg-base-200 p-4">
-            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Data</p>
-            <p class="mt-2 font-semibold"><%= @match.scheduled_on&.strftime("%d/%m/%Y") || "-" %></p>
-          </div>
-          <div class="rounded-2xl bg-base-200 p-4">
-            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Hora</p>
-            <p class="mt-2 font-semibold"><%= @match.scheduled_time.presence || "-" %></p>
-          </div>
-          <div class="rounded-2xl bg-base-200 p-4">
-            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Local</p>
-            <p class="mt-2 font-semibold"><%= @match.venue.presence || "-" %></p>
-          </div>
-          <div class="rounded-2xl bg-base-200 p-4">
-            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Fase</p>
-            <p class="mt-2 font-semibold"><%= @match.phase.tr("_", " ").humanize %></p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card border border-base-300 bg-base-100 shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title text-2xl">Detalhes técnicos</h2>
-        <div class="space-y-2 text-sm text-base-content/70">
-          <p><strong>Decisão:</strong> <%= @match.decision.present? ? @match.decision.tr("_", " ").humanize : "-" %></p>
-          <p><strong>W.O.:</strong> <%= @match.wo.presence || "-" %></p>
-          <p><strong>Pênaltis:</strong> <%= [@match.penalties_a, @match.penalties_b].compact.join(" x ").presence || "-" %></p>
-          <p><strong>Vencedor:</strong> <%= @match.winner&.name || "-" %></p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+    <% end %>
+  </section>

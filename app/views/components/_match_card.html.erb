@@ -1,0 +1,23 @@
+<div class="rounded-2xl bg-base-200 p-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <p class="font-semibold"><%= match.code %> · <%= match.category.name %></p>
+      <p class="text-sm text-base-content/70">
+        <%= [match.team_a&.name, match.team_b&.name].compact.join(" x ") %>
+      </p>
+      <p class="text-xs text-base-content/50">
+        <%= [match.scheduled_on&.strftime("%d/%m/%Y"), match.scheduled_time, match.venue_name].compact.join(" • ") %>
+      </p>
+    </div>
+
+    <div class="text-right">
+      <p class="<%= compact ? 'text-xl' : 'text-2xl' %> font-black"><%= match.score_a || "-" %> x <%= match.score_b || "-" %></p>
+      <div class="mt-2 flex flex-wrap justify-end gap-2">
+        <%= status_badge(match.status) %>
+        <% if match.phase.present? %>
+          <span class="badge badge-neutral"><%= match.phase.tr("_", " ").humanize %></span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

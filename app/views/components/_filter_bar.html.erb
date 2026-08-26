@@ -1,0 +1,28 @@
+<div class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm lg:flex-row lg:items-end lg:justify-between">
+  <div>
+    <% if title.present? %>
+      <h2 class="text-2xl font-black tracking-tight"><%= title %></h2>
+    <% end %>
+    <% if subtitle.present? %>
+      <p class="mt-1 text-sm text-base-content/70"><%= subtitle %></p>
+    <% end %>
+  </div>
+
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <% if search_label.present? %>
+      <label class="form-control w-full gap-2 sm:w-80">
+        <span class="label-text text-sm font-medium"><%= search_label %></span>
+        <input
+          type="search"
+          name="<%= search_param %>"
+          value="<%= search_value %>"
+          class="input input-bordered w-full"
+          placeholder="<%= search_label %>">
+      </label>
+    <% end %>
+
+    <% if action.present? %>
+      <%= action %>
+    <% end %>
+  </div>
+</div>

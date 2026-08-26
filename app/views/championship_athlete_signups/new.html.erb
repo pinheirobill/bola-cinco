@@ -1,0 +1,99 @@
+<% content_for :title, "Inscrição de atleta | Bola Cinco" %>
+
+<%= page_header(
+  title: "Inscrição de atleta",
+  subtitle: @championship.name,
+  badge: "Público"
+) %>
+
+<% if @athlete&.errors&.any? %>
+  <div class="alert alert-error shadow-sm">
+    <span><%= @athlete.errors.full_messages.join(" · ") %></span>
+  </div>
+<% end %>
+
+<section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+  <%= surface_card(title: "Ficha do atleta", subtitle: "Preencha os campos da carteirinha e da inscrição.") do %>
+    <%= form_with url: championship_athlete_signup_path(@championship), scope: :athlete_signup, class: "space-y-6" do %>
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="form-control gap-2 md:col-span-2">
+          <%= label_tag "athlete_signup_team_id", "Time", class: "label-text font-medium" %>
+          <%= select_tag "athlete_signup[team_id]", options_from_collection_for_select(@teams, :id, :name, @athlete&.team_id), include_blank: "Selecione", class: "select select-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2 md:col-span-2">
+          <%= label_tag "athlete_signup_name", "Nome do atleta", class: "label-text font-medium" %>
+          <%= text_field_tag "athlete_signup[name]", @athlete&.name, id: "athlete_signup_name", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_birth_date", "Data de nascimento", class: "label-text font-medium" %>
+          <%= date_field_tag "athlete_signup[birth_date]", @athlete&.birth_date, id: "athlete_signup_birth_date", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_photo_url", "Foto", class: "label-text font-medium" %>
+          <%= text_field_tag "athlete_signup[photo_url]", @athlete&.photo_url, id: "athlete_signup_photo_url", class: "input input-bordered w-full", placeholder: "https://..." %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_cpf", "CPF", class: "label-text font-medium" %>
+          <%= text_field_tag "athlete_signup[cpf]", @athlete&.cpf, id: "athlete_signup_cpf", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_rg", "RG", class: "label-text font-medium" %>
+          <%= text_field_tag "athlete_signup[rg]", @athlete&.rg, id: "athlete_signup_rg", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_birth_certificate", "Certidão de nascimento", class: "label-text font-medium" %>
+          <%= text_field_tag "athlete_signup[birth_certificate]", @athlete&.birth_certificate, id: "athlete_signup_birth_certificate", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_position", "Posição", class: "label-text font-medium" %>
+          <%= text_field_tag "athlete_signup[position]", @athlete&.position, id: "athlete_signup_position", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_shirt_number", "Número da camisa", class: "label-text font-medium" %>
+          <%= text_field_tag "athlete_signup[shirt_number]", @athlete&.shirt_number, id: "athlete_signup_shirt_number", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_cell_phone", "Celular", class: "label-text font-medium" %>
+          <%= text_field_tag "athlete_signup[cell_phone]", @athlete&.cell_phone, id: "athlete_signup_cell_phone", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_email", "E-mail", class: "label-text font-medium" %>
+          <%= email_field_tag "athlete_signup[email]", @athlete&.email, id: "athlete_signup_email", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_passport", "Passaporte", class: "label-text font-medium" %>
+          <%= text_field_tag "athlete_signup[passport]", @athlete&.passport, id: "athlete_signup_passport", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_voter_id", "Título de eleitor", class: "label-text font-medium" %>
+          <%= text_field_tag "athlete_signup[voter_id]", @athlete&.voter_id, id: "athlete_signup_voter_id", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_gender", "Gênero", class: "label-text font-medium" %>
+          <%= text_field_tag "athlete_signup[gender]", @athlete&.gender, id: "athlete_signup_gender", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <%= label_tag "athlete_signup_documents_count", "Documentos em anexo", class: "label-text font-medium" %>
+          <%= number_field_tag "athlete_signup[documents_count]", @athlete&.documents_count, id: "athlete_signup_documents_count", class: "input input-bordered w-full" %>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <%= submit_tag "Enviar inscrição", class: "btn btn-primary" %>
+        <%= link_to "Voltar", championship_path(@championship), class: "btn btn-outline" %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Validação por campo", subtitle: "O sistema aplica os campos obrigatórios configurados no campeonato.") do %>
+    <div class="space-y-2 text-sm text-base-content/70">
+      <% Championship::REGISTRATION_FORM_FIELDS.each do |field_key, field_label| %>
+        <% requirement = @championship.athlete_form_requirement(field_key).presence || "informar" %>
+        <div class="flex items-center justify-between rounded-2xl bg-base-200 px-4 py-3">
+          <span><%= field_label %></span>
+          <span class="badge badge-neutral"><%= requirement.humanize %></span>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</section>

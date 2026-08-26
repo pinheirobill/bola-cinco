@@ -1,0 +1,46 @@
+<%= surface_card(title: title, subtitle: team&.name || "Sem equipe") do %>
+  <% if athletes.any? %>
+    <div class="overflow-hidden rounded-3xl border border-base-300">
+      <table class="table">
+        <thead class="bg-base-200">
+          <tr>
+            <th>Registro</th>
+            <th>Jogador</th>
+            <th>Nº</th>
+            <% match_event_columns.each do |column| %>
+              <th><%= column[:label] %></th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% athletes.each do |athlete| %>
+            <tr>
+              <td class="text-xs text-base-content/60"><%= athlete.registration_label.strftime("%d/%m/%Y %H:%M") %></td>
+              <td class="font-medium"><%= athlete.name %></td>
+              <td class="font-semibold"><%= athlete.shirt_number.presence || "-" %></td>
+              <% match_event_columns.each do |column| %>
+                <% marks = match_event_marks_for(match_events, athlete, column[:kind]) %>
+                <td>
+                  <% if marks.any? %>
+                    <div class="flex flex-wrap gap-1">
+                      <% marks.each do |mark| %>
+                        <span class="badge <%= column[:badge] %> badge-sm"><%= mark %></span>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <span class="text-base-content/30">-</span>
+                  <% end %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <%= empty_state(
+      title: "Sem atletas",
+      description: "A tabela aparece quando a equipe tiver atletas cadastrados."
+    ) %>
+  <% end %>
+<% end %>

@@ -1,12 +1,289 @@
 <% content_for :title, "#{@athlete.name} | Bola Cinco" %>
 
-<div class="card border border-base-300 bg-base-100 shadow-sm">
-  <div class="card-body">
-    <h1 class="text-3xl font-black"><%= @athlete.name %></h1>
-    <p class="text-sm text-base-content/70"><%= @athlete.team.name %> · <%= @athlete.category.name %></p>
-    <div class="mt-4 flex flex-wrap gap-3">
-      <div class="badge badge-neutral"><%= @athlete.shirt_number.presence || "Sem número" %></div>
-      <%= status_badge(@athlete.status) %>
+<%= page_header(
+  title: @athlete.name,
+  subtitle: "#{@athlete.team.name} · #{@athlete.category.name}",
+  badge: "Atletas",
+  actions: [
+    link_to("Voltar", athletes_path, class: "btn btn-outline"),
+    link_to("Carteirinha PDF", card_athlete_path(@athlete, format: :pdf), class: "btn btn-primary")
+  ]
+) %>
+
+<section class="rounded-[2rem] border border-base-300 bg-base-100 shadow-xl">
+  <div class="grid gap-0 xl:grid-cols-[1.1fr_0.9fr]">
+    <div class="relative overflow-hidden rounded-t-[2rem] xl:rounded-l-[2rem] xl:rounded-tr-none">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.22),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(17,24,39,0.95),transparent_48%),linear-gradient(135deg,#111827,#1f2937)]"></div>
+      <div class="relative flex min-h-[20rem] flex-col justify-between gap-8 p-6 sm:p-8 lg:p-10 text-white">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="max-w-2xl">
+            <div class="badge badge-outline border-white/30 text-white">Performance</div>
+            <h2 class="mt-4 text-4xl font-black tracking-tight sm:text-5xl"><%= @athlete.name %></h2>
+            <p class="mt-3 text-base leading-7 text-white/75 sm:text-lg">
+              Painel de rendimento do atleta com jogos, gols, cartões, suspensões e vínculos principais.
+            </p>
+          </div>
+          <div class="rounded-3xl border border-white/10 bg-white/10 p-4 text-right">
+            <p class="text-xs uppercase tracking-[0.25em] text-white/50">Score</p>
+            <p class="mt-2 text-5xl font-black"><%= @performance_summary[:score] %></p>
+          </div>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <div class="rounded-3xl border border-white/10 bg-white/8 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-white/50">Jogos</p>
+            <p class="mt-2 text-3xl font-black"><%= @performance_summary[:matches_played] %></p>
+          </div>
+          <div class="rounded-3xl border border-white/10 bg-white/8 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-white/50">Gols</p>
+            <p class="mt-2 text-3xl font-black"><%= @performance_summary[:goals] %></p>
+          </div>
+          <div class="rounded-3xl border border-white/10 bg-white/8 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-white/50">Cartões</p>
+            <p class="mt-2 text-3xl font-black"><%= @performance_summary[:yellow_cards] + @performance_summary[:red_cards] %></p>
+          </div>
+          <div class="rounded-3xl border border-white/10 bg-white/8 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-white/50">Suspensões</p>
+            <p class="mt-2 text-3xl font-black"><%= @performance_summary[:active_suspensions] %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-0 xl:rounded-r-[2rem]">
+      <div class="border-b border-base-300 p-6 sm:p-8">
+        <h3 class="text-2xl font-black">Resumo técnico</h3>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <div class="rounded-2xl bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Equipe principal</p>
+            <p class="mt-2 font-semibold"><%= @athlete.team.name %></p>
+          </div>
+          <div class="rounded-2xl bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Categoria</p>
+            <p class="mt-2 font-semibold"><%= @athlete.category.name %></p>
+          </div>
+          <div class="rounded-2xl bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Número</p>
+            <p class="mt-2 font-semibold"><%= @athlete.shirt_number.presence || "-" %></p>
+          </div>
+          <div class="rounded-2xl bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status</p>
+            <p class="mt-2 font-semibold"><%= @athlete.status.titleize %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 sm:p-8">
+        <h3 class="text-2xl font-black">Legenda rápida</h3>
+        <ul class="mt-4 space-y-3 text-sm leading-6 text-base-content/75">
+          <li>Jogos contam as participações confirmadas ou como convidado.</li>
+          <li>Gols, assistências e cartões vêm dos eventos da súmula.</li>
+          <li>Suspensões exibem as punições abertas ou já cumpridas no campeonato.</li>
+          <li>O score usa gols, assistências e cartões para destacar quem mais rende.</li>
+        </ul>
+      </div>
     </div>
   </div>
-</div>
+</section>
+
+<%= stats_grid([
+  { label: "Jogos", value: @performance_summary[:matches_played], value_class: "text-3xl" },
+  { label: "Confirmados", value: @performance_summary[:confirmed_participations], value_class: "text-3xl" },
+  { label: "Convidado", value: @performance_summary[:guest_participations], value_class: "text-3xl" },
+  { label: "Ausências", value: @performance_summary[:absences], value_class: "text-3xl" },
+  { label: "Gols", value: @performance_summary[:goals], value_class: "text-3xl" },
+  { label: "Assistências", value: @performance_summary[:assists], value_class: "text-3xl" },
+  { label: "Amarelos", value: @performance_summary[:yellow_cards], value_class: "text-3xl" },
+  { label: "Vermelhos", value: @performance_summary[:red_cards], value_class: "text-3xl" }
+], columns: "md:grid-cols-4") %>
+
+<% can_manage_links = @athlete.manageable_by?(current_user) %>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_1fr]">
+  <%= surface_card(title: "Dados do atleta") do %>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Foto</p>
+        <div class="mt-3 h-28 w-28 overflow-hidden rounded-full border border-base-300 bg-base-300">
+          <% if @athlete.display_photo_url.present? %>
+            <%= image_tag @athlete.display_photo_url, class: "h-full w-full object-cover" %>
+          <% else %>
+            <div class="flex h-full w-full items-center justify-center text-2xl font-black text-base-content/70">
+              <%= @athlete.name.to_s.split.map(&:first).first(2).join.upcase %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Inscrição</p>
+        <p class="mt-2 font-semibold"><%= @athlete.registration_label.strftime("%d/%m/%Y %H:%M") %></p>
+        <p class="mt-4 text-xs uppercase tracking-[0.25em] text-base-content/50">Documento principal</p>
+        <p class="mt-2 font-semibold"><%= @athlete.preferred_document.presence || "-" %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">RG</p>
+        <p class="mt-2 font-semibold"><%= @athlete.rg.presence || "-" %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Usuário vinculado</p>
+        <p class="mt-2 font-semibold"><%= @athlete.user&.email.presence || "-" %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4 md:col-span-2">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Equipes vinculadas</p>
+        <p class="mt-2 font-semibold"><%= @athlete.linked_teams.map(&:name).join(" · ").presence || "-" %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4 md:col-span-2">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Fonte</p>
+        <p class="mt-2 font-semibold"><%= @athlete.source_id.presence || "-" %></p>
+      </div>
+    </div>
+  <% end %>
+
+  <%= surface_card(title: "Linha do tempo") do %>
+    <div class="space-y-4">
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Últimos jogos</p>
+        <% if @recent_matches.any? %>
+          <div class="mt-3 space-y-3">
+            <% @recent_matches.each do |match| %>
+              <div class="rounded-2xl bg-base-100 p-4">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p class="font-semibold"><%= link_to match.code, match_path(match), class: "link link-primary" %></p>
+                    <p class="text-sm text-base-content/70">
+                      <%= [match.team_a&.name, match.team_b&.name].compact.join(" x ") %>
+                    </p>
+                    <p class="text-xs text-base-content/50">
+                      <%= [match.scheduled_on&.strftime("%d/%m/%Y"), match.scheduled_time].compact.join(" · ").presence || "-" %>
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-lg font-black"><%= [match.score_a || "-", match.score_b || "-"].join(" x ") %></p>
+                    <p class="text-xs text-base-content/50"><%= match.winner_label %></p>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="mt-3 text-sm text-base-content/60">Nenhum jogo registrado ainda.</p>
+        <% end %>
+      </div>
+
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Eventos recentes</p>
+        <% if @recent_events.any? %>
+          <div class="mt-3 space-y-2">
+            <% @recent_events.each do |event| %>
+              <div class="flex items-center justify-between gap-3 rounded-2xl bg-base-100 px-4 py-3">
+                <div>
+                  <p class="font-medium"><%= event.kind.humanize %></p>
+                  <p class="text-xs text-base-content/50">
+                    <%= event.match.code %> · <%= event.team&.name || "-" %>
+                  </p>
+                </div>
+                <span class="badge badge-outline"><%= event.minute.present? ? "#{event.minute}'" : "-" %></span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="mt-3 text-sm text-base-content/60">Nenhum evento registrado ainda.</p>
+        <% end %>
+      </div>
+
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Suspensões</p>
+        <% if @recent_suspensions.any? %>
+          <div class="mt-3 space-y-2">
+            <% @recent_suspensions.each do |suspension| %>
+              <div class="flex items-center justify-between gap-3 rounded-2xl bg-base-100 px-4 py-3">
+                <div>
+                  <p class="font-medium"><%= suspension.reason %></p>
+                  <p class="text-xs text-base-content/50">
+                    <%= suspension.team&.name || "-" %> · <%= suspension.category&.name || "-" %>
+                  </p>
+                </div>
+                <span class="badge badge-outline"><%= suspension.status.titleize %></span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="mt-3 text-sm text-base-content/60">Nenhuma suspensão registrada.</p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</section>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
+  <%= surface_card(title: "Vínculos") do %>
+    <div class="space-y-3">
+      <% if @athlete_team_links.any? %>
+        <% @athlete_team_links.each do |link| %>
+          <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-4">
+            <div>
+              <p class="font-bold"><%= link.team.name %></p>
+              <p class="text-xs text-base-content/50">
+                <%= link.team.category.name %>
+                <% if link.team_id == @athlete.team_id %>
+                  · Principal
+                <% end %>
+              </p>
+            </div>
+            <% if can_manage_links && link.team_id != @athlete.team_id %>
+              <%= link_to "Remover", athlete_team_link_path(@athlete, link), data: { turbo_method: :delete, turbo_confirm: "Remover a equipe do atleta?" }, class: "btn btn-outline btn-error btn-sm" %>
+            <% elsif link.team_id == @athlete.team_id %>
+              <span class="badge badge-outline">Principal</span>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Nenhuma equipe vinculada",
+          description: "Vínculos adicionais aparecem aqui quando forem adicionados."
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= surface_card(title: "Ações rápidas") do %>
+    <div class="grid gap-3">
+      <%= link_to "Ver equipe", team_path(@athlete.team), class: "btn btn-outline btn-block justify-start" %>
+      <%= link_to "Ver categoria", category_path(@athlete.category), class: "btn btn-outline btn-block justify-start" %>
+      <%= link_to "Abrir carteirinha", card_athlete_path(@athlete), class: "btn btn-primary btn-block justify-start" %>
+      <%= link_to "Baixar PDF", card_athlete_path(@athlete, format: :pdf), class: "btn btn-outline btn-block justify-start" %>
+    </div>
+  <% end %>
+</section>
+
+<% if can_manage_links %>
+  <dialog id="athlete-teams-modal" class="modal">
+    <div class="modal-box max-w-3xl">
+      <h3 class="text-2xl font-bold">Vincular equipe ao atleta</h3>
+      <p class="mt-2 text-sm text-base-content/70">
+        Selecione uma equipe do campeonato. O atleta pode aparecer em mais de uma equipe.
+      </p>
+
+      <%= form_with(url: athlete_team_links_path(@athlete), scope: :team_link, class: "mt-6 space-y-4") do |f| %>
+        <%= f.select :team_id,
+                     options_from_collection_for_select(@available_teams, :id, :name),
+                     { include_blank: "Selecione uma equipe" },
+                     class: "select select-bordered w-full" %>
+
+        <div class="flex flex-wrap gap-3">
+          <%= f.submit "Vincular", class: "btn btn-primary" %>
+          <button type="button" class="btn btn-ghost" onclick="document.getElementById('athlete-teams-modal').close()">Fechar</button>
+        </div>
+      <% end %>
+
+      <% if @available_teams.empty? %>
+        <div class="mt-4 rounded-2xl border border-dashed border-base-300 p-4 text-sm text-base-content/70">
+          Não há equipes disponíveis para vincular neste campeonato.
+        </div>
+      <% end %>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+<% end %>

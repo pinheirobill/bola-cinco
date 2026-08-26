@@ -1,0 +1,72 @@
+<% content_for :title, "Parceiros | Bola Cinco" %>
+
+<%= page_header(
+  title: "Parceiros",
+  subtitle: "Apoiadores e patrocinadores do campeonato.",
+  badge: "Comunicação",
+  actions: [user_signed_in? ? link_to("Novo parceiro", "#novo-parceiro", class: "btn btn-primary") : link_to("Entrar para criar", new_user_session_path, class: "btn btn-outline")]
+) %>
+
+<%= stats_grid([
+  { label: "Parceiros ativos", value: @partners.size, value_class: "text-2xl" },
+  { label: "Campeonato atual", value: current_championship&.name || "-", value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+  <% if user_signed_in? %>
+    <%= surface_card(title: "Novo parceiro", subtitle: "Adicione patrocinadores, apoiadores e parceiros.", id: "novo-parceiro") do %>
+      <%= form_with model: @partner, url: partners_path, class: "space-y-4" do |f| %>
+        <%= hidden_field_tag :championship_id, current_championship&.id %>
+        <div class="grid gap-4 md:grid-cols-2">
+          <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
+          <%= f.select :tier, Partner.tiers.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+          <%= f.select :status, Partner.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+          <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, @partner.category_id), { include_blank: "Categoria" }, class: "select select-bordered w-full" %>
+          <%= f.text_field :logo_url, class: "input input-bordered w-full", placeholder: "URL da logo" %>
+          <%= f.text_field :website_url, class: "input input-bordered w-full", placeholder: "Website" %>
+        </div>
+        <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>
+        <label class="flex items-center gap-3">
+          <%= f.check_box :highlight, class: "checkbox checkbox-primary" %>
+          <span>Destacar parceiro</span>
+        </label>
+        <%= f.submit "Criar parceiro", class: "btn btn-primary" %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= surface_card(title: "Novo parceiro", subtitle: "A criação é restrita a usuários autenticados.", id: "novo-parceiro") do %>
+      <%= empty_state(
+        title: "Acesso restrito",
+        description: "Entre para cadastrar parceiros do campeonato."
+      ) %>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Parceiros cadastrados") do %>
+    <% if @partners.any? %>
+      <div class="space-y-3">
+        <% @partners.each do |partner| %>
+          <div class="rounded-2xl bg-base-200 p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="font-semibold"><%= link_to partner.name, partner_path(partner), class: "link link-primary" %></p>
+                <p class="text-sm text-base-content/70"><%= partner.tier.titleize %></p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <%= status_badge(partner.status) %>
+                <% if partner.highlight? %>
+                  <span class="badge badge-primary">Destaque</span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <%= empty_state(
+        title: "Nenhum parceiro cadastrado",
+        description: "Adicione parceiros para fortalecer a identidade comercial do campeonato."
+      ) %>
+    <% end %>
+  <% end %>
+</section>

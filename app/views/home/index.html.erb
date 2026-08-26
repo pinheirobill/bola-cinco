@@ -1,82 +1,126 @@
-<% content_for :title, "Bola Cinco" %>
+<% content_for :title, "Portal | Bola Cinco" %>
 
-<section class="hero rounded-3xl border border-base-300 bg-base-100 shadow-xl">
-  <div class="hero-content flex-col gap-10 px-6 py-10 lg:flex-row lg:px-10 lg:py-14">
-    <div class="max-w-2xl">
-      <div class="badge badge-primary badge-outline mb-4">Rails 8.1.3.1</div>
-      <h1 class="max-w-xl text-4xl font-black tracking-tight text-balance sm:text-5xl">
-        Bola Cinco já nasce com autenticação, auditoria e interface pronta para Turbo.
-      </h1>
-      <p class="mt-5 max-w-xl text-lg leading-8 text-base-content/75">
-        Base enxuta em Rails, Devise para acesso, Audited para trilha de mudanças, jobs nativos do Rails e
-        Tailwind com daisyUI para entregar telas consistentes rápido.
-      </p>
+<%= page_header(
+  title: "Portal público",
+  subtitle: "Campeonato, classificação, equipes, atletas e jogos em uma entrada pública.",
+  badge: "Visão pública",
+  actions: [
+    link_to("Ver campeonatos", championships_path, class: "btn btn-primary"),
+    (user_signed_in? ? link_to("Ver dashboard", dashboard_path, class: "btn btn-outline") : link_to("Entrar", new_user_session_path, class: "btn btn-outline"))
+  ]
+) %>
 
-      <div class="mt-8 flex flex-wrap gap-3">
-        <% if user_signed_in? %>
-          <%= link_to "Ver minha conta", edit_user_registration_path, class: "btn btn-primary" %>
-          <%= button_to "Sair", destroy_user_session_path, method: :delete, class: "btn btn-outline" %>
-        <% else %>
-          <%= link_to "Entrar", new_user_session_path, class: "btn btn-primary" %>
-          <%= link_to "Criar conta", new_user_registration_path, class: "btn btn-outline" %>
-        <% end %>
-      </div>
-    </div>
+<%= stats_grid([
+  { label: "Campeonatos", value: @championships.count, description: "Públicos para navegação" },
+  { label: "Campeonato atual", value: @championship&.name || "-", description: @championship&.season || "Sem temporada", value_class: "text-2xl" },
+  { label: "Equipes", value: @championship&.categories&.sum { |category| category.teams.size }.to_i, description: "Equipes no campeonato atual" },
+  { label: "Atletas", value: @top_athletes.size, description: "Destaques exibidos" }
+]) %>
 
-    <div class="grid w-full max-w-md gap-4">
-      <div class="stats stats-vertical border border-base-300 bg-base-200 shadow-sm lg:stats-horizontal">
-        <div class="stat">
-          <div class="stat-title">Status</div>
-          <div class="stat-value text-primary"><%= user_signed_in? ? "Logado" : "Aberto" %></div>
-          <div class="stat-desc"><%= user_signed_in? ? "Sessão ativa via Devise" : "Acesso público na home" %></div>
+<section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+  <%= surface_card(
+    title: "Campeonato em destaque",
+    subtitle: @championship&.name || "Nenhum campeonato público disponível",
+    badge: (@championship.present? ? @championship.status.to_s.tr("_", " ").humanize : nil),
+    actions: [(@championship.present? ? link_to("Ver campeonato", championship_path(@championship), class: "link link-primary") : nil)].compact
+  ) do %>
+    <% if @championship.present? %>
+      <div class="grid gap-4 md:grid-cols-3">
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Categorias</p>
+          <p class="mt-2 text-2xl font-bold"><%= @championship.categories.count %></p>
         </div>
-        <div class="stat">
-          <div class="stat-title">Auditorias</div>
-          <div class="stat-value"><%= user_signed_in? ? current_user.audits.count : 0 %></div>
-          <div class="stat-desc">Mudanças gravadas com Audited</div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Jogos</p>
+          <p class="mt-2 text-2xl font-bold"><%= @championship.matches.count %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Classificação</p>
+          <p class="mt-2 text-2xl font-bold"><%= @championship.standing_rows.count %></p>
         </div>
       </div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="badge badge-neutral"><%= @championship.competition_mode_label %></span>
+        <span class="badge badge-neutral"><%= @championship.season %></span>
+      </div>
+    <% else %>
+      <p class="text-sm text-base-content/70">Nenhum campeonato público disponível no momento.</p>
+    <% end %>
+  <% end %>
 
-      <div class="card border border-base-300 bg-base-100 shadow-sm">
-        <div class="card-body gap-4">
-          <h2 class="card-title">Stack inicial</h2>
-          <div class="flex flex-wrap gap-2">
-            <span class="badge badge-neutral">Turbo</span>
-            <span class="badge badge-neutral">Stimulus</span>
-            <span class="badge badge-neutral">Solid Queue</span>
-            <span class="badge badge-neutral">Tailwind</span>
-            <span class="badge badge-neutral">daisyUI</span>
-            <span class="badge badge-neutral">Devise</span>
-            <span class="badge badge-neutral">Audited</span>
+  <%= surface_card(title: "Resumo editorial", subtitle: "Notícias e destaques recentes do campeonato.") do %>
+    <div class="space-y-4">
+      <% if @published_news.any? %>
+        <% @published_news.each do |news_item| %>
+          <div class="rounded-2xl bg-base-200 p-4">
+            <p class="font-semibold"><%= news_item.title %></p>
+            <p class="mt-1 text-sm text-base-content/70 line-clamp-3"><%= news_item.body %></p>
           </div>
-          <p class="text-sm text-base-content/70">
-            O app já sai pronto para ir evoluindo por telas, fluxos e domínios sem precisar trocar a fundação.
-          </p>
-        </div>
-      </div>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem notícias publicadas",
+          description: "As publicações recentes vão aparecer aqui quando forem liberadas."
+        ) %>
+      <% end %>
     </div>
-  </div>
+  <% end %>
 </section>
 
-<section class="grid gap-4 md:grid-cols-3">
-  <div class="card border border-base-300 bg-base-100 shadow-sm">
-    <div class="card-body">
-      <h2 class="card-title">Turbo primeiro</h2>
-      <p class="text-sm text-base-content/70">Atualizações de tela podem seguir o fluxo padrão do Rails com Morph e frames.</p>
+<section class="grid gap-6 xl:grid-cols-2">
+  <%= surface_card(title: "Últimos jogos", actions: [link_to("Ver jogos", matches_path, class: "link link-primary")]) do %>
+    <div class="space-y-3">
+      <% if @top_matches.any? %>
+        <% @top_matches.each do |match| %>
+          <%= match_card(match, compact: true) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem jogos recentes",
+          description: "Quando houver partidas registradas, elas aparecerão nesta lista."
+        ) %>
+      <% end %>
     </div>
-  </div>
+  <% end %>
 
-  <div class="card border border-base-300 bg-base-100 shadow-sm">
-    <div class="card-body">
-      <h2 class="card-title">Jobs nativos</h2>
-      <p class="text-sm text-base-content/70">Solid Queue já veio configurado pelo gerador, sem Redis ou orquestração extra.</p>
+  <%= surface_card(title: "Top atletas", actions: [link_to("Ver atletas", athletes_path, class: "link link-primary")]) do %>
+    <div class="space-y-3">
+      <% if @top_athletes.any? %>
+        <% @top_athletes.each do |athlete| %>
+          <%= athlete_card(athlete, compact: true) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem atletas em destaque",
+          description: "Os atletas mais relevantes serão listados aqui quando houver dados."
+        ) %>
+      <% end %>
     </div>
-  </div>
+  <% end %>
+</section>
 
-  <div class="card border border-base-300 bg-base-100 shadow-sm">
-    <div class="card-body">
-      <h2 class="card-title">Auditoria</h2>
-      <p class="text-sm text-base-content/70">O modelo de usuário já está preparado para registrar alterações desde o começo.</p>
+<section class="grid gap-6 xl:grid-cols-2">
+  <%= surface_card(title: "Melhores equipes", actions: [link_to("Ver equipes", teams_path, class: "link link-primary")]) do %>
+    <div class="space-y-3">
+      <% if @top_teams.any? %>
+        <% @top_teams.each do |team| %>
+          <%= standing_row_card(team) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem equipes em destaque",
+          description: "As equipes mais fortes do campeonato serão mostradas aqui."
+        ) %>
+      <% end %>
     </div>
-  </div>
+  <% end %>
+
+  <%= surface_card(title: "Atalhos", subtitle: "Entradas rápidas para os fluxos principais.") do %>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <%= link_to "Classificação", standing_rows_path, class: "btn btn-outline btn-block justify-start" %>
+      <%= link_to "Campeonatos", championships_path, class: "btn btn-outline btn-block justify-start" %>
+      <%= link_to "Equipes", teams_path, class: "btn btn-outline btn-block justify-start" %>
+      <%= link_to "Atletas", athletes_path, class: "btn btn-outline btn-block justify-start" %>
+    </div>
+  <% end %>
 </section>

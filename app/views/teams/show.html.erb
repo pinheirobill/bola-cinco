@@ -1,64 +1,199 @@
 <% content_for :title, "#{@team.name} | Bola Cinco" %>
 
-<section class="card border border-base-300 bg-base-100 shadow-sm">
-  <div class="card-body">
-    <h1 class="text-3xl font-black"><%= @team.name %></h1>
-    <p class="text-sm text-base-content/70"><%= @team.entity.name %> · <%= @team.category.name %></p>
+<%= page_header(
+  title: @team.name,
+  subtitle: "#{@team.entity.name} · #{@team.category.name}",
+  badge: "Equipe"
+) %>
 
-    <div class="grid gap-4 md:grid-cols-3">
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Inscrição</p>
-        <p class="mt-2 text-2xl font-bold"><%= @team.registration_status.titleize %></p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Financeiro</p>
-        <p class="mt-2 text-2xl font-bold"><%= @team.finance_status.titleize %></p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Atletas</p>
-        <p class="mt-2 text-2xl font-bold"><%= @team.athletes.count %></p>
-      </div>
-    </div>
-  </div>
-</section>
+<%= stats_grid([
+  { label: "Inscrição", value: @team.registration_status.titleize, value_class: "text-2xl" },
+  { label: "Financeiro", value: @team.finance_status.titleize, value_class: "text-2xl" },
+  { label: "Atletas", value: @team.athletes.count, value_class: "text-2xl" }
+], columns: "md:grid-cols-3") %>
 
 <section class="grid gap-6 xl:grid-cols-2">
-  <div class="card border border-base-300 bg-base-100 shadow-sm">
-    <div class="card-body">
-      <h2 class="card-title text-2xl">Atletas</h2>
-      <div class="overflow-x-auto">
-        <table class="table">
-          <thead><tr><th>Nome</th><th>Número</th><th>Status</th></tr></thead>
-          <tbody>
-            <% @team.athletes.each do |athlete| %>
-              <tr>
-                <td><%= athlete.name %></td>
-                <td><%= athlete.shirt_number.presence || "-" %></td>
-                <td><%= status_badge(athlete.status) %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="card border border-base-300 bg-base-100 shadow-sm">
-    <div class="card-body">
-      <h2 class="card-title text-2xl">Jogos</h2>
-      <div class="space-y-3">
-        <% (@team.home_matches + @team.away_matches).sort_by { |match| [match.scheduled_on || Date.new(9999), match.id] }.each do |match| %>
-          <div class="rounded-2xl bg-base-200 p-4">
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p class="font-semibold"><%= match.code %> · <%= match.category.name %></p>
-                <p class="text-sm text-base-content/70"><%= [match.team_a&.name, match.team_b&.name].compact.join(" x ") %></p>
-              </div>
-              <%= status_badge(match.status) %>
+  <% can_manage_athletes = @team.manageable_by?(current_user) %>
+  <%= surface_card(
+    title: "Atletas",
+    actions: [
+      (can_manage_athletes ? button_tag("Vincular atleta", type: "button", class: "btn btn-outline btn-sm", onclick: "document.getElementById('team-athletes-modal').showModal()") : nil)
+    ].compact
+  ) do %>
+    <div class="space-y-3">
+      <% if @team_athletes.any? %>
+        <% @team_athletes.each do |link| %>
+          <% athlete = link.athlete %>
+          <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-4">
+            <div>
+              <p class="text-lg font-bold"><%= athlete.name %></p>
+              <p class="text-sm text-base-content/70">
+                Nº <%= athlete.shirt_number.presence || "-" %> · <%= athlete.position.presence || "-" %> · <%= athlete.team&.name || "-" %>
+              </p>
+              <p class="text-xs text-base-content/50">
+                Vinculado em: <%= athlete.linked_teams.map(&:name).join(" · ") %>
+              </p>
             </div>
+            <% if can_manage_athletes %>
+              <%= link_to "Remover", team_team_athlete_path(@team, link), data: { turbo_method: :delete, turbo_confirm: "Remover atleta da equipe?" }, class: "btn btn-outline btn-error btn-sm" %>
+            <% end %>
           </div>
         <% end %>
-      </div>
+      <% else %>
+        <%= empty_state(
+          title: "Nenhum atleta vinculado",
+          description: "Os atletas desta equipe aparecerão aqui quando forem cadastrados."
+        ) %>
+      <% end %>
     </div>
-  </div>
+  <% end %>
+
+  <%= surface_card(title: "Jogos") do %>
+    <div class="space-y-3">
+      <% matches = (@team.home_matches + @team.away_matches).sort_by { |match| [match.scheduled_on || Date.new(9999), match.id] } %>
+      <% if matches.any? %>
+        <% matches.each do |match| %>
+          <%= match_card(match, compact: true) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Nenhum jogo encontrado",
+          description: "Quando a equipe tiver partidas, elas aparecerão aqui."
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
 </section>
+
+<% if can_manage_athletes %>
+  <dialog id="team-athletes-modal" class="modal">
+    <div class="modal-box max-w-5xl" data-controller="athlete-picker">
+      <h3 class="text-2xl font-bold">Vincular atleta à equipe</h3>
+      <p class="mt-2 text-sm text-base-content/70">
+        Selecione um ou mais atletas ativos no sistema. Use a busca e o filtro por equipe atual para montar o time inteiro de uma vez.
+      </p>
+
+      <%= form_with(url: team_team_athletes_path(@team), scope: :team_athlete, class: "mt-6 space-y-4") do |f| %>
+        <div class="grid gap-3 lg:grid-cols-[1fr_18rem_auto_auto] lg:items-end">
+          <div>
+            <label class="label">
+              <span class="label-text font-medium">Buscar atleta</span>
+            </label>
+            <input
+              type="search"
+              placeholder="Nome, apelido, camisa, posição, time..."
+              class="input input-bordered w-full"
+              data-athlete-picker-target="search"
+              data-action="input->athlete-picker#filter"
+            >
+          </div>
+
+          <div>
+            <label class="label">
+              <span class="label-text font-medium">Equipe atual</span>
+            </label>
+            <select
+              class="select select-bordered w-full"
+              data-athlete-picker-target="teamFilter"
+              data-action="change->athlete-picker#filter"
+            >
+              <option value="">Todas as equipes</option>
+              <%= options_from_collection_for_select(@available_teams, :id, :picker_label) %>
+            </select>
+          </div>
+
+          <div class="rounded-2xl bg-base-200 px-4 py-3 text-sm text-base-content/70">
+            <p class="font-semibold text-base-content">Visíveis</p>
+            <p class="mt-1 text-2xl font-black" data-athlete-picker-target="visibleCount"><%= @available_athletes.size %></p>
+          </div>
+
+          <div class="rounded-2xl bg-base-200 px-4 py-3 text-sm text-base-content/70">
+            <p class="font-semibold text-base-content">Selecionados</p>
+            <p class="mt-1 text-2xl font-black" data-athlete-picker-target="selectedCount">0</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button type="button" class="btn btn-outline btn-sm" data-action="athlete-picker#selectVisible">Selecionar todos os visíveis</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="athlete-picker#clearSelection">Limpar seleção</button>
+        </div>
+
+        <div class="max-h-[32rem] overflow-y-auto rounded-3xl border border-base-300 bg-base-100 p-3">
+          <% if @available_athletes.any? %>
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <% @available_athletes.each do |athlete| %>
+                <% linked_to_team = @team_athlete_ids.include?(athlete.id) %>
+                <label
+                  class="group cursor-pointer rounded-2xl border border-base-300 bg-base-200 p-4 transition hover:border-primary hover:bg-base-100 <%= linked_to_team ? 'cursor-not-allowed' : '' %>"
+                  data-athlete-picker-target="item"
+                  data-search-index="<%= athlete.search_index %>"
+                  data-team-id="<%= athlete.team_id %>"
+                >
+                  <%= check_box_tag "team_athlete[athlete_ids][]", athlete.id, false, class: "sr-only", disabled: linked_to_team, data: { action: "change->athlete-picker#refresh" } %>
+                  <div class="rounded-2xl border border-transparent p-1 transition">
+                    <div class="flex items-start gap-3">
+                    <div class="avatar shrink-0">
+                      <div class="h-14 w-14 rounded-full border border-base-300 bg-base-100">
+                        <% if athlete.display_photo_url.present? %>
+                          <%= image_tag athlete.display_photo_url, class: "h-full w-full object-cover" %>
+                        <% else %>
+                          <div class="flex h-full w-full items-center justify-center text-sm font-black text-base-content/70">
+                            <%= athlete.initials %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-start justify-between gap-3">
+                          <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-2">
+                              <p class="truncate text-base font-bold"><%= athlete.name %></p>
+                              <span class="badge badge-success badge-outline opacity-0 transition" data-athlete-picker-selected-mark>Selecionado</span>
+                            <% if linked_to_team %>
+                              <span class="badge badge-neutral badge-outline">Já está na equipe</span>
+                            <% end %>
+                          </div>
+                          <p class="mt-1 text-xs uppercase tracking-[0.3em] text-base-content/50">Apelido / nome curto</p>
+                          <p class="truncate text-sm font-semibold text-base-content/75"><%= athlete.quick_label %></p>
+                          </div>
+                          <div class="flex shrink-0 flex-col items-end gap-2">
+                            <span class="badge badge-primary badge-outline">Camisa <%= athlete.shirt_number.presence || "-" %></span>
+                            <span class="badge badge-neutral"><%= athlete.position.presence || "Sem posição" %></span>
+                          </div>
+                        </div>
+
+                        <div class="mt-3 grid gap-2 text-xs text-base-content/65 sm:grid-cols-2">
+                          <div class="rounded-xl bg-base-100 px-3 py-2">
+                            <span class="block uppercase tracking-[0.25em] text-base-content/40">Equipe atual</span>
+                            <span class="mt-1 block truncate font-semibold text-base-content"><%= athlete.team.picker_label %></span>
+                          </div>
+                          <div class="rounded-xl bg-base-100 px-3 py-2">
+                            <span class="block uppercase tracking-[0.25em] text-base-content/40">Documento</span>
+                            <span class="mt-1 block truncate font-semibold text-base-content"><%= athlete.preferred_document.presence || "Sem documento" %></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="rounded-2xl border border-dashed border-base-300 p-6 text-sm text-base-content/70">
+              Não há atletas ativos disponíveis para vincular.
+            </div>
+          <% end %>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <%= f.submit "Vincular selecionados", class: "btn btn-primary" %>
+          <button type="button" class="btn btn-ghost" onclick="document.getElementById('team-athletes-modal').close()">Fechar</button>
+        </div>
+      <% end %>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+<% end %>

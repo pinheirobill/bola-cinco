@@ -1,0 +1,66 @@
+<% content_for :title, "Suspensões | Bola Cinco" %>
+
+<%= page_header(
+  title: "Suspensões",
+  subtitle: "Controle disciplinar do campeonato.",
+  badge: "Disciplina",
+  actions: [link_to("Nova suspensão", "#nova-suspensao", class: "btn btn-primary")]
+) %>
+
+<%= stats_grid([
+  { label: "Suspensões registradas", value: @suspensions.size, value_class: "text-2xl" },
+  { label: "Campeonato atual", value: current_championship&.name || "-", value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+  <%= surface_card(title: "Nova suspensão", subtitle: "Registre punições, automáticas ou manuais.", id: "nova-suspensao") do %>
+    <%= form_with model: @suspension, url: suspensions_path, class: "space-y-4" do |f| %>
+      <%= hidden_field_tag :championship_id, current_championship&.id %>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= f.select :athlete_id, options_from_collection_for_select(@athletes, :id, :name, @suspension.athlete_id), { include_blank: "Atleta" }, class: "select select-bordered w-full" %>
+        <%= f.select :team_id, options_from_collection_for_select(@teams, :id, :name, @suspension.team_id), { include_blank: "Equipe" }, class: "select select-bordered w-full" %>
+        <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, @suspension.category_id), { include_blank: "Categoria" }, class: "select select-bordered w-full" %>
+        <%= f.select :status, Suspension.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+        <%= f.number_field :matches_count, class: "input input-bordered w-full", min: 1, placeholder: "Partidas" %>
+        <%= f.date_field :starts_on, class: "input input-bordered w-full" %>
+        <%= f.date_field :ends_on, class: "input input-bordered w-full" %>
+        <%= f.select :match_event_id, options_for_select(@match_events.map { |event| ["#{event.match.code} · #{event.kind.humanize}", event.id] }, @suspension.match_event_id), { include_blank: "Evento relacionado" }, class: "select select-bordered w-full" %>
+      </div>
+      <%= f.text_field :reason, class: "input input-bordered w-full", placeholder: "Motivo" %>
+      <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>
+      <label class="flex items-center gap-3">
+        <%= f.check_box :automatic, class: "checkbox checkbox-primary" %>
+        <span>Suspensão automática</span>
+      </label>
+      <%= f.submit "Criar suspensão", class: "btn btn-primary" %>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Suspensões registradas") do %>
+    <% if @suspensions.any? %>
+      <div class="space-y-3">
+        <% @suspensions.each do |suspension| %>
+          <div class="rounded-2xl bg-base-200 p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="font-semibold"><%= link_to suspension.athlete.name, suspension_path(suspension), class: "link link-primary" %></p>
+                <p class="text-sm text-base-content/70"><%= suspension.reason %></p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <%= status_badge(suspension.status) %>
+                <% if suspension.automatic? %>
+                  <span class="badge badge-primary">Automática</span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <%= empty_state(
+        title: "Nenhuma suspensão ativa",
+        description: "Eventos disciplinares e suspensões aparecerão aqui."
+      ) %>
+    <% end %>
+  <% end %>
+</section>

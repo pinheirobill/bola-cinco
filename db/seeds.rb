@@ -16,3 +16,5 @@ users.each do |attrs|
 end
 
 BolaCinco::Importer.new(path: import_path).call
+load Rails.root.join("db/seeds/atletas_categoria_1.rb")
+load Rails.root.join("db/seeds/arbitros_e_campos.rb")

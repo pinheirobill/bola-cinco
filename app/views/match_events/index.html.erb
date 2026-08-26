@@ -1,0 +1,40 @@
+<% content_for :title, "Eventos de jogo | Bola Cinco" %>
+
+<%= page_header(
+  title: "Eventos de jogo",
+  subtitle: "Lances, cartões, gols e substituições.",
+  badge: "Operação"
+) %>
+
+<%= stats_grid([
+  { label: "Eventos", value: @match_events.size, value_class: "text-2xl" },
+  { label: "Campeonato atual", value: current_championship&.name || "-", value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<%= surface_card do %>
+  <% if @match_events.any? %>
+    <div class="space-y-3">
+      <% @match_events.each do |match_event| %>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="font-semibold"><%= match_event.match.code %></p>
+              <p class="text-sm text-base-content/70"><%= match_event.kind.humanize %></p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="badge badge-neutral"><%= match_event.period.presence || "Período não informado" %></span>
+              <% if match_event.minute.present? %>
+                <span class="badge badge-primary"><%= match_event.minute %>'</span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <%= empty_state(
+      title: "Nenhum evento registrado",
+      description: "Os eventos aparecem aqui conforme os jogos forem atualizados."
+    ) %>
+  <% end %>
+<% end %>

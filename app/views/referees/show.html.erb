@@ -1,0 +1,41 @@
+<% content_for :title, "#{@referee.name} | Bola Cinco" %>
+
+<%= page_header(
+  title: @referee.name,
+  subtitle: @referee.email.presence || "Árbitro do campeonato",
+  badge: "Árbitros"
+) %>
+
+<%= stats_grid([
+  { label: "Status", value: @referee.status.titleize, value_class: "text-2xl" },
+  { label: "Contato", value: @referee.phone.presence || "-", value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+  <%= surface_card(title: "Editar árbitro") do %>
+    <%= form_with model: @referee, url: referee_path(@referee), method: :patch, class: "space-y-4" do |f| %>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
+        <%= f.select :status, Referee.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+        <%= f.text_field :email, class: "input input-bordered w-full", placeholder: "Email" %>
+        <%= f.text_field :phone, class: "input input-bordered w-full", placeholder: "Telefone" %>
+      </div>
+      <%= f.text_field :document, class: "input input-bordered w-full", placeholder: "Documento" %>
+      <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>
+      <div class="flex gap-3">
+        <%= f.submit "Salvar", class: "btn btn-primary" %>
+        <%= link_to "Remover", referee_path(@referee), data: { turbo_method: :delete }, class: "btn btn-outline btn-error" %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Detalhes") do %>
+    <div class="space-y-2 text-sm text-base-content/70">
+      <p><strong>Campeonato:</strong> <%= @referee.championship&.name || "Sem campeonato" %></p>
+      <p><strong>Documento:</strong> <%= @referee.document.presence || "-" %></p>
+      <p><strong>Email:</strong> <%= @referee.email.presence || "-" %></p>
+      <p><strong>Telefone:</strong> <%= @referee.phone.presence || "-" %></p>
+      <p><strong>Observações:</strong> <%= @referee.notes.presence || "-" %></p>
+    </div>
+  <% end %>
+</section>

@@ -1,0 +1,62 @@
+<% content_for :title, "Árbitros | Bola Cinco" %>
+
+<%= page_header(
+  title: "Árbitros",
+  subtitle: "Equipe de arbitragem do campeonato atual.",
+  badge: "Operação",
+  actions: [link_to("Novo árbitro", "#novo-arbitro", class: "btn btn-primary")]
+) %>
+
+<%= stats_grid([
+  { label: "Árbitros cadastrados", value: @referees.size, value_class: "text-2xl" },
+  { label: "Campeonato atual", value: current_championship&.name || "-", value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+  <%= surface_card(title: "Novo árbitro", subtitle: "Cadastre a equipe de arbitragem.", id: "novo-arbitro") do %>
+    <%= form_with model: @referee, url: referees_path, class: "space-y-4" do |f| %>
+      <%= hidden_field_tag :championship_id, current_championship&.id %>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
+        <%= f.select :status, Referee.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+        <%= f.text_field :email, class: "input input-bordered w-full", placeholder: "Email" %>
+        <%= f.text_field :phone, class: "input input-bordered w-full", placeholder: "Telefone" %>
+      </div>
+      <%= f.text_field :document, class: "input input-bordered w-full", placeholder: "Documento" %>
+      <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>
+      <%= f.submit "Criar árbitro", class: "btn btn-primary" %>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Árbitros cadastrados") do %>
+    <% if @referees.any? %>
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @referees.each do |referee| %>
+              <tr>
+                <td class="font-medium"><%= referee.name %></td>
+                <td><%= referee.email.presence || "-" %></td>
+                <td><%= status_badge(referee.status) %></td>
+                <td><%= link_to "Ver", referee_path(referee), class: "link link-primary" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <%= empty_state(
+        title: "Nenhum árbitro cadastrado",
+        description: "Cadastre a equipe de arbitragem para acompanhar os jogos."
+      ) %>
+    <% end %>
+  <% end %>
+</section>

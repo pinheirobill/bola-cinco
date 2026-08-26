@@ -7,21 +7,57 @@
     <% end %>
   </div>
 
-  <nav class="flex flex-1 flex-col gap-2">
-    <% nav_items = [
-      ["Dashboard", root_path],
-      ["Campeonatos", championships_path],
-      ["Categorias", categories_path],
-      ["Entidades", entities_path],
-      ["Equipes", teams_path],
-      ["Atletas", athletes_path],
-      ["Jogos", matches_path],
-      ["Classificação", standing_rows_path],
-      ["Financeiro", invoices_path]
+  <nav class="flex flex-1 flex-col gap-5" aria-label="Navegação principal">
+    <% nav_groups = [
+      {
+        label: "Visão",
+        items: [
+          ["Portal", root_path],
+          ["Dashboard", dashboard_path],
+          ["Campeonatos", championships_path],
+          ["Classificação", standing_rows_path]
+        ]
+      },
+      {
+        label: "Cadastro",
+        items: [
+          ["Categorias", categories_path],
+          ["Entidades", entities_path],
+          ["Equipes", teams_path],
+          ["Atletas", athletes_path],
+          ["Financeiro", invoices_path]
+        ]
+      },
+      {
+        label: "Operação",
+        items: [
+          ["Jogos", matches_path],
+          ["Locais", venues_path],
+          ["Árbitros", referees_path],
+          ["Eventos", match_events_path],
+          ["Relatórios", match_reports_path],
+          ["Parceiros", partners_path],
+          ["Notícias", news_items_path]
+        ]
+      },
+      {
+        label: "Disciplina",
+        items: [
+          ["Suspensões", suspensions_path],
+          ["Seleções", round_selections_path]
+        ]
+      }
     ] %>
 
-    <% nav_items.each do |label, path| %>
-      <%= link_to label, path, class: "btn btn-ghost justify-start #{current_page?(path) ? 'btn-active' : ''}" %>
+    <% nav_groups.each do |group| %>
+      <div class="space-y-2">
+        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50"><%= group[:label] %></p>
+        <div class="grid gap-2">
+          <% group[:items].each do |label, path| %>
+            <%= link_to label, path, class: "btn btn-ghost justify-start #{current_page?(path) ? 'btn-active' : ''}", aria: { current: (current_page?(path) ? "page" : nil) } %>
+          <% end %>
+        </div>
+      </div>
     <% end %>
   </nav>
 

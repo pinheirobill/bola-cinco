@@ -1,0 +1,522 @@
+<% content_for :title, "#{@championship.name} · Configuração | Bola Cinco" %>
+
+<%= page_header(
+  title: "Configuração do campeonato",
+  subtitle: @championship.name,
+  badge: "Onboarding",
+  actions: [
+    link_to("Visão geral", championship_path(@championship), class: "btn btn-outline"),
+    link_to("Classificação", standing_rows_path, class: "btn btn-primary")
+  ]
+) %>
+
+<%= championship_stepper(@championship, @step, {
+  "data" => "Dados",
+  "format" => "Formato e regras",
+  "registrations" => "Inscrições",
+  "teams" => "Equipes"
+}) %>
+
+<% if @step == "data" %>
+  <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+    <%= surface_card(title: "Etapa 1. Dados", subtitle: "Atualize nome, temporada, datas e status do campeonato.") do %>
+      <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-5" do %>
+        <%= hidden_field_tag :step, "data" %>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="form-control gap-2">
+            <%= label_tag "championship_name", "Nome", class: "label-text font-medium" %>
+            <%= text_field_tag "championship[name]", @championship.name, id: "championship_name", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_season", "Temporada", class: "label-text font-medium" %>
+            <%= number_field_tag "championship[season]", @championship.season, id: "championship_season", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_status", "Status", class: "label-text font-medium" %>
+            <%= select_tag "championship[status]", options_for_select(Championship.statuses.keys.map { |value| [value.tr("_", " ").humanize, value] }, @championship.status), id: "championship_status", class: "select select-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_registration_start", "Início das inscrições", class: "label-text font-medium" %>
+            <%= date_field_tag "championship[registration_start]", @championship.registration_start, id: "championship_registration_start", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_registration_end", "Fim das inscrições", class: "label-text font-medium" %>
+            <%= date_field_tag "championship[registration_end]", @championship.registration_end, id: "championship_registration_end", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_start_date", "Início do campeonato", class: "label-text font-medium" %>
+            <%= date_field_tag "championship[start_date]", @championship.start_date, id: "championship_start_date", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_end_date", "Fim do campeonato", class: "label-text font-medium" %>
+            <%= date_field_tag "championship[end_date]", @championship.end_date, id: "championship_end_date", class: "input input-bordered w-full" %>
+          </div>
+        </div>
+
+        <div class="form-control gap-2">
+          <%= label_tag "championship_notes", "Regulamento / observações", class: "label-text font-medium" %>
+          <%= text_area_tag "championship[notes]", @championship.notes, id: "championship_notes", rows: 6, class: "textarea textarea-bordered w-full" %>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <%= submit_tag "Salvar dados", class: "btn btn-primary" %>
+          <%= link_to "Próxima etapa", setup_championship_path(@championship, step: "format"), class: "btn btn-outline" %>
+        </div>
+      <% end %>
+    <% end %>
+
+    <%= surface_card(title: "Resumo") do %>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status atual</p>
+        <p class="mt-2 text-lg font-semibold"><%= @championship.status.titleize %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Período de inscrição</p>
+        <p class="mt-2 text-lg font-semibold"><%= [@championship.registration_start, @championship.registration_end].compact.join(" até ").presence || "Não definido" %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Padrão importado</p>
+        <p class="mt-2 text-sm text-base-content/70">As datas e o regulamento podem ser ajustados sem recriar o campeonato.</p>
+      </div>
+    <% end %>
+  </section>
+<% elsif @step == "format" %>
+  <section class="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+    <%= surface_card(title: "Etapa 2. Formato e regras", subtitle: "Configure o modo de disputa, pontuação e critérios de desempate.") do %>
+      <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-6" do %>
+        <%= hidden_field_tag :step, "format" %>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="form-control gap-2">
+            <%= label_tag "championship_format_mode", "Modo de disputa", class: "label-text font-medium" %>
+            <%= select_tag "championship[format][mode]", options_for_select(Championship::COMPETITION_MODES.map { |key, label| [label, key] }, @championship.format_data["mode"]), id: "championship_format_mode", class: "select select-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_format_team_count", "Quantidade de equipes", class: "label-text font-medium" %>
+            <%= number_field_tag "championship[format][teamCount]", @championship.format_data["teamCount"], id: "championship_format_team_count", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_format_group_count", "Quantidade de chaves", class: "label-text font-medium" %>
+            <%= number_field_tag "championship[format][groupCount]", @championship.format_data["groupCount"], id: "championship_format_group_count", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_scoring_qualified_per_group", "Classificados por chave", class: "label-text font-medium" %>
+            <%= number_field_tag "championship[scoring][qualifiedPerGroup]", @championship.scoring_data["qualifiedPerGroup"], id: "championship_scoring_qualified_per_group", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_scoring_win", "Vitória", class: "label-text font-medium" %>
+            <%= number_field_tag "championship[scoring][win]", @championship.scoring_data["win"], id: "championship_scoring_win", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_scoring_draw", "Empate", class: "label-text font-medium" %>
+            <%= number_field_tag "championship[scoring][draw]", @championship.scoring_data["draw"], id: "championship_scoring_draw", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_scoring_loss", "Derrota", class: "label-text font-medium" %>
+            <%= number_field_tag "championship[scoring][loss]", @championship.scoring_data["loss"], id: "championship_scoring_loss", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_scoring_wo", "W.O. da equipe ausente", class: "label-text font-medium" %>
+            <%= number_field_tag "championship[scoring][wo]", @championship.scoring_data["wo"], id: "championship_scoring_wo", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_scoring_woScore", "Placar do W.O.", class: "label-text font-medium" %>
+            <%= number_field_tag "championship[scoring][woScore]", @championship.scoring_data["woScore"], id: "championship_scoring_woScore", class: "input input-bordered w-full" %>
+          </div>
+        </div>
+
+        <div>
+          <div class="mb-3 flex items-center justify-between">
+            <h3 class="font-semibold">Critérios de desempate</h3>
+            <span class="text-sm text-base-content/60">Ordem configurável por campeonato</span>
+          </div>
+          <div class="grid gap-3 md:grid-cols-2">
+            <% @championship.tiebreakers.each do |key| %>
+              <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
+                <%= check_box_tag "championship[scoring][tiebreakers][]", key, true, class: "checkbox checkbox-primary" %>
+                <span><%= Championship::TIEBREAKER_OPTIONS[key] || key.humanize %></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <%= submit_tag "Salvar regras", class: "btn btn-primary" %>
+          <%= link_to "Voltar", setup_championship_path(@championship, step: "data"), class: "btn btn-outline" %>
+          <%= link_to "Próxima etapa", setup_championship_path(@championship, step: "teams"), class: "btn btn-outline" %>
+        </div>
+      <% end %>
+    <% end %>
+
+    <div class="space-y-4">
+      <%= surface_card(title: "Previsão") do %>
+        <p class="text-sm text-base-content/70">Com os dados atuais, a regra vigente é <%= @championship.competition_mode_label.downcase %>.</p>
+      <% end %>
+
+      <%= surface_card(title: "Rodapé da classificação") do %>
+        <div class="space-y-2 text-sm text-base-content/70">
+          <p>Vitória: <strong><%= @championship.scoring_data["win"] %></strong></p>
+          <p>Empate: <strong><%= @championship.scoring_data["draw"] %></strong></p>
+          <p>Derrota: <strong><%= @championship.scoring_data["loss"] %></strong></p>
+          <p>W.O.: <strong><%= @championship.scoring_data["wo"] %></strong> e placar <strong><%= @championship.scoring_data["woScore"] %>x0</strong></p>
+          <p>Desempates: <strong><%= @championship.tiebreaker_labels.join(" → ") %></strong></p>
+        </div>
+      <% end %>
+    </div>
+  </section>
+<% elsif @step == "registrations" %>
+  <section class="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
+    <%= surface_card(title: "Configurar inscrições", subtitle: "Defina os limites e o que os técnicos podem fazer no painel do time.") do %>
+      <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-6" do %>
+        <%= hidden_field_tag :step, "registrations" %>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="form-control gap-2">
+            <%= label_tag "championship_rules_registration_max_athletes_per_team", "Máximo de atletas por time", class: "label-text font-medium" %>
+            <%= number_field_tag "championship[rules][registration][max_athletes_per_team]", @championship.max_athletes_per_team, id: "championship_rules_registration_max_athletes_per_team", class: "input input-bordered w-full" %>
+          </div>
+
+          <div class="form-control gap-2">
+            <%= label_tag "championship_rules_registration_max_staff_members_per_team", "Máximo de membros na comissão técnica", class: "label-text font-medium" %>
+            <%= number_field_tag "championship[rules][registration][max_staff_members_per_team]", @championship.max_staff_members_per_team, id: "championship_rules_registration_max_staff_members_per_team", class: "input input-bordered w-full" %>
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
+          <h3 class="text-lg font-bold">Inscrições de atletas pelos técnicos</h3>
+          <p class="mt-1 text-sm text-base-content/70">Habilite o que os técnicos podem fazer pelo painel do time dele.</p>
+
+          <div class="mt-4 grid gap-3 md:grid-cols-3">
+            <% [
+              ["allow_register", "Permitir inscrição de atletas"],
+              ["allow_edit", "Permitir edição de atletas"],
+              ["allow_remove", "Permitir remoção de atletas"]
+            ].each do |key, label| %>
+              <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
+                <%= hidden_field_tag "championship[rules][registration][athlete_actions][#{key}]", "0" %>
+                <%= check_box_tag "championship[rules][registration][athlete_actions][#{key}]", "1", @championship.athlete_action_enabled?(key), class: "checkbox checkbox-primary" %>
+                <span><%= label %></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
+          <h3 class="text-lg font-bold">Inscrições de times pelo site do campeonato</h3>
+          <p class="mt-1 text-sm text-base-content/70">Quer receber a inscrição de novos times no seu campeonato?</p>
+          <div class="mt-4">
+            <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
+              <%= hidden_field_tag "championship[rules][registration][team_signups][enabled]", "0" %>
+              <%= check_box_tag "championship[rules][registration][team_signups][enabled]", "1", @championship.team_signup_enabled?, class: "checkbox checkbox-primary" %>
+              <span>Inscrições abertas</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
+          <h3 class="text-lg font-bold">Ficha de inscrição de atletas</h3>
+          <p class="mt-1 text-sm text-base-content/70">Selecione quais itens devem ser exigidos nas inscrições de atletas.</p>
+
+          <div class="mt-4 overflow-x-auto">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Informação</th>
+                  <th>Configuração</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% Championship::REGISTRATION_FORM_FIELDS.each do |field_key, field_label| %>
+                  <tr>
+                    <td><%= field_label %></td>
+                    <td>
+                      <%= select_tag "championship[rules][registration][athlete_form][#{field_key}]", options_for_select(Championship::REGISTRATION_REQUIREMENT_OPTIONS.map { |value, label| [label, value] }, @championship.athlete_form_requirement(field_key)), class: "select select-bordered w-full max-w-xs" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          <p class="mt-3 text-xs text-base-content/50">Obs: a posição interfere no ranking de atletas.</p>
+        </div>
+
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
+          <h3 class="text-lg font-bold">Súmula impressa</h3>
+          <p class="mt-1 text-sm text-base-content/70">Escolha qual informação do atleta deve aparecer na súmula impressa.</p>
+          <div class="mt-4">
+            <%= select_tag "championship[rules][registration][printed_summary_field]", options_for_select(Championship::PRINTED_SUMMARY_FIELDS.map { |value, label| [label, value] }, @championship.printed_summary_field), class: "select select-bordered w-full max-w-xs" %>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <%= submit_tag "Salvar inscrições", class: "btn btn-primary" %>
+          <%= link_to "Voltar", setup_championship_path(@championship, step: "format"), class: "btn btn-outline" %>
+          <%= link_to "Próxima etapa", setup_championship_path(@championship, step: "teams"), class: "btn btn-outline" %>
+        </div>
+      <% end %>
+    <% end %>
+
+    <div class="space-y-4">
+      <%= surface_card(title: "Resumo rápido") do %>
+        <div class="space-y-2 text-sm text-base-content/70">
+          <p>Atletas por time: <strong><%= @championship.max_athletes_per_team %></strong></p>
+          <p>Comissão técnica: <strong><%= @championship.max_staff_members_per_team %></strong></p>
+          <p>Time pode se inscrever: <strong><%= @championship.team_signup_enabled? ? "Sim" : "Não" %></strong></p>
+          <p>Súmula impressa: <strong><%= Championship::PRINTED_SUMMARY_FIELDS[@championship.printed_summary_field] || @championship.printed_summary_field.humanize %></strong></p>
+        </div>
+      <% end %>
+
+      <%= surface_card(title: "Permissões do técnico") do %>
+        <div class="space-y-2 text-sm text-base-content/70">
+          <p>Inscrever atletas: <strong><%= @championship.athlete_action_enabled?("allow_register") ? "Sim" : "Não" %></strong></p>
+          <p>Editar atletas: <strong><%= @championship.athlete_action_enabled?("allow_edit") ? "Sim" : "Não" %></strong></p>
+          <p>Remover atletas: <strong><%= @championship.athlete_action_enabled?("allow_remove") ? "Sim" : "Não" %></strong></p>
+        </div>
+      <% end %>
+    </div>
+  </section>
+<% else %>
+  <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+    <%= surface_card(title: "Etapa 3. Equipes", subtitle: "Veja as equipes participantes do campeonato e o convite público para o técnico.") do %>
+      <div class="space-y-4">
+        <% @championship.categories.each do |category| %>
+          <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <h3 class="text-lg font-bold"><%= category.name %></h3>
+                <p class="text-sm text-base-content/70"><%= category.teams.size %> equipes cadastradas</p>
+              </div>
+              <%= link_to "Ver categoria", category_path(category), class: "btn btn-ghost btn-sm" %>
+            </div>
+
+            <div class="mt-4 space-y-3">
+              <% category.teams.each do |team| %>
+                <%= team_card(team, compact: true) %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="space-y-4">
+      <%= surface_card(title: "Convite público", subtitle: "O perfil técnico vai usar uma URL pública para enviar a inscrição.") do %>
+        <div class="rounded-2xl bg-base-200 p-4 font-mono text-xs break-all">
+          <%= championship_path(@championship) %>
+        </div>
+        <button class="btn btn-primary btn-sm" type="button">Copiar link</button>
+      <% end %>
+
+      <%= surface_card(title: "Ações futuras") do %>
+        <ul class="space-y-2 text-sm text-base-content/70">
+          <li>Adicionar equipe cadastrada</li>
+          <li>Gerar sorteio automático</li>
+          <li>Bloquear geração até a fase de grupos encerrar</li>
+        </ul>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="mt-6 grid gap-6 xl:grid-cols-2">
+    <%= surface_card(
+      title: "Campos",
+      subtitle: "Escolha quais campos fazem parte deste campeonato.",
+      actions: [button_tag("Gerenciar", type: "button", class: "btn btn-outline btn-sm", onclick: "document.getElementById('venues-modal').showModal()")]
+    ) do %>
+      <% if @venues.any? %>
+        <div class="space-y-2">
+          <% @venues.each do |venue| %>
+            <div class="flex items-center justify-between rounded-2xl bg-base-200 px-4 py-3">
+              <div>
+                <p class="font-medium"><%= venue.name %></p>
+                <p class="text-xs text-base-content/60"><%= venue.city.presence || "Sem cidade" %></p>
+              </div>
+              <div class="flex items-center gap-3">
+                <%= status_badge(venue.status) %>
+                <%= link_to "Abrir", venue_path(venue), class: "link link-primary" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <%= empty_state(
+          title: "Nenhum campo vinculado",
+          description: "Abra o modal para vincular campos existentes ou criar um novo."
+        ) %>
+      <% end %>
+    <% end %>
+
+    <%= surface_card(
+      title: "Árbitros",
+      subtitle: "Escolha quais árbitros fazem parte deste campeonato.",
+      actions: [button_tag("Gerenciar", type: "button", class: "btn btn-outline btn-sm", onclick: "document.getElementById('referees-modal').showModal()")]
+    ) do %>
+      <% if @referees.any? %>
+        <div class="space-y-2">
+          <% @referees.each do |referee| %>
+            <div class="flex items-center justify-between rounded-2xl bg-base-200 px-4 py-3">
+              <div>
+                <p class="font-medium"><%= referee.name %></p>
+                <p class="text-xs text-base-content/60"><%= referee.email.presence || "Sem contato" %></p>
+              </div>
+              <div class="flex items-center gap-3">
+                <%= status_badge(referee.status) %>
+                <%= link_to "Abrir", referee_path(referee), class: "link link-primary" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <%= empty_state(
+          title: "Nenhum árbitro vinculado",
+          description: "Abra o modal para vincular árbitros existentes ou criar um novo."
+        ) %>
+      <% end %>
+    <% end %>
+  </section>
+
+  <dialog id="venues-modal" class="modal">
+    <div class="modal-box max-w-4xl">
+      <h3 class="text-lg font-bold">Gerenciar campos</h3>
+      <p class="mt-1 text-sm text-base-content/70">Vincule campos ao campeonato, remova os vinculados ou crie um novo.</p>
+
+      <div class="mt-6 grid gap-6 lg:grid-cols-2">
+        <div class="space-y-3">
+          <h4 class="font-semibold">Vinculados</h4>
+          <% if @venues.any? %>
+            <% @venues.each do |venue| %>
+              <div class="flex items-center justify-between rounded-2xl bg-base-200 px-4 py-3">
+                <div>
+                  <p class="font-medium"><%= venue.name %></p>
+                  <p class="text-xs text-base-content/60"><%= venue.city.presence || "Sem cidade" %></p>
+                </div>
+                <%= button_to "Remover", detach_venue_path(venue), method: :patch, params: { championship_id: @championship.id }, class: "btn btn-outline btn-sm btn-error" %>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-base-content/60">Nenhum campo vinculado.</p>
+          <% end %>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="font-semibold">Disponíveis</h4>
+          <% if @available_venues.any? %>
+            <% @available_venues.each do |venue| %>
+              <div class="flex items-center justify-between rounded-2xl bg-base-200 px-4 py-3">
+                <div>
+                  <p class="font-medium"><%= venue.name %></p>
+                  <p class="text-xs text-base-content/60"><%= venue.city.presence || "Sem cidade" %></p>
+                </div>
+                <%= button_to "Vincular", attach_venue_path(venue), method: :patch, params: { championship_id: @championship.id }, class: "btn btn-outline btn-sm" %>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-base-content/60">Nenhum campo disponível para vincular.</p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="mt-6 rounded-3xl border border-base-300 bg-base-200 p-5">
+        <h4 class="font-semibold">Criar novo campo</h4>
+        <%= form_with model: @venue || Venue.new(status: :ativo), url: venues_path, class: "mt-4 space-y-4" do |f| %>
+          <%= hidden_field_tag :championship_id, @championship.id %>
+          <div class="grid gap-4 md:grid-cols-2">
+            <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
+            <%= f.text_field :short_name, class: "input input-bordered w-full", placeholder: "Nome curto" %>
+            <%= f.text_field :city, class: "input input-bordered w-full", placeholder: "Cidade" %>
+            <%= f.select :status, Venue.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+          </div>
+          <%= f.text_field :address, class: "input input-bordered w-full", placeholder: "Endereço" %>
+          <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 3, placeholder: "Observações" %>
+          <div class="flex justify-end gap-3">
+            <button type="button" class="btn btn-ghost" onclick="document.getElementById('venues-modal').close()">Fechar</button>
+            <%= f.submit "Criar e vincular", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <dialog id="referees-modal" class="modal">
+    <div class="modal-box max-w-4xl">
+      <h3 class="text-lg font-bold">Gerenciar árbitros</h3>
+      <p class="mt-1 text-sm text-base-content/70">Vincule árbitros ao campeonato, remova os vinculados ou crie um novo.</p>
+
+      <div class="mt-6 grid gap-6 lg:grid-cols-2">
+        <div class="space-y-3">
+          <h4 class="font-semibold">Vinculados</h4>
+          <% if @referees.any? %>
+            <% @referees.each do |referee| %>
+              <div class="flex items-center justify-between rounded-2xl bg-base-200 px-4 py-3">
+                <div>
+                  <p class="font-medium"><%= referee.name %></p>
+                  <p class="text-xs text-base-content/60"><%= referee.email.presence || "Sem contato" %></p>
+                </div>
+                <%= button_to "Remover", detach_referee_path(referee), method: :patch, params: { championship_id: @championship.id }, class: "btn btn-outline btn-sm btn-error" %>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-base-content/60">Nenhum árbitro vinculado.</p>
+          <% end %>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="font-semibold">Disponíveis</h4>
+          <% if @available_referees.any? %>
+            <% @available_referees.each do |referee| %>
+              <div class="flex items-center justify-between rounded-2xl bg-base-200 px-4 py-3">
+                <div>
+                  <p class="font-medium"><%= referee.name %></p>
+                  <p class="text-xs text-base-content/60"><%= referee.email.presence || "Sem contato" %></p>
+                </div>
+                <%= button_to "Vincular", attach_referee_path(referee), method: :patch, params: { championship_id: @championship.id }, class: "btn btn-outline btn-sm" %>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-base-content/60">Nenhum árbitro disponível para vincular.</p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="mt-6 rounded-3xl border border-base-300 bg-base-200 p-5">
+        <h4 class="font-semibold">Criar novo árbitro</h4>
+        <%= form_with model: @referee || Referee.new(status: :ativo), url: referees_path, class: "mt-4 space-y-4" do |f| %>
+          <%= hidden_field_tag :championship_id, @championship.id %>
+          <div class="grid gap-4 md:grid-cols-2">
+            <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
+            <%= f.select :status, Referee.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+            <%= f.text_field :email, class: "input input-bordered w-full", placeholder: "Email" %>
+            <%= f.text_field :phone, class: "input input-bordered w-full", placeholder: "Telefone" %>
+          </div>
+          <%= f.text_field :document, class: "input input-bordered w-full", placeholder: "Documento" %>
+          <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 3, placeholder: "Observações" %>
+          <div class="flex justify-end gap-3">
+            <button type="button" class="btn btn-ghost" onclick="document.getElementById('referees-modal').close()">Fechar</button>
+            <%= f.submit "Criar e vincular", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+<% end %>

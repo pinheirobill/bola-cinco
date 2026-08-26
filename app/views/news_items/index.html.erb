@@ -1,0 +1,70 @@
+<% content_for :title, "Notícias | Bola Cinco" %>
+
+<%= page_header(
+  title: "Notícias",
+  subtitle: "Publicações do campeonato com status editorial.",
+  badge: "Comunicação",
+  actions: [user_signed_in? ? link_to("Nova notícia", "#nova-noticia", class: "btn btn-primary") : link_to("Entrar para criar", new_user_session_path, class: "btn btn-outline")]
+) %>
+
+<%= stats_grid([
+  { label: "Publicadas", value: @news_items.size, value_class: "text-2xl" },
+  { label: "Campeonato atual", value: current_championship&.name || "-", value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+  <% if user_signed_in? %>
+    <%= surface_card(title: "Nova notícia", subtitle: "Crie um comunicado, aviso ou destaque.", id: "nova-noticia") do %>
+      <%= form_with model: @news_item, url: news_items_path, class: "space-y-4" do |f| %>
+        <%= hidden_field_tag :championship_id, current_championship&.id %>
+        <div class="grid gap-4 md:grid-cols-2">
+          <%= f.text_field :title, class: "input input-bordered w-full", placeholder: "Título" %>
+          <%= f.select :status, NewsItem.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+          <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, @news_item.category_id), { include_blank: "Categoria" }, class: "select select-bordered w-full" %>
+          <%= f.datetime_field :published_at, class: "input input-bordered w-full" %>
+        </div>
+        <%= f.text_area :body, class: "textarea textarea-bordered w-full", rows: 6, placeholder: "Conteúdo" %>
+        <label class="flex items-center gap-3">
+          <%= f.check_box :pinned, class: "checkbox checkbox-primary" %>
+          <span>Fixar notícia</span>
+        </label>
+        <%= f.submit "Criar notícia", class: "btn btn-primary" %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= surface_card(title: "Nova notícia", subtitle: "A criação é restrita a usuários autenticados.", id: "nova-noticia") do %>
+      <%= empty_state(
+        title: "Acesso restrito",
+        description: "Entre para publicar notícias do campeonato."
+      ) %>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Notícias publicadas") do %>
+    <% if @news_items.any? %>
+      <div class="space-y-3">
+        <% @news_items.each do |news_item| %>
+          <div class="rounded-2xl bg-base-200 p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="font-semibold"><%= link_to news_item.title, news_item_path(news_item), class: "link link-primary" %></p>
+                <p class="text-sm text-base-content/70"><%= news_item.category&.name || "Geral" %></p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <%= status_badge(news_item.status) %>
+                <% if news_item.pinned? %>
+                  <span class="badge badge-primary">Fixada</span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <%= empty_state(
+        title: "Nenhuma notícia publicada",
+        description: "Use essa área para comunicar resultados, avisos e destaques."
+      ) %>
+    <% end %>
+  <% end %>
+</section>

@@ -1,23 +1,90 @@
-<% content_for :title, "Atletas | Bola Cinco" %>
+<% content_for :title, "Relatório de atletas | Bola Cinco" %>
 
-<div class="card border border-base-300 bg-base-100 shadow-sm">
-  <div class="card-body">
-    <h1 class="text-3xl font-black">Atletas</h1>
-    <div class="overflow-x-auto">
+<%= page_header(
+  title: "Relatório de atletas",
+  subtitle: @championship&.name || "Lista geral de atletas",
+  badge: "Atletas",
+  actions: [
+    (@sample_athlete.present? ? link_to("Baixar exemplo PDF", card_athlete_path(@sample_athlete, format: :pdf), class: "btn btn-outline") : nil),
+    (@sample_athlete.present? ? link_to("Ver atleta exemplo", athlete_path(@sample_athlete), class: "btn btn-primary") : nil)
+  ].compact
+) %>
+
+<%= stats_grid([
+  { label: "Atletas", value: @athletes_count, value_class: "text-3xl" },
+  { label: "Times", value: @teams_count, value_class: "text-3xl" },
+  { label: "Categorias", value: @categories_count, value_class: "text-3xl" },
+  { label: "Fotos", value: @photo_count, value_class: "text-3xl" }
+], columns: "md:grid-cols-4") %>
+
+<section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-bold">Lista de atletas</h2>
+      <p class="mt-2 text-sm text-base-content/70">
+        A visão abaixo segue o modelo operacional do sistema, com acesso rápido à página do atleta e à carteirinha em PDF.
+      </p>
+    </div>
+  </div>
+
+  <% if @athletes.any? %>
+    <div class="mt-6 overflow-x-auto">
       <table class="table">
-        <thead><tr><th>Nome</th><th>Equipe</th><th>Categoria</th><th>Número</th><th>Status</th></tr></thead>
+        <thead class="bg-base-200">
+          <tr>
+            <th>Atleta</th>
+            <th>Equipe</th>
+            <th>Categoria</th>
+            <th>Nº</th>
+            <th>Documentos</th>
+            <th>Status</th>
+            <th class="text-right">Ações</th>
+          </tr>
+        </thead>
         <tbody>
           <% @athletes.each do |athlete| %>
             <tr>
-              <td><%= athlete.name %></td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <div class="avatar">
+                    <div class="h-10 w-10 rounded-full bg-base-300">
+                      <% if athlete.display_photo_url.present? %>
+                        <%= image_tag athlete.display_photo_url, class: "h-full w-full object-cover" %>
+                      <% else %>
+                        <div class="flex h-full w-full items-center justify-center text-xs font-black text-base-content/70">
+                          <%= athlete.name.to_s.split.map(&:first).first(2).join.upcase %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="font-semibold"><%= link_to athlete.name, athlete_path(athlete), class: "link link-primary" %></div>
+                    <div class="text-xs text-base-content/50">
+                      <%= athlete.registration_label.strftime("%d/%m/%Y %H:%M") %>
+                    </div>
+                  </div>
+                </div>
+              </td>
               <td><%= athlete.team.name %></td>
               <td><%= athlete.category.name %></td>
-              <td><%= athlete.shirt_number.presence || "-" %></td>
-              <td><%= status_badge(athlete.status) %></td>
+              <td class="font-semibold"><%= athlete.shirt_number.presence || "-" %></td>
+              <td><%= athlete.preferred_document.presence || "-" %></td>
+              <td><span class="badge badge-outline"><%= athlete.status.titleize %></span></td>
+              <td>
+                <div class="flex flex-wrap justify-end gap-2">
+                  <%= link_to "Ver atleta", athlete_path(athlete), class: "btn btn-outline btn-sm" %>
+                  <%= link_to "PDF", card_athlete_path(athlete, format: :pdf), class: "btn btn-primary btn-sm" %>
+                </div>
+              </td>
             </tr>
           <% end %>
         </tbody>
       </table>
     </div>
-  </div>
-</div>
+  <% else %>
+    <%= empty_state(
+      title: "Nenhum atleta disponível",
+      description: "Os atletas do campeonato aparecem aqui quando houver cadastro."
+    ) %>
+  <% end %>
+</section>

@@ -1,0 +1,49 @@
+<% content_for :title, "Suspensão | Bola Cinco" %>
+
+<%= page_header(
+  title: @suspension.reason,
+  subtitle: @suspension.athlete.name,
+  badge: "Suspensões"
+) %>
+
+<%= stats_grid([
+  { label: "Status", value: @suspension.status.titleize, value_class: "text-2xl" },
+  { label: "Automática", value: (@suspension.automatic? ? "Sim" : "Não"), value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+  <%= surface_card(title: "Editar suspensão") do %>
+    <%= form_with model: @suspension, url: suspension_path(@suspension), method: :patch, class: "space-y-4" do |f| %>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= f.select :athlete_id, options_from_collection_for_select(@athletes, :id, :name, @suspension.athlete_id), { include_blank: "Atleta" }, class: "select select-bordered w-full" %>
+        <%= f.select :team_id, options_from_collection_for_select(@teams, :id, :name, @suspension.team_id), { include_blank: "Equipe" }, class: "select select-bordered w-full" %>
+        <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, @suspension.category_id), { include_blank: "Categoria" }, class: "select select-bordered w-full" %>
+        <%= f.select :status, Suspension.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+        <%= f.number_field :matches_count, class: "input input-bordered w-full", min: 1, placeholder: "Partidas" %>
+        <%= f.date_field :starts_on, class: "input input-bordered w-full" %>
+        <%= f.date_field :ends_on, class: "input input-bordered w-full" %>
+        <%= f.select :match_event_id, options_for_select(@match_events.map { |event| ["#{event.match.code} · #{event.kind.humanize}", event.id] }, @suspension.match_event_id), { include_blank: "Evento relacionado" }, class: "select select-bordered w-full" %>
+      </div>
+      <%= f.text_field :reason, class: "input input-bordered w-full", placeholder: "Motivo" %>
+      <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>
+      <label class="flex items-center gap-3">
+        <%= f.check_box :automatic, class: "checkbox checkbox-primary" %>
+        <span>Suspensão automática</span>
+      </label>
+      <div class="flex gap-3">
+        <%= f.submit "Salvar", class: "btn btn-primary" %>
+        <%= link_to "Remover", suspension_path(@suspension), data: { turbo_method: :delete }, class: "btn btn-outline btn-error" %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Detalhes") do %>
+    <div class="space-y-2 text-sm text-base-content/70">
+      <p><strong>Equipe:</strong> <%= @suspension.team&.name || "-" %></p>
+      <p><strong>Categoria:</strong> <%= @suspension.category&.name || "-" %></p>
+      <p><strong>Início:</strong> <%= @suspension.starts_on.presence || "-" %></p>
+      <p><strong>Término:</strong> <%= @suspension.ends_on.presence || "-" %></p>
+      <p><strong>Observações:</strong> <%= @suspension.notes.presence || "-" %></p>
+    </div>
+  <% end %>
+</section>

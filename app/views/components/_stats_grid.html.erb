@@ -1,0 +1,5 @@
+<section class="<%= ['grid gap-4', columns].reject(&:blank?).join(' ') %>">
+  <% stats.each do |stat| %>
+    <%= render partial: "components/stat_card", locals: stat %>
+  <% end %>
+</section>

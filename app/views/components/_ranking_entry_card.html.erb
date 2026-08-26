@@ -1,0 +1,15 @@
+<div class="rounded-2xl bg-base-200 p-4">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <p class="font-semibold"><%= entry.name %></p>
+      <p class="text-sm text-base-content/70"><%= entry.team_name %></p>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <span class="badge badge-primary"><%= entry.goals %> gols</span>
+      <% if entry.respond_to?(:assists) && entry.assists.to_i.positive? %>
+        <span class="badge badge-neutral"><%= entry.assists %> assistências</span>
+      <% end %>
+    </div>
+  </div>
+</div>

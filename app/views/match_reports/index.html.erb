@@ -1,0 +1,35 @@
+<% content_for :title, "Relatórios de jogo | Bola Cinco" %>
+
+<%= page_header(
+  title: "Relatórios de jogo",
+  subtitle: "Status e envio das súmulas.",
+  badge: "Operação"
+) %>
+
+<%= stats_grid([
+  { label: "Relatórios", value: @match_reports.size, value_class: "text-2xl" },
+  { label: "Campeonato atual", value: current_championship&.name || "-", value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<%= surface_card do %>
+  <% if @match_reports.any? %>
+    <div class="space-y-3">
+      <% @match_reports.each do |match_report| %>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="font-semibold"><%= match_report.match.code %></p>
+              <p class="text-sm text-base-content/70"><%= match_report.referee&.name || "Sem árbitro" %></p>
+            </div>
+            <%= status_badge(match_report.status) %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <%= empty_state(
+      title: "Nenhum relatório de jogo",
+      description: "Os relatórios aparecem aqui quando forem gerados."
+    ) %>
+  <% end %>
+<% end %>

@@ -1,0 +1,43 @@
+<%= surface_card(title: title, subtitle: team&.name || "Sem equipe") do %>
+  <% if participations.any? %>
+    <div class="overflow-hidden rounded-3xl border border-base-300">
+      <table class="table">
+        <thead class="bg-base-200">
+          <tr>
+            <th>Atleta</th>
+            <th>Nº</th>
+            <th>Posição</th>
+            <th>Status</th>
+            <th>Origem</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% participations.each do |participation| %>
+            <% status = match_participation_status_badge(participation.status) %>
+            <tr>
+              <td>
+                <div class="font-medium"><%= participation.athlete_name %></div>
+                <% if participation.notes.present? %>
+                  <div class="text-xs text-base-content/50"><%= participation.notes %></div>
+                <% end %>
+              </td>
+              <td><%= participation.shirt_number.presence || "-" %></td>
+              <td><%= participation.position.presence || "-" %></td>
+              <td><span class="badge <%= status[:badge] %> badge-sm"><%= status[:label] %></span></td>
+              <td class="text-sm text-base-content/60"><%= participation.athlete&.team&.name || "Convidado" %></td>
+              <td class="text-right">
+                <%= link_to "Remover", match_participation_path(participation), data: { turbo_method: :delete, turbo_confirm: "Remover participação?" }, class: "btn btn-outline btn-error btn-sm" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <%= empty_state(
+      title: "Sem participações",
+      description: "Registre quem participou ou ficou ausente neste time."
+    ) %>
+  <% end %>
+<% end %>

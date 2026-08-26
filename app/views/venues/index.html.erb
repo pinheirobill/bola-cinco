@@ -1,0 +1,62 @@
+<% content_for :title, "Locais | Bola Cinco" %>
+
+<%= page_header(
+  title: "Locais",
+  subtitle: "Quadras e arenas vinculadas ao campeonato atual.",
+  badge: "Operação",
+  actions: [link_to("Novo local", "#novo-local", class: "btn btn-primary")]
+) %>
+
+<%= stats_grid([
+  { label: "Locais cadastrados", value: @venues.size, value_class: "text-2xl" },
+  { label: "Campeonato atual", value: current_championship&.name || "-", value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+  <%= surface_card(title: "Novo local", subtitle: "Cadastre uma quadra, arena ou ginásio.", id: "novo-local") do %>
+    <%= form_with model: @venue, url: venues_path, class: "space-y-4" do |f| %>
+      <%= hidden_field_tag :championship_id, current_championship&.id %>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
+        <%= f.text_field :short_name, class: "input input-bordered w-full", placeholder: "Nome curto" %>
+        <%= f.text_field :city, class: "input input-bordered w-full", placeholder: "Cidade" %>
+        <%= f.select :status, Venue.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+      </div>
+      <%= f.text_field :address, class: "input input-bordered w-full", placeholder: "Endereço" %>
+      <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>
+      <%= f.submit "Criar local", class: "btn btn-primary" %>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Locais cadastrados") do %>
+    <% if @venues.any? %>
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Cidade</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @venues.each do |venue| %>
+              <tr>
+                <td class="font-medium"><%= venue.name %></td>
+                <td><%= venue.city.presence || "-" %></td>
+                <td><%= status_badge(venue.status) %></td>
+                <td><%= link_to "Ver", venue_path(venue), class: "link link-primary" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <%= empty_state(
+        title: "Nenhum local cadastrado",
+        description: "Crie o primeiro local para vincular jogos ao campeonato."
+      ) %>
+    <% end %>
+  <% end %>
+</section>

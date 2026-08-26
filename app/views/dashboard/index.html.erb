@@ -1,129 +1,138 @@
 <% content_for :title, "Dashboard | Bola Cinco" %>
 
-<section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-  <% stats = [
-    ["Campeonatos", @championships.count],
-    ["Categorias", @championship&.categories&.count.to_i],
-    ["Equipes", Team.count],
-    ["Jogos", Match.count]
-  ] %>
+<%= page_header(
+  title: "Dashboard",
+  subtitle: @championship&.name || "Nenhum campeonato importado",
+  badge: (@championship.present? ? @championship.status.to_s.tr("_", " ").humanize : "Sem campeonato"),
+  actions: [
+    link_to("Campeonatos", championships_path, class: "btn btn-outline"),
+    link_to("Classificação", standing_rows_path, class: "btn btn-primary")
+  ]
+) %>
 
-  <% stats.each do |label, value| %>
-    <div class="card border border-base-300 bg-base-100 shadow-sm">
-      <div class="card-body">
-        <div class="text-sm text-base-content/60"><%= label %></div>
-        <div class="text-4xl font-black"><%= value %></div>
+<%= stats_grid([
+  { label: "Campeonatos", value: @championships.count },
+  { label: "Categorias", value: @championship&.categories&.count.to_i },
+  { label: "Equipes", value: Team.count },
+  { label: "Jogos", value: Match.count }
+]) %>
+
+<section class="grid gap-6 xl:grid-cols-[1.35fr_0.95fr]">
+  <%= surface_card(
+    title: "Campeonato atual",
+    subtitle: @championship&.name || "Sem campeonato ativo",
+    badge: (@championship.present? ? @championship.season : nil)
+  ) do %>
+    <% if @championship.present? %>
+      <div class="grid gap-4 md:grid-cols-3">
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Temporada</p>
+          <p class="mt-2 text-2xl font-bold"><%= @championship.season %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Categorias</p>
+          <p class="mt-2 text-2xl font-bold"><%= @championship.categories.size %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Jogos</p>
+          <p class="mt-2 text-2xl font-bold"><%= @championship.matches.count %></p>
+        </div>
       </div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="badge badge-neutral"><%= @championship.competition_mode_label %></span>
+        <span class="badge badge-neutral"><%= @championship.categories.count %> categorias</span>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Campeonatos acessíveis", subtitle: "Contextos disponíveis para o usuário atual.") do %>
+    <div class="space-y-3">
+      <% if @accessible_championships.any? %>
+        <% @accessible_championships.each do |championship| %>
+          <div class="flex items-center justify-between gap-3 rounded-2xl bg-base-200 p-4">
+            <div>
+              <p class="font-semibold"><%= championship.name %></p>
+              <p class="text-sm text-base-content/70"><%= championship.season %></p>
+            </div>
+            <%= link_to "Ver", championship_path(championship), class: "link link-primary" %>
+          </div>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Nenhum campeonato acessível",
+          description: "Quando o usuário tiver acesso a campeonatos, eles aparecem aqui."
+        ) %>
+      <% end %>
     </div>
   <% end %>
 </section>
 
-<section class="grid gap-6 xl:grid-cols-[2fr_1fr]">
-  <div class="card border border-base-300 bg-base-100 shadow-sm">
-    <div class="card-body">
-      <div class="flex items-center justify-between gap-4">
-        <div>
-          <h2 class="card-title text-2xl">Campeonato atual</h2>
-          <p class="text-sm text-base-content/70"><%= @championship&.name || "Nenhum campeonato importado" %></p>
-        </div>
-        <% if @championship.present? %>
-          <%= status_badge(@championship.status) %>
+<section class="grid gap-6 xl:grid-cols-2">
+  <%= surface_card(title: "Próximos jogos") do %>
+    <div class="space-y-3">
+      <% if @upcoming_matches.any? %>
+        <% @upcoming_matches.each do |match| %>
+          <%= match_card(match, compact: true) %>
         <% end %>
-      </div>
-
-      <% if @championship.present? %>
-        <div class="mt-4 grid gap-4 md:grid-cols-3">
-          <div class="rounded-2xl bg-base-200 p-4">
-            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Temporada</p>
-            <p class="mt-2 text-2xl font-bold"><%= @championship.season %></p>
-          </div>
-          <div class="rounded-2xl bg-base-200 p-4">
-            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Categorias</p>
-            <p class="mt-2 text-2xl font-bold"><%= @championship.categories.size %></p>
-          </div>
-          <div class="rounded-2xl bg-base-200 p-4">
-            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Jogos</p>
-            <p class="mt-2 text-2xl font-bold"><%= @championship.matches.count %></p>
-          </div>
-        </div>
+      <% else %>
+        <%= empty_state(
+          title: "Sem jogos agendados",
+          description: "Partidas futuras aparecerão aqui quando forem cadastradas."
+        ) %>
       <% end %>
     </div>
-  </div>
+  <% end %>
 
-  <div class="card border border-base-300 bg-base-100 shadow-sm">
-    <div class="card-body">
-      <h2 class="card-title text-2xl">Próximos jogos</h2>
-      <div class="space-y-3">
-        <% @upcoming_matches.each do |match| %>
-          <div class="rounded-2xl bg-base-200 p-4">
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p class="font-semibold"><%= match.code %></p>
-                <p class="text-sm text-base-content/70"><%= match.team_a&.name || "A definir" %> x <%= match.team_b&.name || "A definir" %></p>
-              </div>
-              <span class="text-xs text-base-content/50"><%= [match.scheduled_on, match.scheduled_time].compact.join(" • ") %></span>
-            </div>
-          </div>
+  <%= surface_card(title: "Últimos resultados", actions: [link_to("Ver jogos", matches_path, class: "link link-primary")]) do %>
+    <div class="space-y-3">
+      <% if @recent_matches.any? %>
+        <% @recent_matches.each do |match| %>
+          <%= match_card(match, compact: true) %>
         <% end %>
-      </div>
+      <% else %>
+        <%= empty_state(
+          title: "Sem resultados recentes",
+          description: "Os jogos mais recentes vão aparecer aqui."
+        ) %>
+      <% end %>
     </div>
-  </div>
+  <% end %>
 </section>
 
 <section class="grid gap-6 xl:grid-cols-2">
-  <div class="card border border-base-300 bg-base-100 shadow-sm">
-    <div class="card-body">
-      <div class="flex items-center justify-between">
-        <h2 class="card-title text-2xl">Últimos resultados</h2>
-        <%= link_to "Ver jogos", matches_path, class: "link link-primary" %>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Jogo</th>
-              <th>Confronto</th>
-              <th>Placar</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @recent_matches.each do |match| %>
-              <tr>
-                <td><%= match.code %></td>
-                <td><%= [match.team_a&.name, match.team_b&.name].compact.join(" x ") %></td>
-                <td><%= match.score_a || "-" %> x <%= match.score_b || "-" %></td>
-                <td><%= status_badge(match.status) %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="card border border-base-300 bg-base-100 shadow-sm">
-    <div class="card-body">
-      <div class="flex items-center justify-between">
-        <h2 class="card-title text-2xl">Classificação</h2>
-        <%= link_to "Abrir classificação", standing_rows_path, class: "link link-primary" %>
-      </div>
-      <div class="space-y-3">
+  <%= surface_card(title: "Classificação", actions: [link_to("Ver classificação", standing_rows_path, class: "link link-primary")]) do %>
+    <div class="space-y-3">
+      <% if @top_standings.any? %>
         <% @top_standings.each do |row| %>
-          <div class="rounded-2xl bg-base-200 p-4">
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p class="font-semibold"><%= row.team.name %></p>
-                <p class="text-sm text-base-content/70"><%= row.category.name %></p>
-              </div>
-              <div class="text-right">
-                <p class="font-black"><%= row.points %> pts</p>
-                <p class="text-xs text-base-content/50"><%= row.position %>º lugar</p>
-              </div>
+          <%= standing_row_card(row) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem classificação publicada",
+          description: "A tabela aparece aqui quando houver linhas de classificação."
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= surface_card(title: "Categorias do campeonato atual") do %>
+    <div class="space-y-3">
+      <% if @categories.any? %>
+        <% @categories.each do |category| %>
+          <div class="flex items-center justify-between gap-3 rounded-2xl bg-base-200 p-4">
+            <div>
+              <p class="font-semibold"><%= category.name %></p>
+              <p class="text-sm text-base-content/70"><%= category.teams.size %> equipes</p>
             </div>
+            <%= link_to "Ver", category_path(category), class: "link link-primary" %>
           </div>
         <% end %>
-      </div>
+      <% else %>
+        <%= empty_state(
+          title: "Sem categorias carregadas",
+          description: "As categorias do campeonato ativo aparecerão aqui."
+        ) %>
+      <% end %>
     </div>
-  </div>
+  <% end %>
 </section>

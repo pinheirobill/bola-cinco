@@ -1,0 +1,40 @@
+<% content_for :title, "#{@venue.name} | Bola Cinco" %>
+
+<%= page_header(
+  title: @venue.name,
+  subtitle: [@venue.city, @venue.address].compact.join(" · ").presence || "Local do campeonato",
+  badge: "Locais"
+) %>
+
+<%= stats_grid([
+  { label: "Status", value: @venue.status.titleize, value_class: "text-2xl" },
+  { label: "Campeonato", value: @venue.championship&.name || "Sem campeonato", value_class: "text-xl" }
+], columns: "md:grid-cols-2") %>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+  <%= surface_card(title: "Editar local") do %>
+    <%= form_with model: @venue, url: venue_path(@venue), method: :patch, class: "space-y-4" do |f| %>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
+        <%= f.text_field :short_name, class: "input input-bordered w-full", placeholder: "Nome curto" %>
+        <%= f.text_field :city, class: "input input-bordered w-full", placeholder: "Cidade" %>
+        <%= f.select :status, Venue.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+      </div>
+      <%= f.text_field :address, class: "input input-bordered w-full", placeholder: "Endereço" %>
+      <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>
+      <div class="flex gap-3">
+        <%= f.submit "Salvar", class: "btn btn-primary" %>
+        <%= link_to "Remover", venue_path(@venue), data: { turbo_method: :delete }, class: "btn btn-outline btn-error" %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Detalhes") do %>
+    <div class="space-y-2 text-sm text-base-content/70">
+      <p><strong>Short name:</strong> <%= @venue.short_name.presence || "-" %></p>
+      <p><strong>Cidade:</strong> <%= @venue.city.presence || "-" %></p>
+      <p><strong>Endereço:</strong> <%= @venue.address.presence || "-" %></p>
+      <p><strong>Observações:</strong> <%= @venue.notes.presence || "-" %></p>
+    </div>
+  <% end %>
+</section>

@@ -1,0 +1,47 @@
+<% content_for :title, "#{@partner.name} | Bola Cinco" %>
+
+<%= page_header(
+  title: @partner.name,
+  subtitle: @partner.tier.titleize,
+  badge: "Parceiros"
+) %>
+
+<%= stats_grid([
+  { label: "Status", value: @partner.status.titleize, value_class: "text-2xl" },
+  { label: "Destaque", value: (@partner.highlight? ? "Sim" : "Não"), value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+  <% if user_signed_in? %>
+    <%= surface_card(title: "Editar parceiro") do %>
+      <%= form_with model: @partner, url: partner_path(@partner), method: :patch, class: "space-y-4" do |f| %>
+        <div class="grid gap-4 md:grid-cols-2">
+          <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
+          <%= f.select :tier, Partner.tiers.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+          <%= f.select :status, Partner.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+          <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, @partner.category_id), { include_blank: "Categoria" }, class: "select select-bordered w-full" %>
+          <%= f.text_field :logo_url, class: "input input-bordered w-full", placeholder: "URL da logo" %>
+          <%= f.text_field :website_url, class: "input input-bordered w-full", placeholder: "Website" %>
+        </div>
+        <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>
+        <label class="flex items-center gap-3">
+          <%= f.check_box :highlight, class: "checkbox checkbox-primary" %>
+          <span>Destacar parceiro</span>
+        </label>
+        <div class="flex gap-3">
+          <%= f.submit "Salvar", class: "btn btn-primary" %>
+          <%= link_to "Remover", partner_path(@partner), data: { turbo_method: :delete }, class: "btn btn-outline btn-error" %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Detalhes") do %>
+    <div class="space-y-2 text-sm text-base-content/70">
+      <p><strong>Categoria:</strong> <%= @partner.category&.name || "-" %></p>
+      <p><strong>Website:</strong> <%= @partner.website_url.presence || "-" %></p>
+      <p><strong>Logo:</strong> <%= @partner.logo_url.presence || "-" %></p>
+      <p><strong>Observações:</strong> <%= @partner.notes.presence || "-" %></p>
+    </div>
+  <% end %>
+</section>

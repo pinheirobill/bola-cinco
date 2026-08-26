@@ -1,0 +1,40 @@
+<% content_for :title, "#{@news_item.title} | Bola Cinco" %>
+
+<%= page_header(
+  title: @news_item.title,
+  subtitle: @news_item.category&.name || "Geral",
+  badge: "Notícias"
+) %>
+
+<%= stats_grid([
+  { label: "Status", value: @news_item.status.titleize, value_class: "text-2xl" },
+  { label: "Publicado em", value: (@news_item.published_at&.strftime("%d/%m/%Y") || "-"), value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+  <% if user_signed_in? %>
+    <%= surface_card(title: "Editar notícia") do %>
+      <%= form_with model: @news_item, url: news_item_path(@news_item), method: :patch, class: "space-y-4" do |f| %>
+        <div class="grid gap-4 md:grid-cols-2">
+          <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, @news_item.category_id), { include_blank: "Categoria" }, class: "select select-bordered w-full" %>
+          <%= f.select :status, NewsItem.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+          <%= f.text_field :title, class: "input input-bordered w-full", placeholder: "Título" %>
+          <%= f.datetime_field :published_at, class: "input input-bordered w-full" %>
+        </div>
+        <%= f.text_area :body, class: "textarea textarea-bordered w-full", rows: 6, placeholder: "Conteúdo" %>
+        <label class="flex items-center gap-3">
+          <%= f.check_box :pinned, class: "checkbox checkbox-primary" %>
+          <span>Fixar notícia</span>
+        </label>
+        <div class="flex gap-3">
+          <%= f.submit "Salvar", class: "btn btn-primary" %>
+          <%= link_to "Remover", news_item_path(@news_item), data: { turbo_method: :delete }, class: "btn btn-outline btn-error" %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Conteúdo") do %>
+    <p class="whitespace-pre-line text-sm text-base-content/70"><%= @news_item.body.presence || "Sem conteúdo" %></p>
+  <% end %>
+</section>

@@ -1,37 +1,85 @@
 class ChampionshipsController < ApplicationController
+  skip_before_action :authenticate_user!, only: %i[index show]
+
   def index
-    @championships = Championship.order(season: :desc, created_at: :desc).includes(:categories)
+    @championships = if user_signed_in?
+      current_user.admin? ? Championship.order(season: :desc, created_at: :desc).includes(:categories) : current_user.accessible_championships.order(season: :desc, created_at: :desc).includes(:categories)
+    else
+      Championship.publicly_visible.order(season: :desc, created_at: :desc).includes(:categories)
+    end
   end
 
   def show
-    @championship = Championship.includes(categories: :teams, matches: %i[team_a team_b winner], standing_rows: :team).find(params[:id])
-    @step = params[:step].presence_in(%w[data format teams]) || "data"
-    @available_teams_by_category = Team.includes(:entity, :category).where(category: @championship.categories).order(:name).group_by(&:category_id)
+    @championship = championship_lookup
+    return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+
+    load_championship_overview
+  end
+
+  def setup
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+
+    load_championship_setup
+  end
+
+  def update
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+
+    if @championship.update(championship_params)
+      redirect_to setup_championship_path(@championship, step: params[:step].presence || "data"), notice: "Campeonato atualizado."
+    else
+      load_championship_setup
+      @step = params[:step].presence_in(%w[data format registrations teams]) || "data"
+      render :setup, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def championship_lookup
+    Championship.find_by(slug: params[:id]) || Championship.find(params[:id])
+  end
+
+  def load_championship_overview
+    @championship = Championship.includes(
+      categories: :teams,
+      matches: %i[team_a team_b winner],
+      standing_rows: :team,
+      news_items: :category,
+      partners: :category,
+      round_selections: %i[category athletes]
+    ).find(@championship.id)
     @recent_matches = @championship.recent_matches(8)
     @standings_by_category = @championship.standings_by_category
     @top_scorers = @championship.top_scorers(5)
     @best_defense_row = @championship.best_defense_row
     @worst_defense_row = @championship.worst_defense_row
+    @top_athletes = @championship.top_athletes(5)
+    @published_news = @championship.published_news(5)
+    @featured_partners = @championship.featured_partners(5)
+    @latest_round_selections = @championship.latest_round_selections(5)
   end
 
-  def update
-    @championship = Championship.find(params[:id])
-
-    if @championship.update(championship_params)
-      redirect_to championship_path(@championship, step: params[:step].presence || "data"), notice: "Campeonato atualizado."
-    else
-      @step = params[:step].presence_in(%w[data format teams]) || "data"
-      @available_teams_by_category = Team.includes(:entity, :category).where(category: @championship.categories).order(:name).group_by(&:category_id)
-      @recent_matches = @championship.recent_matches(8)
-      @standings_by_category = @championship.standings_by_category
-      @top_scorers = @championship.top_scorers(5)
-      @best_defense_row = @championship.best_defense_row
-      @worst_defense_row = @championship.worst_defense_row
-      render :show, status: :unprocessable_entity
-    end
+  def load_championship_setup
+    @championship = Championship.includes(categories: :teams).find(@championship.id)
+    @step = params[:step].presence_in(%w[data format registrations teams]) || "data"
+    @available_teams_by_category = Team.includes(:entity, :category).where(category: @championship.categories).order(:name).group_by(&:category_id)
+    @venues = @championship.venues.order(:name)
+    @referees = @championship.referees.order(:name)
+    @available_venues = Venue.available.order(:name)
+    @available_referees = Referee.available.order(:name)
+    @recent_matches = @championship.recent_matches(8)
+    @standings_by_category = @championship.standings_by_category
+    @top_scorers = @championship.top_scorers(5)
+    @best_defense_row = @championship.best_defense_row
+    @worst_defense_row = @championship.worst_defense_row
+    @top_athletes = @championship.top_athletes(5)
+    @published_news = @championship.published_news(5)
+    @featured_partners = @championship.featured_partners(5)
+    @latest_round_selections = @championship.latest_round_selections(5)
   end
-
-  private
 
   def championship_params
     params.expect(championship: [

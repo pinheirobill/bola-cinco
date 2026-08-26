@@ -1,12 +1,28 @@
 <% content_for :title, "#{@category.name} | Bola Cinco" %>
 
-<div class="card border border-base-300 bg-base-100 shadow-sm">
-  <div class="card-body">
-    <h1 class="text-3xl font-black"><%= @category.name %></h1>
-    <p class="text-sm text-base-content/70"><%= @category.championship.name %></p>
-    <div class="mt-4 overflow-x-auto">
+<%= page_header(
+  title: @category.name,
+  subtitle: @category.championship.name,
+  badge: "#{@category.teams.size} equipes"
+) %>
+
+<%= stats_grid([
+  { label: "Equipe(s)", value: @category.teams.size, value_class: "text-2xl" },
+  { label: "Campeonato", value: @category.championship.name, value_class: "text-lg" }
+], columns: "md:grid-cols-2") %>
+
+<%= surface_card do %>
+  <% if @category.teams.any? %>
+    <div class="overflow-x-auto">
       <table class="table">
-        <thead><tr><th>Equipe</th><th>Entidade</th><th>Inscrição</th><th>Financeiro</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Equipe</th>
+            <th>Entidade</th>
+            <th>Inscrição</th>
+            <th>Financeiro</th>
+          </tr>
+        </thead>
         <tbody>
           <% @category.teams.each do |team| %>
             <tr>
@@ -19,5 +35,10 @@
         </tbody>
       </table>
     </div>
-  </div>
-</div>
+  <% else %>
+    <%= empty_state(
+      title: "Nenhuma equipe nesta categoria",
+      description: "Quando a categoria receber equipes, elas vão aparecer nesta tabela."
+    ) %>
+  <% end %>
+<% end %>

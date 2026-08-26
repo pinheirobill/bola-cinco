@@ -1,6 +1,11 @@
 class DashboardController < ApplicationController
   def index
     @championships = Championship.order(season: :desc, created_at: :desc)
+    @accessible_championships = if user_signed_in? && !current_user.admin?
+      current_user.accessible_championships.order(season: :desc, created_at: :desc)
+    else
+      @championships
+    end
     @championship = current_championship
     @categories = @championship&.categories&.includes(:teams).to_a || []
     @recent_matches = Match.includes(:category, :team_a, :team_b).order(scheduled_on: :desc, id: :desc).limit(8)

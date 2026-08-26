@@ -1,0 +1,15 @@
+<% label = local_assigns[:label] %>
+<% value = local_assigns[:value] %>
+<% description = local_assigns[:description] %>
+<% value_class = local_assigns[:value_class] || "text-4xl" %>
+
+<div class="card border border-base-300 bg-base-100 shadow-sm">
+  <div class="card-body">
+    <div class="text-sm text-base-content/60"><%= label %></div>
+    <div class="<%= value_class %> font-black"><%= value %></div>
+
+    <% if description.present? %>
+      <div class="text-sm text-base-content/70"><%= description %></div>
+    <% end %>
+  </div>
+</div>

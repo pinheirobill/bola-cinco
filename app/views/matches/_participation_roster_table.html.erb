@@ -1,0 +1,116 @@
+<%= surface_card(title: title, subtitle: team&.name || "Sem equipe") do %>
+  <% athlete_ids = Array(athletes).map(&:id) %>
+
+  <% if athletes.any? %>
+    <div class="overflow-hidden rounded-3xl border border-base-300">
+      <table class="table">
+        <thead class="bg-base-200">
+          <tr>
+            <th>Jogador</th>
+            <th>Nº</th>
+            <th>Posição</th>
+            <th>Presença</th>
+            <th class="text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% athletes.each do |athlete| %>
+            <% participation = participations_by_athlete[athlete.id] %>
+            <% status = participation.present? ? match_participation_status_badge(participation.status) : nil %>
+            <tr>
+              <td>
+                <div class="font-medium"><%= athlete.name %></div>
+                <div class="text-xs text-base-content/50"><%= athlete.registration_label.strftime("%d/%m/%Y %H:%M") %></div>
+              </td>
+              <td class="font-semibold"><%= athlete.shirt_number.presence || "-" %></td>
+              <td><%= athlete.position.presence || "-" %></td>
+              <td>
+                <% if status.present? %>
+                  <span class="badge <%= status[:badge] %> badge-sm"><%= status[:label] %></span>
+                <% else %>
+                  <span class="text-sm text-base-content/40">Sem vínculo</span>
+                <% end %>
+              </td>
+              <td>
+                <div class="flex flex-wrap justify-end gap-2">
+                  <%= button_to "Confirmar",
+                    match_match_participations_path(match),
+                    method: :post,
+                    params: {
+                      return_to: edit_match_path(match),
+                      match_participation: {
+                        team_id: team&.id,
+                        athlete_id: athlete.id,
+                        status: "confirmado"
+                      }
+                    },
+                    form_class: "inline-flex",
+                    class: "btn btn-success btn-xs" %>
+                  <%= button_to "Ausente",
+                    match_match_participations_path(match),
+                    method: :post,
+                    params: {
+                      return_to: edit_match_path(match),
+                      match_participation: {
+                        team_id: team&.id,
+                        athlete_id: athlete.id,
+                        status: "ausente"
+                      }
+                    },
+                    form_class: "inline-flex",
+                    class: "btn btn-error btn-outline btn-xs" %>
+                  <% if participation.present? %>
+                    <%= button_to "Remover",
+                      match_participation_path(participation),
+                      method: :delete,
+                      params: { return_to: edit_match_path(match) },
+                      form_class: "inline-flex",
+                      data: { turbo_confirm: "Remover participação?" },
+                      class: "btn btn-ghost btn-error btn-xs" %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <%= empty_state(
+      title: "Sem atletas",
+      description: "A participação aparece quando a equipe tiver atletas vinculados."
+    ) %>
+  <% end %>
+
+  <% guest_participations = Array(participations).reject { |participation| participation.athlete_id.present? && athlete_ids.include?(participation.athlete_id) } %>
+  <% if guest_participations.any? %>
+    <div class="mt-4 rounded-3xl border border-base-300">
+      <div class="border-b border-base-300 bg-base-200 px-4 py-3">
+        <p class="font-semibold">Convidados e substitutos</p>
+      </div>
+      <div class="divide-y divide-base-300">
+        <% guest_participations.each do |participation| %>
+          <% status = match_participation_status_badge(participation.status) %>
+          <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <div>
+              <p class="font-medium"><%= participation.athlete_name %></p>
+              <p class="text-xs text-base-content/50">
+                <%= [participation.shirt_number.presence, participation.position.presence].compact.join(" · ").presence || "Sem dados complementares" %>
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="badge <%= status[:badge] %> badge-sm"><%= status[:label] %></span>
+              <%= button_to "Remover",
+                match_participation_path(participation),
+                method: :delete,
+                params: { return_to: edit_match_path(match) },
+                form_class: "inline-flex",
+                data: { turbo_confirm: "Remover participação?" },
+                class: "btn btn-ghost btn-error btn-xs" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
