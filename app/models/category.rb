@@ -29,6 +29,7 @@ class Category < ApplicationRecord
 
   def sync_primary_championship_link
     return if championship_id.blank?
+    return unless self.class.connection.data_source_exists?("championship_categories")
 
     championship_categories.find_or_create_by!(championship_id: championship_id) do |membership|
       membership.source_id = "championship-category-#{championship_id}-#{id}"

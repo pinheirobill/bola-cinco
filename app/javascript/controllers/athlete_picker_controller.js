@@ -1,51 +1,59 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["item", "search", "teamFilter", "visibleCount", "selectedCount"]
+  static targets = ["item", "search", "teamFilter", "visibleCount", "selectedCount", "fallbackMessage"]
 
   connect() {
-    if (this.hasTeamFilterTarget && this.teamFilterTarget.value) {
-      this.syncTeamSelection()
-    } else {
-      this.refresh()
-    }
+    this.applyFilters({ syncSelection: true })
   }
 
   filter() {
-    const query = this.searchTarget.value.trim().toLowerCase()
-    const teamFilter = this.hasTeamFilterTarget ? this.teamFilterTarget.value : ""
-
-    this.itemTargets.forEach((item) => {
-      const matchesQuery = query.length === 0 || item.dataset.searchIndex.includes(query)
-      const matchesTeam = this.itemMatchesTeam(item, teamFilter)
-      const matches = matchesQuery && matchesTeam
-      item.classList.toggle("hidden", !matches)
-    })
-
-    this.refresh()
+    this.applyFilters({ syncSelection: false })
   }
 
   syncTeamSelection() {
+    this.applyFilters({ syncSelection: true })
+  }
+
+  applyFilters({ syncSelection }) {
     if (!this.hasTeamFilterTarget) {
       this.refresh()
       return
     }
 
+    const query = this.hasSearchTarget ? this.searchTarget.value.trim().toLowerCase() : ""
     const teamFilter = this.teamFilterTarget.value
+    const teamMatches = teamFilter
+      ? this.itemTargets.filter((item) => this.itemMatchesTeam(item, teamFilter))
+      : this.itemTargets
+    const fallbackToAll = Boolean(teamFilter) && teamMatches.length === 0
+    const effectiveTeamFilter = fallbackToAll ? "" : teamFilter
 
-    this.filter()
+    this.itemTargets.forEach((item) => {
+      const searchIndex = item.dataset.searchIndex || ""
+      const matchesQuery = query.length === 0 || searchIndex.includes(query)
+      const matchesTeam = this.itemMatchesTeam(item, effectiveTeamFilter)
+      const matches = matchesQuery && matchesTeam
+      item.classList.toggle("hidden", !matches)
+    })
 
-    if (!teamFilter) {
+    if (syncSelection && !teamFilter) {
       this.clearSelection()
       return
     }
 
-    this.itemTargets.forEach((item) => {
-      const input = this.inputFor(item)
-      if (!input || input.disabled) return
+    if (syncSelection && teamFilter) {
+      this.itemTargets.forEach((item) => {
+        const input = this.inputFor(item)
+        if (!input || input.disabled) return
 
-      input.checked = this.itemMatchesTeam(item, teamFilter)
-    })
+        input.checked = fallbackToAll ? false : this.itemMatchesTeam(item, teamFilter)
+      })
+    }
+
+    if (this.hasFallbackMessageTarget) {
+      this.fallbackMessageTarget.classList.toggle("hidden", !fallbackToAll)
+    }
 
     this.refresh()
   }

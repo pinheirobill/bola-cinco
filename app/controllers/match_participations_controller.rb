@@ -146,7 +146,7 @@ class MatchParticipationsController < ApplicationController
     @match_participation = @match.match_participations.new(status: :pendente)
     @available_referees = @match.championship.referees.order(:name)
     @available_athletes = @match.roster_athletes
-    @available_participation_athletes = Athlete.for_picker
+    @available_participation_athletes = Athlete.ativos.for_picker
     @available_teams = [@match.team_a, @match.team_b].compact.uniq
     @available_venues = @match.championship.venues.order(:name)
     @match_events = @match.match_events.includes(:team, :athlete).order(created_at: :desc)
