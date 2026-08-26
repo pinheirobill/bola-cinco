@@ -32,4 +32,23 @@ module MatchesHelper
   def match_participation_status_badge(status)
     MATCH_PARTICIPATION_STATUSES.fetch(status.to_s, { label: status.to_s.humanize, badge: "badge-outline" })
   end
+
+  def match_scheduled_time_value(value)
+    raw = value.to_s.strip
+    return if raw.blank?
+
+    if (match = raw.match(/\A(?<hour>\d{1,2})[Hh:](?<minute>\d{2})\z/))
+      hour = match[:hour].to_i
+      minute = match[:minute].to_i
+      return format("%02d:%02d", hour, minute)
+    end
+
+    if (match = raw.match(/\A(?<hour>\d{1,2}):(?<minute>\d{2})(?::\d{2})?\z/))
+      hour = match[:hour].to_i
+      minute = match[:minute].to_i
+      return format("%02d:%02d", hour, minute)
+    end
+
+    raw
+  end
 end
