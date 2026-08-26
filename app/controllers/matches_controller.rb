@@ -31,7 +31,24 @@ class MatchesController < ApplicationController
       @match.sync_competition_state!
     end
 
-    return head :no_content if autosave_request?
+    if autosave_request?
+      load_match_context
+      return respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("match-score-card", partial: "matches/score_card", locals: { match: @match }),
+            turbo_stream.replace("match-auto-goals", partial: "matches/auto_goals", locals: {
+              match: @match,
+              auto_goal_minutes_a: @auto_goal_minutes_a,
+              auto_goal_minutes_b: @auto_goal_minutes_b,
+              auto_goal_penalties_a: @auto_goal_penalties_a,
+              auto_goal_penalties_b: @auto_goal_penalties_b
+            })
+          ]
+        end
+        format.html { redirect_to edit_match_path(@match) }
+      end
+    end
 
     redirect_to match_path(@match), notice: "Jogo atualizado."
   rescue ActiveRecord::RecordInvalid

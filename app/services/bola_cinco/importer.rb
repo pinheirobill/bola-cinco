@@ -7,6 +7,7 @@ module BolaCinco
     def call
       payload = JSON.parse(File.read(path))
       championship = upsert_championship(required_section(payload, "championship"))
+      StandingRow.where(championship: championship).delete_all
       categories = upsert_categories(required_section(payload, "categories"), championship)
       entities = upsert_entities(required_section(payload, "entities"))
       teams = upsert_teams(required_section(payload, "teams"), entities, categories)

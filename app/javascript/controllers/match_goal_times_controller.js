@@ -17,6 +17,8 @@ export default class extends Controller {
   ]
 
   connect() {
+    if (!this.hasScoreATarget || !this.hasScoreBTarget || !this.hasTeamAFieldsTarget || !this.hasTeamBFieldsTarget) return
+
     this.refresh()
   }
 
