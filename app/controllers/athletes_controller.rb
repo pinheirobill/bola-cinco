@@ -14,9 +14,9 @@ class AthletesController < ApplicationController
   end
 
   def show
-    @athlete = scoped_athletes.includes(team: %i[entity category], linked_teams: :entity, category: :championship).find(params[:id])
+    @athlete = scoped_athletes.includes(team: %i[entity category], linked_teams: :entity, category: %i[championship championships]).find(params[:id])
     @athlete_team_links = @athlete.team_athletes.includes(:team).order(created_at: :desc)
-    @available_teams = @athlete.category.championship.teams.where.not(id: @athlete.linked_teams.select(:id)).order(:name)
+    @available_teams = @athlete.championship&.teams&.where.not(id: @athlete.linked_teams.select(:id)).order(:name) || Team.none
     @championship = @athlete.championship
     @performance_summary = @athlete.performance_summary
     @recent_matches = @athlete.recent_performance_matches
@@ -25,7 +25,7 @@ class AthletesController < ApplicationController
   end
 
   def card
-    @athlete = scoped_athletes.includes(team: %i[entity category], linked_teams: :entity, category: :championship).find(params[:id])
+    @athlete = scoped_athletes.includes(team: %i[entity category], linked_teams: :entity, category: %i[championship championships]).find(params[:id])
     @performance_summary = @athlete.performance_summary
 
     respond_to do |format|
@@ -41,7 +41,7 @@ class AthletesController < ApplicationController
 
   def create
     team = Team.find(athlete_params[:team_id])
-    championship = team.category.championship
+    championship = current_championship || team.championship || team.category.championship || team.category.championships.first
     return forbidden! unless current_user.admin? || (championship.athlete_registration_open? && current_user.can_manage_team?(team))
     return forbidden! if championship.athlete_limit_reached_for?(team) && !current_user.admin?
 
@@ -56,7 +56,7 @@ class AthletesController < ApplicationController
   end
 
   def update
-    championship = athlete.team.category.championship
+    championship = current_championship || athlete.team.championship || athlete.team.category.championship || athlete.team.category.championships.first
     return forbidden! unless current_user.admin? || (championship.athlete_editing_open? && athlete.manageable_by?(current_user))
 
     if athlete.update(athlete_params)
@@ -67,7 +67,7 @@ class AthletesController < ApplicationController
   end
 
   def destroy
-    championship = athlete.team.category.championship
+    championship = current_championship || athlete.team.championship || athlete.team.category.championship || athlete.team.category.championships.first
     return forbidden! unless current_user.admin? || (championship.athlete_removal_open? && athlete.manageable_by?(current_user))
 
     athlete.destroy!

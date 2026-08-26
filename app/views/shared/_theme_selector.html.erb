@@ -1,0 +1,38 @@
+<div class="dropdown dropdown-end relative z-50">
+  <div tabindex="0" role="button" class="btn btn-outline btn-sm gap-2">
+    <span class="flex items-center gap-1">
+      <% current_theme_meta[:swatches].each do |swatch| %>
+        <span class="h-3 w-3 rounded-full border border-base-content/10" style="background-color: <%= swatch %>"></span>
+      <% end %>
+    </span>
+    <span class="hidden sm:inline"><%= current_theme_meta[:label] %></span>
+  </div>
+  <div tabindex="0" class="dropdown-content z-[100] mt-3 w-72 rounded-3xl border border-base-300 bg-base-100 p-3 shadow-xl">
+    <div class="mb-3">
+      <p class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50">Tema</p>
+      <p class="mt-1 text-sm text-base-content/70">Escolha as cores favoritas do sistema.</p>
+    </div>
+
+    <div class="grid gap-2">
+      <% theme_options.each do |label, theme_key| %>
+        <% theme_meta = User.theme_meta(theme_key) %>
+        <%= button_to theme_preference_path,
+                      method: :patch,
+                      params: { theme_preference: { theme: theme_key } },
+                      class: "btn btn-ghost w-full justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-3 text-left hover:bg-base-100" do %>
+          <span class="flex items-center gap-3">
+            <span class="flex items-center gap-1">
+              <% theme_meta[:swatches].each do |swatch| %>
+                <span class="h-4 w-4 rounded-full border border-base-content/10" style="background-color: <%= swatch %>"></span>
+              <% end %>
+            </span>
+            <span class="font-semibold"><%= label %></span>
+          </span>
+          <% if current_theme_name == theme_key %>
+            <span class="badge badge-primary badge-outline">Ativo</span>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

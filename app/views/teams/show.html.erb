@@ -70,7 +70,7 @@
     <div class="modal-box max-w-5xl" data-controller="athlete-picker">
       <h3 class="text-2xl font-bold">Vincular atleta à equipe</h3>
       <p class="mt-2 text-sm text-base-content/70">
-        Selecione um ou mais atletas ativos no sistema. Use a busca e o filtro por equipe atual para montar o time inteiro de uma vez.
+        Selecione um ou mais atletas cadastrados no sistema. Use a busca e o filtro por equipe atual para montar o time inteiro de uma vez.
       </p>
 
       <%= form_with(url: team_team_athletes_path(@team), scope: :team_athlete, class: "mt-6 space-y-4") do |f| %>
@@ -123,11 +123,13 @@
             <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               <% @available_athletes.each do |athlete| %>
                 <% linked_to_team = @team_athlete_ids.include?(athlete.id) %>
+                <% athlete_team_ids = ([athlete.team_id] + athlete.linked_teams.map(&:id)).compact.uniq %>
                 <label
                   class="group cursor-pointer rounded-2xl border border-base-300 bg-base-200 p-4 transition hover:border-primary hover:bg-base-100 <%= linked_to_team ? 'cursor-not-allowed' : '' %>"
                   data-athlete-picker-target="item"
                   data-search-index="<%= athlete.search_index %>"
                   data-team-id="<%= athlete.team_id %>"
+                  data-team-ids="<%= athlete_team_ids.join(' ') %>"
                 >
                   <%= check_box_tag "team_athlete[athlete_ids][]", athlete.id, false, class: "sr-only", disabled: linked_to_team, data: { action: "change->athlete-picker#refresh" } %>
                   <div class="rounded-2xl border border-transparent p-1 transition">
@@ -181,7 +183,7 @@
             </div>
           <% else %>
             <div class="rounded-2xl border border-dashed border-base-300 p-6 text-sm text-base-content/70">
-              Não há atletas ativos disponíveis para vincular.
+              Não há atletas cadastrados disponíveis para vincular.
             </div>
           <% end %>
         </div>

@@ -6,8 +6,7 @@
   badge: @championship.status.to_s.tr("_", " ").humanize,
   actions: [
     link_to("Classificação", standing_rows_path, class: "btn btn-outline"),
-    (@championship.team_signup_open? ? link_to("Inscrição de time", new_championship_team_signup_path(@championship), class: "btn btn-outline") : nil),
-    (@championship.athlete_registration_open? ? link_to("Inscrição de atleta", new_championship_athlete_signup_path(@championship), class: "btn btn-outline") : nil),
+    (@championship.team_signup_open? ? button_tag("Inscrição de equipes", type: "button", class: "btn btn-outline", onclick: "document.getElementById('championship-team-signup-modal').showModal()") : nil),
     (user_signed_in? && @championship.manageable_by?(current_user) ? link_to("Configurar campeonato", setup_championship_path(@championship), class: "btn btn-primary") : nil)
   ].compact
 ) %>
@@ -77,25 +76,28 @@
       <%= link_to "Eventos de jogo", match_events_path, class: "btn btn-outline btn-block justify-start" %>
       <%= link_to "Relatórios de jogo", match_reports_path, class: "btn btn-outline btn-block justify-start" %>
       <%= link_to "Suspensões", suspensions_path, class: "btn btn-outline btn-block justify-start" %>
-      <%= link_to "Seleções de rodada", round_selections_path, class: "btn btn-outline btn-block justify-start" %>
       <%= link_to "Parceiros", partners_path, class: "btn btn-outline btn-block justify-start" %>
-      <%= link_to "Notícias", news_items_path, class: "btn btn-outline btn-block justify-start" %>
     </div>
   <% end %>
 
   <%= surface_card(
-    title: "Resumo editorial",
-    subtitle: "Pontos de saída rápidos para conteúdo público e administrativo."
+    title: "Parceiros em destaque",
+    subtitle: "Pontos de saída rápidos para apoiadores do campeonato."
   ) do %>
     <div class="space-y-3">
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="font-semibold">Portal público</p>
-        <p class="mt-1 text-sm text-base-content/70">O visitante encontra aqui jogos, classificação, parceiros e notícias.</p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="font-semibold">Configuração</p>
-        <p class="mt-1 text-sm text-base-content/70">A administração do campeonato fica na tela de configuração dedicada.</p>
-      </div>
+      <% if @featured_partners.any? %>
+        <% @featured_partners.each do |partner| %>
+          <div class="rounded-2xl bg-base-200 p-4">
+            <p class="font-medium"><%= partner.name %></p>
+            <p class="text-xs text-base-content/50"><%= partner.tier.titleize %></p>
+          </div>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem parceiros em destaque",
+          description: "Os apoiadores do campeonato aparecerão aqui."
+        ) %>
+      <% end %>
     </div>
   <% end %>
 </section>
@@ -133,67 +135,6 @@
 </section>
 
 <section class="grid gap-6 xl:grid-cols-2">
-  <%= surface_card(title: "Portal aberto", subtitle: "Notícias, parceiros e seleções recentes.") do %>
-    <div class="space-y-4">
-      <div>
-        <h3 class="font-semibold">Notícias</h3>
-        <div class="mt-3 space-y-2">
-          <% if @published_news.any? %>
-            <% @published_news.each do |news_item| %>
-              <div class="rounded-2xl bg-base-200 p-4">
-                <p class="font-medium"><%= news_item.title %></p>
-                <p class="text-xs text-base-content/50"><%= news_item.category&.name || "Geral" %></p>
-              </div>
-            <% end %>
-          <% else %>
-            <%= empty_state(
-              title: "Sem notícias publicadas",
-              description: "As publicações do campeonato aparecerão aqui."
-            ) %>
-          <% end %>
-        </div>
-      </div>
-
-      <div>
-        <h3 class="font-semibold">Parceiros em destaque</h3>
-        <div class="mt-3 space-y-2">
-          <% if @featured_partners.any? %>
-            <% @featured_partners.each do |partner| %>
-              <div class="rounded-2xl bg-base-200 p-4">
-                <p class="font-medium"><%= partner.name %></p>
-                <p class="text-xs text-base-content/50"><%= partner.tier.titleize %></p>
-              </div>
-            <% end %>
-          <% else %>
-            <%= empty_state(
-              title: "Sem parceiros em destaque",
-              description: "Os apoiadores do campeonato aparecerão aqui."
-            ) %>
-          <% end %>
-        </div>
-      </div>
-
-      <div>
-        <h3 class="font-semibold">Seleções recentes</h3>
-        <div class="mt-3 space-y-2">
-          <% if @latest_round_selections.any? %>
-            <% @latest_round_selections.each do |round_selection| %>
-              <div class="rounded-2xl bg-base-200 p-4">
-                <p class="font-medium"><%= round_selection.title %></p>
-                <p class="text-xs text-base-content/50">Rodada <%= round_selection.round_number %></p>
-              </div>
-            <% end %>
-          <% else %>
-            <%= empty_state(
-              title: "Sem seleções recentes",
-              description: "As convocações e seleções aparecerão aqui."
-            ) %>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  <% end %>
-
   <%= surface_card(title: "Classificação", subtitle: "Tabela consolidada por categoria.") do %>
     <div class="space-y-6">
       <% if @standings_by_category.present? %>
@@ -209,3 +150,32 @@
     </div>
   <% end %>
 </section>
+
+<dialog id="championship-team-signup-modal" class="modal">
+  <div class="modal-box max-w-5xl">
+    <h3 class="text-2xl font-bold">Inscrição de equipes</h3>
+    <p class="mt-2 text-sm text-base-content/70">
+      Selecione um time já cadastrado e vincule-o à categoria do campeonato.
+    </p>
+
+    <% if @team&.errors&.any? %>
+      <div class="alert alert-error mt-4 shadow-sm">
+        <span><%= @team.errors.full_messages.join(" · ") %></span>
+      </div>
+    <% end %>
+
+    <div class="mt-6">
+      <%= render "championship_team_signups/form",
+        championship: @championship,
+        teams: @available_teams,
+        categories: @championship.categories.order(:name),
+        team: @team || Team.new,
+        selected_category: @category,
+        close_on_submit: true %>
+    </div>
+  </div>
+
+  <form method="dialog" class="modal-backdrop">
+    <button aria-label="Fechar">close</button>
+  </form>
+</dialog>

@@ -2,7 +2,7 @@
 
 <%= page_header(
   title: @match_event.kind.humanize,
-  subtitle: @match_event.match.code,
+  subtitle: @match_event.match&.code || @match_event.championship&.name || "Evento",
   badge: "Eventos"
 ) %>
 
@@ -13,6 +13,7 @@
 
 <%= surface_card(title: "Detalhes") do %>
   <div class="space-y-2 text-sm text-base-content/70">
+    <p><strong>Campeonato:</strong> <%= @match_event.championship&.name || "-" %></p>
     <p><strong>Equipe:</strong> <%= @match_event.team&.name || "-" %></p>
     <p><strong>Atleta:</strong> <%= @match_event.athlete&.name || "-" %></p>
     <p><strong>Notas:</strong> <%= @match_event.notes.presence || "-" %></p>

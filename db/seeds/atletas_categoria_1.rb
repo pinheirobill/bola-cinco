@@ -32,8 +32,9 @@ championship.update!(
   status: :em_andamento
 )
 
-category = championship.categories.find_or_initialize_by(source_id: "seed-atletas-categoria-1-categoria-1")
+category = Category.find_or_initialize_by(source_id: "seed-atletas-categoria-1-categoria-1")
 category.update!(
+  championship: championship,
   name: "Categoria 1"
 )
 

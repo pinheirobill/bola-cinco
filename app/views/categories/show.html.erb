@@ -2,13 +2,13 @@
 
 <%= page_header(
   title: @category.name,
-  subtitle: @category.championship.name,
+  subtitle: @category.championships.map(&:name).presence&.join(" · ") || @category.championship_name || "Categoria compartilhada",
   badge: "#{@category.teams.size} equipes"
 ) %>
 
 <%= stats_grid([
   { label: "Equipe(s)", value: @category.teams.size, value_class: "text-2xl" },
-  { label: "Campeonato", value: @category.championship.name, value_class: "text-lg" }
+  { label: "Campeonatos", value: @category.championships.size, value_class: "text-lg" }
 ], columns: "md:grid-cols-2") %>
 
 <%= surface_card do %>

@@ -1,40 +1,450 @@
-<% content_for :title, "Eventos de jogo | Bola Cinco" %>
+<% content_for :title, "Eventos | Bola Cinco" %>
 
 <%= page_header(
-  title: "Eventos de jogo",
-  subtitle: "Lances, cartões, gols e substituições.",
-  badge: "Operação"
+  title: "Eventos",
+  subtitle: "Painel analítico de lances, gols, cartões e substituições com filtros por campeonato, equipe, atleta e mês.",
+  badge: "Operação",
+  actions: [
+    link_to("Limpar filtros", match_events_path(championship_id: "", team_id: "", athlete_id: "", month: ""), class: "btn btn-outline"),
+    link_to("Ver jogos", matches_path, class: "btn btn-ghost")
+  ]
 ) %>
 
-<%= stats_grid([
-  { label: "Eventos", value: @match_events.size, value_class: "text-2xl" },
-  { label: "Campeonato atual", value: current_championship&.name || "-", value_class: "text-2xl" }
-], columns: "md:grid-cols-2") %>
+<%= surface_card(title: "Filtros de consulta", subtitle: "Escolha o recorte principal e reduza os dados exibidos logo abaixo.") do %>
+  <%= form_with url: match_events_path, method: :get, class: "space-y-5" do %>
+    <div class="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <label class="form-control w-full gap-2">
+          <span class="label-text text-sm font-medium">Campeonato</span>
+          <%= select_tag :championship_id,
+                         options_from_collection_for_select(@available_championships, :id, :name, @selected_championship_id),
+                         include_blank: "Todos os campeonatos",
+                         class: "select select-bordered w-full" %>
+        </label>
 
-<%= surface_card do %>
-  <% if @match_events.any? %>
-    <div class="space-y-3">
-      <% @match_events.each do |match_event| %>
-        <div class="rounded-2xl bg-base-200 p-4">
-          <div class="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p class="font-semibold"><%= match_event.match.code %></p>
-              <p class="text-sm text-base-content/70"><%= match_event.kind.humanize %></p>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <span class="badge badge-neutral"><%= match_event.period.presence || "Período não informado" %></span>
-              <% if match_event.minute.present? %>
-                <span class="badge badge-primary"><%= match_event.minute %>'</span>
-              <% end %>
-            </div>
-          </div>
+        <label class="form-control w-full gap-2">
+          <span class="label-text text-sm font-medium">Equipe</span>
+          <%= select_tag :team_id,
+                         options_from_collection_for_select(@available_teams, :id, :picker_label, @selected_team_id),
+                         include_blank: "Todas as equipes",
+                         class: "select select-bordered w-full" %>
+        </label>
+
+        <label class="form-control w-full gap-2">
+          <span class="label-text text-sm font-medium">Atleta</span>
+          <%= select_tag :athlete_id,
+                         options_from_collection_for_select(@available_athletes, :id, :match_roster_label, @selected_athlete_id),
+                         include_blank: "Todos os atletas",
+                         class: "select select-bordered w-full" %>
+        </label>
+
+        <label class="form-control w-full gap-2">
+          <span class="label-text text-sm font-medium">Mês</span>
+          <%= select_tag :month,
+                         options_for_select(@available_months.map { |month_key| [event_month_label(month_key), month_key] }, @selected_month),
+                         include_blank: "Todos os meses",
+                         class: "select select-bordered w-full" %>
+        </label>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50">Recorte principal</p>
+          <p class="mt-2 text-lg font-black"><%= @focus_mode == :athlete ? @athlete_focus[:athlete].name : (@focus_mode == :team ? @team_focus[:team].name : (@focus_championship&.name || "Todos os campeonatos")) %></p>
         </div>
+
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50">Modo de leitura</p>
+          <p class="mt-2 text-lg font-black">
+            <%= case @focus_mode
+                when :athlete then "Jogador"
+                when :team then "Equipe"
+                else "Campeonato"
+            end %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      <%= submit_tag "Aplicar filtros", class: "btn btn-primary" %>
+      <% if current_championship.present? %>
+        <%= link_to "Ver tudo no campeonato atual", match_events_path(championship_id: current_championship.id, team_id: "", athlete_id: "", month: ""), class: "btn btn-outline" %>
       <% end %>
     </div>
-  <% else %>
-    <%= empty_state(
-      title: "Nenhum evento registrado",
-      description: "Os eventos aparecem aqui conforme os jogos forem atualizados."
-    ) %>
   <% end %>
+<% end %>
+
+<% if @focus_mode == :athlete %>
+  <% athlete_summary = @athlete_focus[:summary] %>
+  <%= stats_grid([
+    { label: "Jogos jogados", value: athlete_summary[:matches_played], value_class: "text-2xl" },
+    { label: "Faltas", value: athlete_summary[:fouls], value_class: "text-2xl" },
+    { label: "Gols", value: athlete_summary[:goals], value_class: "text-2xl" },
+    { label: "Assistências", value: athlete_summary[:assists], value_class: "text-2xl" },
+    { label: "Cartões", value: athlete_summary[:yellow_cards] + athlete_summary[:red_cards], value_class: "text-2xl" },
+    { label: "Substituições", value: athlete_summary[:substitutions], value_class: "text-2xl" }
+  ], columns: "md:grid-cols-3 xl:grid-cols-6") %>
+
+  <section class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+    <%= surface_card(
+      title: @athlete_focus[:athlete].name,
+      subtitle: "#{@athlete_focus[:athlete].team.name} · #{@athlete_focus[:athlete].category.name}",
+      badge: "Jogador em foco"
+    ) do %>
+      <div class="grid gap-6 lg:grid-cols-[10rem_minmax(0,1fr)]">
+        <div class="flex flex-col items-center gap-3 rounded-3xl bg-base-200 p-5 text-center">
+          <div class="h-28 w-28 overflow-hidden rounded-full border border-base-300 bg-base-300">
+            <% if @athlete_focus[:athlete].display_photo_url.present? %>
+              <%= image_tag @athlete_focus[:athlete].display_photo_url, class: "h-full w-full object-cover" %>
+            <% else %>
+              <div class="flex h-full w-full items-center justify-center text-3xl font-black text-base-content/70">
+                <%= @athlete_focus[:athlete].initials %>
+              </div>
+            <% end %>
+          </div>
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Camisa</p>
+          <p class="text-2xl font-black"><%= @athlete_focus[:athlete].shirt_number.presence || "-" %></p>
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Posição</p>
+          <p class="font-semibold"><%= @athlete_focus[:athlete].position.presence || "Sem posição" %></p>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="rounded-3xl bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Score</p>
+            <p class="mt-2 text-4xl font-black"><%= athlete_summary[:score] %></p>
+          </div>
+          <div class="rounded-3xl bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Chamado no campeonato</p>
+            <p class="mt-2 text-lg font-semibold"><%= @focus_championship&.name || @athlete_focus[:athlete].championship&.name || "-" %></p>
+          </div>
+          <div class="rounded-3xl bg-base-200 p-4 sm:col-span-2">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Equipes vinculadas</p>
+            <p class="mt-2 text-sm font-semibold leading-6">
+              <%= @athlete_focus[:athlete].linked_teams.map(&:name).presence&.join(" · ") || "Nenhuma equipe vinculada" %>
+            </p>
+          </div>
+          <div class="rounded-3xl bg-base-200 p-4 sm:col-span-2">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Leitura rápida</p>
+            <p class="mt-2 text-sm text-base-content/70">
+              Esse recorte mostra a produtividade individual do atleta no campeonato escolhido, com foco em participação, disciplina e impacto ofensivo.
+            </p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%= surface_card(title: "Equipes vinculadas", subtitle: "Atalhos de contexto do atleta no sistema.") do %>
+      <div class="space-y-3">
+        <% if @athlete_focus[:recent_teams].any? %>
+          <% @athlete_focus[:recent_teams].each do |team| %>
+            <div class="rounded-3xl bg-base-200 p-4">
+              <p class="font-semibold"><%= team.name %></p>
+              <p class="text-sm text-base-content/70"><%= team.category.name %></p>
+            </div>
+          <% end %>
+        <% else %>
+          <%= empty_state(
+            title: "Sem vínculos",
+            description: "O atleta ainda não possui outras equipes vinculadas para destaque."
+          ) %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="grid gap-6 xl:grid-cols-2">
+    <%= surface_card(title: "Eventos do atleta", subtitle: "Distribuição por tipo no recorte atual.") do %>
+      <% kind_max = @athlete_focus[:event_breakdown].map { |entry| entry[:count] }.max.to_i %>
+      <div class="space-y-4">
+        <% if @athlete_focus[:event_breakdown].any? %>
+          <% @athlete_focus[:event_breakdown].each do |entry| %>
+            <div>
+              <div class="flex items-center justify-between gap-3 text-sm font-medium">
+                <span><%= entry[:label] %></span>
+                <span><%= entry[:count] %></span>
+              </div>
+              <div class="mt-2 h-3 overflow-hidden rounded-full bg-base-300">
+                <div class="h-full rounded-full <%= kind_fill_class(entry[:key]) %>" style="width: <%= kind_max.zero? ? 0 : ((entry[:count].to_f / kind_max) * 100).round %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <%= empty_state(
+            title: "Sem eventos",
+            description: "Este atleta ainda não tem eventos registrados no recorte selecionado."
+          ) %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= surface_card(title: "Linha do tempo", subtitle: "Quantidade de eventos por mês.") do %>
+      <% month_max = @athlete_focus[:monthly_breakdown].map { |entry| entry[:count] }.max.to_i %>
+      <div class="space-y-4">
+        <% if @athlete_focus[:monthly_breakdown].any? %>
+          <% @athlete_focus[:monthly_breakdown].each do |entry| %>
+            <div>
+              <div class="flex items-center justify-between gap-3 text-sm font-medium">
+                <span><%= entry[:label] %></span>
+                <span><%= entry[:count] %></span>
+              </div>
+              <div class="mt-2 h-3 overflow-hidden rounded-full bg-base-300">
+                <div class="h-full rounded-full bg-primary" style="width: <%= month_max.zero? ? 0 : ((entry[:count].to_f / month_max) * 100).round %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <%= empty_state(
+            title: "Sem linha do tempo",
+            description: "Não existem eventos suficientes para montar a evolução mensal."
+          ) %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+<% elsif @focus_mode == :team %>
+  <% team_summary = @team_focus %>
+  <%= stats_grid([
+    { label: "Jogos jogados", value: team_summary[:matches_played], value_class: "text-2xl" },
+    { label: "Pontos", value: team_summary[:points], value_class: "text-2xl" },
+    { label: "Saldo", value: team_summary[:goal_diff], value_class: "text-2xl" },
+    { label: "Gols pró", value: team_summary[:goals_for], value_class: "text-2xl" },
+    { label: "Gols contra", value: team_summary[:goals_against], value_class: "text-2xl" },
+    { label: "Top atletas", value: team_summary[:top_athletes].size, value_class: "text-2xl" }
+  ], columns: "md:grid-cols-3 xl:grid-cols-6") %>
+
+  <section class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
+    <%= surface_card(
+      title: team_summary[:team].name,
+      subtitle: "#{team_summary[:championship]&.name || @focus_championship&.name || '-'} · #{team_summary[:team].category.name}",
+      badge: "Equipe em foco"
+    ) do %>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="rounded-3xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Posição</p>
+          <p class="mt-2 text-4xl font-black"><%= team_summary[:row]&.position || "-" %></p>
+        </div>
+        <div class="rounded-3xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Resumo</p>
+          <p class="mt-2 text-sm text-base-content/70">
+            <%= team_summary[:row].present? ? "Time presente na tabela oficial do campeonato." : "Time sem linha consolidada na classificação do campeonato escolhido." %>
+          </p>
+        </div>
+        <div class="rounded-3xl bg-base-200 p-4 sm:col-span-2">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Top atletas da equipe</p>
+          <div class="mt-3 grid gap-3 sm:grid-cols-3">
+            <% if team_summary[:top_athletes].any? %>
+              <% team_summary[:top_athletes].each do |entry| %>
+                <div class="rounded-2xl bg-base-100 p-4">
+                  <p class="font-semibold"><%= entry[:athlete].name %></p>
+                  <p class="text-xs text-base-content/50"><%= entry[:athlete].shirt_number.presence || "-" %> · score <%= entry[:score] %></p>
+                </div>
+              <% end %>
+            <% else %>
+              <div class="rounded-2xl bg-base-100 p-4 text-sm text-base-content/70 sm:col-span-3">
+                Nenhum atleta destacado encontrado para esta equipe.
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%= surface_card(title: "Leitura da equipe", subtitle: "Resumo dos eventos filtrados para esse time.") do %>
+      <% kind_max = team_summary[:event_breakdown].map { |entry| entry[:count] }.max.to_i %>
+      <div class="space-y-4">
+        <% if team_summary[:event_breakdown].any? %>
+          <% team_summary[:event_breakdown].each do |entry| %>
+            <div>
+              <div class="flex items-center justify-between gap-3 text-sm font-medium">
+                <span><%= entry[:label] %></span>
+                <span><%= entry[:count] %></span>
+              </div>
+              <div class="mt-2 h-3 overflow-hidden rounded-full bg-base-300">
+                <div class="h-full rounded-full <%= kind_fill_class(entry[:key]) %>" style="width: <%= kind_max.zero? ? 0 : ((entry[:count].to_f / kind_max) * 100).round %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <%= empty_state(title: "Sem eventos", description: "Essa equipe ainda não tem eventos no recorte selecionado.") %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="grid gap-6 xl:grid-cols-2">
+    <%= surface_card(title: "Eventos da equipe", subtitle: "Distribuição por tipo no recorte atual.") do %>
+      <% kind_max = team_summary[:event_breakdown].map { |entry| entry[:count] }.max.to_i %>
+      <div class="space-y-4">
+        <% if team_summary[:event_breakdown].any? %>
+          <% team_summary[:event_breakdown].each do |entry| %>
+            <div>
+              <div class="flex items-center justify-between gap-3 text-sm font-medium">
+                <span><%= entry[:label] %></span>
+                <span><%= entry[:count] %></span>
+              </div>
+              <div class="mt-2 h-3 overflow-hidden rounded-full bg-base-300">
+                <div class="h-full rounded-full <%= kind_fill_class(entry[:key]) %>" style="width: <%= kind_max.zero? ? 0 : ((entry[:count].to_f / kind_max) * 100).round %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <%= empty_state(title: "Sem eventos", description: "Ainda não há eventos registrados para essa equipe.") %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= surface_card(title: "Linha do tempo da equipe", subtitle: "Eventos agrupados por mês.") do %>
+      <% month_max = team_summary[:monthly_breakdown].map { |entry| entry[:count] }.max.to_i %>
+      <div class="space-y-4">
+        <% if team_summary[:monthly_breakdown].any? %>
+          <% team_summary[:monthly_breakdown].each do |entry| %>
+            <div>
+              <div class="flex items-center justify-between gap-3 text-sm font-medium">
+                <span><%= entry[:label] %></span>
+                <span><%= entry[:count] %></span>
+              </div>
+              <div class="mt-2 h-3 overflow-hidden rounded-full bg-base-300">
+                <div class="h-full rounded-full bg-primary" style="width: <%= month_max.zero? ? 0 : ((entry[:count].to_f / month_max) * 100).round %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <%= empty_state(title: "Sem evolução", description: "Não existem eventos suficientes para montar a linha do tempo.") %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+<% else %>
+  <% overall_stats = @dashboard_stats %>
+  <%= stats_grid([
+    { label: "Eventos filtrados", value: overall_stats[:total], value_class: "text-2xl" },
+    { label: "Gols", value: overall_stats[:goals], value_class: "text-2xl" },
+    { label: "Cartões", value: overall_stats[:cards], value_class: "text-2xl" },
+    { label: "Substituições", value: overall_stats[:substitutions], value_class: "text-2xl" },
+    { label: "Meses exibidos", value: overall_stats[:months], value_class: "text-2xl" }
+  ], columns: "md:grid-cols-2 xl:grid-cols-5") %>
+
+  <section class="grid gap-6 xl:grid-cols-[1.05fr_1fr_1fr]">
+    <%= surface_card(title: "Top times", subtitle: "Os 3 melhores colocados no campeonato em foco.") do %>
+      <% if @championship_rankings[:top_teams].any? %>
+        <div class="space-y-3">
+          <% @championship_rankings[:top_teams].each do |row| %>
+            <div class="rounded-3xl bg-base-200 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Posição <%= row.position %></p>
+                  <p class="mt-1 text-lg font-black"><%= row.team.name %></p>
+                  <p class="text-sm text-base-content/70"><%= row.category.name %></p>
+                </div>
+                <span class="badge badge-primary"><%= row.points %> pts</span>
+              </div>
+              <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                <span class="badge badge-neutral">SG <%= row.goal_diff %></span>
+                <span class="badge badge-outline">GP <%= row.goals_for %></span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <%= empty_state(title: "Sem classificação", description: "Ainda não há linhas de classificação para o campeonato em foco.") %>
+      <% end %>
+    <% end %>
+
+    <%= surface_card(title: "Piores times", subtitle: "Os 3 times com pior desempenho no recorte.") do %>
+      <% if @championship_rankings[:bottom_teams].any? %>
+        <div class="space-y-3">
+          <% @championship_rankings[:bottom_teams].each do |row| %>
+            <div class="rounded-3xl bg-base-200 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Posição <%= row.position %></p>
+                  <p class="mt-1 text-lg font-black"><%= row.team.name %></p>
+                  <p class="text-sm text-base-content/70"><%= row.category.name %></p>
+                </div>
+                <span class="badge badge-outline"><%= row.points %> pts</span>
+              </div>
+              <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                <span class="badge badge-neutral">SG <%= row.goal_diff %></span>
+                <span class="badge badge-outline">GP <%= row.goals_for %></span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <%= empty_state(title: "Sem classificação", description: "Sem dados suficientes para montar a parte de baixo da tabela.") %>
+      <% end %>
+    <% end %>
+
+    <%= surface_card(title: "Melhores jogadores", subtitle: "Top 3 atletas com maior impacto no campeonato.") do %>
+      <% if @championship_rankings[:top_athletes].any? %>
+        <div class="space-y-3">
+          <% @championship_rankings[:top_athletes].each do |entry| %>
+            <% athlete = entry[:athlete] %>
+            <% summary = entry[:summary] %>
+            <div class="rounded-3xl bg-base-200 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-lg font-black"><%= athlete.name %></p>
+                  <p class="text-sm text-base-content/70"><%= athlete.team.name %></p>
+                </div>
+                <span class="badge badge-success"><%= entry[:score] %> score</span>
+              </div>
+              <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                <span class="badge badge-outline"><%= summary[:goals] %> gols</span>
+                <span class="badge badge-outline"><%= summary[:yellow_cards] + summary[:red_cards] %> cartões</span>
+                <span class="badge badge-outline"><%= summary[:matches_played] %> jogos</span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <%= empty_state(title: "Sem atletas", description: "Os melhores jogadores aparecerão quando houver eventos registrados.") %>
+      <% end %>
+    <% end %>
+  </section>
+
+  <section class="grid gap-6 xl:grid-cols-2">
+    <%= surface_card(title: "Distribuição de eventos", subtitle: "Volume por tipo no recorte atual.") do %>
+      <% kind_max = @event_kind_breakdown.map { |entry| entry[:count] }.max.to_i %>
+      <div class="space-y-4">
+        <% if @event_kind_breakdown.any? %>
+          <% @event_kind_breakdown.each do |entry| %>
+            <div>
+              <div class="flex items-center justify-between gap-3 text-sm font-medium">
+                <span><%= entry[:label] %></span>
+                <span><%= entry[:count] %></span>
+              </div>
+              <div class="mt-2 h-3 overflow-hidden rounded-full bg-base-300">
+                <div class="h-full rounded-full <%= kind_fill_class(entry[:key]) %>" style="width: <%= kind_max.zero? ? 0 : ((entry[:count].to_f / kind_max) * 100).round %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <%= empty_state(title: "Sem eventos", description: "Não há eventos suficientes para montar o gráfico de distribuição.") %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= surface_card(title: "Evolução por mês", subtitle: "Quantidade de eventos agrupados por mês.") do %>
+      <% month_max = @monthly_breakdown.map { |entry| entry[:count] }.max.to_i %>
+      <div class="space-y-4">
+        <% if @monthly_breakdown.any? %>
+          <% @monthly_breakdown.each do |entry| %>
+            <div>
+              <div class="flex items-center justify-between gap-3 text-sm font-medium">
+                <span><%= entry[:label] %></span>
+                <span><%= entry[:count] %></span>
+              </div>
+              <div class="mt-2 h-3 overflow-hidden rounded-full bg-base-300">
+                <div class="h-full rounded-full bg-primary" style="width: <%= month_max.zero? ? 0 : ((entry[:count].to_f / month_max) * 100).round %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <%= empty_state(title: "Sem evolução", description: "Ainda não existem eventos para exibir a evolução mensal.") %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
 <% end %>

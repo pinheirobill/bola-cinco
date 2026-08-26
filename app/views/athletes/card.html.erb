@@ -8,7 +8,7 @@
         <div class="flex items-start justify-between gap-4">
           <div>
             <p class="text-[0.68rem] font-semibold uppercase tracking-[0.35em] text-white/55">Carteira de jogador</p>
-            <h1 class="mt-2 text-xl font-black tracking-tight text-white sm:text-2xl"><%= @athlete.category.championship.name %></h1>
+            <h1 class="mt-2 text-xl font-black tracking-tight text-white sm:text-2xl"><%= @athlete.championship&.name || @athlete.category.championship_name || "Carteira de jogador" %></h1>
           </div>
           <div class="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-white/80">
             Profissional

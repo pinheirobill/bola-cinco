@@ -73,24 +73,6 @@ class PhaseTwoEndpointsTest < ActionDispatch::IntegrationTest
     assert_equal "ativa", JSON.parse(response.body).fetch("status")
   end
 
-  test "creates a round selection with athletes" do
-    post round_selections_path, params: {
-      championship_id: @championship.id,
-      round_selection: {
-        source_id: "round-selection-phase-two",
-        category_id: @category.id,
-        round_number: 1,
-        title: "Rodada 1",
-        athlete_ids: [@athlete.id]
-      }
-    }
-
-    assert_response :created
-    body = JSON.parse(response.body)
-    assert_equal "Rodada 1", body.fetch("title")
-    assert_equal 1, body.fetch("athletes").size
-  end
-
   test "creates automatic suspension when the third yellow card is recorded" do
     3.times do |index|
       post match_match_events_path(@match), params: {

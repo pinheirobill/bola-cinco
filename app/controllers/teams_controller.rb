@@ -16,7 +16,8 @@ class TeamsController < ApplicationController
   end
 
   def create
-    championship = Category.find(team_params[:category_id]).championship
+    category = Category.find(team_params[:category_id])
+    championship = current_championship || category.championship || category.championships.first
     return forbidden! unless current_user.admin? || championship.team_signup_open?
 
     record = Team.new(team_params)
@@ -50,7 +51,7 @@ class TeamsController < ApplicationController
 
   def scoped_teams
     return Team.includes(:entity, :category, :athletes) if current_user&.admin?
-    return Team.joins(:category).where(categories: { championship_id: current_championship.id }) if current_championship.present?
+    return Team.for_championship(current_championship).includes(:entity, :category, :athletes) if current_championship.present?
 
     Team.none
   end
@@ -60,7 +61,7 @@ class TeamsController < ApplicationController
   end
 
   def available_athletes_for(team)
-    Athlete.ativos.includes(:team, :category)
+    Athlete.for_picker
   end
 
   def team_params

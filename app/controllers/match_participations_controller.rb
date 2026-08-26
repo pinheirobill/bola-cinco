@@ -1,7 +1,11 @@
 class MatchParticipationsController < ApplicationController
   def create
-    record = find_or_build_match_participation
-    save_match_participation(record, notice: "Participação registrada.")
+    if batch_selected_athlete_ids.any?
+      create_participations_from_selection
+    else
+      record = find_or_build_match_participation
+      save_match_participation(record, notice: "Participação registrada.")
+    end
   end
 
   def update
@@ -30,6 +34,7 @@ class MatchParticipationsController < ApplicationController
       :source_id,
       :team_id,
       :athlete_id,
+      { athlete_ids: [] },
       :athlete_name,
       :shirt_number,
       :position,
@@ -57,6 +62,57 @@ class MatchParticipationsController < ApplicationController
     "#{prefix}-#{SecureRandom.hex(4)}"
   end
 
+  def batch_selected_athlete_ids
+    Array(match_participation_params[:athlete_ids]).flatten.compact_blank
+  end
+
+  def create_participations_from_selection
+    team = scoped_teams.detect { |candidate| candidate.id == match_participation_params[:team_id].to_i }
+
+    if team.blank?
+      load_match_participation_context(match)
+      @match_participation = match.match_participations.new(status: :pendente)
+      @match_participation.errors.add(:team_id, "selecione uma equipe")
+      render "matches/edit", status: :unprocessable_entity
+      return
+    end
+
+    created = 0
+    skipped = 0
+
+    batch_selected_athlete_ids.each do |athlete_id|
+      athlete = Athlete.find_by(id: athlete_id)
+      next if athlete.blank?
+
+      record = match.match_participations.find_or_initialize_by(team_id: team.id, athlete_id: athlete.id)
+      if record.persisted?
+        skipped += 1
+        next
+      end
+
+      record.source_id = default_source_id("match-participation")
+      record.team = team
+      record.athlete = athlete
+      record.status = :pendente
+
+      if record.save
+        created += 1
+      else
+        skipped += 1
+      end
+    end
+
+    if created.positive?
+      message = "#{created} #{created == 1 ? 'participação registrada' : 'participações registradas'}."
+      message += " #{skipped} já existiam." if skipped.positive?
+      redirect_to return_path(match), notice: message
+    elsif skipped.positive?
+      redirect_to return_path(match), notice: "As participações selecionadas já existiam."
+    else
+      redirect_to return_path(match), alert: "Selecione ao menos um atleta."
+    end
+  end
+
   def find_or_build_match_participation
     if match_participation_params[:athlete_id].present?
       match.match_participations.find_or_initialize_by(
@@ -79,7 +135,7 @@ class MatchParticipationsController < ApplicationController
     else
       load_match_participation_context(match)
       @match_participation = record
-      render "matches/show", status: :unprocessable_entity
+      render "matches/edit", status: :unprocessable_entity
     end
   end
 
@@ -90,6 +146,7 @@ class MatchParticipationsController < ApplicationController
     @match_participation = @match.match_participations.new(status: :pendente)
     @available_referees = @match.championship.referees.order(:name)
     @available_athletes = @match.roster_athletes
+    @available_participation_athletes = Athlete.for_picker
     @available_teams = [@match.team_a, @match.team_b].compact.uniq
     @available_venues = @match.championship.venues.order(:name)
     @match_events = @match.match_events.includes(:team, :athlete).order(created_at: :desc)

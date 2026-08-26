@@ -7,7 +7,7 @@ class TeamMembershipsController < ApplicationController
 
   def create
     return forbidden! unless scoped_team.manageable_by?(current_user)
-    championship = scoped_team.category.championship
+    championship = scoped_team.championship || scoped_team.category.championship || scoped_team.category.championships.first
     return forbidden! if championship.staff_limit_reached_for?(scoped_team) && !current_user.admin?
 
     record = scoped_team.team_memberships.new(team_membership_params)

@@ -347,48 +347,126 @@
 </section>
 
 <dialog id="match-participation-modal" class="modal">
-  <div class="modal-box max-w-3xl">
+  <div class="modal-box max-w-5xl" data-controller="athlete-picker">
     <h3 class="text-2xl font-bold">Adicionar participação</h3>
     <p class="mt-2 text-sm text-base-content/70">
-      Use este vínculo para confirmar presença, ausência ou um atleta fora da escalação original.
+      Selecione um ou mais atletas que realmente participaram do jogo. Ao escolher a equipe, o time inteiro já vem selecionado.
     </p>
 
     <%= form_with(model: @match_participation, url: match_match_participations_path(@match), class: "mt-6 space-y-4") do |f| %>
       <%= hidden_field_tag :return_to, edit_match_path(@match) %>
-      <div class="grid gap-4 md:grid-cols-2">
-        <div class="form-control gap-2 md:col-span-2">
-          <%= f.label :team_id, "Equipe", class: "label-text font-medium" %>
-          <%= f.select :team_id, options_from_collection_for_select(@available_teams, :id, :name, @match_participation.team_id), { include_blank: "Selecione" }, class: "select select-bordered w-full" %>
+
+      <div class="form-control gap-2">
+        <%= f.label :team_id, "Equipe", class: "label-text font-medium" %>
+        <%= f.select :team_id,
+                     options_from_collection_for_select(@available_teams, :id, :name, @match_participation.team_id),
+                     { include_blank: "Selecione" },
+                     class: "select select-bordered w-full",
+                     data: {
+                       athlete_picker_target: "teamFilter",
+                       action: "change->athlete-picker#syncTeamSelection"
+                     } %>
+      </div>
+
+      <div class="grid gap-3 lg:grid-cols-[1fr_18rem_auto_auto] lg:items-end">
+        <div>
+          <label class="label">
+            <span class="label-text font-medium">Buscar atleta</span>
+          </label>
+          <input
+            type="search"
+            placeholder="Nome, apelido, camisa, posição, equipe..."
+            class="input input-bordered w-full"
+            data-athlete-picker-target="search"
+            data-action="input->athlete-picker#filter"
+          >
         </div>
-        <div class="form-control gap-2 md:col-span-2">
-          <%= f.label :athlete_id, "Atleta cadastrado", class: "label-text font-medium" %>
-          <%= f.select :athlete_id, options_from_collection_for_select(@available_athletes, :id, :match_roster_label, @match_participation.athlete_id), { include_blank: "Selecione um atleta do jogo" }, class: "select select-bordered w-full" %>
+
+        <div class="rounded-2xl bg-base-200 px-4 py-3 text-sm text-base-content/70">
+          <p class="font-semibold text-base-content">Visíveis</p>
+          <p class="mt-1 text-2xl font-black" data-athlete-picker-target="visibleCount"><%= @available_participation_athletes.size %></p>
         </div>
-        <div class="form-control gap-2 md:col-span-2">
-          <%= f.label :athlete_name, "Nome livre", class: "label-text font-medium" %>
-          <%= f.text_field :athlete_name, class: "input input-bordered w-full", placeholder: "Use quando o atleta não estiver cadastrado" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= f.label :shirt_number, "Nº da camisa", class: "label-text font-medium" %>
-          <%= f.number_field :shirt_number, class: "input input-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= f.label :position, "Posição", class: "label-text font-medium" %>
-          <%= f.text_field :position, class: "input input-bordered w-full", placeholder: "Ex.: Goleiro" %>
-        </div>
-        <div class="form-control gap-2 md:col-span-2">
-          <%= f.label :status, "Situação", class: "label-text font-medium" %>
-          <%= f.select :status, match_participation_status_options, {}, class: "select select-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2 md:col-span-2">
-          <%= f.label :notes, "Observações", class: "label-text font-medium" %>
-          <%= f.text_area :notes, rows: 3, class: "textarea textarea-bordered w-full", placeholder: "Ex.: entrou no lugar de outro atleta" %>
+
+        <div class="rounded-2xl bg-base-200 px-4 py-3 text-sm text-base-content/70">
+          <p class="font-semibold text-base-content">Selecionados</p>
+          <p class="mt-1 text-2xl font-black" data-athlete-picker-target="selectedCount">0</p>
         </div>
       </div>
 
-      <div class="modal-action">
-        <button type="button" class="btn btn-ghost" onclick="document.getElementById('match-participation-modal').close()">Fechar</button>
+      <div class="flex flex-wrap gap-3">
+        <button type="button" class="btn btn-outline btn-sm" data-action="athlete-picker#selectVisible">Selecionar visíveis</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-action="athlete-picker#clearSelection">Limpar seleção</button>
+      </div>
+
+      <div class="max-h-[32rem] overflow-y-auto rounded-3xl border border-base-300 bg-base-100 p-3">
+        <% if @available_participation_athletes.any? %>
+          <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <% @available_participation_athletes.each do |athlete| %>
+              <% athlete_team_ids = ([athlete.team_id] + athlete.linked_teams.map(&:id)).compact.uniq %>
+              <label
+                class="group cursor-pointer rounded-2xl border border-base-300 bg-base-200 p-4 transition hover:border-primary hover:bg-base-100"
+                data-athlete-picker-target="item"
+                data-search-index="<%= athlete.search_index %>"
+                data-team-id="<%= athlete.team_id %>"
+                data-team-ids="<%= athlete_team_ids.join(' ') %>"
+              >
+                <%= check_box_tag "match_participation[athlete_ids][]", athlete.id, false, class: "sr-only", data: { action: "change->athlete-picker#refresh" } %>
+                <div class="rounded-2xl border border-transparent p-1 transition">
+                  <div class="flex items-start gap-3">
+                    <div class="avatar shrink-0">
+                      <div class="h-14 w-14 rounded-full border border-base-300 bg-base-100">
+                        <% if athlete.display_photo_url.present? %>
+                          <%= image_tag athlete.display_photo_url, class: "h-full w-full object-cover" %>
+                        <% else %>
+                          <div class="flex h-full w-full items-center justify-center text-sm font-black text-base-content/70">
+                            <%= athlete.initials %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <p class="truncate text-base font-bold"><%= athlete.name %></p>
+                            <span class="badge badge-success badge-outline opacity-0 transition" data-athlete-picker-selected-mark>Selecionado</span>
+                          </div>
+                          <p class="mt-1 text-xs uppercase tracking-[0.3em] text-base-content/50">Apelido / nome curto</p>
+                          <p class="truncate text-sm font-semibold text-base-content/75"><%= athlete.quick_label %></p>
+                        </div>
+                        <div class="flex shrink-0 flex-col items-end gap-2">
+                          <span class="badge badge-primary badge-outline">Camisa <%= athlete.shirt_number.presence || "-" %></span>
+                          <span class="badge badge-neutral"><%= athlete.position.presence || "Sem posição" %></span>
+                        </div>
+                      </div>
+
+                      <div class="mt-3 grid gap-2 text-xs text-base-content/65 sm:grid-cols-2">
+                        <div class="rounded-xl bg-base-100 px-3 py-2">
+                          <span class="block uppercase tracking-[0.25em] text-base-content/40">Equipe atual</span>
+                          <span class="mt-1 block truncate font-semibold text-base-content"><%= athlete.team.picker_label %></span>
+                        </div>
+                        <div class="rounded-xl bg-base-100 px-3 py-2">
+                          <span class="block uppercase tracking-[0.25em] text-base-content/40">Documento</span>
+                          <span class="mt-1 block truncate font-semibold text-base-content"><%= athlete.preferred_document.presence || "Sem documento" %></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </label>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="rounded-2xl border border-dashed border-base-300 p-6 text-sm text-base-content/70">
+            Não há atletas cadastrados disponíveis para vincular nesta partida.
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
         <%= f.submit "Salvar participação", class: "btn btn-primary" %>
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('match-participation-modal').close()">Fechar</button>
       </div>
     <% end %>
   </div>

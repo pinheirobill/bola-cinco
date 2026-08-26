@@ -4,8 +4,8 @@ class SuspensionsController < ApplicationController
     @suspensions = scoped_suspensions.order(created_at: :desc)
     @suspension = scoped_championship.suspensions.new(status: :ativa, automatic: false, matches_count: 1)
     @categories = scoped_championship.categories.order(:name)
-    @teams = Team.joins(:category).where(categories: { championship_id: scoped_championship.id }).order(:name)
-    @athletes = Athlete.joins(:category).where(categories: { championship_id: scoped_championship.id }).includes(:team).order(:name)
+    @teams = Team.for_championship(scoped_championship).order(:name)
+    @athletes = Athlete.for_championship(scoped_championship).includes(:team).order(:name)
     @match_events = MatchEvent.joins(:match).where(matches: { championship_id: scoped_championship.id }).includes(:match).order(created_at: :desc).limit(50)
     respond_to do |format|
       format.html
@@ -16,8 +16,8 @@ class SuspensionsController < ApplicationController
   def show
     @suspension = suspension
     @categories = scoped_championship.categories.order(:name)
-    @teams = Team.joins(:category).where(categories: { championship_id: scoped_championship.id }).order(:name)
-    @athletes = Athlete.joins(:category).where(categories: { championship_id: scoped_championship.id }).includes(:team).order(:name)
+    @teams = Team.for_championship(scoped_championship).order(:name)
+    @athletes = Athlete.for_championship(scoped_championship).includes(:team).order(:name)
     @match_events = MatchEvent.joins(:match).where(matches: { championship_id: scoped_championship.id }).includes(:match).order(created_at: :desc).limit(50)
     respond_to do |format|
       format.html
@@ -36,8 +36,8 @@ class SuspensionsController < ApplicationController
         @suspensions = scoped_suspensions.order(created_at: :desc)
         @suspension = record
         @categories = scoped_championship.categories.order(:name)
-        @teams = Team.joins(:category).where(categories: { championship_id: scoped_championship.id }).order(:name)
-        @athletes = Athlete.joins(:category).where(categories: { championship_id: scoped_championship.id }).includes(:team).order(:name)
+        @teams = Team.for_championship(scoped_championship).order(:name)
+        @athletes = Athlete.for_championship(scoped_championship).includes(:team).order(:name)
         @match_events = MatchEvent.joins(:match).where(matches: { championship_id: scoped_championship.id }).includes(:match).order(created_at: :desc).limit(50)
         render :index, status: :unprocessable_entity
       end
@@ -55,8 +55,8 @@ class SuspensionsController < ApplicationController
       else
         @suspension = suspension
         @categories = scoped_championship.categories.order(:name)
-        @teams = Team.joins(:category).where(categories: { championship_id: scoped_championship.id }).order(:name)
-        @athletes = Athlete.joins(:category).where(categories: { championship_id: scoped_championship.id }).includes(:team).order(:name)
+        @teams = Team.for_championship(scoped_championship).order(:name)
+        @athletes = Athlete.for_championship(scoped_championship).includes(:team).order(:name)
         @match_events = MatchEvent.joins(:match).where(matches: { championship_id: scoped_championship.id }).includes(:match).order(created_at: :desc).limit(50)
         render :show, status: :unprocessable_entity
       end

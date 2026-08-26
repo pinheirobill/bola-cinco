@@ -3,26 +3,16 @@
 <%= page_header(
   title: "Campeonatos",
   subtitle: "Visão geral dos campeonatos públicos e acessíveis.",
-  badge: "Visão"
+  badge: "Visão",
+  actions: [
+    (current_championship.present? ? link_to("Onboarding do campeonato", setup_championship_path(current_championship), class: "btn btn-primary") : nil)
+  ].compact
 ) %>
 
 <%= stats_grid([
   { label: "Campeonatos", value: @championships.size, value_class: "text-2xl" },
   { label: "Temporadas", value: @championships.map(&:season).compact.uniq.size, value_class: "text-2xl" }
 ], columns: "md:grid-cols-2") %>
-
-<%= surface_card(title: "Fluxo de navegação", subtitle: "A visão geral e a configuração ficam separadas para evitar confusão.") do %>
-  <div class="grid gap-3 sm:grid-cols-2">
-    <div class="rounded-2xl bg-base-200 p-4">
-      <p class="font-semibold">Visão geral</p>
-      <p class="mt-1 text-sm text-base-content/70">Use para consultar resumo, resultados, classificação e conteúdo público.</p>
-    </div>
-    <div class="rounded-2xl bg-base-200 p-4">
-      <p class="font-semibold">Configuração</p>
-      <p class="mt-1 text-sm text-base-content/70">Use para ajustar dados, formato e equipes em uma tela própria.</p>
-    </div>
-  </div>
-<% end %>
 
 <%= surface_card do %>
   <% if @championships.any? %>

@@ -38,7 +38,7 @@ class AthleteCardDocument
 
     pdf.fill_color "FFFFFF"
     pdf.text_box "CARTEIRA DE JOGADOR", at: [left_x + 10, left_y - 14], width: left_width - 20, size: 6, style: :bold, character_spacing: 1.2
-    pdf.text_box athlete.category.championship.name, at: [left_x + 10, left_y - 26], width: left_width - 20, size: 10, style: :bold
+    pdf.text_box athlete.championship&.name || athlete.category.championship_name || "Carteira de jogador", at: [left_x + 10, left_y - 26], width: left_width - 20, size: 10, style: :bold
 
     pdf.fill_color "FFFFFF"
     pdf.stroke_color "FFFFFF"

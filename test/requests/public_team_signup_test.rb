@@ -14,51 +14,58 @@ class PublicTeamSignupTest < ActionDispatch::IntegrationTest
       championship: @championship,
       name: "Sub 16"
     )
+
+    other_championship = Championship.create!(
+      source_id: "champ-public-team-signup-other",
+      name: "Campeonato Base",
+      season: 2025,
+      status: :em_andamento
+    )
+
+    @existing_category = Category.create!(
+      source_id: "cat-public-team-signup-other",
+      championship: other_championship,
+      name: "Sub 14"
+    )
+
+    @entity = Entity.create!(
+      source_id: "entity-public-team-signup",
+      name: "Escola Pública"
+    )
+
+    @team = Team.create!(
+      source_id: "team-public-team-signup",
+      entity: @entity,
+      category: @existing_category,
+      name: "Time Público",
+      short_name: "Público"
+    )
   end
 
-  test "creates a public team signup" do
-    assert_difference -> { Entity.count }, 1 do
-      assert_difference -> { Team.count }, 1 do
+  test "selects an existing team without creating new records" do
+    assert_no_difference -> { Entity.count } do
+      assert_no_difference -> { Team.count } do
         post championship_team_signup_path(@championship), params: {
-          entity: {
-            source_id: "entity-public-team-signup",
-            name: "Escola Pública",
-            responsible: "Marcos",
-            phone: "(11) 99999-9999",
-            email: "escola@example.com",
-            city: "São Paulo",
-            notes: "Cadastro público"
-          },
-          team: {
-            source_id: "team-public-team-signup",
-            category_id: @category.id,
-            name: "Time Público",
-            short_name: "Público"
+          team_signup: {
+            team_id: @team.id,
+            category_id: @category.id
           }
         }
       end
     end
 
     assert_response :redirect
-    team = Team.find_by(source_id: "team-public-team-signup")
-    assert_equal @category, team.category
-    assert_equal "Escola Pública", team.entity.name
+    assert_equal @category, @team.reload.category
   end
 
-  test "shows validation errors when the category is missing" do
+  test "shows validation errors when the team is missing" do
     post championship_team_signup_path(@championship), params: {
-      entity: {
-        source_id: "entity-public-team-signup-invalid",
-        name: "Escola Pública",
-        responsible: "Marcos"
-      },
-      team: {
-        source_id: "team-public-team-signup-invalid",
-        name: "Time Público"
+      team_signup: {
+        category_id: @category.id
       }
     }
 
     assert_response :unprocessable_entity
-    assert_includes response.body, "categoria"
+    assert_includes response.body, "time"
   end
 end

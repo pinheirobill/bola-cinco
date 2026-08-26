@@ -6,7 +6,7 @@ class TeamAthletesController < ApplicationController
     skipped = []
 
     selected_athlete_ids.each do |athlete_id|
-      athlete = Athlete.ativos.find(athlete_id)
+      athlete = Athlete.find(athlete_id)
 
       if scoped_team.team_athletes.exists?(athlete_id: athlete.id)
         skipped << athlete
@@ -27,7 +27,7 @@ class TeamAthletesController < ApplicationController
       message += " #{skipped.size} já estavam vinculados." if skipped.any?
       redirect_to team_path(scoped_team), notice: message
     else
-      redirect_to team_path(scoped_team), alert: "Selecione ao menos um atleta ativo para vincular."
+      redirect_to team_path(scoped_team), alert: "Selecione ao menos um atleta cadastrado para vincular."
     end
   end
 

@@ -15,7 +15,8 @@ class PhaseFivePlatformTest < ActionDispatch::IntegrationTest
     @championship_2 = Championship.create!(
       source_id: "champ-platform-2",
       name: "Campeonato Plataforma 2",
-      season: 2026
+      season: 2026,
+      format: { "mode" => "mata_mata" }
     )
 
     ChampionshipMembership.create!(
@@ -45,6 +46,14 @@ class PhaseFivePlatformTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Configuração do campeonato"
     assert_includes response.body, "Etapa 1. Dados"
     refute_includes response.body, "Portal aberto"
+  end
+
+  test "shows the knockout draw button on mata-mata championships" do
+    get setup_championship_path(@championship_2, step: "teams")
+
+    assert_response :success
+    assert_includes response.body, "Sortear 1ª rodada"
+    assert_includes response.body, "Vincular equipes"
   end
 
   test "shows venues and referees on the teams setup step" do
@@ -97,6 +106,83 @@ class PhaseFivePlatformTest < ActionDispatch::IntegrationTest
     patch detach_referee_path(referee), params: { championship_id: @championship_2.id }
     assert_response :redirect
     assert_nil referee.reload.championship
+  end
+
+  test "draws the first knockout round from category teams" do
+    category = Category.create!(
+      source_id: "cat-phase-five-knockout",
+      championship: @championship_2,
+      name: "Sub 12"
+    )
+
+    entity = Entity.create!(
+      source_id: "entity-phase-five-knockout",
+      name: "Escola K"
+    )
+
+    team_1 = Team.create!(
+      source_id: "team-phase-five-knockout-1",
+      entity: entity,
+      category: category,
+      name: "Time K 1"
+    )
+
+    team_2 = Team.create!(
+      source_id: "team-phase-five-knockout-2",
+      entity: entity,
+      category: category,
+      name: "Time K 2"
+    )
+
+    assert_difference -> { Match.where(championship: @championship_2, phase: "mata_mata", round_number: 1).count }, 1 do
+      post draw_knockout_round_championship_path(@championship_2)
+    end
+
+    assert_redirected_to setup_championship_path(@championship_2, step: "teams")
+    match = Match.find_by(championship: @championship_2, phase: "mata_mata", round_number: 1)
+    assert_equal category, match.category
+    assert_includes [team_1, team_2], match.team_a
+    assert_includes [team_1, team_2], match.team_b
+  end
+
+  test "can attach an existing team to a championship category" do
+    destination_category = Category.create!(
+      source_id: "cat-phase-five-destination",
+      championship: @championship_2,
+      name: "Sub 13"
+    )
+
+    other_championship = Championship.create!(
+      source_id: "champ-phase-five-other",
+      name: "Campeonato Base",
+      season: 2024
+    )
+
+    source_category = Category.create!(
+      source_id: "cat-phase-five-source",
+      championship: other_championship,
+      name: "Sub 15"
+    )
+
+    entity = Entity.create!(
+      source_id: "entity-phase-five-attach-team",
+      name: "Escola T"
+    )
+
+    team = Team.create!(
+      source_id: "team-phase-five-attach-team",
+      entity: entity,
+      category: source_category,
+      name: "Time T"
+    )
+
+    patch attach_team_championship_path(@championship_2), params: {
+      team_id: team.id,
+      category_id: destination_category.id
+    }
+
+    assert_redirected_to setup_championship_path(@championship_2, step: "teams")
+    assert_equal destination_category, team.reload.category
   end
 
   test "forbids selecting championship without access" do

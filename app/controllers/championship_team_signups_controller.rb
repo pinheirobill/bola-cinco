@@ -5,8 +5,8 @@ class ChampionshipTeamSignupsController < ApplicationController
     load_championship
     return forbidden! unless @championship.publicly_visible? && @championship.team_signup_open?
 
+    @teams = Team.includes(:entity, :category).order(:name)
     @categories = @championship.categories.order(:name)
-    @entity = Entity.new
     @team = Team.new
   end
 
@@ -14,34 +14,31 @@ class ChampionshipTeamSignupsController < ApplicationController
     load_championship
     return forbidden! unless @championship.publicly_visible? && @championship.team_signup_open?
 
+    @teams = Team.includes(:entity, :category).order(:name)
     @categories = @championship.categories.order(:name)
-    entity = Entity.new(entity_params)
-    team = Team.new(team_params)
-    team.entity = entity
-    team.source_id = default_source_id("team") if team.source_id.blank?
-    entity.source_id = default_source_id("entity") if entity.source_id.blank?
+    team_signup = team_signup_params
+    team = @teams.find_by(id: team_signup[:team_id])
+    @team = team || Team.new
 
-    if team_params[:category_id].blank?
-      team.errors.add(:category, "obrigatória")
+    if team_signup[:team_id].blank?
+      @team.errors.add(:team, "obrigatório")
     else
-      team.category = @categories.find_by(id: team_params[:category_id])
-      team.errors.add(:category, "inválida") if team.category.nil?
+      @team.errors.add(:team, "inválido") if team.nil?
     end
 
-    if team.errors.empty?
-      ActiveRecord::Base.transaction do
-        entity.save!
-        team.save!
-      end
+    if team_signup[:category_id].blank?
+      @team.errors.add(:category, "obrigatória")
     else
-      raise ActiveRecord::RecordInvalid.new(team)
+      @category = @categories.find_by(id: team_signup[:category_id])
+      @team.errors.add(:category, "inválida") if @category.nil?
     end
 
-    redirect_to championship_path(@championship), notice: "Time inscrito com sucesso."
-  rescue ActiveRecord::RecordInvalid
-    @entity = entity
-    @team = team
-    render :new, status: :unprocessable_entity
+    if @team.errors.empty?
+      @team.update!(category: @category, registration_status: :pendente)
+      redirect_to championship_path(@championship), notice: "Time selecionado com sucesso."
+    else
+      render :new, status: :unprocessable_entity
+    end
   end
 
   private
@@ -50,29 +47,10 @@ class ChampionshipTeamSignupsController < ApplicationController
     @championship = Championship.find_by(id: params[:championship_id]) || Championship.find_by(slug: params[:championship_id]) || raise(ActiveRecord::RecordNotFound)
   end
 
-  def entity_params
-    params.expect(entity: [
-      :source_id,
-      :name,
-      :responsible,
-      :phone,
-      :whatsapp,
-      :email,
-      :city,
-      :notes
+  def team_signup_params
+    params.expect(team_signup: [
+      :team_id,
+      :category_id
     ])
-  end
-
-  def team_params
-    params.expect(team: [
-      :source_id,
-      :category_id,
-      :name,
-      :short_name
-    ])
-  end
-
-  def default_source_id(prefix)
-    "#{prefix}-#{SecureRandom.hex(4)}"
   end
 end

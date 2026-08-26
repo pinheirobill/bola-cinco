@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   devise_for :users
   root "home#index"
-  get "dashboard", to: "dashboard#index"
+  get "dashboard", to: redirect("/")
 
   resources :categories, only: %i[index show]
   resources :entities, only: %i[index show]
@@ -16,6 +16,10 @@ Rails.application.routes.draw do
   end
   resources :championships, only: %i[index show update] do
     get :setup, on: :member, path: "configuracao"
+    patch :attach_category, on: :member, path: "vincular-categoria"
+    patch :detach_category, on: :member, path: "remover-categoria"
+    post :draw_knockout_round, on: :member, path: "sortear-primeira-rodada"
+    patch :attach_team, on: :member, path: "vincular-time"
     resource :team_signup, only: %i[new create], path: "inscricao-time", controller: "championship_team_signups"
     resource :athlete_signup, only: %i[new create], path: "inscricao-atleta", controller: "championship_athlete_signups"
     resources :championship_memberships, only: %i[index create]
@@ -25,6 +29,7 @@ Rails.application.routes.draw do
   resource :active_championship, only: %i[show create destroy], path: "campeonato-ativo"
   resources :standing_rows, only: :index, path: "classificacao"
   resources :invoices, only: %i[index show]
+  resource :theme_preference, only: :update
   resources :venues, only: %i[index show create update destroy] do
     patch :attach, on: :member
     patch :detach, on: :member
@@ -33,14 +38,13 @@ Rails.application.routes.draw do
     patch :attach, on: :member
     patch :detach, on: :member
   end
-  resources :news_items, only: %i[index show create update destroy]
   resources :partners, only: %i[index show create update destroy]
   resources :matches, only: %i[index show edit update] do
     resources :match_reports, only: %i[index create]
     resources :match_events, only: %i[index create], shallow: true
     resources :match_participations, only: %i[create update destroy], shallow: true
   end
-  resources :match_events, only: %i[index show update destroy]
+  resources :match_events, only: %i[index show create update destroy]
   resources :match_reports, only: %i[index show update destroy]
   resources :suspensions, only: %i[index show create update destroy]
   resource :championship_engagement, only: :show, path: "engajamento"

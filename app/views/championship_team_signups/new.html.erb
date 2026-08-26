@@ -1,76 +1,26 @@
-<% content_for :title, "Inscrição de time | Bola Cinco" %>
+<% content_for :title, "Inscrição de equipes | Bola Cinco" %>
 
 <%= page_header(
-  title: "Inscrição de time",
+  title: "Inscrição de equipes",
   subtitle: @championship.name,
   badge: "Público"
 ) %>
 
-<% if @team&.errors&.any? || @entity&.errors&.any? %>
+<% if @team&.errors&.any? %>
   <div class="alert alert-error shadow-sm">
-    <span><%= [@entity&.errors&.full_messages, @team&.errors&.full_messages].flatten.compact.join(" · ") %></span>
+    <span><%= @team.errors.full_messages.join(" · ") %></span>
   </div>
 <% end %>
 
-<section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-  <%= surface_card(title: "Dados do time", subtitle: "Preencha a ficha para cadastrar um novo time no campeonato.") do %>
-    <%= form_with url: championship_team_signup_path(@championship), scope: :team_signup, class: "space-y-6" do %>
-      <div class="grid gap-4 md:grid-cols-2">
-        <div class="form-control gap-2">
-          <%= label_tag "team_signup_category_id", "Categoria", class: "label-text font-medium" %>
-          <%= select_tag "team[category_id]", options_from_collection_for_select(@categories, :id, :name, @team&.category_id), class: "select select-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= label_tag "team_signup_name", "Nome do time", class: "label-text font-medium" %>
-          <%= text_field_tag "team[name]", @team&.name, id: "team_signup_name", class: "input input-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= label_tag "team_signup_short_name", "Nome curto", class: "label-text font-medium" %>
-          <%= text_field_tag "team[short_name]", @team&.short_name, id: "team_signup_short_name", class: "input input-bordered w-full" %>
-        </div>
-      </div>
-
-      <div class="grid gap-4 md:grid-cols-2">
-        <div class="form-control gap-2">
-          <%= label_tag "entity_signup_name", "Entidade", class: "label-text font-medium" %>
-          <%= text_field_tag "entity[name]", @entity&.name, id: "entity_signup_name", class: "input input-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= label_tag "entity_signup_responsible", "Responsável", class: "label-text font-medium" %>
-          <%= text_field_tag "entity[responsible]", @entity&.responsible, id: "entity_signup_responsible", class: "input input-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= label_tag "entity_signup_phone", "Telefone", class: "label-text font-medium" %>
-          <%= text_field_tag "entity[phone]", @entity&.phone, id: "entity_signup_phone", class: "input input-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= label_tag "entity_signup_email", "E-mail", class: "label-text font-medium" %>
-          <%= email_field_tag "entity[email]", @entity&.email, id: "entity_signup_email", class: "input input-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= label_tag "entity_signup_city", "Cidade", class: "label-text font-medium" %>
-          <%= text_field_tag "entity[city]", @entity&.city, id: "entity_signup_city", class: "input input-bordered w-full" %>
-        </div>
-      </div>
-
-      <div class="form-control gap-2">
-        <%= label_tag "entity_signup_notes", "Observações", class: "label-text font-medium" %>
-        <%= text_area_tag "entity[notes]", @entity&.notes, id: "entity_signup_notes", rows: 4, class: "textarea textarea-bordered w-full" %>
-      </div>
-
-      <div class="flex flex-wrap gap-3">
-        <%= submit_tag "Enviar inscrição", class: "btn btn-primary" %>
-        <%= link_to "Voltar", championship_path(@championship), class: "btn btn-outline" %>
-      </div>
-    <% end %>
-  <% end %>
-
-  <%= surface_card(title: "O que acontece depois?", subtitle: "Fluxo simples para o time e para a organização.") do %>
-    <div class="space-y-3 text-sm text-base-content/70">
-      <p>1. A inscrição entra como pendente no campeonato.</p>
-      <p>2. A organização confere os dados da entidade e do time.</p>
-      <p>3. A equipe recebe liberação para seguir com os atletas.</p>
-      <p>4. O painel do campeonato mostra o time na categoria correta.</p>
-    </div>
+<section class="grid gap-6">
+  <%= surface_card(title: "Ficha de inscrição", subtitle: "Selecione um time já cadastrado para vincular ao campeonato.") do %>
+    <%= render "form",
+      championship: @championship,
+      teams: @teams,
+      categories: @categories,
+      team: @team,
+      selected_category: @category,
+      back_link_path: championship_path(@championship),
+      back_link_label: "Voltar" %>
   <% end %>
 </section>

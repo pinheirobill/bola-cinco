@@ -1,0 +1,68 @@
+<%= form_with url: championship_team_signup_path(championship), scope: :team_signup, class: "space-y-6" do %>
+  <div class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+    <div class="space-y-4">
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Seleção</p>
+        <p class="mt-2 text-sm text-base-content/70">
+          Escolha um time já cadastrado e vincule à categoria do campeonato. Nenhum cadastro novo é criado aqui.
+        </p>
+
+        <div class="mt-4 grid gap-4 md:grid-cols-2">
+          <div class="form-control gap-2 md:col-span-2">
+            <%= label_tag "team_signup_team_id", "Time cadastrado", class: "label-text font-medium" %>
+            <%= select_tag "team_signup[team_id]",
+              options_from_collection_for_select(teams, :id, :signup_picker_label, team&.id),
+              include_blank: "Selecione um time já criado",
+              class: "select select-bordered w-full" %>
+          </div>
+          <div class="form-control gap-2 md:col-span-2">
+            <%= label_tag "team_signup_category_id", "Categoria do campeonato", class: "label-text font-medium" %>
+            <%= select_tag "team_signup[category_id]",
+              options_from_collection_for_select(categories, :id, :name, local_assigns[:selected_category]&.id || team&.category_id),
+              include_blank: "Selecione",
+              class: "select select-bordered w-full" %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Resumo rápido</p>
+        <div class="mt-3 grid gap-3">
+          <div class="rounded-2xl bg-base-100 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Campeonato</p>
+            <p class="mt-2 font-semibold"><%= championship.name %></p>
+          </div>
+          <div class="rounded-2xl bg-base-100 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Time selecionado</p>
+            <p class="mt-2 font-semibold"><%= team&.signup_picker_label.presence || "Selecione um time" %></p>
+          </div>
+          <div class="rounded-2xl bg-base-100 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Situação</p>
+            <p class="mt-2 font-semibold">Inscrição pendente até a análise da organização</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Como funciona</p>
+        <ol class="mt-3 space-y-3 text-sm leading-6 text-base-content/70">
+          <li>1. Selecione um time já criado no sistema.</li>
+          <li>2. Escolha a categoria do campeonato que vai receber a inscrição.</li>
+          <li>3. A organização valida a participação sem criar novos cadastros aqui.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-3">
+    <%= submit_tag "Enviar inscrição", class: "btn btn-primary" %>
+    <% if local_assigns[:back_link_path].present? %>
+      <%= link_to local_assigns[:back_link_label] || "Fechar", local_assigns[:back_link_path], class: "btn btn-outline" %>
+    <% end %>
+    <% if local_assigns[:close_on_submit].present? && local_assigns[:close_on_submit] %>
+      <button type="button" class="btn btn-ghost" onclick="document.getElementById('championship-team-signup-modal').close()">Fechar</button>
+    <% end %>
+  </div>
+<% end %>

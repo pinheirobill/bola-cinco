@@ -10,12 +10,15 @@ class Athlete < ApplicationRecord
 
   after_commit :sync_primary_team_link, on: %i[create update]
 
+  scope :for_picker, -> { includes(:team, :category, :linked_teams).order(:name) }
+
   enum :status, {
     pendente: "pendente",
     validado: "validado",
     bloqueado: "bloqueado"
   }, prefix: true
 
+  scope :for_championship, ->(championship) { joins(category: :championships).where(championships: { id: championship.is_a?(Championship) ? championship.id : championship }).distinct }
   scope :ativos, -> { status_validado }
 
   validates :source_id, :name, presence: true
@@ -68,6 +71,7 @@ class Athlete < ApplicationRecord
       position,
       team&.name,
       category&.name,
+      linked_teams.map(&:name),
       preferred_document
     ].compact.join(" ").downcase
   end
@@ -95,7 +99,7 @@ class Athlete < ApplicationRecord
   end
 
   def championship
-    category&.championship
+    team&.championship || category&.championship || category&.championships&.first
   end
 
   def performance_summary
@@ -113,8 +117,10 @@ class Athlete < ApplicationRecord
       absences: participations.where(status: "ausente").distinct.count(:match_id),
       goals: events.where(kind: "gol").count,
       assists: events.where(kind: "assistencia").count,
+      fouls: events.select { |event| event.kind_outro? && event.notes.to_s.downcase.include?("falta") }.count,
       yellow_cards: events.where(kind: "cartao_amarelo").count,
       red_cards: events.where(kind: "cartao_vermelho").count,
+      substitutions: events.where(kind: "substituicao").count,
       active_suspensions: championship_suspensions.status_ativa.count,
       total_suspensions: championship_suspensions.count,
       linked_teams_count: linked_teams.count,
@@ -181,6 +187,8 @@ class Athlete < ApplicationRecord
       assists: 0,
       yellow_cards: 0,
       red_cards: 0,
+      fouls: 0,
+      substitutions: 0,
       active_suspensions: 0,
       total_suspensions: 0,
       linked_teams_count: linked_teams.count,

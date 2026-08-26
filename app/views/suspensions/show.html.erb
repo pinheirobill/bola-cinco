@@ -22,7 +22,7 @@
         <%= f.number_field :matches_count, class: "input input-bordered w-full", min: 1, placeholder: "Partidas" %>
         <%= f.date_field :starts_on, class: "input input-bordered w-full" %>
         <%= f.date_field :ends_on, class: "input input-bordered w-full" %>
-        <%= f.select :match_event_id, options_for_select(@match_events.map { |event| ["#{event.match.code} · #{event.kind.humanize}", event.id] }, @suspension.match_event_id), { include_blank: "Evento relacionado" }, class: "select select-bordered w-full" %>
+        <%= f.select :match_event_id, options_for_select(@match_events.map { |event| ["#{event.match&.code || event.championship&.name || 'Evento'} · #{event.kind.humanize}", event.id] }, @suspension.match_event_id), { include_blank: "Evento relacionado" }, class: "select select-bordered w-full" %>
       </div>
       <%= f.text_field :reason, class: "input input-bordered w-full", placeholder: "Motivo" %>
       <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>

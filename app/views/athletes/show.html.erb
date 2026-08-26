@@ -179,7 +179,7 @@
                 <div>
                   <p class="font-medium"><%= event.kind.humanize %></p>
                   <p class="text-xs text-base-content/50">
-                    <%= event.match.code %> · <%= event.team&.name || "-" %>
+                    <%= event.match&.code || event.championship&.name || "Evento do campeonato" %> · <%= event.team&.name || "-" %>
                   </p>
                 </div>
                 <span class="badge badge-outline"><%= event.minute.present? ? "#{event.minute}'" : "-" %></span>

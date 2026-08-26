@@ -93,18 +93,24 @@ class OperationalDomainTest < ActiveSupport::TestCase
     )
 
     assert event.kind_gol?
+    assert_equal @championship, event.championship
     assert_equal match, event.match
     assert_equal @team, event.team
     assert_equal @athlete, event.athlete
   end
 
-  test "news_item defaults to draft" do
-    news_item = NewsItem.create!(
-      source_id: "news-1",
+  test "match_event can belong to a championship without a match" do
+    event = MatchEvent.create!(
+      source_id: "event-2",
       championship: @championship,
-      title: "Rodada liberada"
+      team: @team,
+      athlete: @athlete,
+      kind: :assistencia,
+      minute: 7
     )
 
-    assert news_item.status_rascunho?
+    assert_equal @championship, event.championship
+    assert_nil event.match
   end
+
 end

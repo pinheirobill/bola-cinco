@@ -292,14 +292,27 @@
   </section>
 <% else %>
   <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
-    <%= surface_card(title: "Etapa 3. Equipes", subtitle: "Veja as equipes participantes do campeonato e o convite público para o técnico.") do %>
+    <%= surface_card(
+      title: "Etapa 3. Categorias e equipes",
+      subtitle: "Primeiro vincule categorias reutilizáveis ao campeonato. Depois, se quiser, associe equipes a elas.",
+      actions: [
+        button_tag("Configurar categorias", type: "button", class: "btn btn-outline btn-sm", onclick: "document.getElementById('categories-modal').showModal()"),
+        button_tag("Vincular equipes", type: "button", class: "btn btn-outline btn-sm", onclick: "document.getElementById('teams-modal').showModal()")
+      ]
+    ) do %>
       <div class="space-y-4">
-        <% @championship.categories.each do |category| %>
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Categorias vinculadas</p>
+          <p class="mt-2 text-2xl font-bold"><%= @championship.categories.size %></p>
+          <p class="mt-1 text-sm text-base-content/70">Uma categoria pode aparecer em vários campeonatos. Aqui você só conecta as já existentes.</p>
+        </div>
+
+        <% @championship_categories.each do |category| %>
           <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
             <div class="flex items-center justify-between gap-4">
               <div>
                 <h3 class="text-lg font-bold"><%= category.name %></h3>
-                <p class="text-sm text-base-content/70"><%= category.teams.size %> equipes cadastradas</p>
+                <p class="text-sm text-base-content/70"><%= category.teams.size %> equipes cadastradas · <%= category.championships.size %> campeonatos</p>
               </div>
               <%= link_to "Ver categoria", category_path(category), class: "btn btn-ghost btn-sm" %>
             </div>
@@ -322,12 +335,24 @@
         <button class="btn btn-primary btn-sm" type="button">Copiar link</button>
       <% end %>
 
-      <%= surface_card(title: "Ações futuras") do %>
-        <ul class="space-y-2 text-sm text-base-content/70">
-          <li>Adicionar equipe cadastrada</li>
-          <li>Gerar sorteio automático</li>
-          <li>Bloquear geração até a fase de grupos encerrar</li>
-        </ul>
+      <%= surface_card(title: "Sorteio da primeira rodada") do %>
+        <% if @championship.format_data["mode"].to_s == "mata_mata" %>
+          <div class="space-y-4">
+            <p class="text-sm text-base-content/70">
+              Gere os confrontos iniciais do mata-mata com base nos times já vinculados às categorias.
+            </p>
+            <%= button_to "Sortear 1ª rodada", draw_knockout_round_championship_path(@championship), method: :post, class: "btn btn-primary" %>
+            <p class="text-xs text-base-content/50">
+              O sistema embaralha os times de cada categoria e cria os jogos da primeira fase.
+            </p>
+          </div>
+        <% else %>
+          <ul class="space-y-2 text-sm text-base-content/70">
+            <li>Adicionar equipe cadastrada</li>
+            <li>Gerar sorteio automático</li>
+            <li>Bloquear geração até a fase de grupos encerrar</li>
+          </ul>
+        <% end %>
       <% end %>
     </div>
   </section>
@@ -390,10 +415,141 @@
     <% end %>
   </section>
 
+  <dialog id="categories-modal" class="modal">
+    <div class="modal-box max-w-6xl">
+      <h3 class="text-lg font-bold">Vincular categorias</h3>
+      <p class="mt-1 text-sm text-base-content/70">Escolha categorias já cadastradas e associe ao campeonato. Uma categoria pode ser usada em vários campeonatos ao mesmo tempo.</p>
+
+      <div class="mt-6 grid gap-6 lg:grid-cols-2">
+        <div class="space-y-3">
+          <h4 class="font-semibold">Vinculadas</h4>
+          <% if @championship_categories.any? %>
+            <% @championship_categories.each do |category| %>
+              <div class="rounded-2xl bg-base-200 p-4">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <p class="font-medium"><%= category.name %></p>
+                    <p class="text-xs text-base-content/60"><%= category.gender.present? ? category.gender.titleize : "Sem gênero definido" %> · <%= category.teams.size %> equipes · <%= category.championships.size %> campeonatos</p>
+                  </div>
+                  <%= button_to "Remover", detach_category_championship_path(@championship, category_id: category.id), method: :patch, class: "btn btn-outline btn-sm btn-error" %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-base-content/60">Nenhuma categoria vinculada ainda.</p>
+          <% end %>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="font-semibold">Disponíveis</h4>
+          <% if @available_categories_to_link.any? %>
+            <% @available_categories_to_link.each do |category| %>
+              <div class="rounded-2xl bg-base-200 p-4">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <p class="font-medium"><%= category.name %></p>
+                    <p class="text-xs text-base-content/60"><%= category.gender.present? ? category.gender.titleize : "Sem gênero definido" %> · <%= category.teams.size %> equipes · <%= category.championships.size %> campeonatos</p>
+                  </div>
+                  <%= button_to "Vincular", attach_category_championship_path(@championship), method: :patch, params: { category_id: category.id }, class: "btn btn-primary btn-sm" %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-base-content/60">Não há mais categorias disponíveis para vincular.</p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('categories-modal').close()">Fechar</button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <dialog id="teams-modal" class="modal">
+    <div class="modal-box max-w-5xl">
+      <h3 class="text-lg font-bold">Vincular equipes</h3>
+      <p class="mt-1 text-sm text-base-content/70">Escolha uma equipe já cadastrada e associe a uma categoria do campeonato. Se não quiser selecionar nenhuma agora, pode fechar.</p>
+
+      <div class="mt-6 grid gap-6 lg:grid-cols-2">
+        <div class="space-y-3">
+          <h4 class="font-semibold">Equipes vinculadas</h4>
+          <% if @championship.categories.any? && @championship.categories.any? { |category| category.teams.any? } %>
+            <% @championship.categories.each do |category| %>
+              <% next if category.teams.blank? %>
+              <div class="rounded-2xl bg-base-200 p-4">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="font-medium"><%= category.name %></p>
+                    <p class="text-xs text-base-content/60"><%= category.teams.size %> equipes</p>
+                  </div>
+                </div>
+                <div class="mt-3 space-y-2">
+                  <% category.teams.each do |team| %>
+                    <div class="flex items-center justify-between gap-3 rounded-2xl bg-base-100 px-4 py-3">
+                      <div>
+                        <p class="font-medium"><%= team.name %></p>
+                        <p class="text-xs text-base-content/60"><%= team.entity&.name.presence || "Sem entidade" %></p>
+                      </div>
+                      <%= link_to "Abrir", team_path(team), class: "link link-primary" %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-base-content/60">Nenhuma equipe vinculada ainda.</p>
+          <% end %>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="font-semibold">Disponíveis para vincular</h4>
+          <% if @available_teams_to_link.any? %>
+            <% @available_teams_to_link.each do |team| %>
+              <div class="rounded-2xl bg-base-200 p-4">
+                <%= form_with url: attach_team_championship_path(@championship), method: :patch, class: "space-y-3" do %>
+                  <%= hidden_field_tag :team_id, team.id %>
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <p class="font-medium"><%= team.name %></p>
+                      <p class="text-xs text-base-content/60"><%= [team.entity&.name, team.category&.name].compact.join(" · ").presence || "Sem contexto" %></p>
+                    </div>
+                    <%= link_to "Abrir", team_path(team), class: "link link-primary" %>
+                  </div>
+                  <div class="grid gap-3 md:grid-cols-[1fr_auto]">
+                    <div class="form-control gap-2">
+                      <%= label_tag "team_category_id_#{team.id}", "Categoria destino", class: "label-text font-medium" %>
+                      <%= select_tag :category_id, options_from_collection_for_select(@championship_categories, :id, :name), id: "team_category_id_#{team.id}", class: "select select-bordered w-full" %>
+                    </div>
+                    <div class="flex items-end">
+                      <%= submit_tag "Vincular", class: "btn btn-primary" %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-base-content/60">Nenhuma equipe disponível para vincular.</p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('teams-modal').close()">Fechar</button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
   <dialog id="venues-modal" class="modal">
     <div class="modal-box max-w-4xl">
       <h3 class="text-lg font-bold">Gerenciar campos</h3>
-      <p class="mt-1 text-sm text-base-content/70">Vincule campos ao campeonato, remova os vinculados ou crie um novo.</p>
+      <p class="mt-1 text-sm text-base-content/70">Vincule campos já criados ao campeonato ou remova os vinculados.</p>
 
       <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <div class="space-y-3">
@@ -431,23 +587,8 @@
         </div>
       </div>
 
-      <div class="mt-6 rounded-3xl border border-base-300 bg-base-200 p-5">
-        <h4 class="font-semibold">Criar novo campo</h4>
-        <%= form_with model: @venue || Venue.new(status: :ativo), url: venues_path, class: "mt-4 space-y-4" do |f| %>
-          <%= hidden_field_tag :championship_id, @championship.id %>
-          <div class="grid gap-4 md:grid-cols-2">
-            <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
-            <%= f.text_field :short_name, class: "input input-bordered w-full", placeholder: "Nome curto" %>
-            <%= f.text_field :city, class: "input input-bordered w-full", placeholder: "Cidade" %>
-            <%= f.select :status, Venue.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
-          </div>
-          <%= f.text_field :address, class: "input input-bordered w-full", placeholder: "Endereço" %>
-          <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 3, placeholder: "Observações" %>
-          <div class="flex justify-end gap-3">
-            <button type="button" class="btn btn-ghost" onclick="document.getElementById('venues-modal').close()">Fechar</button>
-            <%= f.submit "Criar e vincular", class: "btn btn-primary" %>
-          </div>
-        <% end %>
+      <div class="mt-6 flex justify-end">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('venues-modal').close()">Fechar</button>
       </div>
     </div>
     <form method="dialog" class="modal-backdrop">
@@ -458,7 +599,7 @@
   <dialog id="referees-modal" class="modal">
     <div class="modal-box max-w-4xl">
       <h3 class="text-lg font-bold">Gerenciar árbitros</h3>
-      <p class="mt-1 text-sm text-base-content/70">Vincule árbitros ao campeonato, remova os vinculados ou crie um novo.</p>
+      <p class="mt-1 text-sm text-base-content/70">Vincule árbitros já cadastrados ao campeonato ou remova os vinculados.</p>
 
       <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <div class="space-y-3">
@@ -496,23 +637,8 @@
         </div>
       </div>
 
-      <div class="mt-6 rounded-3xl border border-base-300 bg-base-200 p-5">
-        <h4 class="font-semibold">Criar novo árbitro</h4>
-        <%= form_with model: @referee || Referee.new(status: :ativo), url: referees_path, class: "mt-4 space-y-4" do |f| %>
-          <%= hidden_field_tag :championship_id, @championship.id %>
-          <div class="grid gap-4 md:grid-cols-2">
-            <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
-            <%= f.select :status, Referee.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
-            <%= f.text_field :email, class: "input input-bordered w-full", placeholder: "Email" %>
-            <%= f.text_field :phone, class: "input input-bordered w-full", placeholder: "Telefone" %>
-          </div>
-          <%= f.text_field :document, class: "input input-bordered w-full", placeholder: "Documento" %>
-          <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 3, placeholder: "Observações" %>
-          <div class="flex justify-end gap-3">
-            <button type="button" class="btn btn-ghost" onclick="document.getElementById('referees-modal').close()">Fechar</button>
-            <%= f.submit "Criar e vincular", class: "btn btn-primary" %>
-          </div>
-        <% end %>
+      <div class="mt-6 flex justify-end">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('referees-modal').close()">Fechar</button>
       </div>
     </div>
     <form method="dialog" class="modal-backdrop">

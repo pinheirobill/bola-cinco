@@ -1,7 +1,10 @@
 class MatchEvent < ApplicationRecord
-  belongs_to :match
+  belongs_to :championship
+  belongs_to :match, optional: true
   belongs_to :team, optional: true
   belongs_to :athlete, optional: true
+
+  before_validation :sync_championship_from_match
 
   enum :kind, {
     gol: "gol",
@@ -14,4 +17,10 @@ class MatchEvent < ApplicationRecord
 
   validates :source_id, :kind, presence: true
   validates :source_id, uniqueness: true
+
+  private
+
+  def sync_championship_from_match
+    self.championship ||= match&.championship
+  end
 end

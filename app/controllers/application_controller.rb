@@ -9,6 +9,9 @@ class ApplicationController < ActionController::Base
 
   helper_method :current_championship
   helper_method :current_team_panel_teams
+  helper_method :current_theme_name
+  helper_method :current_theme_meta
+  helper_method :theme_options
   helper UiHelper
 
   def current_championship
@@ -33,6 +36,18 @@ class ApplicationController < ActionController::Base
     return Team.none unless user_signed_in?
 
     current_user.accessible_teams.includes(:entity, :category, :athletes, :team_memberships)
+  end
+
+  def current_theme_name
+    current_user&.preferred_theme.presence || "corporate"
+  end
+
+  def current_theme_meta
+    User.theme_meta(current_theme_name)
+  end
+
+  def theme_options
+    User.theme_options
   end
 
   def forbidden!

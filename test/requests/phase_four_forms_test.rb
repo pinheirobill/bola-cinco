@@ -79,6 +79,13 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
       name: "Atleta Fase 4 B"
     )
 
+    @athlete_c = Athlete.create!(
+      source_id: "athlete-phase-four-c",
+      team: @team,
+      category: @category,
+      name: "Atleta Fase 4 C"
+    )
+
     @match = Match.create!(
       source_id: "match-phase-four",
       championship: @championship,
@@ -108,34 +115,6 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_redirected_to venue_path(Venue.find_by(name: "Ginásio Fase 4"))
   end
 
-  test "creates a news item from html form" do
-    post news_items_path, params: {
-      championship_id: @championship.id,
-      news_item: {
-        title: "Nova rodada",
-        body: "Texto da notícia",
-        status: "publicada"
-      },
-      commit: "Criar notícia"
-    }
-
-    assert_redirected_to news_item_path(NewsItem.find_by(title: "Nova rodada"))
-  end
-
-  test "creates a round selection with athletes from html form" do
-    post round_selections_path, params: {
-      championship_id: @championship.id,
-      round_selection: {
-        title: "Rodada 1",
-        round_number: 1,
-        athlete_ids: [@athlete.id]
-      },
-      commit: "Criar seleção"
-    }
-
-    assert_redirected_to round_selection_path(RoundSelection.find_by(title: "Rodada 1"))
-  end
-
   test "creates a match report from html form" do
     post match_match_reports_path(@match), params: {
       match_report: {
@@ -162,7 +141,6 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Onboarding do jogo"
     assert_includes response.body, "Súmula centralizada"
     assert_includes response.body, "Vencedor"
-    assert_includes response.body, "Participação do jogo"
     refute_includes response.body, "Etapa 2. Relatório de jogo"
     refute_includes response.body, "Etapa 3. Registrar evento"
     assert_includes response.body, @team.name
@@ -181,8 +159,8 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Cabeçalho da súmula"
     assert_includes response.body, "Árbitro e súmula"
     assert_includes response.body, "Participação do jogo"
-    assert_includes response.body, "Confirmar"
-    assert_includes response.body, "Ausente"
+    assert_includes response.body, "Selecionar visíveis"
+    assert_includes response.body, "Selecionados"
     assert_includes response.body, "Eventos da súmula"
     assert_includes response.body, "Gols automáticos"
     assert_includes response.body, @athlete.match_roster_label
@@ -197,10 +175,10 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
 
     participations = @match.reload.match_participations.order(:team_id, :athlete_id)
 
-    assert_equal 2, participations.count
-    assert_equal %w[pendente pendente], participations.pluck(:status)
-    assert_equal [@team.id, @team_b.id], participations.pluck(:team_id)
-    assert_equal [@athlete.id, @athlete_b.id], participations.pluck(:athlete_id)
+    assert_equal 3, participations.count
+    assert_equal %w[pendente pendente pendente], participations.pluck(:status)
+    assert_equal [@team.id, @team.id, @team_b.id], participations.pluck(:team_id)
+    assert_equal [@athlete.id, @athlete_c.id, @athlete_b.id], participations.pluck(:athlete_id)
   end
 
   test "updates match and report from the paper-like editor" do
@@ -288,6 +266,27 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_equal "Titular confirmado", participation.notes
   end
 
+  test "creates multiple match participations from the match page" do
+    @match.update!(
+      team_a: @team,
+      team_b: @team_b
+    )
+
+    @match.match_participations.delete_all
+
+    post match_match_participations_path(@match), params: {
+      match_participation: {
+        team_id: @team.id,
+        athlete_ids: [@athlete.id, @athlete_c.id]
+      }
+    }
+
+    assert_redirected_to match_path(@match)
+    participations = @match.reload.match_participations.where(team_id: @team.id).order(:athlete_id)
+    assert_equal [@athlete.id, @athlete_c.id], participations.pluck(:athlete_id)
+    assert_equal %w[pendente pendente], participations.pluck(:status)
+  end
+
   test "updates the same match participation instead of duplicating it" do
     @match.update!(
       team_a: @team,
@@ -312,7 +311,7 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
       }
     }
 
-    assert_equal 2, @match.reload.match_participations.count
+    assert_equal 3, @match.reload.match_participations.count
     assert_equal "ausente", @match.match_participations.find_by!(team_id: @team.id, athlete_id: @athlete.id).status
   end
 

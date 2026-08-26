@@ -55,23 +55,10 @@ class ChampionshipEngagementTest < ActionDispatch::IntegrationTest
       kind: :gol
     )
 
-    @championship.news_items.create!(
-      source_id: "news-engagement",
-      title: "Rodada liberada",
-      status: :publicada,
-      published_at: Time.current
-    )
-
     @championship.partners.create!(
       source_id: "partner-engagement",
       name: "Parceiro 1",
       highlight: true
-    )
-
-    @championship.round_selections.create!(
-      source_id: "round-engagement",
-      title: "Seleção da rodada",
-      round_number: 1
     )
   end
 
@@ -83,8 +70,6 @@ class ChampionshipEngagementTest < ActionDispatch::IntegrationTest
 
     assert_equal "Campeonato Engajamento", body.fetch("championship").fetch("name")
     assert_equal 1, body.fetch("top_athletes").size
-    assert_equal 1, body.fetch("published_news").size
     assert_equal 1, body.fetch("featured_partners").size
-    assert_equal 1, body.fetch("latest_round_selections").size
   end
 end

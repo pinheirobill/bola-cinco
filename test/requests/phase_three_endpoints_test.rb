@@ -258,7 +258,7 @@ class PhaseThreeEndpointsTest < ActionDispatch::IntegrationTest
     assert_includes response.body, linked_athlete.name
     assert_includes response.body, "Já está na equipe"
     assert_includes response.body, available_athlete.name
-    refute_includes response.body, pending_athlete.name
+    assert_includes response.body, pending_athlete.name
 
     post team_team_athletes_path(team), params: {
       team_athlete: {

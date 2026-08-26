@@ -13,7 +13,7 @@ class EntitiesController < ApplicationController
 
   def scoped_entities
     return Entity.includes(teams: :category) if current_user&.admin?
-    return Entity.joins(teams: :category).where(categories: { championship_id: current_championship.id }).distinct if current_championship.present?
+    return Entity.joins(teams: { category: :championships }).where(championships: { id: current_championship.id }).distinct if current_championship.present?
 
     Entity.none
   end

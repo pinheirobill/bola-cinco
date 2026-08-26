@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_26_153000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_26_174000) do
   create_table "athletes", force: :cascade do |t|
     t.string "birth_certificate"
     t.date "birth_date"
@@ -66,7 +66,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_153000) do
   end
 
   create_table "categories", force: :cascade do |t|
-    t.integer "championship_id", null: false
+    t.integer "championship_id"
     t.datetime "created_at", null: false
     t.string "gender"
     t.integer "max_athletes"
@@ -79,6 +79,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_153000) do
     t.index ["championship_id", "position"], name: "index_categories_on_championship_id_and_position"
     t.index ["championship_id"], name: "index_categories_on_championship_id"
     t.index ["source_id"], name: "index_categories_on_source_id", unique: true
+  end
+
+  create_table "championship_categories", force: :cascade do |t|
+    t.integer "category_id", null: false
+    t.integer "championship_id", null: false
+    t.datetime "created_at", null: false
+    t.string "source_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_championship_categories_on_category_id"
+    t.index ["championship_id", "category_id"], name: "index_championship_categories_on_championship_and_category", unique: true
+    t.index ["championship_id"], name: "index_championship_categories_on_championship_id"
+    t.index ["source_id"], name: "index_championship_categories_on_source_id", unique: true
   end
 
   create_table "championship_memberships", force: :cascade do |t|
@@ -152,9 +164,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_153000) do
 
   create_table "match_events", force: :cascade do |t|
     t.integer "athlete_id"
+    t.integer "championship_id", null: false
     t.datetime "created_at", null: false
     t.string "kind", null: false
-    t.integer "match_id", null: false
+    t.integer "match_id"
     t.integer "minute"
     t.text "notes"
     t.string "period"
@@ -164,6 +177,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_153000) do
     t.datetime "updated_at", null: false
     t.index ["athlete_id", "kind"], name: "index_match_events_on_athlete_id_and_kind"
     t.index ["athlete_id"], name: "index_match_events_on_athlete_id"
+    t.index ["championship_id"], name: "index_match_events_on_championship_id"
     t.index ["match_id", "kind"], name: "index_match_events_on_match_id_and_kind"
     t.index ["match_id"], name: "index_match_events_on_match_id"
     t.index ["source_id"], name: "index_match_events_on_source_id", unique: true
@@ -248,24 +262,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_153000) do
     t.index ["team_b_id"], name: "index_matches_on_team_b_id"
     t.index ["venue_id"], name: "index_matches_on_venue_id"
     t.index ["winner_id"], name: "index_matches_on_winner_id"
-  end
-
-  create_table "news_items", force: :cascade do |t|
-    t.text "body"
-    t.integer "category_id"
-    t.integer "championship_id", null: false
-    t.datetime "created_at", null: false
-    t.boolean "pinned", default: false, null: false
-    t.datetime "published_at"
-    t.json "source_data", default: {}, null: false
-    t.string "source_id", null: false
-    t.string "status", default: "rascunho", null: false
-    t.string "title", null: false
-    t.datetime "updated_at", null: false
-    t.index ["category_id"], name: "index_news_items_on_category_id"
-    t.index ["championship_id", "status", "published_at"], name: "idx_on_championship_id_status_published_at_a54f407a0b"
-    t.index ["championship_id"], name: "index_news_items_on_championship_id"
-    t.index ["source_id"], name: "index_news_items_on_source_id", unique: true
   end
 
   create_table "partners", force: :cascade do |t|
@@ -433,12 +429,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_153000) do
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
+    t.string "preferred_theme", default: "corporate", null: false
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
     t.string "role", default: "adm_master", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["preferred_theme"], name: "index_users_on_preferred_theme"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["role"], name: "index_users_on_role"
   end
@@ -462,13 +460,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_153000) do
   add_foreign_key "athletes", "categories"
   add_foreign_key "athletes", "teams"
   add_foreign_key "athletes", "users"
-  add_foreign_key "categories", "championships"
+  add_foreign_key "categories", "championships", on_delete: :nullify
+  add_foreign_key "championship_categories", "categories"
+  add_foreign_key "championship_categories", "championships"
   add_foreign_key "championship_memberships", "championships"
   add_foreign_key "championship_memberships", "users"
   add_foreign_key "invoices", "categories"
   add_foreign_key "invoices", "championships"
   add_foreign_key "invoices", "entities"
   add_foreign_key "match_events", "athletes", on_delete: :nullify
+  add_foreign_key "match_events", "championships"
   add_foreign_key "match_events", "matches"
   add_foreign_key "match_events", "teams", on_delete: :nullify
   add_foreign_key "match_participations", "athletes", on_delete: :nullify
@@ -482,8 +483,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_153000) do
   add_foreign_key "matches", "teams", column: "team_b_id"
   add_foreign_key "matches", "teams", column: "winner_id"
   add_foreign_key "matches", "venues"
-  add_foreign_key "news_items", "categories"
-  add_foreign_key "news_items", "championships"
   add_foreign_key "partners", "categories"
   add_foreign_key "partners", "championships"
   add_foreign_key "referees", "championships"

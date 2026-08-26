@@ -44,7 +44,8 @@ class Championship < ApplicationRecord
     "data_nascimento" => "Data de Nasc."
   }.freeze
 
-  has_many :categories, dependent: :destroy
+  has_many :championship_categories, dependent: :delete_all
+  has_many :categories, through: :championship_categories
   has_many :teams, through: :categories
   has_many :athletes, through: :categories
   has_many :matches, dependent: :destroy
@@ -52,11 +53,10 @@ class Championship < ApplicationRecord
   has_many :invoices, dependent: :destroy
   has_many :venues, dependent: :nullify
   has_many :referees, dependent: :nullify
-  has_many :news_items, dependent: :destroy
   has_many :partners, dependent: :destroy
   has_many :championship_memberships, dependent: :destroy
   has_many :users, through: :championship_memberships
-  has_many :match_events, through: :matches
+  has_many :match_events, dependent: :destroy
   has_many :match_reports, through: :matches
   has_many :suspensions, dependent: :destroy
 
@@ -392,10 +392,36 @@ class Championship < ApplicationRecord
     end
   end
 
-  def published_news(limit = 5)
-    news_items.where(status: "publicada")
-      .order(pinned: :desc, published_at: :desc, created_at: :desc)
-      .limit(limit)
+  def draw_initial_knockout_round!
+    raise ArgumentError, "campeonato precisa estar em mata-mata" unless format_data["mode"].to_s == "mata_mata"
+
+    created_matches = []
+
+    transaction do
+      categories.includes(:teams).find_each do |category|
+        next if matches.where(category_id: category.id, phase: "mata_mata", round_number: 1).exists?
+
+        shuffled_teams = category.teams.to_a.shuffle
+        next if shuffled_teams.size < 2
+
+        shuffled_teams.each_slice(2).with_index(1) do |pair, index|
+          next if pair.size < 2
+
+          created_matches << matches.create!(
+            source_id: knockout_match_source_id(category, index),
+            category: category,
+            code: knockout_match_code(category, index),
+            phase: "mata_mata",
+            round_number: 1,
+            team_a: pair[0],
+            team_b: pair[1],
+            status: :agendado
+          )
+        end
+      end
+    end
+
+    created_matches
   end
 
   def featured_partners(limit = 6)
@@ -509,6 +535,14 @@ class Championship < ApplicationRecord
     loser_stats[:losses] += 1
     winner_stats[:points] += win_points.to_i
     loser_stats[:points] += loss_points.to_i
+  end
+
+  def knockout_match_source_id(category, index)
+    "knockout-#{id}-#{category.id}-r1-#{index}"
+  end
+
+  def knockout_match_code(category, index)
+    [category.name.parameterize.upcase.presence || "CAT", "R1", index].join("-")
   end
 
   def finalize_standing_totals!(stats)

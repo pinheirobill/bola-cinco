@@ -8,7 +8,7 @@
 
 <%= stats_grid([
   { label: "Categorias", value: @categories.size, value_class: "text-2xl" },
-  { label: "Campeonatos", value: @categories.map(&:championship_id).compact.uniq.size, value_class: "text-2xl" }
+  { label: "Campeonatos", value: @categories.flat_map(&:championships).map(&:id).uniq.size, value_class: "text-2xl" }
 ], columns: "md:grid-cols-2") %>
 
 <%= surface_card do %>
@@ -18,7 +18,7 @@
         <thead>
           <tr>
             <th>Nome</th>
-            <th>Campeonato</th>
+            <th>Campeonatos</th>
             <th>Equipes</th>
             <th></th>
           </tr>
@@ -27,7 +27,7 @@
           <% @categories.each do |category| %>
             <tr>
               <td class="font-medium"><%= category.name %></td>
-              <td><%= category.championship.name %></td>
+              <td><%= category.championships.map(&:name).presence&.join(" · ") || category.championship_name || "-" %></td>
               <td><%= category.teams.size %></td>
               <td><%= link_to "Ver", category_path(category), class: "link link-primary" %></td>
             </tr>

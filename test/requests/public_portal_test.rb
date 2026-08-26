@@ -68,24 +68,11 @@ class PublicPortalTest < ActionDispatch::IntegrationTest
       points: 3
     )
 
-    @championship.news_items.create!(
-      source_id: "news-public-portal",
-      title: "Portal aberto",
-      status: :publicada,
-      published_at: Time.current
-    )
-
     @championship.partners.create!(
       source_id: "partner-public-portal",
       name: "Parceiro Portal",
       status: :ativo,
       highlight: true
-    )
-
-    @championship.round_selections.create!(
-      source_id: "round-public-portal",
-      title: "Seleção da rodada",
-      round_number: 1
     )
   end
 
@@ -105,7 +92,8 @@ class PublicPortalTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Campeonato Portal"
     assert_includes response.body, "Top atletas"
-    assert_includes response.body, "Portal aberto"
+    assert_includes response.body, "Inscrição de equipes"
+    assert_includes response.body, "championship-team-signup-modal"
   end
 
   test "scopes public team, athlete and standings pages to the current championship" do
@@ -120,5 +108,22 @@ class PublicPortalTest < ActionDispatch::IntegrationTest
     get standing_rows_path
     assert_response :success
     assert_includes response.body, "Time Portal"
+  end
+
+  test "shows the internal portal section for signed in users" do
+    sign_in users(:one)
+
+    get root_path
+
+    assert_response :success
+    assert_includes response.body, "Área interna"
+    assert_includes response.body, "Campeonatos acessíveis"
+    assert_includes response.body, "Próximos jogos"
+  end
+
+  test "redirects the legacy dashboard path to the portal" do
+    get dashboard_path
+
+    assert_redirected_to root_path
   end
 end

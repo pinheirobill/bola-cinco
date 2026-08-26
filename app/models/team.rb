@@ -23,6 +23,8 @@ class Team < ApplicationRecord
     atrasado: "atrasado"
   }, prefix: true
 
+  scope :for_championship, ->(championship) { joins(category: :championships).where(championships: { id: championship.is_a?(Championship) ? championship.id : championship }).distinct }
+
   validates :source_id, :name, presence: true
   validates :source_id, uniqueness: true
 
@@ -44,5 +46,17 @@ class Team < ApplicationRecord
 
   def picker_label
     "#{name} · #{category.name}"
+  end
+
+  def signup_picker_label
+    [
+      name,
+      entity&.name,
+      category&.name
+    ].compact.join(" · ")
+  end
+
+  def championship
+    category&.championship || category&.championships&.first
   end
 end

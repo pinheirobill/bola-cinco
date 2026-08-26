@@ -17,16 +17,17 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-theme="corporate" class="min-h-screen bg-base-200 text-base-content">
+  <body data-theme="<%= current_theme_name %>" class="min-h-screen bg-base-200 text-base-content">
     <a href="#content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-base-100 focus:px-4 focus:py-2 focus:shadow-lg">Pular para o conteúdo</a>
     <div class="min-h-screen bg-[radial-gradient(circle_at_top,rgba(234,179,8,0.12),transparent_25%),radial-gradient(circle_at_right,rgba(17,24,39,0.18),transparent_35%)]">
-      <div class="navbar border-b border-base-300/60 bg-base-100/80 px-4 backdrop-blur">
+      <div class="navbar relative z-50 border-b border-base-300/60 bg-base-100/80 px-4 backdrop-blur">
         <div class="navbar-start">
           <%= link_to "Bola Cinco", root_path, class: "btn btn-ghost text-xl font-semibold tracking-tight" %>
         </div>
 
-        <div class="navbar-end gap-2">
+        <div class="navbar-end relative z-50 gap-2">
           <% if user_signed_in? %>
+            <%= render "shared/theme_selector" %>
             <span class="badge badge-neutral hidden sm:inline"><%= current_user.role.to_s.humanize %></span>
             <span class="hidden text-sm text-base-content/70 sm:inline"><%= current_user.email %></span>
             <%= link_to "Sair", destroy_user_session_path, data: { turbo_method: :delete }, class: "btn btn-outline btn-sm" %>
