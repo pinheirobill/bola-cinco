@@ -1,0 +1,43 @@
+<%= surface_card(
+  title: "Resumo instantâneo",
+  subtitle: "Os números abaixo acompanham a súmula enquanto você edita a linha do atleta.",
+  id: "match-event-summary"
+) do %>
+  <% goals = match_events.count(&:kind_gol?) %>
+  <% yellow_cards = match_events.count(&:kind_cartao_amarelo?) %>
+  <% red_cards = match_events.count(&:kind_cartao_vermelho?) %>
+  <% substitutions = match_events.count(&:kind_substituicao?) %>
+  <% total = match_events.size %>
+
+  <div class="grid gap-3 sm:grid-cols-2">
+    <div class="rounded-2xl bg-base-200 p-4">
+      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Total</p>
+      <p class="mt-2 text-3xl font-black"><%= total %></p>
+      <p class="mt-1 text-sm text-base-content/60">Lances registrados para a súmula.</p>
+    </div>
+    <div class="rounded-2xl bg-base-200 p-4">
+      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Gols</p>
+      <p class="mt-2 text-3xl font-black"><%= goals %></p>
+      <p class="mt-1 text-sm text-base-content/60">Inclui gols automáticos e lançamentos da folha.</p>
+    </div>
+    <div class="rounded-2xl bg-warning/10 p-4">
+      <p class="text-xs uppercase tracking-[0.25em] text-warning-content/60">Amarelos</p>
+      <p class="mt-2 text-3xl font-black text-warning"><%= yellow_cards %></p>
+      <p class="mt-1 text-sm text-base-content/60">Cartões amarelos vinculados ao atleta.</p>
+    </div>
+    <div class="rounded-2xl bg-error/10 p-4">
+      <p class="text-xs uppercase tracking-[0.25em] text-error-content/60">Vermelhos</p>
+      <p class="mt-2 text-3xl font-black text-error"><%= red_cards %></p>
+      <p class="mt-1 text-sm text-base-content/60">Cartões vermelhos vinculados ao atleta.</p>
+    </div>
+    <div class="rounded-2xl bg-base-200 p-4 sm:col-span-2">
+      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Substituições</p>
+      <p class="mt-2 text-3xl font-black"><%= substitutions %></p>
+      <p class="mt-1 text-sm text-base-content/60">Cada minuto informado cria um evento de substituição.</p>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-2xl border border-dashed border-base-300 bg-base-100 p-4 text-sm text-base-content/70">
+    O autosave mantém a súmula atualizada enquanto você preenche a grade.
+  </div>
+<% end %>

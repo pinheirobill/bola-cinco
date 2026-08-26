@@ -27,6 +27,31 @@ module MatchesHelper
     end
   end
 
+  def match_event_sheet_field_name(side, athlete_id, field)
+    "match[event_sheet][#{side}][#{athlete_id}][#{field}]"
+  end
+
+  def match_event_sheet_field_id(side, athlete_id, field)
+    "match_event_sheet_#{side}_#{athlete_id}_#{field}"
+  end
+
+  def match_event_sheet_state(match, team, athlete)
+    state = match.event_sheet_state_for(team, athlete)
+
+    {
+      yellow_card: state[:yellow_card],
+      red_card: state[:red_card],
+      goal_minutes: state[:goal_minutes],
+      substitution_minutes: state[:substitution_minutes]
+    }
+  end
+
+  def match_event_sheet_participation_badge(participation)
+    return { label: "Sem vínculo", badge: "badge-outline" } if participation.blank?
+
+    match_participation_status_badge(participation.status)
+  end
+
   def match_participation_status_options
     MATCH_PARTICIPATION_STATUSES.map { |value, data| [data[:label], value] }
   end

@@ -1,0 +1,98 @@
+<%= surface_card(
+  title: "Lançamentos da súmula",
+  subtitle: "Os cartões, substituições e gols desta tela viram eventos da partida em autosave.",
+  id: "match-event-editor"
+) do %>
+  <% sides = [
+    {
+      key: "team_a",
+      label: "Equipe A",
+      team: match.team_a,
+      athletes: team_a_athletes,
+      participations: team_a_participations_by_athlete
+    },
+    {
+      key: "team_b",
+      label: "Equipe B",
+      team: match.team_b,
+      athletes: team_b_athletes,
+      participations: team_b_participations_by_athlete
+    }
+  ] %>
+
+  <div class="space-y-6">
+    <% sides.each do |side| %>
+      <div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100">
+        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-base-300 bg-base-200 px-4 py-3">
+          <div>
+            <p class="font-semibold"><%= side[:team]&.name || side[:label] %></p>
+            <p class="text-xs text-base-content/60">Marque os lances do time e deixe o autosave cuidar do restante.</p>
+          </div>
+          <div class="badge badge-outline"><%= side[:athletes].size %> atletas</div>
+        </div>
+
+        <% if side[:athletes].any? %>
+          <div class="overflow-x-auto">
+            <table class="table">
+              <thead class="bg-base-200">
+                <tr>
+                  <th class="w-16">Nº</th>
+                  <th>Jogador</th>
+                  <th>Status</th>
+                  <th class="w-[19rem]">Substituições (Max 5)</th>
+                  <th class="w-28 text-center">Amarelo</th>
+                  <th class="w-28 text-center">Vermelho</th>
+                  <th class="w-[14rem]">Gols (Min)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% side[:athletes].each do |athlete| %>
+                  <% participation = side[:participations][athlete.id] %>
+                  <% state = match_event_sheet_state(match, side[:team], athlete) %>
+                  <% participation_badge = match_event_sheet_participation_badge(participation) %>
+                  <tr>
+                    <td class="font-semibold"><%= athlete.shirt_number.presence || "-" %></td>
+                    <td>
+                      <div class="font-medium"><%= athlete.name %></div>
+                      <div class="text-xs text-base-content/50"><%= athlete.position.presence || athlete.quick_label.presence || "-" %></div>
+                    </td>
+                    <td>
+                      <span class="badge <%= participation_badge[:badge] %> badge-sm"><%= participation_badge[:label] %></span>
+                    </td>
+                    <td>
+                      <%= text_field_tag match_event_sheet_field_name(side[:key], athlete.id, :substitution_minutes), state[:substitution_minutes], class: "input input-bordered input-sm w-full", placeholder: "01, 05, 12", autocomplete: "off" %>
+                    </td>
+                    <td class="text-center">
+                      <div class="inline-flex items-center gap-2 rounded-2xl border border-warning/40 bg-warning/10 px-3 py-2">
+                        <%= hidden_field_tag match_event_sheet_field_name(side[:key], athlete.id, :yellow_card), "0" %>
+                        <%= check_box_tag match_event_sheet_field_name(side[:key], athlete.id, :yellow_card), "1", state[:yellow_card], id: match_event_sheet_field_id(side[:key], athlete.id, :yellow_card), class: "checkbox checkbox-warning checkbox-sm" %>
+                        <%= label_tag match_event_sheet_field_id(side[:key], athlete.id, :yellow_card), "Amarelo", class: "cursor-pointer text-sm font-medium" %>
+                      </div>
+                    </td>
+                    <td class="text-center">
+                      <div class="inline-flex items-center gap-2 rounded-2xl border border-error/40 bg-error/10 px-3 py-2">
+                        <%= hidden_field_tag match_event_sheet_field_name(side[:key], athlete.id, :red_card), "0" %>
+                        <%= check_box_tag match_event_sheet_field_name(side[:key], athlete.id, :red_card), "1", state[:red_card], id: match_event_sheet_field_id(side[:key], athlete.id, :red_card), class: "checkbox checkbox-error checkbox-sm" %>
+                        <%= label_tag match_event_sheet_field_id(side[:key], athlete.id, :red_card), "Vermelho", class: "cursor-pointer text-sm font-medium" %>
+                      </div>
+                    </td>
+                    <td>
+                      <%= text_field_tag match_event_sheet_field_name(side[:key], athlete.id, :goal_minutes), state[:goal_minutes], class: "input input-bordered input-sm w-full", placeholder: "07, 13", autocomplete: "off" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="p-6">
+            <%= empty_state(
+              title: "Sem atletas",
+              description: "A lista aparece quando a equipe tiver atletas vinculados ou participações confirmadas."
+            ) %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

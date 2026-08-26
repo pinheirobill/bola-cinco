@@ -87,7 +87,7 @@
     <div class="space-y-3">
       <% if @top_athletes.any? %>
         <% @top_athletes.each do |athlete| %>
-          <%= athlete_card(athlete, compact: true) %>
+          <%= ranking_entry_card(athlete) %>
         <% end %>
       <% else %>
         <%= empty_state(

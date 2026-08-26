@@ -16,9 +16,11 @@ class MatchesController < ApplicationController
   def update
     @match = scoped_matches.find(params[:id])
     @match_report = @match.match_report || @match.build_match_report(status: :rascunho, source_id: "report-#{@match.source_id}")
+    form_params = match_form_params
 
     ActiveRecord::Base.transaction do
       @match.update!(match_params)
+      @match.sync_event_sheet!(form_params[:event_sheet]) if form_params.key?(:event_sheet)
       if match_report_form_params.present?
         @match_report.assign_attributes(match_report_form_params)
         @match_report.source_id ||= "report-#{@match.source_id}"
@@ -27,7 +29,7 @@ class MatchesController < ApplicationController
         @match_report.approved_at = nil
         @match_report.save!
       end
-      @match.sync_auto_goal_events!(**goal_minutes_params)
+      @match.sync_auto_goal_events!(**goal_minutes_params(form_params))
       @match.sync_competition_state!
     end
 
@@ -37,6 +39,24 @@ class MatchesController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.replace("match-score-card", partial: "matches/score_card", locals: { match: @match }),
+            turbo_stream.replace("match-event-summary", partial: "matches/event_summary", locals: {
+              match: @match,
+              match_events: @match_events
+            }),
+            turbo_stream.replace("match-event-sheet-team-a", partial: "matches/event_sheet_table", locals: {
+              id: "match-event-sheet-team-a",
+              title: "Equipe A",
+              team: @match.team_a,
+              athletes: @team_a_athletes,
+              match_events: @match_events
+            }),
+            turbo_stream.replace("match-event-sheet-team-b", partial: "matches/event_sheet_table", locals: {
+              id: "match-event-sheet-team-b",
+              title: "Equipe B",
+              team: @match.team_b,
+              athletes: @team_b_athletes,
+              match_events: @match_events
+            }),
             turbo_stream.replace("match-auto-goals", partial: "matches/auto_goals", locals: {
               match: @match,
               auto_goal_minutes_a: @auto_goal_minutes_a,
@@ -90,7 +110,7 @@ class MatchesController < ApplicationController
   end
 
   def match_params
-    params.expect(match: [
+    params.fetch(:match, {}).permit(
       :category_id,
       :team_a_id,
       :team_b_id,
@@ -108,19 +128,26 @@ class MatchesController < ApplicationController
       :wo,
       :penalties_a,
       :penalties_b
-    ])
+    )
+  end
+
+  def match_form_params
+    params.fetch(:match, {}).permit(goal_minutes_a: [], goal_minutes_b: [], goal_penalties_a: {}, goal_penalties_b: {}, event_sheet: {})
   end
 
   def match_report_form_params
     params.fetch(:match_report, {}).permit(:referee_id)
   end
 
-  def goal_minutes_params
-    params.fetch(:match, {}).permit(goal_minutes_a: [], goal_minutes_b: [], goal_penalties_a: {}, goal_penalties_b: {}).to_h.tap do |data|
-      data[:goal_minutes_a] = Array(data[:goal_minutes_a]).flatten
-      data[:goal_minutes_b] = Array(data[:goal_minutes_b]).flatten
-      data[:goal_penalties_a] = data.fetch(:goal_penalties_a, {}).to_h.sort_by { |key, _| key.to_i }.map { |_, value| value == "1" || value == 1 || value == true }
-      data[:goal_penalties_b] = data.fetch(:goal_penalties_b, {}).to_h.sort_by { |key, _| key.to_i }.map { |_, value| value == "1" || value == 1 || value == true }
+  def goal_minutes_params(form_params = nil)
+    source = (form_params || match_form_params).to_h
+    data = source.slice("goal_minutes_a", "goal_minutes_b", "goal_penalties_a", "goal_penalties_b").with_indifferent_access
+
+    data.tap do |data_hash|
+      data_hash[:goal_minutes_a] = Array(data_hash[:goal_minutes_a]).flatten
+      data_hash[:goal_minutes_b] = Array(data_hash[:goal_minutes_b]).flatten
+      data_hash[:goal_penalties_a] = data_hash.fetch(:goal_penalties_a, {}).to_h.sort_by { |key, _| key.to_i }.map { |_, value| value == "1" || value == 1 || value == true }
+      data_hash[:goal_penalties_b] = data_hash.fetch(:goal_penalties_b, {}).to_h.sort_by { |key, _| key.to_i }.map { |_, value| value == "1" || value == 1 || value == true }
     end.symbolize_keys
   end
 end

@@ -163,10 +163,11 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Participação do jogo"
     assert_includes response.body, "Selecionar visíveis"
     assert_includes response.body, "Selecionados"
-    assert_includes response.body, "Eventos da súmula"
+    assert_includes response.body, "Lançamentos da súmula"
+    assert_includes response.body, "Resumo instantâneo"
     assert_includes response.body, "Gols automáticos"
-    assert_includes response.body, @athlete.match_roster_label
-    assert_includes response.body, @athlete_b.match_roster_label
+    assert_includes response.body, @athlete.name
+    assert_includes response.body, @athlete_b.name
   end
 
   test "creates pending participations for the match roster" do
@@ -272,6 +273,55 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_match_path(@match)
     assert_equal 1, @match.reload.match_events.count
     assert_equal "gol", @match.match_events.last.kind
+  end
+
+  test "autosaves the event sheet into match events" do
+    @match.update!(
+      team_a: @team,
+      team_b: @team_b
+    )
+
+    patch match_path(@match), params: {
+      autosave: "1",
+      match: {
+        code: @match.code,
+        phase: @match.phase,
+        team_a_id: @team.id,
+        team_b_id: @team_b.id,
+        event_sheet: {
+          team_a: {
+            @athlete.id.to_s => {
+              yellow_card: "1",
+              goal_minutes: "05, 12",
+              substitution_minutes: "18"
+            }
+          },
+          team_b: {
+            @athlete_b.id.to_s => {
+              red_card: "1",
+              goal_minutes: ""
+            }
+          }
+        }
+      }
+    }, as: :turbo_stream
+
+    assert_response :success
+    @match.reload
+
+    yellow_card = @match.match_events.find_by!(team: @team, athlete: @athlete, kind: "cartao_amarelo")
+    red_card = @match.match_events.find_by!(team: @team_b, athlete: @athlete_b, kind: "cartao_vermelho")
+    goals = @match.match_events.where(kind: "gol").order(:created_at)
+    substitutions = @match.match_events.where(kind: "substituicao").order(:created_at)
+
+    assert_equal @team, yellow_card.team
+    assert_equal @athlete, yellow_card.athlete
+    assert_equal "cartao_amarelo", yellow_card.kind
+    assert_equal @team_b, red_card.team
+    assert_equal @athlete_b, red_card.athlete
+    assert_equal "cartao_vermelho", red_card.kind
+    assert_equal [5, 12], goals.pluck(:minute)
+    assert_equal [18], substitutions.pluck(:minute)
   end
 
   test "creates a match participation from the match page" do

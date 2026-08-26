@@ -1,5 +1,12 @@
 class Match < ApplicationRecord
   AUTO_GOAL_PREFIX = "auto-goal".freeze
+  EVENT_SHEET_PREFIX = "event-sheet".freeze
+  EVENT_SHEET_KINDS = {
+    yellow_card: "cartao_amarelo",
+    red_card: "cartao_vermelho",
+    goal_minutes: "gol",
+    substitution_minutes: "substituicao"
+  }.freeze
 
   before_validation :sync_winner_from_score
   after_commit :sync_pending_participations!, on: %i[create update]
@@ -81,6 +88,32 @@ class Match < ApplicationRecord
     sync_auto_goal_events_for!("b", team_b, score_b.to_i, Array(goal_minutes_b), Array(goal_penalties_b))
   end
 
+  def sync_event_sheet!(sheet_params)
+    sheet = normalize_event_sheet_params(sheet_params)
+    managed_source_ids = []
+
+    roster_athlete_entries.each do |team, athlete|
+      team_sheet = sheet[team_event_sheet_key(team)]
+      next if team_sheet.blank?
+
+      athlete_sheet = team_sheet[athlete.id.to_s]
+      next if athlete_sheet.blank?
+
+      managed_source_ids.concat(sync_event_sheet_row!(team, athlete, athlete_sheet))
+    end
+
+    destroy_event_sheet_records_not_in(managed_source_ids)
+  end
+
+  def event_sheet_state_for(team, athlete)
+    {
+      yellow_card: event_sheet_events_for(team, athlete, "cartao_amarelo").any?,
+      red_card: event_sheet_events_for(team, athlete, "cartao_vermelho").any?,
+      goal_minutes: event_sheet_events_for(team, athlete, "gol").map { |event| event.minute&.to_s.presence }.compact.join(", "),
+      substitution_minutes: event_sheet_events_for(team, athlete, "substituicao").map { |event| event.minute&.to_s.presence }.compact.join(", ")
+    }
+  end
+
   def sync_pending_participations!
     roster_athlete_entries.each do |team, athlete|
       match_participations.find_or_create_by!(team_id: team.id, athlete_id: athlete.id) do |record|
@@ -132,12 +165,126 @@ class Match < ApplicationRecord
     events.drop(count).each(&:destroy!)
   end
 
+  def sync_event_sheet_row!(team, athlete, row_params)
+    managed_source_ids = []
+
+    managed_source_ids.concat(sync_event_sheet_boolean!(team, athlete, "cartao_amarelo", row_params[:yellow_card], "Cartão amarelo da súmula"))
+    managed_source_ids.concat(sync_event_sheet_boolean!(team, athlete, "cartao_vermelho", row_params[:red_card], "Cartão vermelho da súmula"))
+    managed_source_ids.concat(sync_event_sheet_minutes!(team, athlete, "gol", row_params[:goal_minutes], "Gol lançado pela súmula"))
+    managed_source_ids.concat(sync_event_sheet_minutes!(team, athlete, "substituicao", row_params[:substitution_minutes], "Substituição lançada pela súmula"))
+
+    managed_source_ids
+  end
+
+  def sync_event_sheet_boolean!(team, athlete, kind, value, notes)
+    events = event_sheet_events_for(team, athlete, kind)
+    managed_source_ids = []
+
+    if truthy_param?(value)
+      event = match_events.find_by(source_id: event_sheet_source_id(team, athlete, kind, 1)) || events.first || match_events.find_or_initialize_by(source_id: event_sheet_source_id(team, athlete, kind, 1))
+      event.assign_attributes(
+        kind: kind,
+        team: team,
+        athlete: athlete,
+        minute: nil,
+        period: nil,
+        notes: notes,
+        source_data: event.source_data.merge(
+          "event_sheet" => true,
+          "event_sheet_kind" => kind,
+          "event_sheet_index" => 1
+        )
+      )
+      event.source_id = event_sheet_source_id(team, athlete, kind, 1)
+      event.save!
+      managed_source_ids << event.source_id
+    end
+
+    events.reject { |event| managed_source_ids.include?(event.source_id) }.each(&:destroy!)
+    managed_source_ids
+  end
+
+  def sync_event_sheet_minutes!(team, athlete, kind, value, notes)
+    minutes = normalize_event_sheet_minutes(value)
+    events = event_sheet_events_for(team, athlete, kind)
+    managed_source_ids = []
+
+    minutes.each_with_index do |minute, index|
+      event = match_events.find_by(source_id: event_sheet_source_id(team, athlete, kind, index + 1)) || events[index] || match_events.find_or_initialize_by(source_id: event_sheet_source_id(team, athlete, kind, index + 1))
+      event.assign_attributes(
+        kind: kind,
+        team: team,
+        athlete: athlete,
+        minute: minute,
+        period: nil,
+        notes: notes,
+        source_data: event.source_data.merge(
+          "event_sheet" => true,
+          "event_sheet_kind" => kind,
+          "event_sheet_index" => index + 1
+        )
+      )
+      event.source_id = event_sheet_source_id(team, athlete, kind, index + 1)
+      event.save!
+      managed_source_ids << event.source_id
+    end
+
+    events.reject { |event| managed_source_ids.include?(event.source_id) }.each(&:destroy!)
+    managed_source_ids
+  end
+
   def auto_goal_source_id(side, index)
     "#{AUTO_GOAL_PREFIX}-#{id}-#{side}-#{index}"
   end
 
   def pending_participation_source_id(team, athlete)
     "match-participation-pending-#{id}-#{team.id}-#{athlete.id}"
+  end
+
+  def event_sheet_events_for(team, athlete, kind)
+    match_events
+      .select { |event| event.team_id == team.id && event.athlete_id == athlete.id && event.kind == kind.to_s }
+      .sort_by { |event| [event.minute.to_i, event.created_at || Time.zone.at(0), event.id.to_i] }
+  end
+
+  def event_sheet_source_id(team, athlete, kind, index)
+    "#{EVENT_SHEET_PREFIX}-#{id}-#{team.id}-#{athlete.id}-#{kind}-#{index}"
+  end
+
+  def team_event_sheet_key(team)
+    return "team_a" if team == team_a
+    return "team_b" if team == team_b
+
+    nil
+  end
+
+  def normalize_event_sheet_params(sheet_params)
+    return {} if sheet_params.blank?
+
+    sheet_params.to_h.with_indifferent_access
+  end
+
+  def normalize_event_sheet_minutes(value)
+    value.to_s.split(/[,\n;]+/).map(&:strip).reject(&:blank?).filter_map do |part|
+      next if part.blank?
+
+      cleaned = part.gsub(/[^\d]/, "")
+      next if cleaned.blank?
+
+      cleaned.to_i
+    end
+  end
+
+  def truthy_param?(value)
+    [true, "true", 1, "1", "on", "yes"].include?(value)
+  end
+
+  def destroy_event_sheet_records_not_in(source_ids)
+    allowed = Array(source_ids).compact_blank.uniq
+
+    match_events
+      .select { |event| event.source_id.start_with?("#{EVENT_SHEET_PREFIX}-#{id}-") && !allowed.include?(event.source_id) }
+      .each(&:destroy!)
   end
 
   def normalize_goal_minute(value)

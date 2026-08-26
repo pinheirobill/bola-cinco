@@ -1,4 +1,4 @@
-<%= surface_card(title: title, subtitle: team&.name || "Sem equipe") do %>
+<%= surface_card(title: title, subtitle: team&.name || "Sem equipe", id: local_assigns[:id]) do %>
   <% if athletes.any? %>
     <div class="overflow-hidden rounded-3xl border border-base-300">
       <table class="table">
