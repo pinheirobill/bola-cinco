@@ -21,6 +21,7 @@ gem "jbuilder"
 gem "devise"
 gem "audited"
 gem "prawn"
+gem "matrix"
 gem "csv"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
