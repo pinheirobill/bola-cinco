@@ -20,8 +20,10 @@
 <% if @step == "data" %>
   <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
     <%= surface_card(title: "Etapa 1. Dados", subtitle: "Atualize nome, temporada, datas e status do campeonato.") do %>
-      <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-5" do %>
+      <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-5", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
         <%= hidden_field_tag :step, "data" %>
+        <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
+        <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
 
         <div class="grid gap-4 md:grid-cols-2">
           <div class="form-control gap-2">
@@ -66,7 +68,6 @@
         </div>
 
         <div class="flex flex-wrap gap-3">
-          <%= submit_tag "Salvar dados", class: "btn btn-primary" %>
           <%= link_to "Próxima etapa", setup_championship_path(@championship, step: "format"), class: "btn btn-outline" %>
         </div>
       <% end %>
@@ -90,8 +91,10 @@
 <% elsif @step == "format" %>
   <section class="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
     <%= surface_card(title: "Etapa 2. Formato e regras", subtitle: "Configure o modo de disputa, pontuação e critérios de desempate.") do %>
-      <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-6" do %>
+      <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-6", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
         <%= hidden_field_tag :step, "format" %>
+        <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
+        <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
 
         <div class="grid gap-4 md:grid-cols-2">
           <div class="form-control gap-2">
@@ -156,7 +159,6 @@
         </div>
 
         <div class="flex flex-wrap gap-3">
-          <%= submit_tag "Salvar regras", class: "btn btn-primary" %>
           <%= link_to "Voltar", setup_championship_path(@championship, step: "data"), class: "btn btn-outline" %>
           <%= link_to "Próxima etapa", setup_championship_path(@championship, step: "teams"), class: "btn btn-outline" %>
         </div>
@@ -182,8 +184,10 @@
 <% elsif @step == "registrations" %>
   <section class="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
     <%= surface_card(title: "Configurar inscrições", subtitle: "Defina os limites e o que os técnicos podem fazer no painel do time.") do %>
-      <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-6" do %>
+      <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-6", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
         <%= hidden_field_tag :step, "registrations" %>
+        <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
+        <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
 
         <div class="grid gap-4 md:grid-cols-2">
           <div class="form-control gap-2">
@@ -264,7 +268,6 @@
         </div>
 
         <div class="flex flex-wrap gap-3">
-          <%= submit_tag "Salvar inscrições", class: "btn btn-primary" %>
           <%= link_to "Voltar", setup_championship_path(@championship, step: "format"), class: "btn btn-outline" %>
           <%= link_to "Próxima etapa", setup_championship_path(@championship, step: "teams"), class: "btn btn-outline" %>
         </div>

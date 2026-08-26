@@ -28,10 +28,14 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.manageable_by?(current_user)
 
     if @championship.update(championship_params)
+      return head :no_content if autosave_request?
+
       redirect_to setup_championship_path(@championship, step: params[:step].presence || "data"), notice: "Campeonato atualizado."
     else
       load_championship_setup
       @step = params[:step].presence_in(%w[data format registrations teams]) || "data"
+      return head :unprocessable_entity if autosave_request?
+
       render :setup, status: :unprocessable_entity
     end
   end

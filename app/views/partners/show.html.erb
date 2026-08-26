@@ -13,8 +13,10 @@
 
 <section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
   <% if user_signed_in? %>
-    <%= surface_card(title: "Editar parceiro") do %>
-      <%= form_with model: @partner, url: partner_path(@partner), method: :patch, class: "space-y-4" do |f| %>
+    <%= surface_card(title: "Editar parceiro", subtitle: "As alterações são salvas automaticamente ao sair do campo.") do %>
+      <%= form_with model: @partner, url: partner_path(@partner), method: :patch, class: "space-y-4", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do |f| %>
+        <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
+        <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
         <div class="grid gap-4 md:grid-cols-2">
           <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
           <%= f.select :tier, Partner.tiers.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
@@ -29,7 +31,6 @@
           <span>Destacar parceiro</span>
         </label>
         <div class="flex gap-3">
-          <%= f.submit "Salvar", class: "btn btn-primary" %>
           <%= link_to "Remover", partner_path(@partner), data: { turbo_method: :delete }, class: "btn btn-outline btn-error" %>
         </div>
       <% end %>

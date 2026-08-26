@@ -26,13 +26,15 @@
   </div>
 </section>
 
-<%= form_with(model: @match, url: match_path(@match), method: :patch, class: "space-y-6") do |f| %>
+<%= form_with(model: @match, url: match_path(@match), method: :patch, class: "space-y-6", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" }) do |f| %>
+  <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
+  <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
   <section class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
     <div class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm" data-controller="match-goal-times" data-match-goal-times-team-a-name-value="<%= @match.team_a&.name || 'Equipe A' %>" data-match-goal-times-team-b-name-value="<%= @match.team_b&.name || 'Equipe B' %>">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h3 class="text-2xl font-bold">Cabeçalho da súmula</h3>
-          <p class="mt-2 text-sm text-base-content/70">Os dados principais ficam distribuídos como no documento impresso.</p>
+          <p class="mt-2 text-sm text-base-content/70">Os dados principais ficam distribuídos como no documento impresso e salvam automaticamente ao sair do campo.</p>
         </div>
       </div>
 
@@ -251,7 +253,6 @@
           <p class="text-sm text-base-content/70">A edição centraliza os dados do cabeçalho e da súmula. Os eventos continuam no fluxo próprio da partida.</p>
         </div>
         <div class="flex flex-wrap gap-3">
-          <%= f.submit "Salvar súmula", class: "btn btn-primary" %>
           <%= link_to "Cancelar", match_path(@match), class: "btn btn-outline" %>
         </div>
       </div>

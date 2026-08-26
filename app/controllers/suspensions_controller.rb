@@ -49,7 +49,13 @@ class SuspensionsController < ApplicationController
   end
 
   def update
-    if html_form_submission?
+    if autosave_request?
+      if suspension.update(suspension_params)
+        head :no_content
+      else
+        head :unprocessable_entity
+      end
+    elsif html_form_submission?
       if suspension.update(suspension_params)
         redirect_to suspension_path(suspension), notice: "Suspensão atualizada."
       else

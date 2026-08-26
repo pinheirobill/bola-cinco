@@ -62,4 +62,8 @@ class ApplicationController < ActionController::Base
   def html_form_submission?
     params[:commit].present?
   end
+
+  def autosave_request?
+    params[:autosave].present?
+  end
 end

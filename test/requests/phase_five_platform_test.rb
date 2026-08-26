@@ -56,6 +56,21 @@ class PhaseFivePlatformTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Vincular equipes"
   end
 
+  test "autosaves championship setup fields without redirecting" do
+    patch championship_path(@championship_2), params: {
+      autosave: "1",
+      step: "data",
+      championship: {
+        name: "Campeonato Plataforma 2 Atualizado",
+        season: @championship_2.season,
+        status: @championship_2.status
+      }
+    }
+
+    assert_response :no_content
+    assert_equal "Campeonato Plataforma 2 Atualizado", @championship_2.reload.name
+  end
+
   test "shows venues and referees on the teams setup step" do
     @championship_2.venues.create!(
       source_id: "venue-phase-five",

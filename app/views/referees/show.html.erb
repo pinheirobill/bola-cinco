@@ -12,8 +12,10 @@
 ], columns: "md:grid-cols-2") %>
 
 <section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
-  <%= surface_card(title: "Editar árbitro") do %>
-    <%= form_with model: @referee, url: referee_path(@referee), method: :patch, class: "space-y-4" do |f| %>
+  <%= surface_card(title: "Editar árbitro", subtitle: "As alterações são salvas automaticamente ao sair do campo.") do %>
+    <%= form_with model: @referee, url: referee_path(@referee), method: :patch, class: "space-y-4", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do |f| %>
+      <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
+      <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
       <div class="grid gap-4 md:grid-cols-2">
         <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
         <%= f.select :status, Referee.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
@@ -23,7 +25,6 @@
       <%= f.text_field :document, class: "input input-bordered w-full", placeholder: "Documento" %>
       <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>
       <div class="flex gap-3">
-        <%= f.submit "Salvar", class: "btn btn-primary" %>
         <%= link_to "Remover", referee_path(@referee), data: { turbo_method: :delete }, class: "btn btn-outline btn-error" %>
       </div>
     <% end %>

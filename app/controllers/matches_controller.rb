@@ -26,9 +26,13 @@ class MatchesController < ApplicationController
       @match.sync_competition_state!
     end
 
+    return head :no_content if autosave_request?
+
     redirect_to match_path(@match), notice: "Jogo atualizado."
   rescue ActiveRecord::RecordInvalid
     load_match_context
+    return head :unprocessable_entity if autosave_request?
+
     render :edit, status: :unprocessable_entity
   end
 

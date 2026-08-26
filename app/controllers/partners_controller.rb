@@ -41,7 +41,13 @@ class PartnersController < ApplicationController
   end
 
   def update
-    if html_form_submission?
+    if autosave_request?
+      if partner.update(partner_params)
+        head :no_content
+      else
+        head :unprocessable_entity
+      end
+    elsif html_form_submission?
       if partner.update(partner_params)
         redirect_to partner_path(partner), notice: "Parceiro atualizado."
       else

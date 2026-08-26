@@ -36,7 +36,13 @@ class VenuesController < ApplicationController
   end
 
   def update
-    if html_form_submission?
+    if autosave_request?
+      if venue.update(venue_params)
+        head :no_content
+      else
+        head :unprocessable_entity
+      end
+    elsif html_form_submission?
       if venue.update(venue_params)
         redirect_to venue_path(venue), notice: "Local atualizado."
       else

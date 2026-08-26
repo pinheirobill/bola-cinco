@@ -36,7 +36,13 @@ class RefereesController < ApplicationController
   end
 
   def update
-    if html_form_submission?
+    if autosave_request?
+      if referee.update(referee_params)
+        head :no_content
+      else
+        head :unprocessable_entity
+      end
+    elsif html_form_submission?
       if referee.update(referee_params)
         redirect_to referee_path(referee), notice: "Árbitro atualizado."
       else

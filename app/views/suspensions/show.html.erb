@@ -12,8 +12,10 @@
 ], columns: "md:grid-cols-2") %>
 
 <section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
-  <%= surface_card(title: "Editar suspensão") do %>
-    <%= form_with model: @suspension, url: suspension_path(@suspension), method: :patch, class: "space-y-4" do |f| %>
+  <%= surface_card(title: "Editar suspensão", subtitle: "As alterações são salvas automaticamente ao sair do campo.") do %>
+    <%= form_with model: @suspension, url: suspension_path(@suspension), method: :patch, class: "space-y-4", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do |f| %>
+      <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
+      <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
       <div class="grid gap-4 md:grid-cols-2">
         <%= f.select :athlete_id, options_from_collection_for_select(@athletes, :id, :name, @suspension.athlete_id), { include_blank: "Atleta" }, class: "select select-bordered w-full" %>
         <%= f.select :team_id, options_from_collection_for_select(@teams, :id, :name, @suspension.team_id), { include_blank: "Equipe" }, class: "select select-bordered w-full" %>
@@ -31,7 +33,6 @@
         <span>Suspensão automática</span>
       </label>
       <div class="flex gap-3">
-        <%= f.submit "Salvar", class: "btn btn-primary" %>
         <%= link_to "Remover", suspension_path(@suspension), data: { turbo_method: :delete }, class: "btn btn-outline btn-error" %>
       </div>
     <% end %>
