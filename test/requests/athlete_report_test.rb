@@ -64,7 +64,9 @@ class AthleteReportTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Carteira de jogador"
     assert_includes response.body, "Resumo de performance"
-    assert_includes response.body, "Baixar PDF"
+    refute_includes response.body, "Baixar PDF"
+    refute_includes response.body, "CPF"
+    refute_includes response.body, @athlete.rg
   end
 
   test "renders athlete performance dashboard" do
@@ -111,6 +113,11 @@ class AthleteReportTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Gols"
     assert_includes response.body, "Suspensões"
     assert_includes response.body, "Cartão vermelho direto"
+    refute_includes response.body, "Baixar PDF"
+    refute_includes response.body, "CPF"
+    refute_includes response.body, @athlete.rg
+    refute_includes response.body, @athlete.source_id
+    refute_includes response.body, @athlete.user.email if @athlete.user.present?
   end
 
   test "renders a printable athlete card" do

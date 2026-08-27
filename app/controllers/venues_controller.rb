@@ -10,6 +10,7 @@ class VenuesController < ApplicationController
 
   def show
     @venue = venue
+    load_venue_dashboard
     respond_to do |format|
       format.html
       format.json { render json: venue }
@@ -107,5 +108,40 @@ class VenuesController < ApplicationController
 
   def default_source_id(prefix)
     "#{prefix}-#{SecureRandom.hex(4)}"
+  end
+
+  def load_venue_dashboard
+    @venue_matches = @venue.matches.includes(:championship, :category, :team_a, :team_b, :winner).order(:scheduled_on, :scheduled_time, :id).to_a
+    @venue_completed_matches = @venue_matches.select { |match| match.status_finalizado? || match.status_wo? }
+    @venue_pending_matches = @venue_matches.reject { |match| match.status_finalizado? || match.status_wo? || match.status_cancelado? }
+    @venue_total_matches = @venue_matches.size
+    @venue_total_goals = @venue_completed_matches.sum { |match| match.score_a.to_i + match.score_b.to_i }
+    @venue_average_goals = @venue_completed_matches.any? ? (@venue_total_goals.to_f / @venue_completed_matches.size).round(1) : 0.0
+    @venue_next_match = @venue_pending_matches.find { |match| match.scheduled_on.blank? || match.scheduled_on >= Date.current } || @venue_pending_matches.first
+    @venue_schedule_groups = @venue_matches.group_by { |match| match.scheduled_on || Date.new(9999, 12, 31) }.sort_by(&:first).map do |scheduled_on, matches|
+      {
+        scheduled_on: scheduled_on == Date.new(9999, 12, 31) ? nil : scheduled_on,
+        matches: matches.sort_by { |match| [match.scheduled_time.to_s, match.code.to_s, match.id] }
+      }
+    end
+    @venue_goal_chart = @venue_completed_matches.last(6).map do |match|
+      {
+        label: match.code,
+        subtitle: [match.scheduled_on&.strftime("%d/%m"), match.team_a&.name, match.team_b&.name].compact.join(" · "),
+        value: match.score_a.to_i + match.score_b.to_i
+      }
+    end
+    @venue_month_chart = last_months.map do |month|
+      {
+        label: month.strftime("%m/%y"),
+        value: @venue_matches.count { |match| match.scheduled_on&.beginning_of_month == month }
+      }
+    end
+    @venue_status_breakdown = Match.statuses.keys.index_with { |status| @venue_matches.count { |match| match.status == status } }
+  end
+
+  def last_months
+    current_month = Date.current.beginning_of_month
+    5.downto(0).map { |offset| current_month - offset.months }
   end
 end

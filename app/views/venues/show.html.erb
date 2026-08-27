@@ -7,35 +7,219 @@
 ) %>
 
 <%= stats_grid([
-  { label: "Status", value: @venue.status.titleize, value_class: "text-2xl" },
-  { label: "Campeonato", value: @venue.championship&.name || "Sem campeonato", value_class: "text-xl" }
-], columns: "md:grid-cols-2") %>
+  { label: "Jogos no local", value: @venue_total_matches, value_class: "text-2xl" },
+  { label: "Gols totais", value: @venue_total_goals, value_class: "text-2xl" },
+  { label: "Média de gols", value: @venue_average_goals, value_class: "text-2xl" },
+  { label: "Próximo jogo", value: @venue_next_match ? @venue_next_match.scheduled_on&.strftime("%d/%m") || "Sem data" : "Sem jogos", value_class: "text-2xl" }
+], columns: "md:grid-cols-2 xl:grid-cols-4") %>
 
-<section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+<section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
   <%= surface_card(title: "Editar local", subtitle: "As alterações são salvas automaticamente ao sair do campo.") do %>
     <%= form_with model: @venue, url: venue_path(@venue), method: :patch, class: "space-y-4", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do |f| %>
       <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
       <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
+
       <div class="grid gap-4 md:grid-cols-2">
-        <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
-        <%= f.text_field :short_name, class: "input input-bordered w-full", placeholder: "Nome curto" %>
-        <%= f.text_field :city, class: "input input-bordered w-full", placeholder: "Cidade" %>
-        <%= f.select :status, Venue.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+        <div class="form-control gap-2">
+          <%= f.label :name, "Nome", class: "label-text font-medium" %>
+          <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
+        </div>
+
+        <div class="form-control gap-2">
+          <%= f.label :short_name, "Nome curto", class: "label-text font-medium" %>
+          <%= f.text_field :short_name, class: "input input-bordered w-full", placeholder: "Nome curto" %>
+        </div>
+
+        <div class="form-control gap-2">
+          <%= f.label :city, "Cidade", class: "label-text font-medium" %>
+          <%= f.text_field :city, class: "input input-bordered w-full", placeholder: "Cidade" %>
+        </div>
+
+        <div class="form-control gap-2">
+          <%= f.label :status, "Status", class: "label-text font-medium" %>
+          <%= f.select :status, Venue.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+        </div>
       </div>
-      <%= f.text_field :address, class: "input input-bordered w-full", placeholder: "Endereço" %>
-      <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>
-      <div class="flex gap-3">
-        <%= link_to "Remover", venue_path(@venue), data: { turbo_method: :delete }, class: "btn btn-outline btn-error" %>
+
+      <div class="form-control gap-2">
+        <%= f.label :address, "Endereço", class: "label-text font-medium" %>
+        <%= f.text_field :address, class: "input input-bordered w-full", placeholder: "Endereço" %>
+      </div>
+
+      <div class="form-control gap-2">
+        <%= f.label :notes, "Observações", class: "label-text font-medium" %>
+        <%= f.text_area :notes, class: "textarea textarea-bordered w-full", rows: 4, placeholder: "Observações" %>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <%= link_to "Remover local", venue_path(@venue), data: { turbo_method: :delete }, class: "btn btn-outline btn-error" %>
       </div>
     <% end %>
   <% end %>
 
-  <%= surface_card(title: "Detalhes") do %>
-    <div class="space-y-2 text-sm text-base-content/70">
-      <p><strong>Short name:</strong> <%= @venue.short_name.presence || "-" %></p>
-      <p><strong>Cidade:</strong> <%= @venue.city.presence || "-" %></p>
-      <p><strong>Endereço:</strong> <%= @venue.address.presence || "-" %></p>
-      <p><strong>Observações:</strong> <%= @venue.notes.presence || "-" %></p>
+  <%= surface_card(title: "Resumo do local", subtitle: "Dados principais, status e próximo compromisso.") do %>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-3xl border border-base-300 bg-base-200/70 p-4">
+        <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Identificação</p>
+        <div class="mt-3 space-y-2 text-sm text-base-content/70">
+          <p><strong>Short name:</strong> <%= @venue.short_name.presence || "-" %></p>
+          <p><strong>Cidade:</strong> <%= @venue.city.presence || "-" %></p>
+          <p><strong>Endereço:</strong> <%= @venue.address.presence || "-" %></p>
+          <p><strong>Campeonato:</strong> <%= @venue.championship&.name || "Sem campeonato" %></p>
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-base-300 bg-base-200/70 p-4">
+        <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Próximo jogo</p>
+        <% if @venue_next_match.present? %>
+          <p class="mt-3 text-lg font-semibold"><%= @venue_next_match.code %> · <%= @venue_next_match.category.name %></p>
+          <p class="mt-1 text-sm text-base-content/70"><%= [@venue_next_match.team_a&.name, @venue_next_match.team_b&.name].compact.join(" x ") %></p>
+          <p class="mt-2 text-sm text-base-content/60"><%= [@venue_next_match.scheduled_on&.strftime("%d/%m/%Y"), @venue_next_match.scheduled_time.presence || "Horário a definir"].compact.join(" · ") %></p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <%= status_badge(@venue_next_match.status) %>
+            <% if @venue_next_match.phase.present? %>
+              <span class="badge badge-neutral"><%= @venue_next_match.phase.tr("_", " ").humanize %></span>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="mt-3 text-sm text-base-content/70">Sem jogos agendados neste local.</p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="mt-4 grid gap-3 md:grid-cols-3">
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Jogos concluídos</p>
+        <p class="mt-2 text-2xl font-black"><%= @venue_completed_matches.size %></p>
+      </div>
+
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Jogos pendentes</p>
+        <p class="mt-2 text-2xl font-black"><%= @venue_pending_matches.size %></p>
+      </div>
+
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status predominante</p>
+        <p class="mt-2 text-lg font-semibold"><%= @venue_status_breakdown.max_by { |_, count| count }&.first&.tr("_", " ")&.humanize || "-" %></p>
+      </div>
     </div>
   <% end %>
+</section>
+
+<section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+  <%= surface_card(title: "Agenda dos jogos", subtitle: "Os jogos passados e futuros ficam organizados por data, como uma agenda do local.") do %>
+    <% if @venue_schedule_groups.any? %>
+      <div class="space-y-5">
+        <% @venue_schedule_groups.each do |group| %>
+          <div class="rounded-3xl border border-base-300 bg-base-200/70 p-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 pb-3">
+              <div>
+                <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">
+                  <%= group[:scheduled_on].present? ? group[:scheduled_on].strftime("%d/%m/%Y") : "Sem data" %>
+                </p>
+                <h3 class="mt-1 text-lg font-semibold"><%= group[:scheduled_on].present? ? "Agenda do dia" : "Jogos sem data definida" %></h3>
+              </div>
+              <span class="badge badge-neutral"><%= pluralize(group[:matches].size, "jogo") %></span>
+            </div>
+
+            <div class="mt-4 space-y-3">
+              <% group[:matches].each do |match| %>
+                <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+                  <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <p class="font-semibold"><%= match.code %> · <%= match.category.name %></p>
+                      <p class="text-sm text-base-content/70"><%= [match.team_a&.name, match.team_b&.name].compact.join(" x ") %></p>
+                      <p class="text-xs text-base-content/50"><%= [match.scheduled_time.presence || "Horário a definir", match.phase.tr("_", " ").humanize].compact.join(" · ") %></p>
+                    </div>
+
+                    <div class="text-right">
+                      <p class="text-2xl font-black"><%= [match.score_a, match.score_b].compact.join(" x ").presence || "- x -" %></p>
+                      <div class="mt-2 flex flex-wrap justify-end gap-2">
+                        <%= status_badge(match.status) %>
+                        <% if match.status_finalizado? || match.status_wo? %>
+                          <span class="badge badge-success">Concluído</span>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <%= empty_state(
+        title: "Ainda não existem jogos neste local",
+        description: "Quando houver partidas vinculadas, elas aparecerão aqui em formato de agenda."
+      ) %>
+    <% end %>
+  <% end %>
+
+  <div class="space-y-6">
+    <%= surface_card(title: "Gols por jogo", subtitle: "Comparativo dos últimos jogos finalizados neste local.") do %>
+      <% if @venue_goal_chart.any? %>
+        <% max_goal_value = @venue_goal_chart.map { |item| item[:value] }.max.to_i %>
+        <div class="space-y-4">
+          <% @venue_goal_chart.each do |item| %>
+            <% width = max_goal_value.positive? ? [(item[:value].to_f / max_goal_value) * 100, 8].max : 0 %>
+            <div>
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="font-semibold"><%= item[:label] %></p>
+                  <p class="text-xs text-base-content/50"><%= item[:subtitle] %></p>
+                </div>
+                <span class="badge badge-neutral"><%= item[:value] %> gols</span>
+              </div>
+              <div class="mt-2 h-3 rounded-full bg-base-300">
+                <div class="h-3 rounded-full bg-primary" style="width: <%= width %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <%= empty_state(
+          title: "Sem jogos finalizados",
+          description: "Finalize uma partida para começar a visualizar a curva de gols."
+        ) %>
+      <% end %>
+    <% end %>
+
+    <%= surface_card(title: "Jogos por mês", subtitle: "Volume de partidas registradas ao longo dos últimos meses.") do %>
+      <% max_month_value = @venue_month_chart.map { |item| item[:value] }.max.to_i %>
+      <div class="space-y-4">
+        <% @venue_month_chart.each do |item| %>
+          <% width = max_month_value.positive? ? [(item[:value].to_f / max_month_value) * 100, 8].max : 0 %>
+          <div>
+            <div class="flex items-center justify-between gap-4">
+              <span class="font-semibold"><%= item[:label] %></span>
+              <span class="badge badge-neutral"><%= item[:value] %></span>
+            </div>
+            <div class="mt-2 h-3 rounded-full bg-base-300">
+              <div class="h-3 rounded-full bg-secondary" style="width: <%= width %>%"></div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= surface_card(title: "Distribuição por status", subtitle: "Resumo rápido do ciclo dos jogos neste local.") do %>
+      <% total_status = @venue_total_matches.positive? ? @venue_total_matches : 1 %>
+      <div class="space-y-4">
+        <% Match.statuses.keys.each do |status| %>
+          <% count = @venue_status_breakdown[status] %>
+          <% width = [(count.to_f / total_status) * 100, 8].max %>
+          <div>
+            <div class="flex items-center justify-between gap-4 text-sm">
+              <span class="font-semibold"><%= status.tr("_", " ").humanize %></span>
+              <span class="text-base-content/60"><%= count %></span>
+            </div>
+            <div class="mt-2 h-3 rounded-full bg-base-300">
+              <div class="h-3 rounded-full <%= status == 'finalizado' ? 'bg-success' : status == 'agendado' ? 'bg-warning' : status == 'cancelado' ? 'bg-error' : 'bg-info' %>" style="width: <%= width %>%"></div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 </section>

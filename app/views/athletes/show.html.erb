@@ -5,8 +5,7 @@
   subtitle: "#{@athlete.team.name} · #{@athlete.category.name}",
   badge: "Atletas",
   actions: [
-    link_to("Voltar", athletes_path, class: "btn btn-outline"),
-    link_to("Carteirinha PDF", card_athlete_path(@athlete, format: :pdf), class: "btn btn-primary")
+    link_to("Voltar", athletes_path, class: "btn btn-outline")
   ]
 ) %>
 
@@ -117,24 +116,14 @@
       <div class="rounded-2xl bg-base-200 p-4">
         <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Inscrição</p>
         <p class="mt-2 font-semibold"><%= @athlete.registration_label.strftime("%d/%m/%Y %H:%M") %></p>
-        <p class="mt-4 text-xs uppercase tracking-[0.25em] text-base-content/50">Documento principal</p>
-        <p class="mt-2 font-semibold"><%= @athlete.preferred_document.presence || "-" %></p>
       </div>
       <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">RG</p>
-        <p class="mt-2 font-semibold"><%= @athlete.rg.presence || "-" %></p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Usuário vinculado</p>
-        <p class="mt-2 font-semibold"><%= @athlete.user&.email.presence || "-" %></p>
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Documento público</p>
+        <p class="mt-2 font-semibold">Disponível apenas na área interna</p>
       </div>
       <div class="rounded-2xl bg-base-200 p-4 md:col-span-2">
         <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Equipes vinculadas</p>
         <p class="mt-2 font-semibold"><%= @athlete.linked_teams.map(&:name).join(" · ").presence || "-" %></p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4 md:col-span-2">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Fonte</p>
-        <p class="mt-2 font-semibold"><%= @athlete.source_id.presence || "-" %></p>
       </div>
     </div>
   <% end %>
@@ -251,7 +240,6 @@
       <%= link_to "Ver equipe", team_path(@athlete.team), class: "btn btn-outline btn-block justify-start" %>
       <%= link_to "Ver categoria", category_path(@athlete.category), class: "btn btn-outline btn-block justify-start" %>
       <%= link_to "Abrir carteirinha", card_athlete_path(@athlete), class: "btn btn-primary btn-block justify-start" %>
-      <%= link_to "Baixar PDF", card_athlete_path(@athlete, format: :pdf), class: "btn btn-outline btn-block justify-start" %>
     </div>
   <% end %>
 </section>
