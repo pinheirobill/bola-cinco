@@ -2,8 +2,9 @@
 
 export SECRET_KEY_BASE="${SECRET_KEY_BASE:-3f2c4fbf2b9f4f2d8c4f6b0d4b2f1b0c8b9e4d0f3a6b7c8d9e0f1a2b3c4d5e6f}"
 
-# If running the rails server then create or migrate existing database
-if [[ "${*}" == *"rails server"* ]]; then
+# If running the rails server then create or migrate existing database unless the
+# platform handles boot separately, as Vercel does in this container setup.
+if [[ "${*}" == *"rails server"* ]] && [[ "${RUN_MIGRATIONS_ON_BOOT:-1}" != "0" ]]; then
   ./bin/rails db:prepare
 fi
 

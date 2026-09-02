@@ -30,10 +30,14 @@ gem "csv"
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
-# Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
-gem "solid_cache"
-gem "solid_queue"
-gem "solid_cable"
+# Use the database-backed adapters for Rails.cache, Active Job, and Action Cable.
+# Skip them in the Vercel container build, where we switch to process-local
+# adapters and a single SQLite database to avoid boot-time connection failures.
+unless ENV["VERCEL"] == "1"
+  gem "solid_cache"
+  gem "solid_queue"
+  gem "solid_cable"
+end
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
