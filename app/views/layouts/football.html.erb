@@ -36,7 +36,7 @@
             <% if user_signed_in? %>
               <%= render "shared/theme_selector" %>
               <%= link_to "Admin", root_path, class: "btn btn-outline btn-sm" %>
-              <%= link_to "Sair", destroy_user_session_path, data: { turbo_method: :delete }, class: "btn btn-primary btn-sm" %>
+              <%= button_to "Sair", destroy_user_session_path, method: :delete, form: { class: "inline" }, class: "btn btn-primary btn-sm" %>
             <% else %>
               <%= link_to "Entrar", football_login_path, class: "btn btn-primary btn-sm" %>
               <%= link_to "Admin", new_user_session_path, class: "btn btn-outline btn-sm" %>
