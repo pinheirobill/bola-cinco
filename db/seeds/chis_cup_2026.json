@@ -9,7 +9,6 @@
   "categories": [
     {
       "id": "chis-cup-2026",
-      "championshipId": "chis-cup-2026",
       "name": "CHIS CUP 2026",
       "gender": "masculino",
       "minBirthYear": null,
@@ -20,83 +19,203 @@
   "entities": [
     {
       "id": "entity-171-fc",
-      "name": "171 FC"
+      "name": "171 FC",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-ajax-centro",
-      "name": "AJAX CENTRO"
+      "name": "AJAX CENTRO",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-assuncao",
-      "name": "ASSUNÇÃO"
+      "name": "ASSUNÇÃO",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-brooklin-futsal",
-      "name": "BROOKLIN FUTSAL"
+      "name": "BROOKLIN FUTSAL",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-capela-do-socorro",
-      "name": "CAPELA DO SOCORRO"
+      "name": "CAPELA DO SOCORRO",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-cdd-embu-das-artes",
-      "name": "CDD EMBU DAS ARTES"
+      "name": "CDD EMBU DAS ARTES",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-diferente-f-c",
-      "name": "DIFERENTE F.C."
+      "name": "DIFERENTE F.C.",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-extremo-leste",
-      "name": "EXTREMO LESTE"
+      "name": "EXTREMO LESTE",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-mete-marcha",
-      "name": "METE MARCHA"
+      "name": "METE MARCHA",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-resolve-facil",
-      "name": "RESOLVE FÁCIL"
+      "name": "RESOLVE FÁCIL",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-sem-ferias-100-perreco",
-      "name": "SEM FÉRIAS/100 PERRECO"
+      "name": "SEM FÉRIAS/100 PERRECO",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-sem-querer",
-      "name": "SEM QUERER"
+      "name": "SEM QUERER",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-so-mito-fc",
-      "name": "SÓ MITO FC"
+      "name": "SÓ MITO FC",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-so-pudim",
-      "name": "SÓ PUDIM"
+      "name": "SÓ PUDIM",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-tudo-nosso",
-      "name": "TUDO NOSSO"
+      "name": "TUDO NOSSO",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-ufc-uniao-fc",
-      "name": "UFC - UNIÃO FC"
+      "name": "UFC - UNIÃO FC",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-unidos-da-leste",
-      "name": "UNIDOS DA LESTE"
+      "name": "UNIDOS DA LESTE",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-unidos-vila-maria",
-      "name": "UNIDOS VILA MARIA"
+      "name": "UNIDOS VILA MARIA",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-uniao-vila-carrao",
-      "name": "UNIÃO VILA CARRÃO"
+      "name": "UNIÃO VILA CARRÃO",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     },
     {
       "id": "entity-vila-nova-cachoeirinha",
-      "name": "VILA NOVA CACHOEIRINHA"
+      "name": "VILA NOVA CACHOEIRINHA",
+      "responsible": null,
+      "phone": null,
+      "whatsapp": null,
+      "email": null,
+      "city": null,
+      "notes": null
     }
   ],
   "teams": [
@@ -431,10 +550,10 @@
       "teamAId": "team-chis-cup-2026-D-assuncao",
       "teamBId": "team-chis-cup-2026-D-cdd-embu-das-artes",
       "sourceA": {
-        "name": "ASSUNÇÃO - W.O."
+        "name": "ASSUNÇÃO"
       },
       "sourceB": {
-        "name": "CDD EMBÚ"
+        "name": "CDD EMBU DAS ARTES"
       },
       "scoreA": 0,
       "scoreB": 1,
@@ -542,7 +661,7 @@
         "name": "SEM QUERER"
       },
       "sourceB": {
-        "name": "SÓ MITO FUT SAMBA"
+        "name": "SÓ MITO FC"
       },
       "scoreA": 7,
       "scoreB": 3,
@@ -647,7 +766,7 @@
       "teamAId": "team-chis-cup-2026-A-uniao-vila-carrao",
       "teamBId": "team-chis-cup-2026-A-diferente-f-c",
       "sourceA": {
-        "name": "UNIÃO CARRÃO"
+        "name": "UNIÃO VILA CARRÃO"
       },
       "sourceB": {
         "name": "DIFERENTE F.C."
@@ -683,7 +802,7 @@
       "teamAId": "team-chis-cup-2026-D-cdd-embu-das-artes",
       "teamBId": "team-chis-cup-2026-D-unidos-da-leste",
       "sourceA": {
-        "name": "CDD EMBÚ"
+        "name": "CDD EMBU DAS ARTES"
       },
       "sourceB": {
         "name": "UNIDOS DA LESTE"
@@ -974,7 +1093,7 @@
         "name": "METE MARCHA"
       },
       "sourceB": {
-        "name": "ASSUNÇÃO - W.O."
+        "name": "ASSUNÇÃO"
       },
       "scoreA": 1,
       "scoreB": 0,
@@ -1154,7 +1273,7 @@
         "name": "RESOLVE FÁCIL"
       },
       "sourceB": {
-        "name": "CDD EMBÚ"
+        "name": "CDD EMBU DAS ARTES"
       },
       "scoreA": 1,
       "scoreB": 4,
@@ -1187,7 +1306,7 @@
       "teamAId": "team-chis-cup-2026-B-vila-nova-cachoeirinha",
       "teamBId": "team-chis-cup-2026-B-extremo-leste",
       "sourceA": {
-        "name": "V. N. CACHOEIRINHA"
+        "name": "VILA NOVA CACHOEIRINHA"
       },
       "sourceB": {
         "name": "EXTREMO LESTE"
@@ -1370,7 +1489,7 @@
         "name": "TUDO NOSSO"
       },
       "sourceB": {
-        "name": "SÓ MITO FUT SAMBA"
+        "name": "SÓ MITO FC"
       },
       "scoreA": 3,
       "scoreB": 7,
@@ -1511,7 +1630,7 @@
       "teamAId": "team-chis-cup-2026-D-cdd-embu-das-artes",
       "teamBId": "team-chis-cup-2026-D-mete-marcha",
       "sourceA": {
-        "name": "CDD EMBU"
+        "name": "CDD EMBU DAS ARTES"
       },
       "sourceB": {
         "name": "METE MARCHA"
@@ -1586,7 +1705,7 @@
         "name": "UNIDOS VILA MARIA"
       },
       "sourceB": {
-        "name": "DIFERENTES"
+        "name": "DIFERENTE F.C."
       },
       "scoreA": 1,
       "scoreB": 2,
@@ -1691,7 +1810,7 @@
       "teamAId": "team-chis-cup-2026-C-so-mito-fc",
       "teamBId": "team-chis-cup-2026-C-sem-ferias-100-perreco",
       "sourceA": {
-        "name": "SÓ MITO FS"
+        "name": "SÓ MITO FC"
       },
       "sourceB": {
         "name": "SEM FÉRIAS/100 PERRECO"
@@ -1730,7 +1849,7 @@
         "name": "SEM QUERER"
       },
       "sourceB": {
-        "name": "AJAX"
+        "name": "AJAX CENTRO"
       },
       "scoreA": 1,
       "scoreB": 0,
@@ -1799,10 +1918,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "VILA NOVA CACHOEIRINHA"
+        "name": null
       },
       "sourceB": {
-        "name": "CDD EMBÚ"
+        "name": null
       },
       "scoreA": 3,
       "scoreB": 2,
@@ -1835,10 +1954,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "UNIÃO CARRÃO"
+        "name": null
       },
       "sourceB": {
-        "name": "TUDO NOSSO"
+        "name": null
       },
       "scoreA": 2,
       "scoreB": 4,
@@ -1871,10 +1990,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "CAPELA DO SOCORRO"
+        "name": null
       },
       "sourceB": {
-        "name": "UNIDOS DA LESTE"
+        "name": null
       },
       "scoreA": 9,
       "scoreB": 1,
@@ -1907,10 +2026,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "DIFERENTE"
+        "name": null
       },
       "sourceB": {
-        "name": "SEM FÉRIAS/ 100 PERRECO"
+        "name": null
       },
       "scoreA": 3,
       "scoreB": 3,
@@ -1943,10 +2062,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "CDD EMBÚ"
+        "name": null
       },
       "sourceB": {
-        "name": "UNIÃO CARRÃO"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -1979,10 +2098,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "TUDO NOSSO"
+        "name": null
       },
       "sourceB": {
-        "name": "VILA NOVA CACHOEIRINHA"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2015,10 +2134,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "UNIDOS DA LESTE"
+        "name": null
       },
       "sourceB": {
-        "name": "DIFERENTE"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2051,10 +2170,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "SEM FÉRIAS/ 100 PERRECO"
+        "name": null
       },
       "sourceB": {
-        "name": "CAPELA DO SOCORRO"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2087,10 +2206,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "TUDO NOSSO"
+        "name": null
       },
       "sourceB": {
-        "name": "CDD EMBÚ"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2123,10 +2242,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "VILA NOVA CACHOEIRINHA"
+        "name": null
       },
       "sourceB": {
-        "name": "UNIÃO CARRÃO"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2159,10 +2278,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "CAPELA DO SOCORRO"
+        "name": null
       },
       "sourceB": {
-        "name": "DIFERENTE"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2195,10 +2314,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "SEM FÉRIAS/100 PERRECO"
+        "name": null
       },
       "sourceB": {
-        "name": "UNIDOS DA LESTE"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2231,10 +2350,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "1ºC - TUDO NOSSO"
+        "name": null
       },
       "sourceB": {
-        "name": "2ºD - CDD EMBÚ"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2267,10 +2386,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "2ºB- VILA NOVA CACHOEIRINHA"
+        "name": null
       },
       "sourceB": {
-        "name": "1ºA - UNIÃO CARRÃO"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2303,10 +2422,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "1ºB - CAPELA DO SOCORRO"
+        "name": null
       },
       "sourceB": {
-        "name": "2ºA - DIFERENTE"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2339,10 +2458,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "2ºC - SEM FÉRIAS/100 PERRECO"
+        "name": null
       },
       "sourceB": {
-        "name": "1ºD - UNIDOS DA LESTE"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2375,10 +2494,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "1º E"
+        "name": null
       },
       "sourceB": {
-        "name": "2ºF"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2411,10 +2530,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "1ºF"
+        "name": null
       },
       "sourceB": {
-        "name": "2º E"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2447,10 +2566,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "PERD. SF01"
+        "name": null
       },
       "sourceB": {
-        "name": "PERD. SF02"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2483,10 +2602,10 @@
       "teamAId": null,
       "teamBId": null,
       "sourceA": {
-        "name": "VENC. SF02"
+        "name": null
       },
       "sourceB": {
-        "name": "VENC. SF02"
+        "name": null
       },
       "scoreA": null,
       "scoreB": null,
@@ -2511,7 +2630,8 @@
   "standingsSnapshot": [
     {
       "teamId": "team-chis-cup-2026-A-uniao-vila-carrao",
-      "groupKey": "",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "A",
       "position": 1,
       "played": 4,
       "wins": 4,
@@ -2522,10 +2642,347 @@
       "goalDiff": 17,
       "points": 12,
       "qualified": true
+    },
+    {
+      "teamId": "team-chis-cup-2026-A-diferente-f-c",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "A",
+      "position": 2,
+      "played": 4,
+      "wins": 3,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 13,
+      "goalsAgainst": 8,
+      "goalDiff": 5,
+      "points": 9,
+      "qualified": true
+    },
+    {
+      "teamId": "team-chis-cup-2026-A-unidos-vila-maria",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "A",
+      "position": 3,
+      "played": 4,
+      "wins": 2,
+      "draws": 0,
+      "losses": 2,
+      "goalsFor": 15,
+      "goalsAgainst": 9,
+      "goalDiff": 6,
+      "points": 6,
+      "qualified": false
+    },
+    {
+      "teamId": "team-chis-cup-2026-A-so-pudim",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "A",
+      "position": 4,
+      "played": 4,
+      "wins": 1,
+      "draws": 0,
+      "losses": 3,
+      "goalsFor": 10,
+      "goalsAgainst": 23,
+      "goalDiff": -13,
+      "points": 3,
+      "qualified": false
+    },
+    {
+      "teamId": "team-chis-cup-2026-A-brooklin-futsal",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "A",
+      "position": 5,
+      "played": 4,
+      "wins": 0,
+      "draws": 0,
+      "losses": 4,
+      "goalsFor": 3,
+      "goalsAgainst": 18,
+      "goalDiff": -15,
+      "points": 0,
+      "qualified": false
+    },
+    {
+      "teamId": "team-chis-cup-2026-B-capela-do-socorro",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "B",
+      "position": 1,
+      "played": 4,
+      "wins": 3,
+      "draws": 1,
+      "losses": 0,
+      "goalsFor": 10,
+      "goalsAgainst": 3,
+      "goalDiff": 7,
+      "points": 10,
+      "qualified": true
+    },
+    {
+      "teamId": "team-chis-cup-2026-B-vila-nova-cachoeirinha",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "B",
+      "position": 2,
+      "played": 4,
+      "wins": 2,
+      "draws": 2,
+      "losses": 0,
+      "goalsFor": 16,
+      "goalsAgainst": 6,
+      "goalDiff": 10,
+      "points": 8,
+      "qualified": true
+    },
+    {
+      "teamId": "team-chis-cup-2026-B-171-fc",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "B",
+      "position": 3,
+      "played": 4,
+      "wins": 2,
+      "draws": 1,
+      "losses": 1,
+      "goalsFor": 11,
+      "goalsAgainst": 9,
+      "goalDiff": 2,
+      "points": 7,
+      "qualified": false
+    },
+    {
+      "teamId": "team-chis-cup-2026-B-ufc-uniao-fc",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "B",
+      "position": 4,
+      "played": 4,
+      "wins": 1,
+      "draws": 0,
+      "losses": 3,
+      "goalsFor": 2,
+      "goalsAgainst": 13,
+      "goalDiff": -11,
+      "points": 3,
+      "qualified": false
+    },
+    {
+      "teamId": "team-chis-cup-2026-B-extremo-leste",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "B",
+      "position": 5,
+      "played": 4,
+      "wins": 0,
+      "draws": 0,
+      "losses": 4,
+      "goalsFor": 4,
+      "goalsAgainst": 12,
+      "goalDiff": -8,
+      "points": -1,
+      "qualified": false
+    },
+    {
+      "teamId": "team-chis-cup-2026-C-tudo-nosso",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "C",
+      "position": 1,
+      "played": 4,
+      "wins": 3,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 34,
+      "goalsAgainst": 12,
+      "goalDiff": 22,
+      "points": 9,
+      "qualified": true
+    },
+    {
+      "teamId": "team-chis-cup-2026-C-sem-ferias-100-perreco",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "C",
+      "position": 2,
+      "played": 4,
+      "wins": 3,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 23,
+      "goalsAgainst": 10,
+      "goalDiff": 13,
+      "points": 9,
+      "qualified": true
+    },
+    {
+      "teamId": "team-chis-cup-2026-C-sem-querer",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "C",
+      "position": 3,
+      "played": 4,
+      "wins": 2,
+      "draws": 0,
+      "losses": 2,
+      "goalsFor": 12,
+      "goalsAgainst": 11,
+      "goalDiff": 1,
+      "points": 6,
+      "qualified": false
+    },
+    {
+      "teamId": "team-chis-cup-2026-C-so-mito-fc",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "C",
+      "position": 4,
+      "played": 4,
+      "wins": 2,
+      "draws": 0,
+      "losses": 2,
+      "goalsFor": 13,
+      "goalsAgainst": 15,
+      "goalDiff": -2,
+      "points": 6,
+      "qualified": false
+    },
+    {
+      "teamId": "team-chis-cup-2026-C-ajax-centro",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "C",
+      "position": 5,
+      "played": 4,
+      "wins": 0,
+      "draws": 0,
+      "losses": 4,
+      "goalsFor": 3,
+      "goalsAgainst": 37,
+      "goalDiff": -34,
+      "points": 0,
+      "qualified": false
+    },
+    {
+      "teamId": "team-chis-cup-2026-D-cdd-embu-das-artes",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "D",
+      "position": 1,
+      "played": 4,
+      "wins": 2,
+      "draws": 2,
+      "losses": 0,
+      "goalsFor": 10,
+      "goalsAgainst": 6,
+      "goalDiff": 4,
+      "points": 8,
+      "qualified": true
+    },
+    {
+      "teamId": "team-chis-cup-2026-D-unidos-da-leste",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "D",
+      "position": 2,
+      "played": 3,
+      "wins": 2,
+      "draws": 1,
+      "losses": 0,
+      "goalsFor": 16,
+      "goalsAgainst": 8,
+      "goalDiff": 8,
+      "points": 7,
+      "qualified": true
+    },
+    {
+      "teamId": "team-chis-cup-2026-D-mete-marcha",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "D",
+      "position": 3,
+      "played": 4,
+      "wins": 2,
+      "draws": 1,
+      "losses": 1,
+      "goalsFor": 13,
+      "goalsAgainst": 6,
+      "goalDiff": 7,
+      "points": 7,
+      "qualified": false
+    },
+    {
+      "teamId": "team-chis-cup-2026-D-resolve-facil",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "D",
+      "position": 4,
+      "played": 4,
+      "wins": 1,
+      "draws": 0,
+      "losses": 3,
+      "goalsFor": 6,
+      "goalsAgainst": 22,
+      "goalDiff": -16,
+      "points": 3,
+      "qualified": false
+    },
+    {
+      "teamId": "team-chis-cup-2026-D-assuncao",
+      "categoryId": "chis-cup-2026",
+      "groupKey": "D",
+      "position": 5,
+      "played": 3,
+      "wins": 0,
+      "draws": 0,
+      "losses": 3,
+      "goalsFor": 0,
+      "goalsAgainst": 3,
+      "goalDiff": -3,
+      "points": 0,
+      "qualified": false
     }
   ],
-  "rules": {},
-  "format": {},
-  "scoring": {},
-  "notes": null
+  "rules": {
+    "registration": {
+      "max_athletes_per_team": 25,
+      "max_staff_members_per_team": 5,
+      "athlete_actions": {
+        "allow_register": true,
+        "allow_edit": true,
+        "allow_remove": false
+      },
+      "team_signups": {
+        "enabled": true,
+        "status": "inscricoes_abertas"
+      },
+      "athlete_form": {
+        "apelido": "obrigatorio",
+        "foto": "informar",
+        "cpf": "obrigatorio",
+        "rg": "informar",
+        "certidao_nascimento": "informar",
+        "data_nascimento": "obrigatorio",
+        "posicao": "obrigatorio",
+        "numero_camisa": "obrigatorio",
+        "celular": "obrigatorio",
+        "email": "obrigatorio",
+        "passaporte": "informar",
+        "titulo_eleitor": "informar",
+        "genero": "obrigatorio",
+        "documentos_anexo": "informar"
+      },
+      "printed_summary_field": "cpf"
+    }
+  },
+  "format": {
+    "mode": "grupos_mata_mata",
+    "teamCount": 20,
+    "groupCount": 4,
+    "qualifiedPerGroup": 2,
+    "matchesPerOpponent": 1
+  },
+  "scoring": {
+    "win": 3,
+    "draw": 1,
+    "loss": 0,
+    "wo": -1,
+    "woScore": 2,
+    "qualifiedPerGroup": 2,
+    "tiebreakers": [
+      "vitorias",
+      "saldo_gols",
+      "gols_pro",
+      "confronto_direto",
+      "menos_gols_sofridos",
+      "sorteio"
+    ]
+  },
+  "notes": "Jogos importados das abas PROGRAMAÇÃO e Rodadas do CHIS CUP 2026. As linhas de revisão e os duplicados entre as abas foram consolidados por confronto e fase. A competição foi configurada como fase de grupos seguida de mata-mata, com 2 classificados por grupo."
 }

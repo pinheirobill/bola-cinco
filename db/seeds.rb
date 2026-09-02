@@ -40,7 +40,36 @@ def import_championship_snapshot!(path)
     scoring: championship.default_scoring.merge(snapshot["scoring"] || {})
   )
 
+  apply_bootstrap_competition_format!(championship)
+
   championship
+end
+
+def apply_bootstrap_competition_format!(championship)
+  return unless championship.tranca?
+
+  classification_matches = championship.matches.where(phase: "classificatoria")
+  knockout_matches = championship.matches.where(phase: "mata_mata")
+  return if classification_matches.blank? || knockout_matches.blank?
+
+  group_keys = classification_matches.where.not(group_key: [nil, ""]).distinct.pluck(:group_key).sort
+  group_count = group_keys.size
+  knockout_round_1_count = knockout_matches.where(round_number: 1).count
+  qualified_per_group = if group_count.positive? && knockout_round_1_count.positive?
+    [knockout_round_1_count / group_count, 1].max
+  else
+    championship.default_format.fetch("qualifiedPerGroup", 2)
+  end
+
+  championship.update!(
+    format: championship.default_format.merge(
+      "mode" => "grupos_mata_mata",
+      "teamCount" => championship.teams.count,
+      "groupCount" => group_count.positive? ? group_count : championship.default_format.fetch("groupCount", 1),
+      "qualifiedPerGroup" => qualified_per_group,
+      "matchesPerOpponent" => 1
+    )
+  )
 end
 
 def bootstrap_tranca_domain!(championship)
