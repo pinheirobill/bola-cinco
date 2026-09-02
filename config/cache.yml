@@ -12,5 +12,4 @@ test:
   <<: *default
 
 production:
-  # Vercel test deployment: disable Solid Cache until the real production host
-  # is ready. Revisit this before customer-facing prod.
+  {}
