@@ -24,4 +24,4 @@ test:
 # Revisit this before customer-facing prod.
 production:
   <<: *default
-  database: <%= ENV.fetch("DATABASE_PATH", "/tmp/production.sqlite3") %>
+  database: storage/production.sqlite3
