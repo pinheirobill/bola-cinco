@@ -289,4 +289,28 @@
     --color-error: oklch(64% 0.21 25);
     --color-error-content: oklch(98% 0 0);
   }
+
+  [data-theme="tranca"] {
+    color-scheme: dark;
+    --color-base-100: #122A22;
+    --color-base-200: #19382D;
+    --color-base-300: #234438;
+    --color-base-content: #F8F8F5;
+    --color-primary: #D6B25E;
+    --color-primary-content: #122A22;
+    --color-secondary: #1E4A3B;
+    --color-secondary-content: #F8F8F5;
+    --color-accent: #C94343;
+    --color-accent-content: #F8F8F5;
+    --color-neutral: #0D1C17;
+    --color-neutral-content: #F8F8F5;
+    --color-info: #7DD3FC;
+    --color-info-content: #0B1713;
+    --color-success: #8AD39E;
+    --color-success-content: #0B1713;
+    --color-warning: #D6B25E;
+    --color-warning-content: #0B1713;
+    --color-error: #C94343;
+    --color-error-content: #F8F8F5;
+  }
 }

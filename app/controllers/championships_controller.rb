@@ -1,3 +1,6 @@
+require "base64"
+require "fileutils"
+
 class ChampionshipsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
@@ -36,6 +39,178 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
 
     load_championship_overview
+    load_tranca_overview if @championship.tranca?
+    return render("championships/tranca_show") if @championship.tranca?
+  end
+
+  def duplas
+    @championship = championship_lookup
+    return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+    return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
+
+    load_tranca_management
+    render "championships/tranca_duplas"
+  end
+
+  def partidas
+    @championship = championship_lookup
+    return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+    return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
+
+    load_tranca_management
+    render "championships/tranca_partidas"
+  end
+
+  def rodadas
+    @championship = championship_lookup
+    return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+    return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
+
+    load_tranca_management
+    render "championships/tranca_rodadas"
+  end
+
+  def classificacao
+    @championship = championship_lookup
+    return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+    return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
+
+    load_tranca_management
+    render "championships/tranca_classificacao"
+  end
+
+  def generate_tranca_round
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    phase = params[:phase].presence_in(%w[classificatoria mata_mata]) || "classificatoria"
+    round_number = params[:round_number].presence&.to_i
+    round_number = next_tranca_round_number(phase) if round_number.blank? || round_number <= 0
+
+    flow = Tranca::CompetitionFlow.new(@championship)
+    rodada = flow.generate_round!(phase: phase, round_number: round_number)
+
+    redirect_back fallback_location: rodadas_championship_path(@championship), notice: "#{rodada.label} gerada."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Categoria inválida."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: e.record.errors.full_messages.join(" · ")
+  end
+
+  def generate_tranca_mesas
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    rodada = @championship.tranca_rodadas.find(params[:rodada_id])
+    Tranca::CompetitionFlow.new(@championship).assign_mesas!(rodada)
+
+    redirect_back fallback_location: rodadas_championship_path(@championship), notice: "Mesas da #{rodada.label} definidas."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Rodada inválida."
+  end
+
+  def update_tranca_partida
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: partidas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    partida = @championship.tranca_partidas.find(params[:partida_id])
+    params_data = params.fetch(:tranca_partida, {}).permit(
+      :score_a,
+      :score_b,
+      :status,
+      :winner_id,
+      :decision,
+      :wo,
+      maos_attributes: [
+        :source_id,
+        :numero,
+        :pontos_a,
+        :pontos_b,
+        :canastra_limpa_a,
+        :canastra_limpa_b,
+        :canastra_suja_a,
+        :canastra_suja_b,
+        :batida_a,
+        :batida_b,
+        :tres_vermelho_a,
+        :tres_vermelho_b,
+        :desconto_a,
+        :desconto_b,
+        :observacoes
+      ]
+    )
+
+    Tranca::CompetitionFlow.new(@championship).record_result!(
+      partida: partida,
+      score_a: params_data[:score_a].presence,
+      score_b: params_data[:score_b].presence,
+      status: params_data[:status].presence || partida.status,
+      winner_id: params_data[:winner_id].presence,
+      decision: params_data[:decision].presence,
+      wo: params_data[:wo].presence,
+      maos_attributes: normalize_tranca_maos_attributes(params_data[:maos_attributes])
+    )
+
+    redirect_back fallback_location: partidas_championship_path(@championship), notice: "Resultado lançado."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: partidas_championship_path(@championship), alert: "Partida inválida."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: partidas_championship_path(@championship), alert: e.record.errors.full_messages.join(" · ")
+  end
+
+  def download_tranca_summula
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user) || @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+    return redirect_back fallback_location: partidas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    partida = @championship.tranca_partidas.find(params[:partida_id])
+    pdf = BolaCinco::TrancaSummulaDocument.new(partida).render
+    send_data pdf, filename: tranca_summula_filename(partida), type: "application/pdf", disposition: "attachment"
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: partidas_championship_path(@championship), alert: "Partida inválida."
+  end
+
+  def download_complete_tranca_summula
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user) || @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+    return redirect_back fallback_location: partidas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    partida = @championship.tranca_partidas.find(params[:partida_id])
+    pdf = BolaCinco::TrancaSummulaDocument.new(partida, filled: true).render
+    send_data pdf, filename: tranca_complete_summula_filename(partida), type: "application/pdf", disposition: "attachment"
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: partidas_championship_path(@championship), alert: "Partida inválida."
+  end
+
+  def import_tranca_summula
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: partidas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    @partida = @championship.tranca_partidas.find(params[:partida_id])
+
+    if params.dig(:tranca_summula_import, :confirm).present?
+      confirm_tranca_summula_import
+    elsif request.get?
+      @import_preview = nil
+      render :import_tranca_summula
+    else
+      build_tranca_summula_import_preview
+    end
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: partidas_championship_path(@championship), alert: "Partida inválida."
+  end
+
+  def rebuild_tranca_classificacao
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    Tranca::CompetitionFlow.new(@championship).rebuild_classificacao!
+    redirect_back fallback_location: classificacao_championship_path(@championship), notice: "Classificação recalculada."
   end
 
   def setup
@@ -218,6 +393,12 @@ class ChampionshipsController < ApplicationController
     @championship_partners = @championship.partners.includes(:category).order(highlight: :desc, tier: :asc, created_at: :desc)
     @available_partners_to_link = Partner.includes(:championship, :category).where.not(championship_id: @championship.id).status_ativo.order(:name)
     @standing_groups = @championship.standing_groups
+    @knockout_brackets = build_knockout_brackets(@championship)
+  end
+
+  def load_tranca_overview
+    load_tranca_management
+    @tranca_round_label = @tranca_rodadas.first&.label || "Rodada inicial"
   end
 
   def load_championship_setup
@@ -242,11 +423,192 @@ class ChampionshipsController < ApplicationController
     @initial_knockout_matches_by_category = @initial_knockout_matches.group_by(&:category)
   end
 
+  def load_tranca_management
+    dashboard = Tranca::Dashboard.new(@championship)
+    @championship = dashboard.championship
+    @tranca_dashboard = dashboard
+    @tranca_categories = dashboard.categories
+    @tranca_entities = dashboard.entities
+    @tranca_duplas = dashboard.duplas
+    @tranca_duplas_by_category = dashboard.duplas_by_category
+    @tranca_partidas = dashboard.partidas
+    @tranca_rodadas = dashboard.rodadas
+    @tranca_live_matches = dashboard.live_partidas
+    @tranca_recent_results = dashboard.recent_results
+    @tranca_upcoming_matches = dashboard.upcoming_partidas
+    @tranca_standing_groups = dashboard.standings_groups
+    @tranca_standings = dashboard.classificacao_rows
+    @tranca_total_duplas = dashboard.total_duplas
+    @tranca_total_partidas = dashboard.total_partidas
+    @tranca_total_rodadas = dashboard.total_rodadas
+    @tranca_total_classificados = dashboard.total_classificados
+    @tranca_next_round_number = @tranca_rodadas.select(&:classificatoria?).map(&:round_number).max.to_i + 1
+    @tranca_next_knockout_round_number = @tranca_rodadas.select(&:mata_mata?).map(&:round_number).max.to_i + 1
+    @tranca_knockout_rounds = dashboard.knockout_rounds
+    @tranca_knockout_partidas = dashboard.knockout_partidas
+    @tranca_stats = dashboard.stats
+  end
+
+  def next_tranca_round_number(phase)
+    existing_rounds = @championship.tranca_rodadas.where(phase: phase.to_s)
+    existing_rounds.maximum(:round_number).to_i + 1
+  end
+
+  def knockout_round_label(phase, round_number)
+    phase_label = case phase.to_s
+    when "classificatoria" then "Classificatória"
+    when "mata_mata" then "Mata-mata"
+    else phase.to_s.tr("_", " ").humanize
+    end
+
+    round_number.to_i.positive? ? "Rodada #{round_number} · #{phase_label}" : phase_label
+  end
+
+  def normalize_tranca_maos_attributes(maos_attributes)
+    case maos_attributes
+    when ActionController::Parameters
+      maos_attributes.values
+    when Hash
+      maos_attributes.values
+    else
+      Array(maos_attributes)
+    end.map { |attributes| attributes.respond_to?(:to_h) ? attributes.to_h.symbolize_keys : attributes }
+  end
+
+  def build_knockout_brackets(championship)
+    championship.matches
+      .includes(:category, :team_a, :team_b, :winner)
+      .where(phase: "mata_mata")
+      .order(:category_id, :round_number, :id)
+      .group_by(&:category)
+      .map do |category, matches|
+        rounds = matches.group_by(&:round_number).sort_by { |round_number, _| round_number.to_i }.map do |round_number, round_matches|
+          {
+            round_number: round_number.to_i,
+            label: knockout_round_label(round_matches.first.phase, round_number),
+            matches: round_matches
+          }
+        end
+
+        {
+          category: category,
+          rounds: rounds
+        }
+      end
+  end
+
+  def build_tranca_summula_import_preview
+    uploaded_file = params.dig(:tranca_summula_import, :file)
+
+    if uploaded_file.blank?
+      redirect_to partidas_championship_path(@championship), alert: "Envie um PDF ou foto da súmula."
+      return
+    end
+
+    preview = BolaCinco::TrancaSummulaImport.new(partida: @partida, file: uploaded_file).call
+    token = SecureRandom.hex(12)
+    write_tranca_summula_import_preview(token, preview)
+    write_tranca_summula_import_file(token, uploaded_file)
+
+    @import_preview = preview.with_indifferent_access
+    @import_token = token
+    @import_file_data_url = tranca_import_file_data_url(token, @import_preview[:file_content_type], @import_preview[:file_name])
+    render :import_tranca_summula
+  end
+
+  def confirm_tranca_summula_import
+    token = params.dig(:tranca_summula_import, :token).to_s
+    preview = read_tranca_summula_import_preview(token)
+
+    if preview.blank?
+      redirect_to partidas_championship_path(@championship), alert: "A prévia da súmula expirou. Envie o arquivo novamente."
+      return
+    end
+
+    payload = params.fetch(:tranca_summula_import, {}).to_unsafe_h.deep_symbolize_keys
+    apply_tranca_summula_import(preview, payload)
+    delete_tranca_summula_import_preview(token)
+
+    redirect_to partidas_championship_path(@championship), notice: "Súmula importada e conferida."
+  end
+
+  def apply_tranca_summula_import(preview, payload)
+    maos_attributes = normalize_tranca_maos_attributes(payload[:maos_attributes])
+    score_a = payload[:score_a].presence || preview.dig(:header, :score_a)
+    score_b = payload[:score_b].presence || preview.dig(:header, :score_b)
+    winner_name = payload[:winner_name].presence || preview.dig(:header, :winner_name)
+
+    winner = case winner_name.to_s
+    when @partida.dupla_a_nome.to_s then @partida.dupla_a
+    when @partida.dupla_b_nome.to_s then @partida.dupla_b
+    end
+
+    Tranca::CompetitionFlow.new(@championship).record_result!(
+      partida: @partida,
+      score_a: score_a,
+      score_b: score_b,
+      status: (payload[:status].presence || "finalizado").to_s,
+      winner_id: winner&.id,
+      maos_attributes: maos_attributes
+    )
+  end
+
+  def write_tranca_summula_import_preview(token, preview)
+    path = tranca_summula_import_preview_path(token)
+    FileUtils.mkdir_p(path.dirname)
+    File.write(path, JSON.pretty_generate(preview))
+  end
+
+  def write_tranca_summula_import_file(token, uploaded_file)
+    path = tranca_summula_import_file_path(token, uploaded_file.original_filename)
+    FileUtils.mkdir_p(path.dirname)
+    File.binwrite(path, File.binread(uploaded_file.path))
+  end
+
+  def read_tranca_summula_import_preview(token)
+    path = tranca_summula_import_preview_path(token)
+    return if token.blank? || !File.exist?(path)
+
+    JSON.parse(File.read(path)).deep_symbolize_keys
+  end
+
+  def tranca_import_file_data_url(token, content_type, original_filename)
+    return if content_type.to_s.blank? || !content_type.to_s.start_with?("image/")
+
+    path = tranca_summula_import_file_path(token, original_filename)
+    return if token.blank? || !File.exist?(path)
+
+    "data:#{content_type.presence || "application/octet-stream"};base64,#{Base64.strict_encode64(File.binread(path))}"
+  end
+
+  def delete_tranca_summula_import_preview(token)
+    path = tranca_summula_import_preview_path(token)
+    File.delete(path) if File.exist?(path)
+  end
+
+  def tranca_summula_import_preview_path(token)
+    Rails.root.join("tmp", "tranca_summula_imports", "#{token}.json")
+  end
+
+  def tranca_summula_import_file_path(token, original_filename)
+    ext = File.extname(original_filename.to_s).presence || ".bin"
+    Rails.root.join("tmp", "tranca_summula_imports", "#{token}#{ext}")
+  end
+
+  def tranca_summula_filename(partida)
+    "sumula-#{partida.code.to_s.parameterize}.pdf"
+  end
+
+  def tranca_complete_summula_filename(partida)
+    "sumula-completa-#{partida.code.to_s.parameterize}.pdf"
+  end
+
   def championship_params
     params.expect(championship: [
       :source_id,
       :name,
       :season,
+      :modality,
       :status,
       :start_date,
       :end_date,
@@ -271,5 +633,4 @@ class ChampionshipsController < ApplicationController
         ] }
     ])
   end
-
 end

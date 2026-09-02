@@ -2,6 +2,16 @@ class Championship < ApplicationRecord
   ScorerEntry = Struct.new(:athlete_id, :name, :team_name, :goals, keyword_init: true)
   StandingGroup = Struct.new(:category, :group_key, :rows, keyword_init: true)
 
+  MODALITIES = {
+    football: "football",
+    tranca: "tranca"
+  }.freeze
+
+  MODALITY_LABELS = {
+    "football" => "Futebol",
+    "tranca" => "Tranca"
+  }.freeze
+
   COMPETITION_MODES = {
     "pontuacao" => "Pontuação por chaves",
     "mata_mata" => "Mata-mata eliminatório",
@@ -52,6 +62,13 @@ class Championship < ApplicationRecord
   has_many :athletes, through: :categories
   has_many :matches, dependent: :destroy
   has_many :standing_rows, dependent: :destroy
+  has_one :tranca_setting, class_name: "Tranca::Setting", dependent: :destroy
+  has_many :tranca_duplas, class_name: "Tranca::Dupla", dependent: :destroy
+  has_many :tranca_rodadas, class_name: "Tranca::Rodada", dependent: :destroy
+  has_many :tranca_mesas, class_name: "Tranca::Mesa", dependent: :destroy
+  has_many :tranca_partidas, class_name: "Tranca::Partida", dependent: :destroy
+  has_many :tranca_partida_maos, class_name: "Tranca::PartidaMao", dependent: :destroy
+  has_many :tranca_classificacao_rows, class_name: "Tranca::ClassificacaoRow", dependent: :destroy
   has_many :invoices, dependent: :destroy
   has_many :venues, dependent: :nullify
   has_many :referees, dependent: :nullify
@@ -62,6 +79,7 @@ class Championship < ApplicationRecord
   has_many :match_reports, through: :matches
   has_many :suspensions, dependent: :destroy
 
+  enum :modality, MODALITIES, default: :football
   enum :status, {
     rascunho: "rascunho",
     inscricoes_abertas: "inscricoes_abertas",
@@ -72,10 +90,12 @@ class Championship < ApplicationRecord
   validates :source_id, :name, :season, presence: true
   validates :source_id, uniqueness: true
   validates :slug, uniqueness: true, allow_blank: true
+  validates :modality, inclusion: { in: modalities.keys }
   before_validation :assign_source_id, on: :create
   before_validation :assign_slug, on: :create
 
   scope :publicly_visible, -> { where.not(status: :rascunho) }
+  scope :for_modality, ->(modality) { where(modality: modality) }
 
   def rules_data
     default_rules.deep_merge(rules.presence || {})
@@ -99,6 +119,36 @@ class Championship < ApplicationRecord
 
   def competition_mode_label
     COMPETITION_MODES[format_data["mode"].to_s] || "Pontuação por chaves"
+  end
+
+  def modality_label
+    MODALITY_LABELS[modality] || modality.to_s.humanize
+  end
+
+  def portal_menu_for(modality = self.modality)
+    case modality.to_s
+    when "tranca"
+      [
+        "Início",
+        "Campeonato",
+        "Partidas",
+        "Duplas",
+        "Estatísticas",
+        "Regulamento"
+      ]
+    else
+      [
+        "Início",
+        "Campeonato",
+        "Jogos",
+        "Equipes",
+        "Classificação"
+      ]
+    end
+  end
+
+  def self.modality_options
+    MODALITIES.keys.map { |key| [MODALITY_LABELS.fetch(key.to_s), key] }
   end
 
   def points_based_mode?
@@ -404,6 +454,7 @@ class Championship < ApplicationRecord
     transaction do
       standing_rows.delete_all
       rebuilt_rows.each(&:save!)
+      sync_tranca_classificacao_rows_from_legacy! if tranca?
     end
   end
 
@@ -419,41 +470,19 @@ class Championship < ApplicationRecord
 
   def advance_knockout_from!(match)
     return unless match.knockout_phase?
-    return if match.round_number.blank?
 
+    sync_knockout_brackets!
+  end
+
+  def sync_knockout_brackets!
     knockout_matches = matches
       .includes(:team_a, :team_b, :winner)
-      .where(category_id: match.category_id)
-      .where.not(round_number: nil)
-      .select(&:knockout_phase?)
-      .sort_by { |knockout_match| [knockout_match.round_number.to_i, knockout_match.id] }
+      .where(phase: "mata_mata")
+      .order(:category_id, :round_number, :id)
+      .to_a
 
-    rounds = knockout_matches.group_by(&:round_number)
-    return if rounds.size < 2
-
-    previous_winners = []
-
-    rounds.keys.sort.each do |round_number|
-      round_matches = rounds.fetch(round_number)
-
-      if round_number == rounds.keys.min
-        previous_winners = round_matches.map(&:winner).compact
-        next
-      end
-
-      next_round_teams = previous_winners.dup
-
-      round_matches.each do |round_match|
-        next if round_match.score_a.present? || round_match.score_b.present? || round_match.status_wo? || round_match.winner.present?
-
-        round_match.update_columns(
-          team_a_id: next_round_teams.shift&.id,
-          team_b_id: next_round_teams.shift&.id,
-          updated_at: Time.current
-        )
-      end
-
-      previous_winners = round_matches.map(&:winner).compact
+    knockout_matches.group_by(&:category_id).each_value do |category_matches|
+      sync_knockout_category_matches!(category_matches)
     end
   end
 
@@ -721,6 +750,54 @@ class Championship < ApplicationRecord
     loser_stats[:points] += loss_points.to_i
   end
 
+  def sync_knockout_category_matches!(category_matches)
+    rounds = category_matches
+      .select(&:knockout_phase?)
+      .group_by(&:round_number)
+      .sort_by { |round_number, _| round_number.to_i }
+
+    return if rounds.size < 2
+
+    previous_winners = rounds.first.last.sort_by(&:id).map do |match|
+      knockout_winner = match.knockout_winner
+      next knockout_winner if knockout_winner.blank?
+
+      if (match.status_finalizado? || match.status_wo?) && match.winner_id.blank?
+        match.update_columns(winner_id: knockout_winner.id, updated_at: Time.current)
+      end
+
+      knockout_winner
+    end.compact
+
+    rounds.drop(1).each do |_round_number, round_matches|
+      expected_pairs = previous_winners.each_slice(2).to_a
+
+      round_matches.sort_by(&:id).each_with_index do |round_match, index|
+        next if round_match.status_finalizado? || round_match.status_wo?
+
+        expected_team_a, expected_team_b = expected_pairs[index] || [nil, nil]
+        next if round_match.team_a_id == expected_team_a&.id && round_match.team_b_id == expected_team_b&.id
+
+        round_match.update_columns(
+          team_a_id: expected_team_a&.id,
+          team_b_id: expected_team_b&.id,
+          updated_at: Time.current
+        )
+      end
+
+      previous_winners = round_matches.sort_by(&:id).map do |match|
+        knockout_winner = match.knockout_winner
+        next knockout_winner if knockout_winner.blank?
+
+        if (match.status_finalizado? || match.status_wo?) && match.winner_id.blank?
+          match.update_columns(winner_id: knockout_winner.id, updated_at: Time.current)
+        end
+
+        knockout_winner
+      end.compact
+    end
+  end
+
   def knockout_match_source_id(category, index)
     "knockout-#{id}-#{category.id}-r1-#{index}"
   end
@@ -821,6 +898,32 @@ class Championship < ApplicationRecord
 
   def assign_source_id
     self.source_id ||= "championship-#{SecureRandom.hex(4)}"
+  end
+
+  def sync_tranca_classificacao_rows_from_legacy!
+    tranca_classificacao_rows.delete_all
+
+    standing_rows.includes(:team, :category).order(:category_id, :group_key, position: :asc, points: :desc, goal_diff: :desc).find_each do |row|
+      tranca_dupla = Tranca::Dupla.find_by(source_id: row.team.source_id)
+      next if tranca_dupla.blank?
+
+      tranca_classificacao_rows.create!(
+        category: row.category,
+        tranca_dupla: tranca_dupla,
+        source_id: "tranca-standing-row-#{row.id}",
+        group_key: row.group_key,
+        position: row.position,
+        played: row.played,
+        wins: row.wins,
+        draws: row.draws,
+        losses: row.losses,
+        goals_for: row.goals_for,
+        goals_against: row.goals_against,
+        goal_diff: row.goal_diff,
+        points: row.points,
+        qualified: row.qualified
+      )
+    end
   end
 
 end

@@ -9,6 +9,33 @@ class MatchesController < ApplicationController
     @matches = scoped_matches.includes(:championship, :category, :team_a, :team_b, :winner).order(scheduled_on: :asc, id: :asc)
   end
 
+  def create
+    championship = championship_for_write
+    return forbidden! if championship.blank?
+    return forbidden! unless championship.manageable_by?(current_user)
+
+    category = championship.categories.find(match_params[:category_id])
+    record = championship.matches.new(match_params.except(:championship_id).merge(category: category))
+    record.source_id = default_source_id("match") if record.source_id.blank?
+
+    if record.save
+      record.sync_competition_state! if record.status_finalizado? || record.status_wo?
+      sync_tranca_partida_from_match(record) if championship.tranca?
+
+      if browser_form_submission?
+        redirect_back fallback_location: match_path(record), notice: "Partida criada."
+      else
+        render json: record, status: :created
+      end
+    else
+      if browser_form_submission?
+        redirect_back fallback_location: matches_path, alert: record.errors.full_messages.to_sentence
+      else
+        render json: { errors: record.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+  end
+
   def show
     load_match_context
   end
@@ -44,6 +71,7 @@ class MatchesController < ApplicationController
         @match_report.save!
       end
       @match.sync_competition_state!
+      sync_tranca_partida_from_match(@match) if @match.championship.tranca?
     end
 
     if autosave_request?
@@ -122,10 +150,12 @@ class MatchesController < ApplicationController
 
   def match_params
     params.fetch(:match, {}).permit(
+      :championship_id,
       :category_id,
       :team_a_id,
       :team_b_id,
       :venue_id,
+      :venue,
       :code,
       :phase,
       :group_key,
@@ -137,6 +167,7 @@ class MatchesController < ApplicationController
       :status,
       :decision,
       :wo,
+      :winner_id,
       :penalties_a,
       :penalties_b
     )
@@ -287,6 +318,21 @@ class MatchesController < ApplicationController
     @match.championship.teams.order(:name)
   end
 
+  def default_source_id(prefix)
+    "#{prefix}-#{SecureRandom.hex(4)}"
+  end
+
+  def championship_for_write
+    championship_id = match_params[:championship_id].presence
+    return Championship.find_by(id: championship_id) if championship_id.present?
+
+    current_championship
+  end
+
+  def browser_form_submission?
+    request.format.html? && request.referer.present?
+  end
+
   def import_summula_preview_path(token)
     Rails.root.join("tmp", "match_summula_imports", "#{token}.json")
   end
@@ -327,5 +373,91 @@ class MatchesController < ApplicationController
   def delete_summula_import_preview(token)
     path = import_summula_preview_path(token)
     File.delete(path) if File.exist?(path)
+  end
+
+  def sync_tranca_partida_from_match(record)
+    tranca_dupla_a = Tranca::Dupla.find_by(source_id: record.team_a&.source_id)
+    tranca_dupla_b = Tranca::Dupla.find_by(source_id: record.team_b&.source_id)
+    tranca_winner = Tranca::Dupla.find_by(source_id: record.winner&.source_id)
+    tranca_rodada = Tranca::Rodada.find_or_initialize_by(
+      championship_id: record.championship_id,
+      phase: record.phase,
+      round_number: record.round_number.to_i
+    )
+    tranca_rodada.assign_attributes(
+      championship: record.championship,
+      source_id: "tranca-round-#{record.championship.source_id}-#{record.phase}-#{record.round_number}",
+      label: tranca_round_label(record.phase, record.round_number),
+      status: tranca_round_status_for(record.status),
+      starts_on: record.scheduled_on,
+      ends_on: record.scheduled_on
+    )
+    tranca_rodada.save!
+
+    tranca_mesa = Tranca::Mesa.find_or_initialize_by(
+      championship_id: record.championship_id,
+      code: record.code
+    )
+    tranca_mesa.assign_attributes(
+      championship: record.championship,
+      tranca_rodada: tranca_rodada,
+      source_id: "tranca-mesa-#{record.source_id}",
+      name: record.venue_name.presence || "Mesa #{record.code}",
+      location: record.venue_name,
+      status: tranca_mesa_status_for(record.status)
+    )
+    tranca_mesa.save!
+
+    tranca_partida = Tranca::Partida.find_or_initialize_by(source_id: record.source_id)
+    tranca_partida.assign_attributes(
+      championship: record.championship,
+      category: record.category,
+      tranca_rodada: tranca_rodada,
+      tranca_mesa: tranca_mesa,
+      dupla_a: tranca_dupla_a,
+      dupla_b: tranca_dupla_b,
+      winner: tranca_winner,
+      code: record.code,
+      phase: record.phase,
+      round_number: record.round_number,
+      group_key: record.group_key,
+      scheduled_on: record.scheduled_on,
+      scheduled_time: record.scheduled_time,
+      status: record.status,
+      score_a: record.score_a,
+      score_b: record.score_b,
+      decision: record.decision,
+      penalties_a: record.penalties_a,
+      penalties_b: record.penalties_b,
+      wo: record.wo,
+      source_data: record.source_data
+    )
+    tranca_partida.save!
+  end
+
+  def tranca_round_label(phase, round_number)
+    phase_label = case phase.to_s
+    when "classificatoria" then "Classificatória"
+    when "mata_mata" then "Mata-mata"
+    else phase.to_s.tr("_", " ").humanize
+    end
+
+    round_number.to_i.positive? ? "Rodada #{round_number} · #{phase_label}" : phase_label
+  end
+
+  def tranca_round_status_for(status)
+    case status.to_s
+    when "finalizado", "wo" then "encerrada"
+    when "em_andamento" then "em_andamento"
+    else "programada"
+    end
+  end
+
+  def tranca_mesa_status_for(status)
+    case status.to_s
+    when "finalizado", "wo" then "ocupada"
+    when "em_andamento" then "em_uso"
+    else "disponivel"
+    end
   end
 end

@@ -655,6 +655,31 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_equal @team_d, final_match.reload.team_b
   end
 
+  test "allows choosing a manual winner on a tied knockout match" do
+    match = Match.create!(
+      source_id: "match-knockout-manual-winner",
+      championship: @championship,
+      category: @category,
+      code: "QF3",
+      phase: "mata_mata",
+      round_number: 1,
+      team_a: @team,
+      team_b: @team_b
+    )
+
+    patch match_path(match), params: {
+      match: {
+        score_a: 3,
+        score_b: 3,
+        status: "finalizado",
+        winner_id: @team_b.id
+      }
+    }
+
+    assert_redirected_to match_path(match)
+    assert_equal @team_b, match.reload.winner
+  end
+
   private
 
   def build_summula_png

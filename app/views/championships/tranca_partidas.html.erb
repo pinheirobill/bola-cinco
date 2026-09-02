@@ -1,0 +1,85 @@
+<% content_for :title, "#{@championship.name} | Partidas | Bola Cinco" %>
+
+<%= page_header(
+  title: "#{@championship.name} · Partidas",
+  subtitle: "Baixe a súmula, preencha em papel e envie a foto/PDF para o sistema conferir e salvar.",
+  badge: @championship.status.to_s.tr("_", " ").humanize,
+  actions: [
+    link_to("Início", championship_path(@championship), class: "btn btn-outline"),
+    link_to("Duplas", duplas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Rodadas", rodadas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Classificação", classificacao_championship_path(@championship), class: "btn btn-primary")
+  ]
+) %>
+
+<%= stats_grid([
+  { label: "Ao vivo", value: @tranca_live_matches.size, value_class: "text-2xl" },
+  { label: "Resultados", value: @tranca_recent_results.size, value_class: "text-2xl" },
+  { label: "Próximos", value: @tranca_upcoming_matches.size, value_class: "text-2xl" },
+  { label: "Total", value: @tranca_total_partidas, value_class: "text-2xl" }
+]) %>
+
+<%= surface_card(
+  title: "Lançar resultado",
+  subtitle: "O fluxo passa pela súmula impressa: baixa o PDF, preenche à mão, envia a foto/PDF e confirma."
+) do %>
+  <% if @tranca_partidas.any? %>
+    <div class="grid gap-4 xl:grid-cols-2">
+      <% @tranca_partidas.each do |partida| %>
+        <%= render "components/tranca_partida_card", partida: partida, championship: @championship %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= empty_state(
+      title: "Sem partidas para lançar",
+      description: "Gere uma rodada primeiro para habilitar o lançamento de resultados."
+    ) %>
+  <% end %>
+<% end %>
+
+<section class="grid gap-6 xl:grid-cols-2">
+  <%= surface_card(title: "Ao vivo", subtitle: "Mesas em andamento agora.") do %>
+    <div class="space-y-3">
+      <% if @tranca_live_matches.any? %>
+        <% @tranca_live_matches.each do |match| %>
+          <%= match_card(match, compact: true) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem mesas ao vivo",
+          description: "Quando uma partida estiver em andamento, ela aparecerá nesta lista."
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= surface_card(title: "Resultados recentes", subtitle: "Últimas partidas finalizadas.") do %>
+    <div class="space-y-3">
+      <% if @tranca_recent_results.any? %>
+        <% @tranca_recent_results.each do |match| %>
+          <%= match_card(match, compact: true) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem resultados",
+          description: "Os jogos concluídos aparecerão aqui."
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+</section>
+
+<%= surface_card(title: "Próximas partidas", subtitle: "Agenda prevista para as próximas rodadas.", classes: "mt-6") do %>
+  <div class="space-y-3">
+    <% if @tranca_upcoming_matches.any? %>
+      <% @tranca_upcoming_matches.each do |match| %>
+        <%= match_card(match, compact: true) %>
+      <% end %>
+    <% else %>
+      <%= empty_state(
+        title: "Sem partidas agendadas",
+        description: "A agenda da Tranca aparecerá aqui assim que os jogos forem lançados."
+      ) %>
+    <% end %>
+  </div>
+<% end %>

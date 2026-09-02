@@ -9,6 +9,7 @@ class Match < ApplicationRecord
 
   before_validation :sync_winner_from_score
   after_commit :sync_pending_participations!, on: %i[create update]
+  after_commit :sync_tranca_mirror!, on: %i[create update destroy]
 
   belongs_to :championship
   belongs_to :category
@@ -46,7 +47,50 @@ class Match < ApplicationRecord
   end
 
   def winner_label
-    winner&.name.presence || "Calculado automaticamente pelo placar"
+    return team_a_label if winner.present? && winner == team_a
+    return team_b_label if winner.present? && winner == team_b
+    return winner&.name.presence if winner.present?
+
+    "Calculado automaticamente pelo placar"
+  end
+
+  def team_a_label
+    resolved_match_team_label(team_a, source_a)
+  end
+
+  def team_b_label
+    resolved_match_team_label(team_b, source_b)
+  end
+
+  def teams_label
+    [team_a_label, team_b_label].compact.join(" x ").presence || "Confronto a definir"
+  end
+
+  def knockout_team_a
+    team_a.presence || team_from_source(source_a)
+  end
+
+  def knockout_team_b
+    team_b.presence || team_from_source(source_b)
+  end
+
+  def knockout_winner
+    return if knockout_team_a.blank? || knockout_team_b.blank?
+
+    if wo.present?
+      return knockout_team_b if wo == knockout_team_a.name
+      return knockout_team_a if wo == knockout_team_b.name
+    end
+
+    if score_a.present? && score_b.present? && score_a != score_b
+      return score_a.to_i > score_b.to_i ? knockout_team_a : knockout_team_b
+    end
+
+    if decision_penaltis? && penalties_a.present? && penalties_b.present? && penalties_a != penalties_b
+      return penalties_a.to_i > penalties_b.to_i ? knockout_team_a : knockout_team_b
+    end
+
+    nil
   end
 
   def classification_phase?
@@ -113,8 +157,83 @@ class Match < ApplicationRecord
 
   private
 
+  def sync_tranca_mirror!
+    return unless championship&.tranca?
+
+    if destroyed?
+      Tranca::Partida.find_by(source_id: source_id)&.destroy!
+      return
+    end
+
+    tranca_dupla_a = Tranca::Dupla.find_by(source_id: team_a&.source_id)
+    tranca_dupla_b = Tranca::Dupla.find_by(source_id: team_b&.source_id)
+    tranca_winner = Tranca::Dupla.find_by(source_id: winner&.source_id)
+
+    tranca_rodada = Tranca::Rodada.find_or_initialize_by(
+      championship_id: championship_id,
+      phase: phase,
+      round_number: round_number.to_i
+    )
+    tranca_rodada.assign_attributes(
+      championship: championship,
+      source_id: "tranca-round-#{championship.source_id}-#{phase}-#{round_number}",
+      label: tranca_round_label,
+      status: tranca_round_status_for,
+      starts_on: scheduled_on,
+      ends_on: scheduled_on
+    )
+    tranca_rodada.save!
+
+    tranca_mesa = Tranca::Mesa.find_or_initialize_by(
+      championship_id: championship_id,
+      code: code
+    )
+    tranca_mesa.assign_attributes(
+      championship: championship,
+      tranca_rodada: tranca_rodada,
+      source_id: "tranca-mesa-#{source_id}",
+      name: venue_name.presence || "Mesa #{code}",
+      location: venue_name,
+      status: tranca_mesa_status_for
+    )
+    tranca_mesa.save!
+
+    tranca_partida = Tranca::Partida.find_or_initialize_by(source_id: source_id)
+    tranca_partida.assign_attributes(
+      championship: championship,
+      category: category,
+      tranca_rodada: tranca_rodada,
+      tranca_mesa: tranca_mesa,
+      dupla_a: tranca_dupla_a,
+      dupla_b: tranca_dupla_b,
+      winner: tranca_winner,
+      code: code,
+      phase: phase,
+      round_number: round_number,
+      group_key: group_key,
+      scheduled_on: scheduled_on,
+      scheduled_time: scheduled_time,
+      status: status,
+      score_a: score_a,
+      score_b: score_b,
+      decision: decision,
+      penalties_a: penalties_a,
+      penalties_b: penalties_b,
+      wo: wo,
+      source_data: source_data
+    )
+    tranca_partida.save!
+  end
+
   def sync_winner_from_score
-    self.winner = resolved_winner
+    manual_winner = association(:winner).reader
+
+    if manual_winner.present? && (score_a == score_b || score_a.blank? || score_b.blank? || status_wo?)
+      self.winner = manual_winner
+      return
+    end
+
+    self.winner = knockout_winner
   end
 
   def roster_athlete_entries
@@ -213,6 +332,32 @@ class Match < ApplicationRecord
     nil
   end
 
+  def tranca_round_label
+    phase_label = case phase.to_s
+    when "classificatoria" then "Classificatória"
+    when "mata_mata" then "Mata-mata"
+    else phase.to_s.tr("_", " ").humanize
+    end
+
+    round_number.to_i.positive? ? "Rodada #{round_number} · #{phase_label}" : phase_label
+  end
+
+  def tranca_round_status_for
+    case status.to_s
+    when "finalizado", "wo" then "encerrada"
+    when "em_andamento" then "em_andamento"
+    else "programada"
+    end
+  end
+
+  def tranca_mesa_status_for
+    case status.to_s
+    when "finalizado", "wo" then "ocupada"
+    when "em_andamento" then "em_uso"
+    else "disponivel"
+    end
+  end
+
   def normalize_event_sheet_params(sheet_params)
     return {} if sheet_params.blank?
 
@@ -253,22 +398,67 @@ class Match < ApplicationRecord
       .each(&:destroy!)
   end
 
-  def resolved_winner
-    return if team_a.blank? || team_b.blank?
+  def resolved_match_team_label(team, source)
+    return team&.name.presence if team.present?
+    return unless status_finalizado? || status_wo?
 
-    if wo.present?
-      return team_b if wo == team_a.name
-      return team_a if wo == team_b.name
+    import_source_team_name(source)
+  end
+
+  def import_source_team_name(source)
+    label = if source.respond_to?(:[])
+      source["name"].presence || source[:name].presence
+    else
+      source.to_s.presence
     end
 
-    if score_a.present? && score_b.present? && score_a != score_b
-      return score_a.to_i > score_b.to_i ? team_a : team_b
+    label if actual_knockout_team_label?(label)
+  end
+
+  def team_from_source(source)
+    label = if source.respond_to?(:[])
+      source["name"].presence || source[:name].presence
+    else
+      source.to_s.presence
     end
 
-    if decision_penaltis? && penalties_a.present? && penalties_b.present? && penalties_a != penalties_b
-      return penalties_a.to_i > penalties_b.to_i ? team_a : team_b
+    return if label.blank?
+
+    [label, canonical_knockout_source_label(label)].compact.each do |candidate_label|
+      team = championship&.teams&.find do |candidate|
+        candidate.name.to_s.strip.casecmp?(candidate_label.to_s.strip)
+      end
+      return team if team.present?
     end
 
-    nil
+    championship&.teams&.find_by(name: canonical_knockout_source_label(label)) || championship&.teams&.find_by(name: label)
+  end
+
+  def canonical_knockout_source_label(label)
+    normalized = label.to_s.strip.upcase
+    knockout_source_aliases.fetch(normalized, label)
+  end
+
+  def knockout_source_aliases
+    aliases = {}
+
+    if defined?(BolaCinco::ChisCupWorkbookImporter::TEAM_ALIASES)
+      aliases.merge!(BolaCinco::ChisCupWorkbookImporter::TEAM_ALIASES)
+    end
+
+    if defined?(BolaCinco::ChampionshipWorkbookImporter::TEAM_ALIASES)
+      aliases.merge!(BolaCinco::ChampionshipWorkbookImporter::TEAM_ALIASES)
+    end
+
+    aliases
+  end
+
+  def actual_knockout_team_label?(label)
+    normalized = label.to_s.squish.upcase
+    return false if normalized.blank?
+    return false if normalized.match?(/\A(?:A DEFINIR|CONFRONTO A DEFINIR)\z/)
+    return false if normalized.match?(/\A(?:VENC|PERD|SF\d+|CHAVE-|TITULO|FINAL|1[ºO]|2[ºO]|3[ºO]|4[ºO])\b/)
+
+    true
   end
 end

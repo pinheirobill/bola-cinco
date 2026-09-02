@@ -33,6 +33,13 @@ class PublicPortalTest < ActionDispatch::IntegrationTest
       name: "Time Portal"
     )
 
+    @team_knockout = Team.create!(
+      source_id: "team-public-portal-knockout",
+      entity: @entity,
+      category: @category,
+      name: "Time Portal KO"
+    )
+
     @athlete = Athlete.create!(
       source_id: "athlete-public-portal",
       team: @team,
@@ -98,6 +105,105 @@ class PublicPortalTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Quantidade de chaves"
     assert_includes response.body, "Classificados por chave"
     assert_includes response.body, @team.name
+  end
+
+  test "shows the knockout bracket when mata-mata matches exist" do
+    Match.create!(
+      source_id: "match-public-portal-knockout",
+      championship: @championship,
+      category: @category,
+      code: "KO1",
+      phase: "mata_mata",
+      round_number: 1,
+      status: :agendado,
+      team_a: @team,
+      team_b: @team_knockout
+    )
+
+    get championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Chave do mata-mata"
+    assert_includes response.body, "Campeão"
+    assert_includes response.body, "KO1"
+    assert_includes response.body, @team_knockout.name
+  end
+
+  test "shows imported source team names when knockout associations are missing" do
+    Match.create!(
+      source_id: "match-public-portal-knockout-source",
+      championship: @championship,
+      category: @category,
+      code: "KO2",
+      phase: "mata_mata",
+      round_number: 1,
+      status: :finalizado,
+      score_a: 3,
+      score_b: 2,
+      source_a: { name: @team.name },
+      source_b: { name: @team_knockout.name }
+    )
+
+    get championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, @team.name
+    assert_includes response.body, @team_knockout.name
+    refute_includes response.body, "Confronto a definir"
+  end
+
+  test "links knockout matches to the match summary page" do
+    match = Match.create!(
+      source_id: "match-public-portal-knockout-tie",
+      championship: @championship,
+      category: @category,
+      code: "KO3",
+      phase: "mata_mata",
+      round_number: 1,
+      status: :finalizado,
+      score_a: 3,
+      score_b: 3,
+      source_a: { name: @team.name },
+      source_b: { name: @team_knockout.name }
+    )
+
+    get championship_path(@championship)
+
+    assert_response :success
+
+    document = Nokogiri::HTML(response.body)
+    bracket_section = document.at_xpath("//section[.//h2[contains(., 'Chave do mata-mata')]]")
+
+    assert bracket_section.present?
+    link = bracket_section.at_xpath(%(.//a[@href="#{match_path(match)}"]))
+    assert link.present?
+    assert_equal match_path(match), link["href"]
+  end
+
+  test "hides imported source team names for pending knockout matches" do
+    Match.create!(
+      source_id: "match-public-portal-knockout-pending",
+      championship: @championship,
+      category: @category,
+      code: "KO3",
+      phase: "mata_mata",
+      round_number: 2,
+      status: :agendado,
+      source_a: { name: @team.name },
+      source_b: { name: @team_knockout.name }
+    )
+
+    get championship_path(@championship)
+
+    assert_response :success
+
+    document = Nokogiri::HTML(response.body)
+    bracket_section = document.at_xpath("//section[.//h2[contains(., 'Chave do mata-mata')]]")
+
+    assert bracket_section.present?
+    assert_includes bracket_section.text, "Confronto a definir"
+    refute_includes bracket_section.text, @team.name
+    refute_includes bracket_section.text, @team_knockout.name
   end
 
   test "admin can confirm all pending team registrations from the championship page" do

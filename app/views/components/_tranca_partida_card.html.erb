@@ -1,0 +1,33 @@
+<% card_actions = [] %>
+<% if partida.finished? %>
+  <% card_actions << link_to("Baixar súmula completa", download_complete_tranca_summula_championship_path(championship, partida_id: partida.id), class: "btn btn-primary btn-sm") %>
+<% else %>
+  <% card_actions << link_to("Baixar súmula", download_tranca_summula_championship_path(championship, partida_id: partida.id), class: "btn btn-outline btn-sm") %>
+  <% card_actions << link_to("Importar foto/PDF", import_tranca_summula_championship_path(championship, partida_id: partida.id), class: "btn btn-primary btn-sm") %>
+<% end %>
+
+<div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <p class="text-sm font-semibold"><%= partida.code %> · <%= partida.category.name %></p>
+      <p class="mt-1 text-sm text-base-content/70"><%= [partida.dupla_a_nome, partida.dupla_b_nome].compact.join(" x ") %></p>
+      <p class="mt-1 text-xs text-base-content/50">
+        <%= [partida.scheduled_on&.strftime("%d/%m/%Y"), partida.scheduled_time, partida.mesa].compact.join(" • ").presence || "Súmula pronta para impressão" %>
+      </p>
+    </div>
+
+    <div class="text-right">
+      <p class="text-2xl font-black"><%= partida.score_a.to_i %> x <%= partida.score_b.to_i %></p>
+      <div class="mt-2 flex flex-wrap justify-end gap-2">
+        <%= status_badge(partida.status) %>
+        <span class="badge badge-neutral"><%= partida.phase_label %></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 flex flex-wrap gap-3">
+    <% card_actions.each do |action| %>
+      <%= action %>
+    <% end %>
+  </div>
+</div>

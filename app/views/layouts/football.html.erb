@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <title><%= content_for(:title) || "Bola Cinco - Futebol" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Bola Cinco">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body data-theme="<%= current_theme_name %>" class="min-h-screen bg-base-200 text-base-content">
+    <div class="min-h-screen bg-[radial-gradient(circle_at_top,rgba(22,163,74,0.10),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_35%)]">
+      <header class="border-b border-base-300/70 bg-base-100/85 backdrop-blur">
+        <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-base-content/50">Futebol</p>
+            <%= link_to "Bola Cinco", football_root_path, class: "text-2xl font-black tracking-tight" %>
+          </div>
+
+          <nav class="hidden items-center gap-2 md:flex" aria-label="Navegação do futebol">
+            <%= link_to "Início", football_root_path, class: "btn btn-ghost btn-sm" %>
+            <%= link_to "Campeonatos", championships_path, class: "btn btn-ghost btn-sm" %>
+            <%= link_to "Classificação", standing_rows_path, class: "btn btn-ghost btn-sm" %>
+          </nav>
+
+          <div class="flex items-center gap-2">
+            <% if user_signed_in? %>
+              <%= render "shared/theme_selector" %>
+              <%= link_to "Admin", root_path, class: "btn btn-outline btn-sm" %>
+              <%= link_to "Sair", destroy_user_session_path, data: { turbo_method: :delete }, class: "btn btn-primary btn-sm" %>
+            <% else %>
+              <%= link_to "Entrar", football_login_path, class: "btn btn-primary btn-sm" %>
+              <%= link_to "Admin", new_user_session_path, class: "btn btn-outline btn-sm" %>
+            <% end %>
+          </div>
+        </div>
+      </header>
+
+      <main id="content" class="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+        <%= render "shared/flash" %>
+        <%= yield %>
+      </main>
+    </div>
+  </body>
+</html>

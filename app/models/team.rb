@@ -10,6 +10,7 @@ class Team < ApplicationRecord
   has_many :away_matches, class_name: "Match", foreign_key: :team_b_id, dependent: :nullify, inverse_of: :team_b
   has_many :winning_matches, class_name: "Match", foreign_key: :winner_id, dependent: :nullify, inverse_of: :winner
   has_many :standing_rows, dependent: :destroy
+  after_commit :sync_tranca_mirror!, on: %i[create update destroy]
 
   enum :registration_status, {
     pendente: "pendente",
@@ -62,5 +63,27 @@ class Team < ApplicationRecord
 
   def championship
     category&.championship || category&.championships&.first
+  end
+
+  private
+
+  def sync_tranca_mirror!
+    return unless championship&.tranca?
+
+    if destroyed?
+      Tranca::Dupla.find_by(source_id: source_id)&.destroy!
+      return
+    end
+
+    tranca_dupla = Tranca::Dupla.find_or_initialize_by(source_id: source_id)
+    tranca_dupla.assign_attributes(
+      championship: championship,
+      category: category,
+      entity: entity,
+      name: name,
+      short_name: short_name,
+      registration_status: registration_status
+    )
+    tranca_dupla.save!
   end
 end

@@ -26,9 +26,19 @@ class TeamsController < ApplicationController
     record.source_id = default_source_id("team") if record.source_id.blank?
 
     if record.save
-      render json: record, status: :created
+      sync_tranca_dupla_from_team(record) if championship.tranca?
+
+      if browser_form_submission?
+        redirect_back fallback_location: team_path(record), notice: "Dupla criada."
+      else
+        render json: record, status: :created
+      end
     else
-      render json: { errors: record.errors.full_messages }, status: :unprocessable_entity
+      if browser_form_submission?
+        redirect_back fallback_location: teams_path, alert: record.errors.full_messages.to_sentence
+      else
+        render json: { errors: record.errors.full_messages }, status: :unprocessable_entity
+      end
     end
   end
 
@@ -36,6 +46,8 @@ class TeamsController < ApplicationController
     return forbidden! unless team.manageable_by?(current_user)
 
     if team.update(team_params)
+      sync_tranca_dupla_from_team(team) if team.championship&.tranca?
+
       respond_to do |format|
         format.html { redirect_back fallback_location: team_path(team), notice: "Equipe atualizada." }
         format.json { render json: team }
@@ -65,6 +77,7 @@ class TeamsController < ApplicationController
   def destroy
     return forbidden! unless team.manageable_by?(current_user)
 
+    destroy_tranca_dupla_from_team(team) if team.championship&.tranca?
     team.destroy!
     head :no_content
   end
@@ -101,5 +114,26 @@ class TeamsController < ApplicationController
 
   def default_source_id(prefix)
     "#{prefix}-#{SecureRandom.hex(4)}"
+  end
+
+  def browser_form_submission?
+    request.format.html? && request.referer.present?
+  end
+
+  def sync_tranca_dupla_from_team(team)
+    tranca_dupla = Tranca::Dupla.find_or_initialize_by(source_id: team.source_id)
+    tranca_dupla.assign_attributes(
+      championship: team.championship,
+      category: team.category,
+      entity: team.entity,
+      name: team.name,
+      short_name: team.short_name,
+      registration_status: team.registration_status
+    )
+    tranca_dupla.save!
+  end
+
+  def destroy_tranca_dupla_from_team(team)
+    Tranca::Dupla.find_by(source_id: team.source_id)&.destroy!
   end
 end

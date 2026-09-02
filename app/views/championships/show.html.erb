@@ -2,7 +2,7 @@
 
 <%= page_header(
   title: @championship.name,
-  subtitle: "Temporada #{@championship.season} · #{@championship.competition_mode_label}",
+  subtitle: "Temporada #{@championship.season} · #{@championship.modality_label} · #{@championship.competition_mode_label}",
   badge: @championship.status.to_s.tr("_", " ").humanize,
   actions: [
     link_to("Classificação", standing_rows_path, class: "btn btn-outline"),
@@ -237,6 +237,12 @@
     <% end %>
   </div>
 </section>
+
+<% if @knockout_brackets.present? %>
+  <section class="mt-6">
+    <%= render "components/football_knockout_bracket", brackets: @knockout_brackets %>
+  </section>
+<% end %>
 
 <% if @championship.team_signup_open? %>
   <dialog id="championship-team-signup-modal" class="modal">

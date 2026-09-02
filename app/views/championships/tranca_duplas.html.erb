@@ -1,0 +1,106 @@
+<% content_for :title, "#{@championship.name} | Duplas | Bola Cinco" %>
+
+<%= page_header(
+  title: "#{@championship.name} · Duplas",
+  subtitle: "Cadastro e composição das duplas da Tranca.",
+  badge: @championship.status.to_s.tr("_", " ").humanize,
+  actions: [
+    link_to("Início", championship_path(@championship), class: "btn btn-outline"),
+    link_to("Partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Rodadas", rodadas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Classificação", classificacao_championship_path(@championship), class: "btn btn-primary")
+  ]
+) %>
+
+<%= stats_grid([
+  { label: "Duplas", value: @tranca_total_duplas, value_class: "text-2xl" },
+  { label: "Categorias", value: @tranca_categories.size, value_class: "text-2xl" },
+  { label: "Atletas", value: @championship.athletes.count, value_class: "text-2xl" },
+  { label: "Partidas", value: @tranca_total_partidas, value_class: "text-2xl" }
+]) %>
+
+<%= surface_card(
+  title: "Duplas por categoria",
+  subtitle: "A Tranca reaproveita o cadastro de times como composição das duplas."
+) do %>
+  <% if user_signed_in? && @championship.manageable_by?(current_user) %>
+    <div class="mb-6 rounded-3xl border border-base-300 bg-base-200 p-4">
+      <h3 class="text-lg font-semibold">Nova dupla</h3>
+      <p class="mt-1 text-sm text-base-content/70">Cria um time vinculado a uma categoria da Tranca.</p>
+
+      <%= form_with url: teams_path, method: :post, class: "mt-4 grid gap-4 lg:grid-cols-5" do |f| %>
+        <%= hidden_field_tag "team[source_id]", "" %>
+        <div>
+          <%= label_tag "team[entity_id]", "Entidade", class: "label-text font-medium" %>
+          <%= select_tag "team[entity_id]", options_from_collection_for_select(@tranca_entities, :id, :name), include_blank: "Selecione", class: "select select-bordered w-full" %>
+        </div>
+        <div>
+          <%= label_tag "team[category_id]", "Categoria", class: "label-text font-medium" %>
+          <%= select_tag "team[category_id]", options_from_collection_for_select(@tranca_categories, :id, :name), include_blank: "Selecione", class: "select select-bordered w-full" %>
+        </div>
+        <div class="lg:col-span-2">
+          <%= label_tag "team[name]", "Nome da dupla", class: "label-text font-medium" %>
+          <%= text_field_tag "team[name]", nil, class: "input input-bordered w-full", placeholder: "Carlos / Ana" %>
+        </div>
+        <div class="flex items-end">
+          <%= submit_tag "Criar dupla", class: "btn btn-primary w-full" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @tranca_categories.any? %>
+    <div class="space-y-6">
+      <% @tranca_categories.each do |category| %>
+        <% teams = @tranca_duplas_by_category.fetch(category.id, []) %>
+        <div class="rounded-3xl bg-base-200 p-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="text-xl font-bold"><%= category.name %></h3>
+              <p class="mt-1 text-sm text-base-content/60"><%= teams.size %> dupla(s) vinculadas</p>
+            </div>
+            <%= link_to "Ver categoria", category_path(category), class: "link link-primary" %>
+          </div>
+
+          <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <% teams.each do |team| %>
+              <div class="rounded-2xl bg-base-100 p-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="font-semibold"><%= link_to team.name, team_path(team), class: "link link-primary" %></p>
+                    <p class="mt-1 text-xs text-base-content/60"><%= team.entity.name %></p>
+                  </div>
+                  <span class="badge badge-outline"><%= team.registration_status.to_s.humanize %></span>
+                </div>
+
+                <div class="mt-4 space-y-2 text-sm text-base-content/70">
+                  <% athlete_names = team.athletes.map(&:name) %>
+                  <% if athlete_names.any? %>
+                    <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Integrantes</p>
+                    <p><%= athlete_names.join(" · ") %></p>
+                  <% else %>
+                    <p>Sem atletas vinculados ainda.</p>
+                  <% end %>
+                </div>
+                <% if user_signed_in? && @championship.manageable_by?(current_user) %>
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    <% legacy_team = team.legacy_team %>
+                    <% if legacy_team.present? %>
+                      <%= link_to "Abrir", team_path(legacy_team), class: "btn btn-outline btn-xs" %>
+                      <%= button_to "Remover", team_path(legacy_team), method: :delete, class: "btn btn-ghost btn-xs", data: { turbo_confirm: "Remover esta dupla?" } %>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <%= empty_state(
+      title: "Nenhuma dupla cadastrada",
+      description: "As duplas aparecerão aqui quando os times forem vinculados às categorias do campeonato."
+    ) %>
+  <% end %>
+<% end %>

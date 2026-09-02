@@ -2,7 +2,7 @@
 
 <%= page_header(
   title: "Configuração do campeonato",
-  subtitle: @championship.name,
+  subtitle: "#{@championship.name} · #{@championship.modality_label}",
   badge: "Onboarding",
   actions: [
     link_to("Visão geral", championship_path(@championship), class: "btn btn-outline"),
@@ -11,12 +11,45 @@
   ]
 ) %>
 
-<%= championship_stepper(@championship, @step, {
-  "data" => "Dados",
-  "format" => "Formato e regras",
-  "registrations" => "Inscrições",
-  "teams" => "Equipes"
-}) %>
+<% if @championship.tranca? %>
+  <%= surface_card(
+    title: "Base da Tranca",
+    subtitle: "Esta modalidade já entra com navegação e dashboard próprios; o onboarding detalhado virá nas próximas etapas."
+  ) do %>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Jogadores</p>
+        <p class="mt-2 text-sm text-base-content/70">Estrutura reservada para cadastro individual.</p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Duplas</p>
+        <p class="mt-2 text-sm text-base-content/70">Composição e vínculo das duplas da modalidade.</p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Mesas</p>
+        <p class="mt-2 text-sm text-base-content/70">Mesa, rodada e partidas ficam separadas do futebol.</p>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
+<% step_labels = if @championship.tranca?
+  {
+    "data" => "Dados",
+    "format" => "Base da Tranca",
+    "registrations" => "Jogadores",
+    "teams" => "Duplas"
+  }
+else
+  {
+    "data" => "Dados",
+    "format" => "Formato e regras",
+    "registrations" => "Inscrições",
+    "teams" => "Equipes"
+  }
+end %>
+
+<%= championship_stepper(@championship, @step, step_labels) %>
 
 <% if @step == "data" %>
   <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">

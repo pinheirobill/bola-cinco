@@ -1,0 +1,202 @@
+<% content_for :title, "#{@championship.name} | Tranca | Bola Cinco" %>
+
+<%= page_header(
+  title: @championship.name,
+  subtitle: "#{@championship.modality_label} · #{@tranca_round_label}",
+  badge: @championship.status.to_s.tr("_", " ").humanize,
+  actions: [
+    link_to("Portal da Tranca", tranca_root_path, class: "btn btn-outline"),
+    link_to("Duplas", duplas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Rodadas", rodadas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Classificação", classificacao_championship_path(@championship), class: "btn btn-primary"),
+    (user_signed_in? && @championship.manageable_by?(current_user) ? link_to("Configurar campeonato", setup_championship_path(@championship), class: "btn btn-primary") : nil),
+    link_to("Voltar aos campeonatos", championships_path, class: "btn btn-outline")
+  ].compact
+) %>
+
+<%= stats_grid([
+  { label: "Duplas", value: @tranca_total_duplas, description: "Times vinculados ao campeonato" },
+  { label: "Rodadas", value: @tranca_total_rodadas, description: "Fases e rodadas cadastradas" },
+  { label: "Mão", value: @tranca_stats[:total_maos], description: "Mãos detalhadas registradas" },
+  { label: "Mata-mata", value: @tranca_stats[:total_mata_mata], description: "Partidas de chaveamento" },
+  { label: "Ao vivo", value: @tranca_live_matches.size, description: "Mesas em andamento" },
+  { label: "Classificação", value: @tranca_total_classificados, description: "Linhas exibidas" }
+]) %>
+
+<%= surface_card(title: "Navegação da Tranca", subtitle: "Abas iniciais da modalidade") do %>
+  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+    <%= link_to "Início", championship_path(@championship), class: "btn btn-outline btn-block justify-start" %>
+    <%= link_to "Duplas", duplas_championship_path(@championship), class: "btn btn-outline btn-block justify-start" %>
+    <%= link_to "Partidas", partidas_championship_path(@championship), class: "btn btn-outline btn-block justify-start" %>
+    <%= link_to "Rodadas", rodadas_championship_path(@championship), class: "btn btn-outline btn-block justify-start" %>
+    <%= link_to "Classificação", classificacao_championship_path(@championship), class: "btn btn-outline btn-block justify-start" %>
+    <%= link_to "Regulamento", championship_path(@championship, anchor: "regulamento"), class: "btn btn-outline btn-block justify-start" %>
+  </div>
+<% end %>
+
+<section class="grid gap-6 xl:grid-cols-[1.35fr_0.85fr]">
+  <%= surface_card(
+    title: "Dashboard da Tranca",
+    subtitle: "Estrutura inicial para duplas, partidas, mesas, classificação e regulamento.",
+    id: "campeonato"
+  ) do %>
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Modalidade</p>
+        <p class="mt-2 text-lg font-semibold"><%= @championship.modality_label %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Temporada</p>
+        <p class="mt-2 text-lg font-semibold"><%= @championship.season %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Duplas</p>
+        <p class="mt-2 text-lg font-semibold"><%= @tranca_total_duplas %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status</p>
+        <p class="mt-2 text-lg font-semibold"><%= @championship.status.titleize %></p>
+      </div>
+    </div>
+  <% end %>
+
+  <%= surface_card(title: "Regulamento", subtitle: "Base visual para as regras da modalidade.", id: "regulamento") do %>
+    <div class="space-y-3 text-sm text-base-content/70">
+      <p>Jogadores, duplas, rodadas, partidas, mesas e classificação já possuem abas próprias nesta versão.</p>
+      <p>Esta tela organiza a experiência administrativa da Tranca sem misturar com o fluxo de Futebol.</p>
+    </div>
+  <% end %>
+</section>
+
+<section id="duplas" class="grid gap-6 xl:grid-cols-2">
+  <%= surface_card(title: "Duplas", subtitle: "Estrutura pronta para cadastro e vínculo", classes: "self-start") do %>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="font-semibold">Jogadores</p>
+        <p class="mt-2 text-sm text-base-content/70">Cadastros individuais ainda separados do futebol.</p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="font-semibold">Duplas</p>
+        <p class="mt-2 text-sm text-base-content/70">Montagem e status das duplas da Tranca.</p>
+      </div>
+    </div>
+  <% end %>
+
+  <%= surface_card(title: "Próximas entregas", subtitle: "O que vem depois da base", classes: "self-start") do %>
+    <div class="space-y-3 text-sm text-base-content/70">
+      <p>Rodadas, mesas e classificação agora vivem em telas dedicadas.</p>
+      <p>O próximo passo natural é persistir duplas e mesas como registros próprios da modalidade.</p>
+    </div>
+  <% end %>
+</section>
+
+<section id="partidas" class="grid gap-6 xl:grid-cols-2">
+  <%= surface_card(title: "Ao vivo", subtitle: "Mesas em andamento", classes: "self-start") do %>
+    <div class="space-y-4">
+      <% if @tranca_live_matches.any? %>
+        <% @tranca_live_matches.each do |match| %>
+          <%= match_card(match, compact: true) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem mesas ao vivo",
+          description: "Quando houver partidas em andamento, elas aparecerão aqui."
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= surface_card(title: "Resultados recentes", subtitle: "Últimas mesas concluídas", classes: "self-start") do %>
+    <div class="space-y-4">
+      <% if @tranca_recent_results.any? %>
+        <% @tranca_recent_results.each do |match| %>
+          <%= match_card(match, compact: true) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem resultados",
+          description: "Os resultados concluídos aparecerão aqui."
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+</section>
+
+<section id="mata-mata">
+  <% if @tranca_knockout_rounds.any? %>
+    <%= render "components/tranca_knockout_bracket", rounds: @tranca_knockout_rounds %>
+  <% else %>
+    <%= surface_card(title: "Chaveamento", subtitle: "Rodadas eliminatórias e vencedores de cada confronto", classes: "self-start") do %>
+      <%= empty_state(
+        title: "Sem chaveamento",
+        description: "Quando a fase eliminatória for gerada, as rodadas aparecem aqui."
+      ) %>
+    <% end %>
+  <% end %>
+</section>
+
+<section id="estatisticas" class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
+  <%= surface_card(title: "Classificação", subtitle: "Ranking atual", classes: "self-start") do %>
+    <div class="space-y-3">
+      <% if @tranca_standings.any? %>
+        <% @tranca_standings.each do |row| %>
+          <div class="flex items-center justify-between gap-4 rounded-2xl bg-base-200 px-4 py-3">
+            <div class="flex items-center gap-3">
+              <span class="badge badge-primary"><%= row.posicao %></span>
+              <div>
+                <p class="font-semibold"><%= row.dupla %></p>
+                <p class="text-xs text-base-content/60"><%= row.pontos %> pts</p>
+              </div>
+            </div>
+            <p class="text-lg font-black text-primary"><%= row.pontos %></p>
+          </div>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem classificação",
+          description: "Quando os jogos forem processados, as posições aparecerão aqui."
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= surface_card(title: "Estatísticas", subtitle: "Resumo operacional da Tranca", classes: "self-start") do %>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Mãos</p>
+        <p class="mt-2 text-2xl font-black"><%= @tranca_stats[:total_maos] %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Finalizadas</p>
+        <p class="mt-2 text-2xl font-black"><%= @tranca_stats[:total_finalizadas] %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Mata-mata</p>
+        <p class="mt-2 text-2xl font-black"><%= @tranca_stats[:total_mata_mata] %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Líder</p>
+        <p class="mt-2 text-lg font-semibold"><%= @tranca_stats[:top_dupla]&.name || "Sem liderança" %></p>
+        <p class="text-xs text-base-content/60"><%= @tranca_stats[:top_points] %> pts</p>
+      </div>
+    </div>
+  <% end %>
+</section>
+
+<section class="grid gap-6 xl:grid-cols-2">
+  <%= surface_card(title: "Próximos jogos", subtitle: "Mesas agendadas", classes: "self-start") do %>
+    <div class="space-y-3">
+      <% if @tranca_upcoming_matches.any? %>
+        <% @tranca_upcoming_matches.each do |match| %>
+          <%= match_card(match, compact: true) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem jogos agendados",
+          description: "As partidas futuras aparecerão aqui."
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+</section>

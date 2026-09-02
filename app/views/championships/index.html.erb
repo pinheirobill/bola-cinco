@@ -22,6 +22,7 @@
         <thead>
           <tr>
             <th>Nome</th>
+            <th>Modalidade</th>
             <th>Temporada</th>
             <th>Status</th>
             <th>Categorias</th>
@@ -32,6 +33,7 @@
           <% @championships.each do |championship| %>
             <tr>
               <td class="font-medium"><%= championship.name %></td>
+              <td><%= championship.modality_label %></td>
               <td><%= championship.season %></td>
               <td><%= status_badge(championship.status) %></td>
               <td><%= championship.categories.size %></td>

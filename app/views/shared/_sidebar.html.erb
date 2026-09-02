@@ -1,47 +1,81 @@
 <div class="flex h-full flex-col gap-6">
   <div>
     <p class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50">Bola Cinco</p>
-    <h2 class="mt-2 text-2xl font-black tracking-tight">Gestão de campeonatos</h2>
+    <h2 class="mt-2 text-2xl font-black tracking-tight">
+      <%= current_championship&.tranca? ? "Gestão da Tranca" : "Gestão de campeonatos" %>
+    </h2>
     <% if current_championship.present? %>
       <p class="mt-2 text-sm text-base-content/70"><%= current_championship.name %></p>
     <% end %>
   </div>
 
   <nav class="flex flex-1 flex-col gap-5" aria-label="Navegação principal">
-    <% nav_groups = [
-      {
-        label: "Visão",
-        items: [
-          ["Portal", root_path],
-          ["Campeonatos", championships_path]
-        ]
-      },
-      {
-        label: "Cadastro",
-        items: [
-          ["Categorias", categories_path],
-          ["Entidades", entities_path],
-          ["Equipes", teams_path],
-          ["Atletas", athletes_path]
-        ]
-      },
-      {
-        label: "Operação",
-        items: [
-          ["Jogos", matches_path],
-          ["Locais", venues_path],
-          ["Árbitros", referees_path],
-          ["Eventos", match_events_path],
-          ["Parceiros", partners_path]
-        ]
-      },
-      {
-        label: "Disciplina",
-        items: [
-          ["Suspensões", suspensions_path]
-        ]
-      }
-    ] %>
+    <% championship_link = current_championship.present? ? championship_path(current_championship) : championships_path %>
+    <% if current_championship&.tranca? %>
+      <% nav_groups = [
+        {
+          label: "Visão",
+          items: [
+            ["Portal", root_path],
+            ["Campeonatos", championships_path]
+          ]
+        },
+        {
+          label: "Tranca",
+          items: [
+            ["Início", championship_link],
+            ["Duplas", duplas_championship_path(current_championship)],
+            ["Partidas", partidas_championship_path(current_championship)],
+            ["Rodadas", rodadas_championship_path(current_championship)],
+            ["Classificação", classificacao_championship_path(current_championship)],
+            ["Regulamento", championship_path(current_championship, anchor: "regulamento")]
+          ]
+        },
+        {
+          label: "Administração",
+          items: [
+            ["Configurar", setup_championship_path(current_championship)],
+            ["Categorias", categories_path],
+            ["Entidades", entities_path]
+          ]
+        }
+      ] %>
+    <% else %>
+      <% nav_groups = [
+        {
+          label: "Visão",
+          items: [
+            ["Portal", root_path],
+            ["Campeonatos", championships_path]
+          ]
+        },
+        {
+          label: "Cadastro",
+          items: [
+            ["Categorias", categories_path],
+            ["Entidades", entities_path],
+            ["Equipes", teams_path],
+            ["Atletas", athletes_path]
+          ]
+        },
+        {
+          label: "Operação",
+          items: [
+            ["Jogos", matches_path],
+            ["Locais", venues_path],
+            ["Árbitros", referees_path],
+            ["Eventos", match_events_path],
+            ["Parceiros", partners_path]
+          ]
+        },
+        {
+          label: "Disciplina",
+          items: [
+            ["Suspensões", suspensions_path]
+          ]
+        }
+      ] %>
+    <% end %>
 
     <% nav_groups.each do |group| %>
       <div class="space-y-2">

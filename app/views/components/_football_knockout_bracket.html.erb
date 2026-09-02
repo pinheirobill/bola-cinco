@@ -1,0 +1,167 @@
+<% brackets = Array(brackets) %>
+
+<div class="rounded-[2rem] border border-base-300 bg-base-100 shadow-sm">
+  <div class="border-b border-base-300 px-6 py-5">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50">Mata-mata</p>
+        <h2 class="mt-2 text-2xl font-black tracking-tight">Chave do mata-mata</h2>
+        <p class="mt-2 text-sm text-base-content/70">Versão compacta da chave eliminatória, sem espaço vazio excessivo.</p>
+      </div>
+      <span class="badge badge-outline"><%= brackets.sum { |bracket| Array(bracket[:rounds]).size } %> rodada(s)</span>
+    </div>
+  </div>
+
+  <div class="space-y-6 bg-[radial-gradient(circle_at_top,rgba(76,111,255,0.08),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(255,183,3,0.11),transparent_24%)] p-6">
+    <% brackets.each do |bracket| %>
+      <% rounds = Array(bracket[:rounds]) %>
+      <% initial_matches = rounds.first&.fetch(:matches, [])&.size.to_i %>
+      <% next if rounds.blank? || initial_matches.zero? %>
+
+      <% row_step = 72 %>
+      <% card_width = 240 %>
+      <% card_height = 90 %>
+      <% column_gap = 268 %>
+      <% left_padding = 18 %>
+      <% top_padding = 52 %>
+      <% total_rows = [initial_matches * 2 - 1, 1].max %>
+      <% canvas_width = left_padding * 2 + ((rounds.size - 1) * column_gap) + card_width + 96 %>
+      <% canvas_height = top_padding + ((total_rows - 1) * row_step) + card_height + 72 %>
+      <% gradient_id = "football-bracket-line-compact-#{bracket[:category]&.id || 'sem-categoria'}-#{rounds.size}-#{initial_matches}" %>
+
+      <section class="overflow-hidden rounded-[1.75rem] border border-base-300 bg-base-200/60 shadow-sm">
+        <div class="border-b border-base-300/70 px-5 py-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Categoria</p>
+              <h3 class="mt-1 text-xl font-bold"><%= bracket[:category]&.name || "Sem categoria" %></h3>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="badge badge-neutral"><%= rounds.size %> rodada(s)</span>
+              <span class="badge badge-outline"><%= rounds.sum { |round| Array(round[:matches]).size } %> jogo(s)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-5 pt-4">
+          <div class="ml-auto w-full max-w-[12rem] rounded-[1.5rem] border border-base-300 bg-base-100/95 px-4 py-4 text-center shadow-sm backdrop-blur">
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full border-2 border-amber-300/70 bg-gradient-to-br from-amber-100 to-white shadow">
+              <span class="text-2xl leading-none">🏆</span>
+            </div>
+            <p class="mt-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-base-content/50">Campeão</p>
+            <p class="mt-1 text-sm font-black tracking-tight text-base-content"><%= bracket[:category]&.name || "Chave" %></p>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto px-4 pb-4">
+          <div
+            class="relative min-w-max overflow-hidden rounded-[1.5rem] border border-base-300/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(245,247,255,0.9))] p-4"
+            style="min-width: <%= canvas_width %>px; height: <%= canvas_height %>px;"
+          >
+            <div class="pointer-events-none absolute inset-0 rounded-[1.5rem] bg-[radial-gradient(circle_at_top_left,rgba(76,111,255,0.12),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,183,3,0.12),transparent_24%)]"></div>
+
+            <svg
+              class="pointer-events-none absolute inset-0 z-0"
+              viewBox="0 0 <%= canvas_width %> <%= canvas_height %>"
+              fill="none"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="<%= gradient_id %>" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0%" stop-color="#64748b" stop-opacity="0.16" />
+                  <stop offset="100%" stop-color="#64748b" stop-opacity="0.7" />
+                </linearGradient>
+              </defs>
+
+              <% rounds.each_with_index do |round, round_index| %>
+                <% next_round = rounds[round_index + 1] %>
+                <% next unless next_round.present? %>
+
+                <% Array(next_round[:matches]).each_with_index do |_, parent_index| %>
+                  <% child_a = Array(round[:matches])[parent_index * 2] %>
+                  <% child_b = Array(round[:matches])[parent_index * 2 + 1] %>
+                  <% next unless child_a.present? && child_b.present? %>
+
+                  <% child_a_slot = ((2**round_index) * (2 * (parent_index * 2) + 1)) - 1 %>
+                  <% child_b_slot = ((2**round_index) * (2 * (parent_index * 2 + 1) + 1)) - 1 %>
+                  <% parent_slot = ((2**(round_index + 1)) * (2 * parent_index + 1)) - 1 %>
+                  <% child_a_y = top_padding + (child_a_slot * row_step) + (card_height / 2) %>
+                  <% child_b_y = top_padding + (child_b_slot * row_step) + (card_height / 2) %>
+                  <% parent_y = top_padding + (parent_slot * row_step) + (card_height / 2) %>
+                  <% child_x = left_padding + (round_index * column_gap) + card_width %>
+                  <% merge_x = child_x + 26 %>
+                  <% parent_x = left_padding + ((round_index + 1) * column_gap) %>
+
+                  <line x1="<%= child_x %>" y1="<%= child_a_y %>" x2="<%= merge_x %>" y2="<%= child_a_y %>" stroke="url(#<%= gradient_id %>)" stroke-width="2.5" stroke-linecap="round" />
+                  <line x1="<%= child_x %>" y1="<%= child_b_y %>" x2="<%= merge_x %>" y2="<%= child_b_y %>" stroke="url(#<%= gradient_id %>)" stroke-width="2.5" stroke-linecap="round" />
+                  <line x1="<%= merge_x %>" y1="<%= child_a_y %>" x2="<%= merge_x %>" y2="<%= child_b_y %>" stroke="url(#<%= gradient_id %>)" stroke-width="2.5" stroke-linecap="round" />
+                  <line x1="<%= merge_x %>" y1="<%= parent_y %>" x2="<%= parent_x %>" y2="<%= parent_y %>" stroke="url(#<%= gradient_id %>)" stroke-width="2.5" stroke-linecap="round" />
+                <% end %>
+              <% end %>
+            </svg>
+
+            <div class="pointer-events-none absolute inset-x-0 top-3 z-20">
+              <% rounds.each_with_index do |round, round_index| %>
+                <div class="absolute" style="left: <%= left_padding + (round_index * column_gap) %>px; width: <%= card_width %>px;">
+                  <div class="mx-auto w-fit rounded-full border border-base-300 bg-base-100 px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-base-content/60 shadow-sm">
+                    <%= round[:label] %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <% rounds.each_with_index do |round, round_index| %>
+              <% Array(round[:matches]).each_with_index do |match, match_index| %>
+                <% slot_index = ((2**round_index) * (2 * match_index + 1)) - 1 %>
+                <% top = top_padding + (slot_index * row_step) %>
+                <% left = left_padding + (round_index * column_gap) %>
+                <% team_a_label = match.team_a_label.presence || "Confronto a definir" %>
+                <% team_b_label = match.team_b_label.presence || "Confronto a definir" %>
+
+                <%= link_to match_path(match), class: "absolute z-10 block no-underline", style: "left: #{left}px; top: #{top}px; width: #{card_width}px; height: #{card_height}px;" do %>
+                  <div class="flex h-full flex-col rounded-2xl border border-base-300 bg-base-100 px-3 py-2.5 shadow-sm transition hover:border-primary hover:bg-base-200">
+                    <div class="flex items-start gap-2">
+                      <div class="min-w-0 flex-1 space-y-0.5">
+                        <p class="truncate text-[12px] font-semibold leading-tight text-base-content"><%= team_a_label %></p>
+                        <p class="truncate text-[12px] font-semibold leading-tight text-base-content"><%= team_b_label %></p>
+                      </div>
+                      <div class="shrink-0 rounded-xl bg-base-200 px-2.5 py-1.5 text-right">
+                        <p class="whitespace-nowrap text-[15px] font-black leading-none tabular-nums tracking-tight"><%= match.score_a || "-" %> x <%= match.score_b || "-" %></p>
+                      </div>
+                    </div>
+
+                    <% schedule_pills = [
+                      match.scheduled_on&.strftime("%d/%m/%Y"),
+                      match.scheduled_time,
+                      match.venue_name
+                    ].compact %>
+
+                    <div class="mt-1.5 flex flex-wrap gap-1.5">
+                      <% schedule_pills.each do |pill| %>
+                        <span class="badge badge-ghost badge-sm max-w-full truncate"><%= pill %></span>
+                      <% end %>
+                    </div>
+
+                    <div class="mt-auto flex flex-wrap items-center gap-1.5 pt-1.5">
+                      <span class="badge <%= match.status.to_s == 'finalizado' ? 'badge-success' : 'badge-warning' %> badge-sm"><%= match.status.humanize %></span>
+                      <% if match.winner.present? %>
+                        <span class="badge badge-outline badge-sm border-amber-300/50 bg-amber-100/80 text-amber-950">
+                          🏆 <%= match.winner_label %>
+                        </span>
+                      <% elsif match.status_finalizado? %>
+                        <span class="badge badge-warning badge-sm">Ver súmula</span>
+                      <% else %>
+                        <span class="badge badge-neutral badge-sm">Em aberto</span>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            <% end %>
+
+          </div>
+        </div>
+      </section>
+    <% end %>
+  </div>
+</div>

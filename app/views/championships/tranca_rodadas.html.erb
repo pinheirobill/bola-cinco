@@ -1,0 +1,80 @@
+<% content_for :title, "#{@championship.name} | Rodadas | Bola Cinco" %>
+
+<%= page_header(
+  title: "#{@championship.name} · Rodadas",
+  subtitle: "Estrutura das rodadas e fases da Tranca.",
+  badge: @championship.status.to_s.tr("_", " ").humanize,
+  actions: [
+    link_to("Início", championship_path(@championship), class: "btn btn-outline"),
+    link_to("Duplas", duplas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Classificação", classificacao_championship_path(@championship), class: "btn btn-primary")
+  ]
+) %>
+
+<%= stats_grid([
+  { label: "Rodadas", value: @tranca_total_rodadas, value_class: "text-2xl" },
+  { label: "Fases", value: @tranca_rodadas.map(&:phase).uniq.size, value_class: "text-2xl" },
+  { label: "Partidas", value: @tranca_total_partidas, value_class: "text-2xl" },
+  { label: "Duplas", value: @tranca_total_duplas, value_class: "text-2xl" }
+]) %>
+
+<% if user_signed_in? && @championship.manageable_by?(current_user) %>
+  <%= surface_card(title: "Gerar rodada", subtitle: "Cria a rodada e as partidas da Tranca a partir das duplas cadastradas.") do %>
+    <div class="grid gap-4 lg:grid-cols-2">
+      <%= form_with url: generate_tranca_round_championship_path(@championship), method: :post, class: "rounded-3xl border border-base-300 bg-base-100 p-4 text-left hover:border-primary/40" do %>
+        <%= hidden_field_tag :phase, "classificatoria" %>
+        <%= hidden_field_tag :round_number, @tranca_next_round_number %>
+        <%= button_tag type: :submit, class: "block w-full text-left" do %>
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Classificatória</p>
+          <p class="mt-2 text-lg font-semibold">Gerar próxima rodada</p>
+          <p class="mt-1 text-sm text-base-content/70">Usa a próxima numeração disponível na fase classificatória.</p>
+        <% end %>
+      <% end %>
+
+      <%= form_with url: generate_tranca_round_championship_path(@championship), method: :post, class: "rounded-3xl border border-base-300 bg-base-100 p-4 text-left hover:border-primary/40" do %>
+        <%= hidden_field_tag :phase, "mata_mata" %>
+        <%= hidden_field_tag :round_number, @tranca_next_knockout_round_number %>
+        <%= button_tag type: :submit, class: "block w-full text-left" do %>
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Mata-mata</p>
+          <p class="mt-2 text-lg font-semibold">Gerar chave eliminatória</p>
+          <p class="mt-1 text-sm text-base-content/70">Abre a próxima rodada do chaveamento com os vencedores anteriores.</p>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= surface_card(title: "Rodadas", subtitle: "As partidas podem ser organizadas por fase e número.") do %>
+  <% if @tranca_rodadas.any? %>
+    <div class="space-y-6">
+      <% @tranca_rodadas.each do |round| %>
+        <div class="rounded-3xl bg-base-200 p-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="text-xl font-bold"><%= round.label %></h3>
+              <p class="mt-1 text-sm text-base-content/60"><%= round.partidas.size %> partida(s) · <%= round.mesas.size %> mesa(s)</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="badge badge-outline"><%= round.phase_label %></span>
+              <% if user_signed_in? && @championship.manageable_by?(current_user) %>
+                <%= button_to "Definir mesas", generate_tranca_mesas_championship_path(@championship, rodada_id: round.id), method: :post, class: "btn btn-outline btn-xs" %>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="mt-4 space-y-3">
+            <% round.partidas.each do |match| %>
+              <%= match_card(match, compact: true) %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <%= empty_state(
+      title: "Nenhuma rodada cadastrada",
+      description: "A Tranca exibirá as rodadas aqui quando os jogos forem organizados."
+    ) %>
+  <% end %>
+<% end %>

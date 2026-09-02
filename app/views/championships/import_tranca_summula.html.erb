@@ -1,0 +1,195 @@
+<% content_for :title, "Importar súmula | Bola Cinco" %>
+
+<%= page_header(
+  title: "Importar súmula",
+  subtitle: "#{@partida.code} · #{@partida.category.name}",
+  badge: @championship.name,
+  actions: [
+    link_to("Voltar às partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Baixar súmula", download_tranca_summula_championship_path(@championship, partida_id: @partida.id), class: "btn btn-primary")
+  ]
+) %>
+
+<% if @import_preview.present? %>
+  <% header = @import_preview[:header] || {} %>
+  <% hands = Array(@import_preview[:hands]) %>
+  <% extracted_lines_count = Array(@import_preview[:extracted_lines]).size %>
+
+  <section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+    <%= surface_card(
+      title: "Prévia detectada",
+      subtitle: "O sistema leu o arquivo enviado e abriu a conferência com os dados principais."
+    ) do %>
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4 md:col-span-2">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Arquivo enviado</p>
+          <p class="mt-2 text-lg font-semibold"><%= @import_preview[:file_name] %></p>
+          <% if @import_file_data_url.present? %>
+            <div class="mt-4 overflow-hidden rounded-2xl border border-base-300 bg-base-100">
+              <%= image_tag @import_file_data_url, class: "max-h-[28rem] w-full object-contain" %>
+            </div>
+          <% end %>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-3 md:col-span-2">
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Linhas lidas</p>
+            <p class="mt-2 text-2xl font-black"><%= extracted_lines_count %></p>
+          </div>
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Mãos detectadas</p>
+            <p class="mt-2 text-2xl font-black"><%= hands.size %></p>
+          </div>
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Placar sugerido</p>
+            <p class="mt-2 text-2xl font-black"><%= header[:score_a].presence || "-" %> x <%= header[:score_b].presence || "-" %></p>
+          </div>
+        </div>
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Dupla A</p>
+          <p class="mt-2 text-lg font-semibold"><%= header[:team_a_name].presence || @partida.dupla_a_nome || "-" %></p>
+        </div>
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Dupla B</p>
+          <p class="mt-2 text-lg font-semibold"><%= header[:team_b_name].presence || @partida.dupla_b_nome || "-" %></p>
+        </div>
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Data</p>
+          <p class="mt-2 text-lg font-semibold"><%= header[:date].presence || @partida.scheduled_on&.strftime("%d/%m/%Y") || "-" %></p>
+        </div>
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Mesa / Jogo</p>
+          <p class="mt-2 text-lg font-semibold"><%= [header[:mesa], header[:code], @partida.code].compact.join(" · ") %></p>
+        </div>
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4 md:col-span-2">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Observações</p>
+          <% if @import_preview[:warnings].present? %>
+            <ul class="mt-3 space-y-2 text-sm text-base-content/75">
+              <% @import_preview[:warnings].each do |warning| %>
+                <li class="rounded-2xl border border-warning/30 bg-warning/10 px-3 py-2"><%= warning %></li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="mt-2 text-sm text-base-content/70">Nenhuma divergência crítica encontrada.</p>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <%= surface_card(
+      title: "Conferência",
+      subtitle: "Revise os campos detectados, ajuste se necessário e confirme o salvamento."
+    ) do %>
+      <%= form_with url: import_tranca_summula_championship_path(@championship, partida_id: @partida.id), method: :post, class: "space-y-4" do %>
+        <%= hidden_field_tag "tranca_summula_import[confirm]", "1" %>
+        <%= hidden_field_tag "tranca_summula_import[token]", @import_token %>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="form-control gap-2">
+            <label class="label-text font-medium" for="tranca_summula_import_score_a">Placar da dupla A</label>
+            <%= number_field_tag "tranca_summula_import[score_a]", header[:score_a], class: "input input-bordered w-full", id: "tranca_summula_import_score_a", min: 0 %>
+          </div>
+          <div class="form-control gap-2">
+            <label class="label-text font-medium" for="tranca_summula_import_score_b">Placar da dupla B</label>
+            <%= number_field_tag "tranca_summula_import[score_b]", header[:score_b], class: "input input-bordered w-full", id: "tranca_summula_import_score_b", min: 0 %>
+          </div>
+          <div class="form-control gap-2 md:col-span-2">
+            <label class="label-text font-medium" for="tranca_summula_import_winner_name">Dupla vencedora</label>
+            <%= select_tag "tranca_summula_import[winner_name]",
+                  options_for_select([
+                    [@partida.dupla_a_nome, @partida.dupla_a_nome],
+                    [@partida.dupla_b_nome, @partida.dupla_b_nome]
+                  ], header[:winner_name]),
+                  include_blank: "Automático",
+                  class: "select select-bordered w-full",
+                  id: "tranca_summula_import_winner_name" %>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-3xl border border-base-300">
+          <table class="table table-zebra table-sm">
+            <thead class="bg-base-200">
+              <tr>
+                <th>Mão</th>
+                <th>Pts A</th>
+                <th>Pts B</th>
+                <th>CL A</th>
+                <th>CL B</th>
+                <th>CS A</th>
+                <th>CS B</th>
+                <th>B A</th>
+                <th>B B</th>
+                <th>3V A</th>
+                <th>3V B</th>
+                <th>Desc. A</th>
+                <th>Desc. B</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% 4.times do |index| %>
+                <% hand = hands[index] || {} %>
+                <tr>
+                  <td class="w-24">
+                    <%= hidden_field_tag "tranca_summula_import[maos_attributes][#{index}][source_id]", hand[:source_id] %>
+                    <%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][numero]", hand[:numero] || index + 1, class: "input input-bordered input-sm w-20", placeholder: "#" %>
+                  </td>
+                  <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][pontos_a]", hand[:pontos_a], class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
+                  <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][pontos_b]", hand[:pontos_b], class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
+                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][canastra_limpa_a]", "1", hand[:canastra_limpa_a], class: "checkbox checkbox-primary checkbox-sm" %></td>
+                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][canastra_limpa_b]", "1", hand[:canastra_limpa_b], class: "checkbox checkbox-primary checkbox-sm" %></td>
+                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][canastra_suja_a]", "1", hand[:canastra_suja_a], class: "checkbox checkbox-primary checkbox-sm" %></td>
+                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][canastra_suja_b]", "1", hand[:canastra_suja_b], class: "checkbox checkbox-primary checkbox-sm" %></td>
+                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][batida_a]", "1", hand[:batida_a], class: "checkbox checkbox-primary checkbox-sm" %></td>
+                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][batida_b]", "1", hand[:batida_b], class: "checkbox checkbox-primary checkbox-sm" %></td>
+                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][tres_vermelho_a]", "1", hand[:tres_vermelho_a], class: "checkbox checkbox-primary checkbox-sm" %></td>
+                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][tres_vermelho_b]", "1", hand[:tres_vermelho_b], class: "checkbox checkbox-primary checkbox-sm" %></td>
+                  <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][desconto_a]", hand[:desconto_a] || 0, class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
+                  <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][desconto_b]", hand[:desconto_b] || 0, class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <%= link_to "Cancelar", partidas_championship_path(@championship), class: "btn btn-outline" %>
+          <%= button_tag "Confirmar e salvar", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    <% end %>
+  </section>
+<% else %>
+  <section class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
+    <%= surface_card(
+      title: "Enviar arquivo",
+      subtitle: "Escolha um PDF ou foto da súmula para gerar a prévia e confirmar depois."
+    ) do %>
+      <%= form_with url: import_tranca_summula_championship_path(@championship, partida_id: @partida.id), method: :post, multipart: true, class: "space-y-4" do %>
+        <div class="form-control gap-2">
+          <label class="label-text font-medium" for="tranca_summula_import_file">PDF ou foto da súmula</label>
+          <input id="tranca_summula_import_file" type="file" name="tranca_summula_import[file]" accept="application/pdf,image/*,.pdf,.jpg,.jpeg,.png" class="file-input file-input-bordered w-full" required>
+        </div>
+
+        <div class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/70">
+          O sistema tenta ler o arquivo e abre a conferência antes de gravar o resultado.
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <%= link_to "Cancelar", partidas_championship_path(@championship), class: "btn btn-outline" %>
+          <%= button_tag "Enviar arquivo", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    <% end %>
+
+    <%= surface_card(
+      title: "Como funciona",
+      subtitle: "Fluxo pensado para a súmula impressa"
+    ) do %>
+      <div class="space-y-3 text-sm text-base-content/75">
+        <p>1. Baixe a súmula da partida.</p>
+        <p>2. Preencha manualmente no papel.</p>
+        <p>3. Fotografe ou envie o PDF preenchido.</p>
+        <p>4. Confirme a prévia detectada e salve.</p>
+      </div>
+    <% end %>
+  </section>
+<% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_01_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_02_123000) do
   create_table "athletes", force: :cascade do |t|
     t.string "birth_certificate"
     t.date "birth_date"
@@ -113,6 +113,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_140000) do
     t.datetime "created_at", null: false
     t.date "end_date"
     t.json "format", default: {}, null: false
+    t.string "modality", default: "football", null: false
     t.string "name", null: false
     t.text "notes"
     t.date "registration_end"
@@ -125,6 +126,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_140000) do
     t.date "start_date"
     t.string "status", default: "rascunho", null: false
     t.datetime "updated_at", null: false
+    t.index ["modality"], name: "index_championships_on_modality"
     t.index ["season"], name: "index_championships_on_season"
     t.index ["slug"], name: "index_championships_on_slug", unique: true
     t.index ["source_id"], name: "index_championships_on_source_id", unique: true
@@ -426,6 +428,172 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_140000) do
     t.index ["source_id"], name: "index_teams_on_source_id", unique: true
   end
 
+  create_table "tranca_classificacao_rows", force: :cascade do |t|
+    t.integer "category_id", null: false
+    t.integer "championship_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "draws", default: 0, null: false
+    t.integer "goal_diff", default: 0, null: false
+    t.integer "goals_against", default: 0, null: false
+    t.integer "goals_for", default: 0, null: false
+    t.string "group_key", default: "", null: false
+    t.integer "losses", default: 0, null: false
+    t.integer "played", default: 0, null: false
+    t.integer "points", default: 0, null: false
+    t.integer "position", null: false
+    t.boolean "qualified"
+    t.string "source_id", null: false
+    t.integer "tranca_dupla_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "wins", default: 0, null: false
+    t.index ["category_id", "group_key", "tranca_dupla_id"], name: "index_tranca_classificacao_rows_on_group_and_dupla", unique: true
+    t.index ["category_id"], name: "index_tranca_classificacao_rows_on_category_id"
+    t.index ["championship_id", "category_id", "group_key", "position"], name: "index_tranca_classificacao_rows_on_scope_and_position", unique: true
+    t.index ["championship_id"], name: "index_tranca_classificacao_rows_on_championship_id"
+    t.index ["source_id"], name: "index_tranca_classificacao_rows_on_source_id", unique: true
+    t.index ["tranca_dupla_id"], name: "index_tranca_classificacao_rows_on_tranca_dupla_id"
+  end
+
+  create_table "tranca_dupla_memberships", force: :cascade do |t|
+    t.integer "athlete_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "position"
+    t.string "shirt_number"
+    t.string "source_id", null: false
+    t.integer "tranca_dupla_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["athlete_id"], name: "index_tranca_dupla_memberships_on_athlete_id"
+    t.index ["source_id"], name: "index_tranca_dupla_memberships_on_source_id", unique: true
+    t.index ["tranca_dupla_id", "athlete_id"], name: "index_tranca_dupla_memberships_on_dupla_and_athlete", unique: true
+    t.index ["tranca_dupla_id"], name: "index_tranca_dupla_memberships_on_tranca_dupla_id"
+  end
+
+  create_table "tranca_duplas", force: :cascade do |t|
+    t.integer "category_id", null: false
+    t.integer "championship_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "entity_id"
+    t.string "name", null: false
+    t.string "registration_status", default: "aprovada", null: false
+    t.string "short_name"
+    t.string "source_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_tranca_duplas_on_category_id"
+    t.index ["championship_id", "category_id", "name"], name: "index_tranca_duplas_on_scope_and_name", unique: true
+    t.index ["championship_id"], name: "index_tranca_duplas_on_championship_id"
+    t.index ["entity_id"], name: "index_tranca_duplas_on_entity_id"
+    t.index ["source_id"], name: "index_tranca_duplas_on_source_id", unique: true
+  end
+
+  create_table "tranca_mesas", force: :cascade do |t|
+    t.integer "championship_id", null: false
+    t.string "code", null: false
+    t.datetime "created_at", null: false
+    t.string "location"
+    t.string "name", null: false
+    t.string "source_id", null: false
+    t.string "status", default: "disponivel", null: false
+    t.integer "tranca_rodada_id"
+    t.datetime "updated_at", null: false
+    t.index ["championship_id", "code"], name: "index_tranca_mesas_on_scope_and_code", unique: true
+    t.index ["championship_id"], name: "index_tranca_mesas_on_championship_id"
+    t.index ["source_id"], name: "index_tranca_mesas_on_source_id", unique: true
+    t.index ["tranca_rodada_id"], name: "index_tranca_mesas_on_tranca_rodada_id"
+  end
+
+  create_table "tranca_partida_maos", force: :cascade do |t|
+    t.boolean "batida_a", default: false, null: false
+    t.boolean "batida_b", default: false, null: false
+    t.boolean "canastra_limpa_a", default: false, null: false
+    t.boolean "canastra_limpa_b", default: false, null: false
+    t.boolean "canastra_suja_a", default: false, null: false
+    t.boolean "canastra_suja_b", default: false, null: false
+    t.integer "championship_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "desconto_a", default: 0, null: false
+    t.integer "desconto_b", default: 0, null: false
+    t.integer "numero", null: false
+    t.text "observacoes"
+    t.integer "pontos_a", default: 0, null: false
+    t.integer "pontos_b", default: 0, null: false
+    t.json "source_data", default: {}, null: false
+    t.string "source_id", null: false
+    t.integer "tranca_partida_id", null: false
+    t.boolean "tres_vermelho_a", default: false, null: false
+    t.boolean "tres_vermelho_b", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.index ["championship_id", "tranca_partida_id"], name: "index_tranca_partida_maos_on_scope"
+    t.index ["championship_id"], name: "index_tranca_partida_maos_on_championship_id"
+    t.index ["source_id"], name: "index_tranca_partida_maos_on_source_id", unique: true
+    t.index ["tranca_partida_id", "numero"], name: "index_tranca_partida_maos_on_partida_and_numero", unique: true
+    t.index ["tranca_partida_id"], name: "index_tranca_partida_maos_on_tranca_partida_id"
+  end
+
+  create_table "tranca_partidas", force: :cascade do |t|
+    t.integer "category_id", null: false
+    t.integer "championship_id", null: false
+    t.string "code", null: false
+    t.datetime "created_at", null: false
+    t.string "decision"
+    t.integer "dupla_a_id"
+    t.integer "dupla_b_id"
+    t.string "group_key"
+    t.integer "penalties_a"
+    t.integer "penalties_b"
+    t.string "phase", null: false
+    t.integer "round_number"
+    t.date "scheduled_on"
+    t.string "scheduled_time"
+    t.integer "score_a"
+    t.integer "score_b"
+    t.json "source_data", default: {}, null: false
+    t.string "source_id", null: false
+    t.string "status", default: "agendado", null: false
+    t.integer "tranca_mesa_id"
+    t.integer "tranca_rodada_id"
+    t.datetime "updated_at", null: false
+    t.integer "winner_id"
+    t.string "wo"
+    t.index ["category_id"], name: "index_tranca_partidas_on_category_id"
+    t.index ["championship_id", "phase", "round_number"], name: "index_tranca_partidas_on_scope_phase_round"
+    t.index ["championship_id", "scheduled_on"], name: "index_tranca_partidas_on_championship_and_date"
+    t.index ["championship_id"], name: "index_tranca_partidas_on_championship_id"
+    t.index ["dupla_a_id"], name: "index_tranca_partidas_on_dupla_a_id"
+    t.index ["dupla_b_id"], name: "index_tranca_partidas_on_dupla_b_id"
+    t.index ["source_id"], name: "index_tranca_partidas_on_source_id", unique: true
+    t.index ["tranca_mesa_id"], name: "index_tranca_partidas_on_tranca_mesa_id"
+    t.index ["tranca_rodada_id"], name: "index_tranca_partidas_on_tranca_rodada_id"
+    t.index ["winner_id"], name: "index_tranca_partidas_on_winner_id"
+  end
+
+  create_table "tranca_rodadas", force: :cascade do |t|
+    t.integer "championship_id", null: false
+    t.datetime "created_at", null: false
+    t.date "ends_on"
+    t.string "label", null: false
+    t.string "phase", null: false
+    t.integer "round_number", null: false
+    t.string "source_id", null: false
+    t.date "starts_on"
+    t.string "status", default: "programada", null: false
+    t.datetime "updated_at", null: false
+    t.index ["championship_id", "phase", "round_number"], name: "index_tranca_rodadas_on_scope_and_round", unique: true
+    t.index ["championship_id"], name: "index_tranca_rodadas_on_championship_id"
+    t.index ["source_id"], name: "index_tranca_rodadas_on_source_id", unique: true
+  end
+
+  create_table "tranca_settings", force: :cascade do |t|
+    t.integer "championship_id", null: false
+    t.datetime "created_at", null: false
+    t.json "format", default: {}, null: false
+    t.json "rules", default: {}, null: false
+    t.json "scoring", default: {}, null: false
+    t.string "source_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["championship_id"], name: "index_tranca_settings_on_championship_id", unique: true
+    t.index ["source_id"], name: "index_tranca_settings_on_source_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
@@ -505,5 +673,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_01_140000) do
   add_foreign_key "team_memberships", "users"
   add_foreign_key "teams", "categories"
   add_foreign_key "teams", "entities"
+  add_foreign_key "tranca_classificacao_rows", "categories"
+  add_foreign_key "tranca_classificacao_rows", "championships"
+  add_foreign_key "tranca_classificacao_rows", "tranca_duplas"
+  add_foreign_key "tranca_dupla_memberships", "athletes"
+  add_foreign_key "tranca_dupla_memberships", "tranca_duplas"
+  add_foreign_key "tranca_duplas", "categories"
+  add_foreign_key "tranca_duplas", "championships"
+  add_foreign_key "tranca_duplas", "entities"
+  add_foreign_key "tranca_mesas", "championships"
+  add_foreign_key "tranca_mesas", "tranca_rodadas"
+  add_foreign_key "tranca_partida_maos", "championships"
+  add_foreign_key "tranca_partida_maos", "tranca_partidas"
+  add_foreign_key "tranca_partidas", "categories"
+  add_foreign_key "tranca_partidas", "championships"
+  add_foreign_key "tranca_partidas", "tranca_duplas", column: "dupla_a_id"
+  add_foreign_key "tranca_partidas", "tranca_duplas", column: "dupla_b_id"
+  add_foreign_key "tranca_partidas", "tranca_duplas", column: "winner_id"
+  add_foreign_key "tranca_partidas", "tranca_mesas"
+  add_foreign_key "tranca_partidas", "tranca_rodadas"
+  add_foreign_key "tranca_rodadas", "championships"
+  add_foreign_key "tranca_settings", "championships"
   add_foreign_key "venues", "championships"
 end

@@ -31,6 +31,11 @@
       </div>
 
       <div class="form-control gap-2">
+        <%= form.label :modality, "Modalidade", class: "label-text font-medium" %>
+        <%= form.select :modality, Championship.modality_options, {}, class: "select select-bordered w-full" %>
+      </div>
+
+      <div class="form-control gap-2">
         <%= form.label :season, "Temporada", class: "label-text font-medium" %>
         <%= form.number_field :season, class: "input input-bordered w-full" %>
       </div>

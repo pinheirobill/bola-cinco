@@ -1,0 +1,85 @@
+<% content_for :title, "Portal Futebol | Bola Cinco" %>
+
+<%= page_header(
+  title: "Portal de Futebol",
+  subtitle: "Entrada dedicada ao futebol, com o visual atual e acesso ao ecossistema já existente.",
+  badge: "Futebol",
+  actions: [
+    link_to("Campeonatos", championships_path, class: "btn btn-primary"),
+    (user_signed_in? ? link_to("Área administrativa", root_path, class: "btn btn-outline") : link_to("Entrar", football_login_path, class: "btn btn-outline"))
+  ]
+) %>
+
+<%= stats_grid([
+  { label: "Campeonatos", value: @championships.size, description: "Disponíveis em futebol" },
+  { label: "Atual", value: @championship&.name || "-", description: @championship&.modality_label || "Sem campeonato" },
+  { label: "Jogos", value: @championship&.matches&.count.to_i, description: "No campeonato principal" },
+  { label: "Atletas", value: @top_athletes.size, description: "Em destaque" }
+]) %>
+
+<section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+  <%= surface_card(title: "Campeonato de futebol em destaque", subtitle: @championship&.name || "Nenhum campeonato de futebol disponível") do %>
+    <% if @championship.present? %>
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Temporada</p>
+          <p class="mt-2 text-2xl font-bold"><%= @championship.season %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status</p>
+          <p class="mt-2 text-2xl font-bold"><%= @championship.status.titleize %></p>
+        </div>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="badge badge-neutral"><%= @championship.competition_mode_label %></span>
+        <span class="badge badge-neutral"><%= @championship.categories.count %> categorias</span>
+      </div>
+    <% else %>
+      <%= empty_state(
+        title: "Sem campeonato em destaque",
+        description: "Quando houver um campeonato de futebol disponível, ele aparecerá aqui."
+      ) %>
+    <% end %>
+  <% end %>
+
+  <%= surface_card(title: "Atalhos", subtitle: "Entradas rápidas do futebol.") do %>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <%= link_to "Classificação", standing_rows_path, class: "btn btn-outline btn-block justify-start" %>
+      <%= link_to "Equipes", teams_path, class: "btn btn-outline btn-block justify-start" %>
+      <%= link_to "Atletas", athletes_path, class: "btn btn-outline btn-block justify-start" %>
+      <%= link_to "Portal atual", root_path, class: "btn btn-outline btn-block justify-start" %>
+    </div>
+  <% end %>
+</section>
+
+<section class="grid gap-6 xl:grid-cols-2">
+  <%= surface_card(title: "Últimos jogos") do %>
+    <div class="space-y-3">
+      <% if @top_matches.any? %>
+        <% @top_matches.each do |match| %>
+          <%= match_card(match, compact: true) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem jogos recentes",
+          description: "As partidas de futebol aparecem aqui quando houver registros."
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= surface_card(title: "Top atletas") do %>
+    <div class="space-y-3">
+      <% if @top_athletes.any? %>
+        <% @top_athletes.each do |athlete| %>
+          <%= ranking_entry_card(athlete) %>
+        <% end %>
+      <% else %>
+        <%= empty_state(
+          title: "Sem atletas em destaque",
+          description: "Os atletas mais relevantes serão listados aqui quando houver dados."
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+</section>

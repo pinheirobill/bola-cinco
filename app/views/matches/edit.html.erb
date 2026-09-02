@@ -25,7 +25,7 @@
       </div>
 
       <div class="mt-6 space-y-6">
-        <div class="grid gap-4 md:grid-cols-3">
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div class="form-control gap-2">
             <%= f.label :group_key, "Grupo", class: "label-text font-medium" %>
             <%= f.text_field :group_key, class: "input input-bordered w-full", placeholder: "Grupo A" %>
@@ -39,6 +39,13 @@
             <%= f.select :wo,
                          options_from_collection_for_select(@available_teams, :name, :name, @match.wo),
                          { include_blank: "Nenhum" },
+                         class: "select select-bordered w-full" %>
+          </div>
+          <div class="form-control gap-2 xl:col-span-2">
+            <%= f.label :winner_id, "Vencedor manual", class: "label-text font-medium" %>
+            <%= f.select :winner_id,
+                         options_from_collection_for_select(@available_teams, :id, :name, @match.winner_id),
+                         { include_blank: "Auto" },
                          class: "select select-bordered w-full" %>
           </div>
         </div>

@@ -1,7 +1,19 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users, controllers: { sessions: "users/sessions" }
   root "home#index"
   get "dashboard", to: redirect("/")
+
+  devise_scope :user do
+    namespace :football do
+      root "home#index"
+      get "login", to: "/users/sessions#new", defaults: { portal: "football" }, as: :login
+    end
+
+    namespace :tranca do
+      root "home#index"
+      get "login", to: "/users/sessions#new", defaults: { portal: "tranca" }, as: :login
+    end
+  end
 
   resources :categories, only: %i[index show]
   resources :entities, only: %i[index show]
@@ -18,6 +30,18 @@ Rails.application.routes.draw do
   end
   resources :championships, only: %i[index new create show update] do
     get :setup, on: :member, path: "configuracao"
+    get :duplas, on: :member, path: "duplas"
+    get :partidas, on: :member, path: "partidas"
+    get :rodadas, on: :member, path: "rodadas"
+    get :classificacao, on: :member, path: "classificacao"
+    post :generate_tranca_round, on: :member, path: "tranca/gerar-rodada"
+    post :generate_tranca_mesas, on: :member, path: "tranca/gerar-mesas"
+    patch :update_tranca_partida, on: :member, path: "tranca/partidas/:partida_id"
+    get :download_tranca_summula, on: :member, path: "tranca/partidas/:partida_id/sumula"
+    get :download_complete_tranca_summula, on: :member, path: "tranca/partidas/:partida_id/sumula-completa"
+    get :import_tranca_summula, on: :member, path: "tranca/partidas/:partida_id/importar-sumula"
+    post :import_tranca_summula, on: :member, path: "tranca/partidas/:partida_id/importar-sumula"
+    patch :rebuild_tranca_classificacao, on: :member, path: "tranca/classificacao/recalcular"
     patch :finalize_onboarding, on: :member, path: "concluir-onboarding"
     patch :finalize_registrations, on: :member, path: "finalizar-inscricoes"
     patch :attach_category, on: :member, path: "vincular-categoria"
@@ -33,7 +57,7 @@ Rails.application.routes.draw do
   resources :championship_memberships, only: :destroy
   resource :team_panel, only: :show, path: "painel-do-time"
   resource :active_championship, only: %i[show create destroy], path: "campeonato-ativo"
-  resources :standing_rows, only: :index, path: "classificacao"
+  resources :standing_rows, only: %i[index create update destroy], path: "classificacao"
   resources :invoices, only: %i[index show]
   resource :theme_preference, only: :update
   resources :venues, only: %i[index show create update destroy] do
@@ -45,7 +69,7 @@ Rails.application.routes.draw do
     patch :detach, on: :member
   end
   resources :partners, only: %i[index show create update destroy]
-  resources :matches, only: %i[index show edit update] do
+  resources :matches, only: %i[index show edit update create] do
     post :import_summula, on: :member, path: "importar-sumula"
     resources :match_reports, only: %i[index create]
     resources :match_events, only: %i[index create], shallow: true
