@@ -56,6 +56,40 @@ class PhaseFivePlatformTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Vincular equipes"
   end
 
+  test "can finalize registrations and generate the initial schedule" do
+    category = Category.create!(
+      source_id: "cat-phase-five-finalize-registrations",
+      championship: @championship_1,
+      name: "Sub 20"
+    )
+
+    entity = Entity.create!(
+      source_id: "entity-phase-five-finalize-registrations",
+      name: "Escola Final"
+    )
+
+    4.times do |index|
+      Team.create!(
+        source_id: "team-phase-five-finalize-registrations-#{index + 1}",
+        entity: entity,
+        category: category,
+        name: "Time Final #{index + 1}"
+      )
+    end
+
+    get championship_path(@championship_1)
+    assert_response :success
+    assert_includes response.body, "Finalizar inscrições"
+
+    assert_difference -> { Match.where(championship: @championship_1, phase: "grupos").count }, 6 do
+      patch finalize_registrations_championship_path(@championship_1)
+    end
+
+    assert_redirected_to championship_path(@championship_1)
+    assert_not @championship_1.reload.team_signup_enabled?
+    assert_equal "em_andamento", @championship_1.status
+  end
+
   test "autosaves championship setup fields without redirecting" do
     patch championship_path(@championship_2), params: {
       autosave: "1",
@@ -158,6 +192,79 @@ class PhaseFivePlatformTest < ActionDispatch::IntegrationTest
     assert_equal category, match.category
     assert_includes [team_1, team_2], match.team_a
     assert_includes [team_1, team_2], match.team_b
+  end
+
+  test "shows the generated knockout key after the draw" do
+    category = Category.create!(
+      source_id: "cat-phase-five-knockout-view",
+      championship: @championship_2,
+      name: "Sub 14"
+    )
+
+    entity = Entity.create!(
+      source_id: "entity-phase-five-knockout-view",
+      name: "Escola V"
+    )
+
+    team_1 = Team.create!(
+      source_id: "team-phase-five-knockout-view-1",
+      entity: entity,
+      category: category,
+      name: "Time V 1"
+    )
+
+    team_2 = Team.create!(
+      source_id: "team-phase-five-knockout-view-2",
+      entity: entity,
+      category: category,
+      name: "Time V 2"
+    )
+
+    @championship_2.draw_initial_knockout_round!
+
+    get setup_championship_path(@championship_2, step: "teams")
+
+    assert_response :success
+    assert_includes response.body, "Sorteio realizado"
+    assert_includes response.body, "Chave"
+    assert_includes response.body, "Rodada 1"
+    assert_includes response.body, "Time V 1"
+    assert_includes response.body, "Time V 2"
+    refute_includes response.body, "Sortear 1ª rodada"
+  end
+
+  test "can finalize onboarding from the teams step" do
+    category = Category.create!(
+      source_id: "cat-phase-five-knockout-finalize",
+      championship: @championship_2,
+      name: "Sub 16"
+    )
+
+    entity = Entity.create!(
+      source_id: "entity-phase-five-knockout-finalize",
+      name: "Escola F"
+    )
+
+    Team.create!(
+      source_id: "team-phase-five-knockout-finalize-1",
+      entity: entity,
+      category: category,
+      name: "Time F 1"
+    )
+
+    Team.create!(
+      source_id: "team-phase-five-knockout-finalize-2",
+      entity: entity,
+      category: category,
+      name: "Time F 2"
+    )
+
+    @championship_2.draw_initial_knockout_round!
+
+    patch finalize_onboarding_championship_path(@championship_2)
+
+    assert_redirected_to championship_path(@championship_2)
+    assert_equal "em_andamento", @championship_2.reload.status
   end
 
   test "can attach an existing team to a championship category" do

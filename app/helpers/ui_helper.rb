@@ -64,10 +64,11 @@ module UiHelper
     }
   end
 
-  def standing_table(category, rows)
+  def standing_table(category, rows, group_key: nil)
     render partial: "components/standing_table", locals: {
       category: category,
-      rows: rows
+      rows: rows,
+      group_key: group_key
     }
   end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_26_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_01_140000) do
   create_table "athletes", force: :cascade do |t|
     t.string "birth_certificate"
     t.date "birth_date"
@@ -337,6 +337,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_180000) do
     t.integer "goal_diff", default: 0, null: false
     t.integer "goals_against", default: 0, null: false
     t.integer "goals_for", default: 0, null: false
+    t.string "group_key", default: "", null: false
     t.integer "losses", default: 0, null: false
     t.integer "played", default: 0, null: false
     t.integer "points", default: 0, null: false
@@ -345,9 +346,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_180000) do
     t.integer "team_id", null: false
     t.datetime "updated_at", null: false
     t.integer "wins", default: 0, null: false
-    t.index ["category_id", "team_id"], name: "index_standing_rows_on_category_id_and_team_id", unique: true
+    t.index ["category_id", "group_key", "team_id"], name: "index_standing_rows_on_category_group_and_team", unique: true
     t.index ["category_id"], name: "index_standing_rows_on_category_id"
-    t.index ["championship_id", "category_id", "position"], name: "index_standing_rows_on_competition_and_position", unique: true
+    t.index ["championship_id", "category_id", "group_key", "position"], name: "index_standing_rows_on_competition_group_and_position", unique: true
     t.index ["championship_id"], name: "index_standing_rows_on_championship_id"
     t.index ["team_id"], name: "index_standing_rows_on_team_id"
   end

@@ -8,18 +8,24 @@ Rails.application.routes.draw do
   resources :teams, only: %i[index show create update destroy] do
     resources :team_memberships, only: %i[index create]
     resources :team_athletes, only: %i[create destroy]
+    patch :confirm_registration, on: :member, path: "confirmar-inscricao"
+    patch :reject_registration, on: :member, path: "rejeitar-inscricao"
   end
   resources :team_memberships, only: :destroy
   resources :athletes, only: %i[index show create update destroy] do
     get :card, on: :member, path: "carteirinha"
     resources :team_links, only: %i[create destroy], controller: "athlete_team_links"
   end
-  resources :championships, only: %i[index show update] do
+  resources :championships, only: %i[index new create show update] do
     get :setup, on: :member, path: "configuracao"
+    patch :finalize_onboarding, on: :member, path: "concluir-onboarding"
+    patch :finalize_registrations, on: :member, path: "finalizar-inscricoes"
     patch :attach_category, on: :member, path: "vincular-categoria"
     patch :detach_category, on: :member, path: "remover-categoria"
     post :draw_knockout_round, on: :member, path: "sortear-primeira-rodada"
     patch :attach_team, on: :member, path: "vincular-time"
+    patch :confirm_all_team_registrations, on: :member, path: "confirmar-todas-inscricoes"
+    patch :attach_partner, on: :member, path: "vincular-parceiro"
     resource :team_signup, only: %i[new create], path: "inscricao-time", controller: "championship_team_signups"
     resource :athlete_signup, only: %i[new create], path: "inscricao-atleta", controller: "championship_athlete_signups"
     resources :championship_memberships, only: %i[index create]
@@ -40,6 +46,7 @@ Rails.application.routes.draw do
   end
   resources :partners, only: %i[index show create update destroy]
   resources :matches, only: %i[index show edit update] do
+    post :import_summula, on: :member, path: "importar-sumula"
     resources :match_reports, only: %i[index create]
     resources :match_events, only: %i[index create], shallow: true
     resources :match_participations, only: %i[create update destroy], shallow: true

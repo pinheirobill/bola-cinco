@@ -2,7 +2,10 @@ class StandingRowsController < ApplicationController
   skip_before_action :authenticate_user!, only: :index
 
   def index
-    @standings_by_category = scoped_standing_rows.includes(:category, :team, :championship).order(:category_id, position: :asc, points: :desc, goal_diff: :desc)
+    grouped_rows = scoped_standing_rows.includes(:category, :team, :championship).order(:category_id, :group_key, position: :asc, points: :desc, goal_diff: :desc)
+    @standing_groups = grouped_rows.group_by { |row| [row.category, row.group_key.to_s] }.map do |(category, group_key), rows|
+      Championship::StandingGroup.new(category: category, group_key: group_key, rows: rows)
+    end.sort_by { |group| [group.category.name.to_s.downcase, group.group_key.to_s.downcase] }
   end
 
   private

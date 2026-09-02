@@ -94,12 +94,60 @@ class PublicPortalTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Top atletas"
     assert_includes response.body, "Inscrição de equipes"
     assert_includes response.body, "championship-team-signup-modal"
+    assert_includes response.body, "Inscrições de equipes"
+    assert_includes response.body, "Quantidade de chaves"
+    assert_includes response.body, "Classificados por chave"
+    assert_includes response.body, @team.name
+  end
+
+  test "admin can confirm all pending team registrations from the championship page" do
+    sign_in users(:one)
+
+    get championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Confirmar todos"
+
+    patch confirm_all_team_registrations_championship_path(@championship)
+
+    assert_redirected_to championship_path(@championship)
+    assert @team.reload.registration_status_aprovada?
+  end
+
+  test "shows team status editor to admins on the championship page" do
+    sign_in users(:one)
+
+    get championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Aprovada"
+    assert_includes response.body, "Finalizar inscrições"
+    refute_includes response.body, "Salvar"
+  end
+
+  test "admin can edit a team registration status inline from the championship page" do
+    sign_in users(:one)
+
+    patch team_path(@team), params: {
+      team: {
+        registration_status: "aprovada"
+      }
+    }, headers: {
+      "HTTP_REFERER" => championship_path(@championship)
+    }
+
+    assert_redirected_to championship_path(@championship)
+    assert @team.reload.registration_status_aprovada?
   end
 
   test "scopes public team, athlete and standings pages to the current championship" do
     get team_path(@team)
     assert_response :success
     assert_includes response.body, "Time Portal"
+    assert_includes response.body, @championship.name
+    assert_includes response.body, championship_path(@championship)
+    assert_includes response.body, match_path(@match)
+    assert_includes response.body, athlete_path(@athlete)
 
     get athlete_path(@athlete)
     assert_response :success

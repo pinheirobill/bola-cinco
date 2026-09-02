@@ -12,6 +12,32 @@ module ApplicationHelper
     end
   end
 
+  def status_surface_class(status)
+    case status.to_s
+    when "em_andamento", "aprovada", "validado", "pago", "finalizado"
+      "border-success/30 bg-success/10 text-success-content"
+    when "inscricoes_abertas", "pendente", "agendado"
+      "border-warning/30 bg-warning/10 text-warning-content"
+    when "rejeitada", "bloqueado", "atrasado", "cancelado"
+      "border-error/30 bg-error/10 text-error-content"
+    else
+      "border-base-300 bg-base-200 text-base-content"
+    end
+  end
+
+  def status_select_class(status)
+    case status.to_s
+    when "em_andamento", "aprovada", "validado", "pago", "finalizado"
+      "select-success"
+    when "inscricoes_abertas", "pendente", "agendado"
+      "select-warning"
+    when "rejeitada", "bloqueado", "atrasado", "cancelado"
+      "select-error"
+    else
+      "select-neutral"
+    end
+  end
+
   def status_badge(status)
     tag.span status.to_s.tr("_", " ").humanize, class: ["badge", status_badge_class(status)]
   end

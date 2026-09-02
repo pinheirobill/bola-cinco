@@ -1,4 +1,5 @@
 require "test_helper"
+require "base64"
 
 class PhaseFourFormsTest < ActionDispatch::IntegrationTest
   setup do
@@ -148,10 +149,103 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_includes response.body, @team.name
   end
 
-  test "shows the paper-like match editor" do
+  test "shows the import button and review screen for a summula photo" do
     @match.update!(
       team_a: @team,
       team_b: @team_b
+    )
+
+    get match_path(@match)
+    assert_includes response.body, "Importar súmula"
+
+    image_path = build_summula_png
+
+    post import_summula_match_path(@match), params: {
+      match_summula_import: {
+        pdf: Rack::Test::UploadedFile.new(image_path, "image/png")
+      }
+    }
+
+    assert_response :success
+    assert_includes response.body, "Prévia detectada"
+    assert_includes response.body, "De / Para"
+    assert_includes response.body, "Foto enviada"
+    assert_includes response.body, @athlete.name
+    assert_includes response.body, "Placar da equipe esquerda"
+    assert_includes response.body, "Data do jogo"
+    assert_includes response.body, "Confirmar importação"
+
+    document = Nokogiri::HTML(response.body)
+    token = document.at_css('input[name="match_summula_import[token]"]')&.[]("value")
+
+    post import_summula_match_path(@match), params: {
+      match_summula_import: {
+        confirm: "1",
+        token: token,
+        left_team_id: @team.id,
+        right_team_id: @team_b.id,
+        score_a: 4,
+        score_b: 0,
+        scheduled_on: "2026-04-11",
+        scheduled_time: "09:08"
+      }
+    }
+
+    assert_redirected_to match_path(@match)
+    @match.reload
+    assert_equal 4, @match.score_a
+    assert_equal 0, @match.score_b
+    assert_equal @team, @match.team_a
+    assert_equal @team_b, @match.team_b
+  end
+
+  test "creates athletes from confirmed import rows when roster is empty" do
+    @match.update!(
+      team_a: @team,
+      team_b: @team_b
+    )
+
+    image_path = build_summula_png
+
+    post import_summula_match_path(@match), params: {
+      match_summula_import: {
+        pdf: Rack::Test::UploadedFile.new(image_path, "image/png")
+      }
+    }
+
+    document = Nokogiri::HTML(response.body)
+    token = document.at_css('input[name="match_summula_import[token]"]')&.[]("value")
+
+    post import_summula_match_path(@match), params: {
+      match_summula_import: {
+        confirm: "1",
+        token: token,
+        left_team_id: @team.id,
+        right_team_id: @team_b.id,
+        rows: {
+          left_0: {
+            side: "left",
+            shirt_number: "11",
+            player_name: "Raul Duarte Bueno",
+            source_line: "Raul Duarte Bueno 11"
+          }
+        }
+      }
+    }
+
+    assert_redirected_to match_path(@match)
+    athlete = @team.athletes.find_by(name: "Raul Duarte Bueno")
+    assert athlete.present?
+    assert_equal "11", athlete.shirt_number
+    assert_equal athlete, @match.match_participations.find_by(team: @team, athlete: athlete)&.athlete
+  end
+
+  test "shows the paper-like match editor" do
+    @match.update!(
+      team_a: @team,
+      team_b: @team_b,
+      score_a: 4,
+      score_b: 0
     )
 
     get edit_match_path(@match)
@@ -165,9 +259,47 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Selecionados"
     assert_includes response.body, "Lançamentos da súmula"
     assert_includes response.body, "Resumo instantâneo"
-    assert_includes response.body, "Gols automáticos"
+    refute_includes response.body, "Gols automáticos"
+    assert_includes response.body, "Cartões"
+    assert_includes response.body, "Até 5 tempos da súmula"
+    assert_includes response.body, "Gol 1 fica sempre aberto"
     assert_includes response.body, @athlete.name
     assert_includes response.body, @athlete_b.name
+
+    document = Nokogiri::HTML(response.body)
+    team_a_goal_inputs = document.css(%(input[name="match[event_sheet][team_a][#{@athlete.id}][goal_minutes][]"]))
+    team_b_goal_inputs = document.css(%(input[name="match[event_sheet][team_b][#{@athlete_b.id}][goal_minutes][]"]))
+
+    assert_equal 4, team_a_goal_inputs.size
+    assert_equal 1, team_b_goal_inputs.size
+  end
+
+  test "shows global athletes in the participation modal" do
+    team_c = Team.create!(
+      source_id: "team-phase-four-c-modal",
+      entity: Entity.create!(source_id: "entity-phase-four-c-modal", name: "Equipe Modal C"),
+      category: @category,
+      name: "Equipe Modal C"
+    )
+
+    guest_athlete = Athlete.create!(
+      source_id: "athlete-phase-four-modal",
+      team: team_c,
+      category: @category,
+      name: "Atleta Modal Global",
+      status: "bloqueado"
+    )
+
+    @match.update!(
+      team_a: @team,
+      team_b: @team_b
+    )
+
+    get edit_match_path(@match)
+
+    assert_response :success
+    assert_includes response.body, "A lista abaixo mostra todos os atletas cadastrados do sistema."
+    assert_includes response.body, guest_athlete.name
   end
 
   test "creates pending participations for the match roster" do
@@ -202,14 +334,20 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
         score_a: 2,
         score_b: 1,
         wo: @team_b.name,
-        goal_minutes_a: %w[05 15],
-        goal_minutes_b: ["30"],
-        goal_penalties_a: {
-          "0" => "1",
-          "1" => "0"
-        },
-        goal_penalties_b: {
-          "0" => "1"
+        event_sheet: {
+          team_a: {
+            @athlete.id.to_s => {
+              yellow_card: "1",
+              red_card: "1",
+              goal_minutes: %w[05 12],
+              substitution_minutes: %w[18]
+            }
+          },
+          team_b: {
+            @athlete_b.id.to_s => {
+              goal_minutes: []
+            }
+          }
         }
       },
       match_report: {
@@ -226,11 +364,10 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_equal "rascunho", @match.match_report.status
     assert @match.match_report.submitted_at.present?
     assert_nil @match.match_report.approved_at
-    auto_goals = @match.match_events.where(kind: "gol").order(:created_at)
-    assert_equal [5, 15, 30], auto_goals.pluck(:minute)
-    assert_equal [nil, nil, nil], auto_goals.pluck(:athlete_id)
-    assert_equal [true, false, true], auto_goals.map { |event| event.source_data["penalty"] }
-    assert_includes auto_goals.first.notes, "pênalti"
+    goals = @match.match_events.where(kind: "gol").order(:created_at)
+    assert_equal [5, 12], goals.pluck(:minute)
+    assert_equal [@athlete.id, @athlete.id], goals.pluck(:athlete_id)
+    assert_equal ["Gol lançado pela súmula", "Gol lançado pela súmula"], goals.pluck(:notes)
   end
 
   test "approves a match report from the index" do
@@ -292,13 +429,13 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
           team_a: {
             @athlete.id.to_s => {
               yellow_card: "1",
+              red_card: "1",
               goal_minutes: "05, 12",
-              substitution_minutes: "18"
+              substitution_minutes: %w[18]
             }
           },
           team_b: {
             @athlete_b.id.to_s => {
-              red_card: "1",
               goal_minutes: ""
             }
           }
@@ -310,15 +447,15 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     @match.reload
 
     yellow_card = @match.match_events.find_by!(team: @team, athlete: @athlete, kind: "cartao_amarelo")
-    red_card = @match.match_events.find_by!(team: @team_b, athlete: @athlete_b, kind: "cartao_vermelho")
+    red_card = @match.match_events.find_by!(team: @team, athlete: @athlete, kind: "cartao_vermelho")
     goals = @match.match_events.where(kind: "gol").order(:created_at)
     substitutions = @match.match_events.where(kind: "substituicao").order(:created_at)
 
     assert_equal @team, yellow_card.team
     assert_equal @athlete, yellow_card.athlete
     assert_equal "cartao_amarelo", yellow_card.kind
-    assert_equal @team_b, red_card.team
-    assert_equal @athlete_b, red_card.athlete
+    assert_equal @team, red_card.team
+    assert_equal @athlete, red_card.athlete
     assert_equal "cartao_vermelho", red_card.kind
     assert_equal [5, 12], goals.pluck(:minute)
     assert_equal [18], substitutions.pluck(:minute)
@@ -365,6 +502,24 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     participations = @match.reload.match_participations.where(team_id: @team.id).order(:athlete_id)
     assert_equal [@athlete.id, @athlete_c.id], participations.pluck(:athlete_id)
     assert_equal %w[pendente pendente], participations.pluck(:status)
+  end
+
+  test "re-renders the edit page when batch participation has no team" do
+    @match.update!(
+      team_a: @team,
+      team_b: @team_b
+    )
+
+    post match_match_participations_path(@match), params: {
+      match_participation: {
+        team_id: "",
+        athlete_ids: [@athlete.id, @athlete_c.id]
+      }
+    }
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, "Cabeçalho da súmula"
+    assert_includes response.body, "Adicionar participação"
   end
 
   test "updates the same match participation instead of duplicating it" do
@@ -498,5 +653,13 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     }
 
     assert_equal @team_d, final_match.reload.team_b
+  end
+
+  private
+
+  def build_summula_png
+    path = Rails.root.join("tmp", "summula-import-#{SecureRandom.hex(8)}.png")
+    File.binwrite(path, Base64.decode64("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO2YV2sAAAAASUVORK5CYII="))
+    path.to_s
   end
 end

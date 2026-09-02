@@ -10,7 +10,7 @@ class Athlete < ApplicationRecord
 
   after_commit :sync_primary_team_link, on: %i[create update]
 
-  scope :for_picker, -> { includes(:team, :category, :linked_teams).order(:name) }
+  scope :for_picker, -> { unscoped.includes(:team, :category, :linked_teams).order(:name) }
 
   enum :status, {
     pendente: "pendente",

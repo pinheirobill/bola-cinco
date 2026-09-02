@@ -52,8 +52,56 @@ class PhaseThreeEndpointsTest < ActionDispatch::IntegrationTest
       }
     }
 
-    assert_response :success
+    assert_redirected_to team_path(team)
     assert team.reload.registration_status_aprovada?
+  end
+
+  test "admin confirms a pending team registration" do
+    team = Team.create!(
+      source_id: "team-phase-three-2b",
+      entity: @entity,
+      category: @category,
+      name: "Time Fase 3 BB"
+    )
+
+    patch confirm_registration_team_path(team)
+
+    assert_redirected_to team_path(team)
+    assert team.reload.registration_status_aprovada?
+  end
+
+  test "admin rejects a pending team registration" do
+    team = Team.create!(
+      source_id: "team-phase-three-2c",
+      entity: @entity,
+      category: @category,
+      name: "Time Fase 3 CC"
+    )
+
+    patch reject_registration_team_path(team)
+
+    assert_redirected_to team_path(team)
+    assert team.reload.registration_status_rejeitada?
+  end
+
+  test "admin can change a team registration status after it was approved" do
+    team = Team.create!(
+      source_id: "team-phase-three-2d",
+      entity: @entity,
+      category: @category,
+      name: "Time Fase 3 DD"
+    )
+
+    team.approve!
+
+    patch team_path(team), params: {
+      team: {
+        registration_status: "rejeitada"
+      }
+    }
+
+    assert_redirected_to team_path(team)
+    assert team.reload.registration_status_rejeitada?
   end
 
   test "creates an athlete linked to a user" do

@@ -6,61 +6,17 @@
   badge: "Jogos"
 ) %>
 
-<%= render "score_card", match: @match %>
+<%= render "matches/score_card", match: @match %>
 
 <%= form_with(model: @match, url: match_path(@match), method: :patch, class: "space-y-6", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" }) do |f| %>
   <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
   <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
-  <section class="grid gap-6 xl:grid-cols-[1fr_1.05fr] xl:items-start">
-    <div class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm self-start" data-controller="match-goal-times" data-action="turbo:submit-end->match-goal-times#refresh" data-match-goal-times-team-a-name-value="<%= @match.team_a&.name || 'Equipe A' %>" data-match-goal-times-team-b-name-value="<%= @match.team_b&.name || 'Equipe B' %>">
-      <div class="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h3 class="text-2xl font-bold">Cabeçalho da súmula</h3>
-          <p class="mt-2 text-sm text-base-content/70">Os dados principais ficam distribuídos como no documento impresso e salvam automaticamente ao sair do campo.</p>
-        </div>
-      </div>
-
-      <div class="mt-6 grid gap-4 md:grid-cols-2">
-        <div class="form-control gap-2">
-          <%= f.label :code, "Código", class: "label-text font-medium" %>
-          <%= f.text_field :code, class: "input input-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= f.label :phase, "Fase", class: "label-text font-medium" %>
-          <%= f.text_field :phase, class: "input input-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= f.label :category_id, "Categoria", class: "label-text font-medium" %>
-          <%= f.select :category_id, options_from_collection_for_select(@match.championship.categories.order(:name), :id, :name, @match.category_id), {}, class: "select select-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= f.label :venue_id, "Ginásio", class: "label-text font-medium" %>
-          <%= f.select :venue_id, options_from_collection_for_select(@available_venues, :id, :name, @match.venue_id), { include_blank: "Sem local" }, class: "select select-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= f.label :scheduled_on, "Data", class: "label-text font-medium" %>
-          <%= f.date_field :scheduled_on, class: "input input-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= f.label :scheduled_time, "Hora", class: "label-text font-medium" %>
-          <%= f.time_field :scheduled_time, value: match_scheduled_time_value(@match.scheduled_time), step: 300, class: "input input-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= f.label :status, "Status", class: "label-text font-medium" %>
-          <%= f.select :status, Match.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
-        </div>
-        <div class="form-control gap-2">
-          <%= f.label :decision, "Decisão", class: "label-text font-medium" %>
-          <%= f.select :decision, Match.decisions.keys.map { |value| [value.humanize, value] }, { include_blank: "Normal" }, class: "select select-bordered w-full" %>
-        </div>
-      </div>
-    </div>
-
+  <section class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:items-start">
     <div class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm self-start">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h3 class="text-2xl font-bold">Resumo técnico</h3>
-          <p class="mt-2 text-sm text-base-content/70">Grupo, rodada, W.O. e placar da partida.</p>
+          <p class="mt-2 text-sm text-base-content/70">Grupo, rodada e W.O. da partida.</p>
         </div>
         <div class="flex flex-wrap gap-3">
           <%= link_to "Voltar", match_path(@match), class: "btn btn-outline" %>
@@ -86,70 +42,92 @@
                          class: "select select-bordered w-full" %>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
-          <div class="grid gap-4 md:grid-cols-2">
-            <div class="form-control gap-2">
-              <%= f.label :team_a_id, "Equipe A", class: "label-text font-medium" %>
-              <%= f.select :team_a_id, options_from_collection_for_select(@available_teams, :id, :name, @match.team_a_id), { include_blank: "Equipe A" }, class: "select select-bordered w-full" %>
-            </div>
-            <div class="form-control gap-2">
-              <%= f.label :team_b_id, "Equipe B", class: "label-text font-medium" %>
-              <%= f.select :team_b_id, options_from_collection_for_select(@available_teams, :id, :name, @match.team_b_id), { include_blank: "Equipe B" }, class: "select select-bordered w-full" %>
-            </div>
-            <div class="form-control gap-2">
-              <%= f.label :score_a, "Placar equipe A", class: "label-text font-medium" %>
-              <%= f.number_field :score_a, min: 0, class: "input input-bordered w-full", data: { match_goal_times_target: "scoreA", action: "input->match-goal-times#refresh change->match-goal-times#refresh focusout->match-goal-times#refresh" } %>
-            </div>
-            <div class="form-control gap-2">
-              <%= f.label :score_b, "Placar equipe B", class: "label-text font-medium" %>
-              <%= f.number_field :score_b, min: 0, class: "input input-bordered w-full", data: { match_goal_times_target: "scoreB", action: "input->match-goal-times#refresh change->match-goal-times#refresh focusout->match-goal-times#refresh" } %>
-            </div>
+    <div class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm self-start">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h3 class="text-2xl font-bold">Árbitro e súmula</h3>
+          <p class="mt-2 text-sm text-base-content/70">Selecione o árbitro. O relatório fica em rascunho e salva automaticamente a última alteração.</p>
+        </div>
+      </div>
+
+      <div class="mt-6 space-y-4">
+        <div class="form-control gap-2">
+          <%= label_tag "match_report_referee_id", "Árbitro", class: "label-text font-medium" %>
+          <%= select_tag "match_report[referee_id]", options_from_collection_for_select(@available_referees, :id, :name, @match_report.referee_id), include_blank: "Selecione", class: "select select-bordered w-full" %>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-2xl bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status</p>
+            <p class="mt-2 font-semibold"><%= @match_report.status.titleize %></p>
+          </div>
+          <div class="rounded-2xl bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Última gravação</p>
+            <p class="mt-2 font-semibold"><%= @match_report.submitted_at.present? ? l(@match_report.submitted_at, format: :short) : "-" %></p>
+          </div>
+          <div class="rounded-2xl bg-base-200 p-4 sm:col-span-2">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Aprovação</p>
+            <p class="mt-2 font-semibold"><%= @match_report.approved_at.present? ? l(@match_report.approved_at, format: :short) : "Aguardando aprovação" %></p>
           </div>
         </div>
-
-        <%= render "auto_goals", match: @match, f: f, auto_goal_minutes_a: @auto_goal_minutes_a, auto_goal_minutes_b: @auto_goal_minutes_b, auto_goal_penalties_a: @auto_goal_penalties_a, auto_goal_penalties_b: @auto_goal_penalties_b, available_teams: @available_teams %>
-
+        <div class="flex flex-wrap gap-3">
+          <%= link_to "Cancelar", match_path(@match), class: "btn btn-outline" %>
+        </div>
       </div>
     </div>
+
   </section>
 
-  <section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm">
+  <section class="rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm xl:p-5">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h3 class="text-2xl font-bold">Árbitro e súmula</h3>
-        <p class="mt-2 text-sm text-base-content/70">Selecione o árbitro. O relatório fica em rascunho e salva automaticamente a última alteração.</p>
+        <h3 class="text-2xl font-bold">Cabeçalho da súmula</h3>
+        <p class="mt-2 text-sm text-base-content/70">Os dados principais ficam distribuídos como no documento impresso e salvam automaticamente ao sair do campo.</p>
       </div>
     </div>
 
-    <div class="mt-6 space-y-4">
+    <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
       <div class="form-control gap-2">
-        <%= label_tag "match_report_referee_id", "Árbitro", class: "label-text font-medium" %>
-        <%= select_tag "match_report[referee_id]", options_from_collection_for_select(@available_referees, :id, :name, @match_report.referee_id), include_blank: "Selecione", class: "select select-bordered w-full" %>
+        <%= f.label :code, "Código", class: "label-text font-medium" %>
+        <%= f.text_field :code, class: "input input-bordered w-full" %>
       </div>
-      <div class="grid gap-3 sm:grid-cols-2">
-        <div class="rounded-2xl bg-base-200 p-4">
-          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status</p>
-          <p class="mt-2 font-semibold"><%= @match_report.status.titleize %></p>
-        </div>
-        <div class="rounded-2xl bg-base-200 p-4">
-          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Última gravação</p>
-          <p class="mt-2 font-semibold"><%= @match_report.submitted_at.present? ? l(@match_report.submitted_at, format: :short) : "-" %></p>
-        </div>
-        <div class="rounded-2xl bg-base-200 p-4 sm:col-span-2">
-          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Aprovação</p>
-          <p class="mt-2 font-semibold"><%= @match_report.approved_at.present? ? l(@match_report.approved_at, format: :short) : "Aguardando aprovação" %></p>
-        </div>
+      <div class="form-control gap-2">
+        <%= f.label :phase, "Fase", class: "label-text font-medium" %>
+        <%= f.text_field :phase, class: "input input-bordered w-full" %>
       </div>
-      <div class="flex flex-wrap gap-3">
-        <%= link_to "Cancelar", match_path(@match), class: "btn btn-outline" %>
+      <div class="form-control gap-2">
+        <%= f.label :category_id, "Categoria", class: "label-text font-medium" %>
+        <%= f.select :category_id, options_from_collection_for_select(@match.championship.categories.order(:name), :id, :name, @match.category_id), {}, class: "select select-bordered w-full" %>
+      </div>
+      <div class="form-control gap-2">
+        <%= f.label :venue_id, "Ginásio", class: "label-text font-medium" %>
+        <%= f.select :venue_id, options_from_collection_for_select(@available_venues, :id, :name, @match.venue_id), { include_blank: "Sem local" }, class: "select select-bordered w-full" %>
+      </div>
+      <div class="form-control gap-2">
+        <%= f.label :scheduled_on, "Data", class: "label-text font-medium" %>
+        <%= f.date_field :scheduled_on, class: "input input-bordered w-full" %>
+      </div>
+      <div class="form-control gap-2">
+        <%= f.label :scheduled_time, "Hora", class: "label-text font-medium" %>
+        <%= f.time_field :scheduled_time, value: match_scheduled_time_value(@match.scheduled_time), step: 300, class: "input input-bordered w-full" %>
+      </div>
+      <div class="form-control gap-2 xl:col-span-2">
+        <%= f.label :status, "Status", class: "label-text font-medium" %>
+        <%= f.select :status, Match.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
+      </div>
+      <div class="form-control gap-2 xl:col-span-2">
+        <%= f.label :decision, "Decisão", class: "label-text font-medium" %>
+        <%= f.select :decision, Match.decisions.keys.map { |value| [value.humanize, value] }, { include_blank: "Normal" }, class: "select select-bordered w-full" %>
       </div>
     </div>
   </section>
 
   <section class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
     <div class="space-y-6">
-      <%= render "event_sheet_editor",
+      <%= render "matches/event_sheet_editor",
+        f: f,
         match: @match,
         team_a_athletes: @team_a_athletes,
         team_b_athletes: @team_b_athletes,
@@ -157,13 +135,13 @@
         team_b_participations_by_athlete: @team_b_participations_by_athlete %>
 
       <div class="grid gap-6 xl:grid-cols-2">
-        <%= render "event_sheet_table",
+        <%= render "matches/event_sheet_table",
           id: "match-event-sheet-team-a",
           title: "Equipe A",
           team: @match.team_a,
           athletes: @team_a_athletes,
           match_events: @match_events %>
-        <%= render "event_sheet_table",
+        <%= render "matches/event_sheet_table",
           id: "match-event-sheet-team-b",
           title: "Equipe B",
           team: @match.team_b,
@@ -173,7 +151,7 @@
     </div>
 
     <div class="space-y-6 self-start">
-      <%= render "event_summary", match: @match, match_events: @match_events %>
+      <%= render "matches/event_summary", match: @match, match_events: @match_events %>
 
       <div class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm">
         <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Fluxo de jogo</p>
@@ -259,14 +237,14 @@
   </div>
 
   <div class="mt-6 grid gap-6 xl:grid-cols-2">
-    <%= render "participation_roster_table",
+    <%= render "matches/participation_roster_table",
       title: "Equipe A",
       match: @match,
       team: @match.team_a,
       athletes: @team_a_athletes,
       participations: @team_a_participations,
       participations_by_athlete: @team_a_participations_by_athlete %>
-    <%= render "participation_roster_table",
+    <%= render "matches/participation_roster_table",
       title: "Equipe B",
       match: @match,
       team: @match.team_b,
@@ -277,10 +255,10 @@
 </section>
 
 <dialog id="match-participation-modal" class="modal">
-  <div class="modal-box max-w-5xl" data-controller="athlete-picker">
+  <div class="modal-box max-w-5xl" data-controller="athlete-picker" data-athlete-picker-team-selection-mode-value="none">
     <h3 class="text-2xl font-bold">Adicionar participação</h3>
     <p class="mt-2 text-sm text-base-content/70">
-      Selecione um ou mais atletas que realmente participaram do jogo. Ao escolher a equipe, o time inteiro já vem selecionado.
+      Selecione um ou mais atletas que realmente participaram do jogo. A equipe só define o vínculo da participação, mas a busca usa todos os atletas cadastrados do sistema.
     </p>
 
     <%= form_with(model: @match_participation, url: match_match_participations_path(@match), class: "mt-6 space-y-4") do |f| %>
@@ -312,8 +290,8 @@
           >
         </div>
 
-        <div class="hidden rounded-2xl border border-dashed border-warning/40 bg-warning/10 px-4 py-3 text-sm text-base-content/75 lg:col-span-4" data-athlete-picker-target="fallbackMessage">
-          Nenhum atleta ficou vinculado a essa equipe. A lista abaixo mostra todos os atletas ativos do sistema.
+        <div class="rounded-2xl border border-dashed border-base-300 bg-base-200 px-4 py-3 text-sm text-base-content/75 lg:col-span-4">
+          A lista abaixo mostra todos os atletas cadastrados do sistema. Use a equipe apenas para gravar o vínculo correto na súmula.
         </div>
 
         <div class="rounded-2xl bg-base-200 px-4 py-3 text-sm text-base-content/70">

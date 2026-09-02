@@ -1,9 +1,11 @@
 class Championship < ApplicationRecord
   ScorerEntry = Struct.new(:athlete_id, :name, :team_name, :goals, keyword_init: true)
+  StandingGroup = Struct.new(:category, :group_key, :rows, keyword_init: true)
 
   COMPETITION_MODES = {
     "pontuacao" => "Pontuação por chaves",
-    "mata_mata" => "Mata-mata eliminatório"
+    "mata_mata" => "Mata-mata eliminatório",
+    "grupos_mata_mata" => "Fase de grupos + mata-mata"
   }.freeze
 
   TIEBREAKER_OPTIONS = {
@@ -70,6 +72,7 @@ class Championship < ApplicationRecord
   validates :source_id, :name, :season, presence: true
   validates :source_id, uniqueness: true
   validates :slug, uniqueness: true, allow_blank: true
+  before_validation :assign_source_id, on: :create
   before_validation :assign_slug, on: :create
 
   scope :publicly_visible, -> { where.not(status: :rascunho) }
@@ -96,6 +99,38 @@ class Championship < ApplicationRecord
 
   def competition_mode_label
     COMPETITION_MODES[format_data["mode"].to_s] || "Pontuação por chaves"
+  end
+
+  def points_based_mode?
+    format_data["mode"].to_s == "pontuacao"
+  end
+
+  def knockout_only_mode?
+    format_data["mode"].to_s == "mata_mata"
+  end
+
+  def group_stage_and_knockout_mode?
+    format_data["mode"].to_s == "grupos_mata_mata"
+  end
+
+  def matches_per_opponent
+    value = format_data.fetch("matchesPerOpponent", default_format.fetch("matchesPerOpponent")).to_i
+    value.positive? ? value : 1
+  end
+
+  def matches_per_opponent_label
+    return "Sem jogos por confronto" if knockout_only_mode?
+
+    "#{matches_per_opponent} #{'vez'.pluralize(matches_per_opponent)} por adversário"
+  end
+
+  def qualified_per_group
+    group_stage_and_knockout_mode? ? format_data.fetch("qualifiedPerGroup", default_scoring.fetch("qualifiedPerGroup")).to_i.clamp(1, 16) : 0
+  end
+
+  def group_count
+    value = format_data.fetch("groupCount", default_format.fetch("groupCount")).to_i
+    value.positive? ? value : 1
   end
 
   def registration_data
@@ -211,7 +246,9 @@ class Championship < ApplicationRecord
     {
       "mode" => "pontuacao",
       "teamCount" => categories.sum { |category| category.teams.size },
-      "groupCount" => [categories.size, 1].max
+      "groupCount" => [categories.size, 1].max,
+      "qualifiedPerGroup" => default_scoring.fetch("qualifiedPerGroup"),
+      "matchesPerOpponent" => 1
     }
   end
 
@@ -223,8 +260,16 @@ class Championship < ApplicationRecord
     matches.includes(:team_a, :team_b, :winner, :category).order(scheduled_on: :desc, id: :desc).limit(limit)
   end
 
+  def standing_groups
+    standing_rows.includes(:team, :category)
+      .order(:category_id, :group_key, :position, points: :desc, goal_diff: :desc, goals_for: :desc)
+      .group_by { |row| [row.category, row.group_key.to_s] }
+      .map { |(category, group_key), rows| StandingGroup.new(category: category, group_key: group_key, rows: rows) }
+      .sort_by { |group| [group.category.name.to_s.downcase, group.group_key.to_s.downcase] }
+  end
+
   def standings_by_category
-    standing_rows.includes(:team, :category).order(:category_id, position: :asc, points: :desc, goal_diff: :desc, goals_for: :desc).group_by(&:category)
+    standing_groups.group_by(&:category)
   end
 
   def top_scorers(limit = 5)
@@ -312,37 +357,47 @@ class Championship < ApplicationRecord
     rebuilt_rows = []
 
     categories.includes(:teams).find_each do |category|
-      team_stats = category.teams.index_by(&:id).transform_values { |team| standing_stats_for(team) }
+      standings_groups_for(category).each do |group_key, matches|
+        completed_matches = matches.select { |match| match.status_finalizado? || match.status_wo? }
+        team_ids = matches.flat_map { |match| [match.team_a_id, match.team_b_id] }.compact.uniq
+        teams_by_id = if group_key.present? && team_ids.any?
+          Team.includes(:entity).where(id: team_ids).index_by(&:id)
+        else
+          participating_teams_for(category).index_by(&:id)
+        end
+        team_stats = teams_by_id.transform_values { |team| standing_stats_for(team, group_key) }
 
-      classification_matches_for(category).each do |match|
-        apply_match_to_standings!(team_stats, match)
-      end
+        completed_matches.each do |match|
+          apply_match_to_standings!(team_stats, match)
+        end
 
-      sorted_stats = team_stats.values.sort_by do |stats|
-        [
-          -stats[:points],
-          -stats[:goal_diff],
-          -stats[:goals_for],
-          -stats[:wins],
-          stats[:team].name.to_s.downcase
-        ]
-      end
+        sorted_stats = team_stats.values.sort_by do |stats|
+          [
+            -stats[:points],
+            -stats[:goal_diff],
+            -stats[:goals_for],
+            -stats[:wins],
+            stats[:team].name.to_s.downcase
+          ]
+        end
 
-      sorted_stats.each_with_index do |stats, index|
-        rebuilt_rows << standing_rows.new(
-          category: category,
-          team: stats[:team],
-          position: index + 1,
-          played: stats[:played],
-          wins: stats[:wins],
-          draws: stats[:draws],
-          losses: stats[:losses],
-          goals_for: stats[:goals_for],
-          goals_against: stats[:goals_against],
-          goal_diff: stats[:goal_diff],
-          points: stats[:points],
-          qualified: nil
-        )
+        sorted_stats.each_with_index do |stats, index|
+          rebuilt_rows << standing_rows.new(
+            category: category,
+            group_key: group_key,
+            team: stats[:team],
+            position: index + 1,
+            played: stats[:played],
+            wins: stats[:wins],
+            draws: stats[:draws],
+            losses: stats[:losses],
+            goals_for: stats[:goals_for],
+            goals_against: stats[:goals_against],
+            goal_diff: stats[:goal_diff],
+            points: stats[:points],
+            qualified: group_stage_and_knockout_mode? ? index < qualified_per_group : nil
+          )
+        end
       end
     end
 
@@ -350,6 +405,16 @@ class Championship < ApplicationRecord
       standing_rows.delete_all
       rebuilt_rows.each(&:save!)
     end
+  end
+
+  def advance_group_stage_knockout_from!(match)
+    return unless group_stage_and_knockout_mode?
+    return unless match.classification_phase?
+    return unless match.status_finalizado? || match.status_wo?
+    return unless group_stage_complete_for?(match.category)
+    return if matches.where(category_id: match.category_id, phase: "mata_mata", round_number: 1).exists?
+
+    draw_group_stage_knockout_round_for!(match.category)
   end
 
   def advance_knockout_from!(match)
@@ -401,7 +466,7 @@ class Championship < ApplicationRecord
       categories.includes(:teams).find_each do |category|
         next if matches.where(category_id: category.id, phase: "mata_mata", round_number: 1).exists?
 
-        shuffled_teams = category.teams.to_a.shuffle
+        shuffled_teams = participating_teams_for(category).shuffle
         next if shuffled_teams.size < 2
 
         shuffled_teams.each_slice(2).with_index(1) do |pair, index|
@@ -415,6 +480,102 @@ class Championship < ApplicationRecord
             round_number: 1,
             team_a: pair[0],
             team_b: pair[1],
+            status: :agendado
+          )
+        end
+      end
+    end
+
+    created_matches
+  end
+
+  def finalize_registrations!
+    transaction do
+      disable_team_signups!
+
+      created_matches =
+        if knockout_only_mode?
+          draw_initial_knockout_round!
+        else
+          draw_initial_group_stage_round!
+        end
+
+      update!(status: :em_andamento) unless finalizado?
+      rebuild_standings! unless knockout_only_mode?
+      created_matches
+    end
+  end
+
+  def draw_initial_group_stage_round!
+    raise ArgumentError, "campeonato precisa estar em pontuação ou grupos + mata-mata" if knockout_only_mode?
+
+    created_matches = []
+
+    transaction do
+      categories.includes(:teams).find_each do |category|
+        next if classification_matches_for(category).any?
+
+        participating_teams = participating_teams_for(category)
+        next if participating_teams.size < 2
+
+        initial_group_assignments_for(participating_teams).each do |group_key, group_teams|
+          next if group_teams.size < 2
+
+          pairings = group_teams.combination(2).to_a.sort_by do |team_a, team_b|
+            [team_a.name.to_s.downcase, team_b.name.to_s.downcase]
+          end
+
+          pairings.each_with_index do |(team_a, team_b), pair_index|
+            matches_per_opponent.times do |repetition_index|
+              repetition = repetition_index + 1
+              created_matches << matches.create!(
+                source_id: classification_match_source_id(category, group_key, team_a, team_b, repetition),
+                category: category,
+                code: classification_match_code(category, group_key, team_a, team_b, repetition),
+                phase: "grupos",
+                group_key: group_key,
+                round_number: pair_index + 1,
+                team_a: team_a,
+                team_b: team_b,
+                status: :agendado
+              )
+            end
+          end
+        end
+      end
+    end
+
+    created_matches
+  end
+
+  def draw_group_stage_knockout_round_for!(category)
+    raise ArgumentError, "campeonato precisa estar em grupos + mata-mata" unless group_stage_and_knockout_mode?
+    return [] unless group_stage_complete_for?(category)
+    return [] if matches.where(category_id: category.id, phase: "mata_mata", round_number: 1).exists?
+
+    created_matches = []
+
+    transaction do
+      group_standings = standing_groups.select { |group| group.category == category }
+      next if group_standings.size < 2
+
+      group_standings.each_slice(2) do |left_group, right_group|
+        next if right_group.blank?
+
+        pair_count = [qualified_per_group, left_group.rows.size, right_group.rows.size].min
+        pair_count.times do |index|
+          left_row = left_group.rows[index]
+          right_row = right_group.rows[pair_count - 1 - index]
+          next if left_row.blank? || right_row.blank?
+
+          created_matches << matches.create!(
+            source_id: knockout_group_match_source_id(category, left_group.group_key, right_group.group_key, index + 1),
+            category: category,
+            code: knockout_group_match_code(category, left_group.group_key, right_group.group_key, index + 1),
+            phase: "mata_mata",
+            round_number: 1,
+            team_a: left_row.team,
+            team_b: right_row.team,
             status: :agendado
           )
         end
@@ -446,9 +607,10 @@ class Championship < ApplicationRecord
 
   private
 
-  def standing_stats_for(team)
+  def standing_stats_for(team, group_key = "")
     {
       team: team,
+      group_key: group_key.to_s,
       played: 0,
       wins: 0,
       draws: 0,
@@ -468,9 +630,31 @@ class Championship < ApplicationRecord
     matches
       .includes(:team_a, :team_b, :winner)
       .where(category_id: category.id)
-      .where(status: %w[finalizado wo])
       .select(&:classification_phase?)
       .sort_by { |match| [match.scheduled_on || Date.new(1900, 1, 1), match.id] }
+  end
+
+  def completed_classification_matches_for(category)
+    classification_matches_for(category).select { |match| match.status_finalizado? || match.status_wo? }
+  end
+
+  def standings_groups_for(category)
+    grouped_matches = classification_matches_for(category)
+      .group_by { |match| match.group_key.to_s }
+    grouped_matches = { "" => [] } if grouped_matches.empty?
+
+    grouped_matches.sort_by { |group_key, _matches| group_key.to_s }
+  end
+
+  def group_stage_complete_for?(category)
+    classification_matches = classification_matches_for(category)
+    return false if classification_matches.blank?
+    return false unless classification_matches.all? { |match| match.status_finalizado? || match.status_wo? }
+
+    classification_team_ids = classification_matches.flat_map { |match| [match.team_a_id, match.team_b_id] }.compact.uniq.sort
+    category_team_ids = participating_teams_for(category).map(&:id).sort
+
+    classification_team_ids == category_team_ids
   end
 
   def apply_match_to_standings!(team_stats, match)
@@ -541,12 +725,86 @@ class Championship < ApplicationRecord
     "knockout-#{id}-#{category.id}-r1-#{index}"
   end
 
+  def knockout_group_match_source_id(category, left_group_key, right_group_key, index)
+    "knockout-#{id}-#{category.id}-#{left_group_key.presence || 'general'}-#{right_group_key.presence || 'general'}-r1-#{index}"
+  end
+
   def knockout_match_code(category, index)
     [category.name.parameterize.upcase.presence || "CAT", "R1", index].join("-")
   end
 
+  def knockout_group_match_code(category, left_group_key, right_group_key, index)
+    [
+      category.name.parameterize.upcase.presence || "CAT",
+      left_group_key.presence || "G",
+      right_group_key.presence || "G",
+      "R1",
+      index
+    ].join("-")
+  end
+
   def finalize_standing_totals!(stats)
     stats[:goal_diff] = stats[:goals_for] - stats[:goals_against]
+  end
+
+  def participating_teams_for(category)
+    approved_teams = category.teams.select(&:registration_status_aprovada?)
+    approved_teams.presence || category.teams.to_a
+  end
+
+  def initial_group_assignments_for(teams)
+    teams = Array(teams).sort_by { |team| team.name.to_s.downcase }
+
+    if teams.any? { |team| team.group_key.present? }
+      teams.group_by { |team| team.group_key.to_s.presence || "Geral" }.sort_by { |group_key, _| group_key.to_s.downcase }.to_h
+    else
+      buckets = Array.new(group_count) { [] }
+
+      teams.each_with_index do |team, index|
+        buckets[index % group_count] << team
+      end
+
+      buckets.each_with_index.each_with_object({}) do |(group_teams, index), hash|
+        next if group_teams.blank?
+
+        hash[group_label_for(index)] = group_teams
+      end
+    end
+  end
+
+  def group_label_for(index)
+    number = index.to_i + 1
+    label = +""
+
+    while number.positive?
+      number, remainder = (number - 1).divmod(26)
+      label.prepend((65 + remainder).chr)
+    end
+
+    label
+  end
+
+  def classification_match_source_id(category, group_key, team_a, team_b, repetition)
+    "classification-#{id}-#{category.id}-#{group_key.presence || 'general'}-#{team_a.id}-#{team_b.id}-#{repetition}"
+  end
+
+  def classification_match_code(category, group_key, team_a, team_b, repetition)
+    [
+      category.name.parameterize.upcase.presence || "CAT",
+      group_key.presence || "G",
+      team_a.name.parameterize.upcase.presence || "A",
+      team_b.name.parameterize.upcase.presence || "B",
+      "R#{repetition}"
+    ].join("-")
+  end
+
+  def disable_team_signups!
+    updated_rules = (rules.presence || {}).deep_dup
+    updated_rules["registration"] ||= {}
+    updated_rules["registration"]["team_signups"] ||= {}
+    updated_rules["registration"]["team_signups"]["enabled"] = false
+    updated_rules["registration"]["team_signups"]["status"] = "inscricoes_fechadas"
+    update!(rules: updated_rules)
   end
 
   def assign_slug
@@ -560,4 +818,9 @@ class Championship < ApplicationRecord
       self.slug = "#{base_slug}-#{source_id.presence || SecureRandom.hex(4)}".parameterize
     end
   end
+
+  def assign_source_id
+    self.source_id ||= "championship-#{SecureRandom.hex(4)}"
+  end
+
 end

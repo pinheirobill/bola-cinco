@@ -3,7 +3,11 @@
 <%= page_header(
   title: @team.name,
   subtitle: "#{@team.entity.name} · #{@team.category.name}",
-  badge: "Equipe"
+  badge: "Equipe",
+  actions: [
+    (current_user&.admin? && @team.registration_status_pendente? ? button_to("Confirmar inscrição", confirm_registration_team_path(@team), method: :patch, class: "btn btn-primary", data: { turbo_confirm: "Confirmar a inscrição desta equipe?" }) : nil),
+    (current_user&.admin? && @team.registration_status_pendente? ? button_to("Rejeitar inscrição", reject_registration_team_path(@team), method: :patch, class: "btn btn-outline btn-error", data: { turbo_confirm: "Rejeitar a inscrição desta equipe?" }) : nil)
+  ].compact
 ) %>
 
 <%= stats_grid([
@@ -11,6 +15,53 @@
   { label: "Financeiro", value: @team.finance_status.titleize, value_class: "text-2xl" },
   { label: "Atletas", value: @team.athletes.count, value_class: "text-2xl" }
 ], columns: "md:grid-cols-3") %>
+
+<%= surface_card(
+  title: "Campeonatos inscritos",
+  subtitle: "Campeonatos que compartilham esta categoria da equipe."
+) do %>
+  <% if @team_championships.any? %>
+    <div class="flex flex-wrap gap-3">
+      <% @team_championships.each do |championship| %>
+        <%= link_to championship_path(championship), class: "rounded-2xl border border-base-300 bg-base-200 px-4 py-3 transition hover:border-primary hover:bg-base-100" do %>
+          <p class="font-semibold"><%= championship.name %></p>
+          <p class="text-xs text-base-content/60"><%= championship.season %></p>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= empty_state(
+      title: "Nenhum campeonato vinculado",
+      description: "Esta equipe ainda não aparece em um campeonato compartilhado pela categoria."
+    ) %>
+  <% end %>
+<% end %>
+
+<% if current_user&.admin? %>
+  <%= surface_card(
+    title: "Status da inscrição",
+    subtitle: "Altere o status manualmente quando precisar corrigir a decisão anterior."
+  ) do %>
+    <%= form_with model: @team, url: team_path(@team), method: :patch, local: true, class: "grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end" do |f| %>
+      <div>
+        <label class="label">
+          <span class="label-text font-medium">Status atual</span>
+        </label>
+        <%= f.select :registration_status,
+          options_for_select(Team.registration_statuses.keys.map { |status| [status.titleize, status] }, @team.registration_status),
+          {},
+          class: "select select-bordered w-full" %>
+        <p class="mt-2 text-sm text-base-content/60">
+          Atual: <span class="font-semibold text-base-content"><%= @team.registration_status.titleize %></span>
+        </p>
+      </div>
+
+      <div>
+        <%= f.submit "Salvar status", class: "btn btn-primary w-full md:w-auto" %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
 
 <section class="grid gap-6 xl:grid-cols-2">
   <% can_manage_athletes = @team.manageable_by?(current_user) %>
@@ -25,15 +76,15 @@
         <% @team_athletes.each do |link| %>
           <% athlete = link.athlete %>
           <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-4">
-            <div>
-              <p class="text-lg font-bold"><%= athlete.name %></p>
+            <%= link_to athlete_path(athlete), class: "min-w-0 flex-1 rounded-xl transition hover:text-primary" do %>
+              <p class="truncate text-lg font-bold"><%= athlete.name %></p>
               <p class="text-sm text-base-content/70">
                 Nº <%= athlete.shirt_number.presence || "-" %> · <%= athlete.position.presence || "-" %> · <%= athlete.team&.name || "-" %>
               </p>
-              <p class="text-xs text-base-content/50">
+              <p class="truncate text-xs text-base-content/50">
                 Vinculado em: <%= athlete.linked_teams.map(&:name).join(" · ") %>
               </p>
-            </div>
+            <% end %>
             <% if can_manage_athletes %>
               <%= link_to "Remover", team_team_athlete_path(@team, link), data: { turbo_method: :delete, turbo_confirm: "Remover atleta da equipe?" }, class: "btn btn-outline btn-error btn-sm" %>
             <% end %>

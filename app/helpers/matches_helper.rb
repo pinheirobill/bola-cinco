@@ -37,13 +37,29 @@ module MatchesHelper
 
   def match_event_sheet_state(match, team, athlete)
     state = match.event_sheet_state_for(team, athlete)
+    goal_minutes_list = Array(state[:goal_minutes_list]).map(&:to_s)
+    substitution_minutes_list = Array(state[:substitution_minutes_list]).map(&:to_s)
 
     {
       yellow_card: state[:yellow_card],
       red_card: state[:red_card],
       goal_minutes: state[:goal_minutes],
-      substitution_minutes: state[:substitution_minutes]
+      goal_minutes_list: goal_minutes_list,
+      substitution_minutes: state[:substitution_minutes],
+      substitution_minutes_list: substitution_minutes_list
     }
+  end
+
+  def match_event_sheet_minutes_list(state, field, count: nil)
+    minutes = Array(state[:"#{field}_minutes_list"]).map(&:to_s)
+    minutes = [""] if minutes.blank?
+
+    if count.present?
+      minutes = minutes.first(count)
+      minutes.fill("", minutes.length...count)
+    end
+
+    minutes
   end
 
   def match_event_sheet_participation_badge(participation)

@@ -6,13 +6,14 @@ class TeamsController < ApplicationController
   end
 
   def show
-    @team = scoped_teams.includes(:entity, :category, athletes: [], team_athletes: :athlete, home_matches: %i[category team_a team_b winner], away_matches: %i[category team_a team_b winner], standing_rows: :championship).find(params[:id])
+    @team = scoped_teams.includes(:entity, category: :championships, athletes: [], team_athletes: :athlete, home_matches: %i[category team_a team_b winner], away_matches: %i[category team_a team_b winner], standing_rows: :championship).find(params[:id])
     @team_athletes = @team.team_athletes.includes(athlete: :linked_teams).order(created_at: :desc)
     @team_athlete_ids = @team.athletes.map(&:id)
     @available_athletes = available_athletes_for(@team).sort_by do |athlete|
       [athlete.team.name.to_s.downcase, athlete.shirt_number_sort_key, athlete.quick_label.downcase, athlete.name.downcase]
     end
     @available_teams = Team.includes(:category).order(:name)
+    @team_championships = @team.category.championships.order(season: :desc, created_at: :desc)
   end
 
   def create
@@ -35,10 +36,30 @@ class TeamsController < ApplicationController
     return forbidden! unless team.manageable_by?(current_user)
 
     if team.update(team_params)
-      render json: team
+      respond_to do |format|
+        format.html { redirect_back fallback_location: team_path(team), notice: "Equipe atualizada." }
+        format.json { render json: team }
+      end
     else
-      render json: { errors: team.errors.full_messages }, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { redirect_back fallback_location: team_path(team), alert: team.errors.full_messages.to_sentence }
+        format.json { render json: { errors: team.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
+  end
+
+  def confirm_registration
+    return forbidden! unless current_user&.admin?
+
+    team.approve!
+    redirect_back fallback_location: team_path(team), notice: "Inscrição confirmada."
+  end
+
+  def reject_registration
+    return forbidden! unless current_user&.admin?
+
+    team.reject!
+    redirect_back fallback_location: team_path(team), notice: "Inscrição rejeitada."
   end
 
   def destroy

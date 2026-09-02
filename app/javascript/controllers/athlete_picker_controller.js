@@ -1,6 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
+  static values = {
+    teamSelectionMode: {
+      type: String,
+      default: "filter"
+    }
+  }
+
   static targets = ["item", "search", "teamFilter", "visibleCount", "selectedCount", "fallbackMessage"]
 
   connect() {
@@ -22,11 +29,12 @@ export default class extends Controller {
     }
 
     const query = this.hasSearchTarget ? this.searchTarget.value.trim().toLowerCase() : ""
-    const teamFilter = this.teamFilterTarget.value
+    const teamFilteringEnabled = this.teamSelectionModeValue !== "none"
+    const teamFilter = teamFilteringEnabled ? this.teamFilterTarget.value : ""
     const teamMatches = teamFilter
       ? this.itemTargets.filter((item) => this.itemMatchesTeam(item, teamFilter))
       : this.itemTargets
-    const fallbackToAll = Boolean(teamFilter) && teamMatches.length === 0
+    const fallbackToAll = teamFilteringEnabled && Boolean(teamFilter) && teamMatches.length === 0
     const effectiveTeamFilter = fallbackToAll ? "" : teamFilter
 
     this.itemTargets.forEach((item) => {
@@ -36,6 +44,14 @@ export default class extends Controller {
       const matches = matchesQuery && matchesTeam
       item.classList.toggle("hidden", !matches)
     })
+
+    if (!teamFilteringEnabled) {
+      if (this.hasFallbackMessageTarget) {
+        this.fallbackMessageTarget.classList.add("hidden")
+      }
+      this.refresh()
+      return
+    }
 
     if (syncSelection && !teamFilter) {
       this.clearSelection()

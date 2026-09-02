@@ -7,6 +7,8 @@
     {
       key: "team_a",
       label: "Equipe A",
+      team_field: :team_a_id,
+      score_field: :score_a,
       team: match.team_a,
       athletes: team_a_athletes,
       participations: team_a_participations_by_athlete
@@ -14,6 +16,8 @@
     {
       key: "team_b",
       label: "Equipe B",
+      team_field: :team_b_id,
+      score_field: :score_b,
       team: match.team_b,
       athletes: team_b_athletes,
       participations: team_b_participations_by_athlete
@@ -23,12 +27,22 @@
   <div class="space-y-6">
     <% sides.each do |side| %>
       <div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100">
-        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-base-300 bg-base-200 px-4 py-3">
-          <div>
+        <div class="flex flex-wrap items-start justify-between gap-4 border-b border-base-300 bg-base-200 px-4 py-3">
+          <div class="min-w-0">
             <p class="font-semibold"><%= side[:team]&.name || side[:label] %></p>
             <p class="text-xs text-base-content/60">Marque os lances do time e deixe o autosave cuidar do restante.</p>
           </div>
-          <div class="badge badge-outline"><%= side[:athletes].size %> atletas</div>
+          <div class="flex min-w-0 flex-col items-end gap-1 rounded-xl bg-base-100 px-2 py-2">
+            <%= hidden_field_tag "match[#{side[:team_field]}]", match.public_send(side[:team_field]) %>
+            <%= label_tag "match_#{side[:score_field]}", "Placar", class: "text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-base-content/50" %>
+            <%= number_field_tag "match[#{side[:score_field]}]",
+              match.public_send(side[:score_field]),
+              min: 0,
+              id: "match_#{side[:score_field]}",
+              class: "input input-bordered input-sm h-7 w-12 px-0 text-center text-xs tabular-nums",
+              data: { action: "blur->autosave-form#submit change->autosave-form#submit" } %>
+          </div>
+          <div class="badge badge-outline self-center"><%= side[:athletes].size %> atletas</div>
         </div>
 
         <% if side[:athletes].any? %>
@@ -39,17 +53,35 @@
                   <th class="w-16">Nº</th>
                   <th>Jogador</th>
                   <th>Status</th>
-                  <th class="w-[19rem]">Substituições (Max 5)</th>
-                  <th class="w-28 text-center">Amarelo</th>
-                  <th class="w-28 text-center">Vermelho</th>
-                  <th class="w-[14rem]">Gols (Min)</th>
+                  <th class="w-[16rem] text-center">Substituições</th>
+                  <th class="w-[12rem] text-center">Cartões</th>
+                  <th class="w-[18rem] text-center">Gols</th>
                 </tr>
               </thead>
               <tbody>
-                <% side[:athletes].each do |athlete| %>
-                  <% participation = side[:participations][athlete.id] %>
-                  <% state = match_event_sheet_state(match, side[:team], athlete) %>
-                  <% participation_badge = match_event_sheet_participation_badge(participation) %>
+                <% goal_count = match.public_send(side[:score_field]).to_i %>
+                <% goal_count = 1 if goal_count <= 0 %>
+                <% athlete_rows = side[:athletes].map do |side_athlete| %>
+                  <% side_state = match_event_sheet_state(match, side[:team], side_athlete) %>
+                  <% {
+                    athlete: side_athlete,
+                    participation: side[:participations][side_athlete.id],
+                    participation_badge: match_event_sheet_participation_badge(side[:participations][side_athlete.id]),
+                    state: side_state,
+                    substitution_minutes: match_event_sheet_minutes_list(side_state, :substitution, count: 5),
+                    goal_minutes: match_event_sheet_minutes_list(side_state, :goal, count: goal_count)
+                  } %>
+                <% end %>
+                <% goal_owners = Array.new(goal_count) %>
+                <% athlete_rows.each_with_index do |row, athlete_index| %>
+                  <% row[:goal_minutes].each_with_index do |minute, goal_index| %>
+                    <% next if minute.blank? %>
+                    <% goal_owners[goal_index] ||= athlete_index %>
+                  <% end %>
+                <% end %>
+                <% athlete_rows.each_with_index do |row, athlete_index| %>
+                  <% athlete = row[:athlete] %>
+                  <% participation_badge = row[:participation_badge] %>
                   <tr>
                     <td class="font-semibold"><%= athlete.shirt_number.presence || "-" %></td>
                     <td>
@@ -59,25 +91,104 @@
                     <td>
                       <span class="badge <%= participation_badge[:badge] %> badge-sm"><%= participation_badge[:label] %></span>
                     </td>
-                    <td>
-                      <%= text_field_tag match_event_sheet_field_name(side[:key], athlete.id, :substitution_minutes), state[:substitution_minutes], class: "input input-bordered input-sm w-full", placeholder: "01, 05, 12", autocomplete: "off" %>
-                    </td>
-                    <td class="text-center">
-                      <div class="inline-flex items-center gap-2 rounded-2xl border border-warning/40 bg-warning/10 px-3 py-2">
-                        <%= hidden_field_tag match_event_sheet_field_name(side[:key], athlete.id, :yellow_card), "0" %>
-                        <%= check_box_tag match_event_sheet_field_name(side[:key], athlete.id, :yellow_card), "1", state[:yellow_card], id: match_event_sheet_field_id(side[:key], athlete.id, :yellow_card), class: "checkbox checkbox-warning checkbox-sm" %>
-                        <%= label_tag match_event_sheet_field_id(side[:key], athlete.id, :yellow_card), "Amarelo", class: "cursor-pointer text-sm font-medium" %>
+                    <td class="align-top">
+                      <div class="space-y-2 rounded-2xl border border-base-300 bg-base-200 p-2 shadow-sm">
+                        <div class="flex items-center justify-between gap-3">
+                          <div class="min-w-0">
+                            <p class="text-[0.65rem] uppercase tracking-[0.28em] text-base-content/45">Substituições</p>
+                            <p class="truncate text-xs text-base-content/60">Até 5 tempos da súmula</p>
+                          </div>
+                        </div>
+
+                        <div class="flex flex-nowrap gap-1 overflow-x-auto pb-1">
+                          <% row[:substitution_minutes].each_with_index do |minute, index| %>
+                            <div class="flex w-[2.75rem] flex-none flex-col gap-0.5 rounded-xl bg-base-100 px-1 py-1">
+                              <div class="text-center text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-base-content/60"><%= index + 1 %></div>
+                              <input
+                                type="text"
+                                name="<%= match_event_sheet_field_name(side[:key], athlete.id, :substitution_minutes) %>[]"
+                                value="<%= minute %>"
+                                class="input input-bordered input-sm min-w-0 h-7 w-full px-0 text-center text-xs tabular-nums"
+                                placeholder="05"
+                                maxlength="2"
+                                inputmode="numeric"
+                                autocomplete="off"
+                              >
+                            </div>
+                          <% end %>
+                        </div>
                       </div>
                     </td>
-                    <td class="text-center">
-                      <div class="inline-flex items-center gap-2 rounded-2xl border border-error/40 bg-error/10 px-3 py-2">
-                        <%= hidden_field_tag match_event_sheet_field_name(side[:key], athlete.id, :red_card), "0" %>
-                        <%= check_box_tag match_event_sheet_field_name(side[:key], athlete.id, :red_card), "1", state[:red_card], id: match_event_sheet_field_id(side[:key], athlete.id, :red_card), class: "checkbox checkbox-error checkbox-sm" %>
-                        <%= label_tag match_event_sheet_field_id(side[:key], athlete.id, :red_card), "Vermelho", class: "cursor-pointer text-sm font-medium" %>
+                    <td class="align-top">
+                      <div class="rounded-2xl border border-base-300 bg-base-200 p-2 shadow-sm">
+                        <div class="flex items-center justify-between gap-3">
+                          <div class="min-w-0">
+                            <p class="text-[0.65rem] uppercase tracking-[0.28em] text-base-content/45">Cartões</p>
+                            <p class="truncate text-xs text-base-content/60">Pode marcar amarelo e vermelho</p>
+                          </div>
+                        </div>
+                        <div class="mt-2 space-y-2">
+                          <label class="flex items-center gap-2 rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-sm">
+                            <%= hidden_field_tag match_event_sheet_field_name(side[:key], athlete.id, :yellow_card), "0" %>
+                            <%= check_box_tag match_event_sheet_field_name(side[:key], athlete.id, :yellow_card), "1", row[:state][:yellow_card], id: match_event_sheet_field_id(side[:key], athlete.id, :yellow_card), class: "checkbox checkbox-warning checkbox-sm" %>
+                            <%= label_tag match_event_sheet_field_id(side[:key], athlete.id, :yellow_card), "Amarelo", class: "cursor-pointer font-medium" %>
+                          </label>
+                          <label class="flex items-center gap-2 rounded-xl border border-error/40 bg-error/10 px-3 py-2 text-sm">
+                            <%= hidden_field_tag match_event_sheet_field_name(side[:key], athlete.id, :red_card), "0" %>
+                            <%= check_box_tag match_event_sheet_field_name(side[:key], athlete.id, :red_card), "1", row[:state][:red_card], id: match_event_sheet_field_id(side[:key], athlete.id, :red_card), class: "checkbox checkbox-error checkbox-sm" %>
+                            <%= label_tag match_event_sheet_field_id(side[:key], athlete.id, :red_card), "Vermelho", class: "cursor-pointer font-medium" %>
+                          </label>
+                        </div>
                       </div>
                     </td>
-                    <td>
-                      <%= text_field_tag match_event_sheet_field_name(side[:key], athlete.id, :goal_minutes), state[:goal_minutes], class: "input input-bordered input-sm w-full", placeholder: "07, 13", autocomplete: "off" %>
+                    <td class="align-top">
+                      <div
+                        class="space-y-2 rounded-2xl border border-base-300 bg-base-200 p-2 shadow-sm"
+                        data-controller="match-event-goals"
+                        data-match-event-goals-field-name-value="<%= match_event_sheet_field_name(side[:key], athlete.id, :goal_minutes) %>"
+                        data-match-event-goals-item-label-value="Gol"
+                        data-match-event-goals-score-selector-value="#match_<%= side[:score_field] %>"
+                        data-match-event-goals-fixed-count-value="<%= goal_count %>"
+                      >
+                        <div class="flex items-center justify-between gap-3">
+                          <div class="min-w-0">
+                            <p class="text-[0.65rem] uppercase tracking-[0.28em] text-base-content/45">Gols</p>
+                            <p class="truncate text-xs text-base-content/60">Gol 1 fica sempre aberto</p>
+                          </div>
+                        </div>
+
+                        <div class="flex flex-nowrap gap-1 overflow-x-auto pb-1" data-match-event-goals-target="fields">
+                          <% row[:goal_minutes].each_with_index do |minute, index| %>
+                            <% owner_index = goal_owners[index] %>
+                            <% owner_row = owner_index.present? ? athlete_rows[owner_index] : nil %>
+                            <% locked_by_other = owner_index.present? && owner_index != athlete_index %>
+                            <% if locked_by_other && owner_row.present? %>
+                              <div class="flex w-[2.75rem] flex-none flex-col gap-0.5 rounded-xl bg-base-100 px-1 py-1 opacity-60">
+                                <div class="text-center text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-base-content/60"><%= index + 1 %></div>
+                                <div class="flex h-7 items-center justify-center rounded-lg border border-dashed border-base-300 text-[0.58rem] text-base-content/45" title="<%= owner_row[:athlete].name %>">
+                                  <%= owner_row[:athlete].name.to_s.split.first %>
+                                </div>
+                              </div>
+                            <% else %>
+                              <div class="flex w-[2.75rem] flex-none flex-col gap-0.5 rounded-xl bg-base-100 px-1 py-1" data-minute-row="true">
+                                <div class="text-center text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-base-content/60"><%= index + 1 %></div>
+                                <input
+                                  type="text"
+                                  name="<%= match_event_sheet_field_name(side[:key], athlete.id, :goal_minutes) %>[]"
+                                  value="<%= minute %>"
+                                  class="input input-bordered input-sm min-w-0 h-7 w-full px-0 text-center text-xs tabular-nums"
+                                  placeholder="05"
+                                  maxlength="2"
+                                  inputmode="numeric"
+                                  autocomplete="off"
+                                  data-match-event-goals-target="minute"
+                                  data-action="input->match-event-goals#refresh"
+                                >
+                              </div>
+                            <% end %>
+                          <% end %>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 <% end %>

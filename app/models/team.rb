@@ -56,6 +56,10 @@ class Team < ApplicationRecord
     ].compact.join(" · ")
   end
 
+  def signup_status
+    registration_status
+  end
+
   def championship
     category&.championship || category&.championships&.first
   end

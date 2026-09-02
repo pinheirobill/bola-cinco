@@ -7,6 +7,8 @@
   actions: [
     link_to("Classificação", standing_rows_path, class: "btn btn-outline"),
     (@championship.team_signup_open? ? button_tag("Inscrição de equipes", type: "button", class: "btn btn-outline", onclick: "document.getElementById('championship-team-signup-modal').showModal()") : nil),
+    (user_signed_in? && @championship.manageable_by?(current_user) && @championship.team_signup_open? ? button_to("Finalizar inscrições", finalize_registrations_championship_path(@championship), method: :patch, class: "btn btn-primary", data: { turbo_confirm: "Finalizar inscrições e gerar os jogos iniciais?" }) : nil),
+    (user_signed_in? && @championship.rascunho? && @championship.manageable_by?(current_user) ? button_to("Ativar campeonato", finalize_onboarding_championship_path(@championship), method: :patch, class: "btn btn-primary", data: { turbo_confirm: "Ativar este campeonato agora?" }) : nil),
     (user_signed_in? && @championship.manageable_by?(current_user) ? link_to("Configurar campeonato", setup_championship_path(@championship), class: "btn btn-primary") : nil)
   ].compact
 ) %>
@@ -14,7 +16,7 @@
 <%= stats_grid([
   { label: "Categorias", value: @championship.categories.count, value_class: "text-2xl" },
   { label: "Jogos", value: @championship.matches.count, value_class: "text-2xl" },
-  { label: "Classificações", value: @championship.standing_rows.count, value_class: "text-2xl" },
+  { label: "Classificações", value: @standing_groups.size, value_class: "text-2xl" },
   { label: "Atletas em destaque", value: @top_athletes.size, value_class: "text-2xl" }
 ]) %>
 
@@ -31,6 +33,18 @@
       <div class="rounded-2xl bg-base-200 p-4">
         <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Modo</p>
         <p class="mt-2 text-lg font-semibold"><%= @championship.competition_mode_label %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Quantidade de chaves</p>
+        <p class="mt-2 text-lg font-semibold"><%= @championship.group_count %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Classificados por chave</p>
+        <p class="mt-2 text-lg font-semibold"><%= @championship.qualified_per_group.positive? ? @championship.qualified_per_group : "-" %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Confrontos por adversário</p>
+        <p class="mt-2 text-lg font-semibold"><%= @championship.matches_per_opponent_label %></p>
       </div>
       <div class="rounded-2xl bg-base-200 p-4">
         <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Temporada</p>
@@ -65,117 +79,295 @@
   <% end %>
 </section>
 
-<section class="grid gap-6 xl:grid-cols-2">
-  <%= surface_card(
-    title: "Operação do campeonato",
-    subtitle: "Fluxos que o usuário normalmente procura para administrar jogo, disciplina e comunicação."
-  ) do %>
-    <div class="grid gap-3 sm:grid-cols-2">
-      <%= link_to "Locais", venues_path, class: "btn btn-outline btn-block justify-start" %>
-      <%= link_to "Árbitros", referees_path, class: "btn btn-outline btn-block justify-start" %>
-      <%= link_to "Eventos de jogo", match_events_path, class: "btn btn-outline btn-block justify-start" %>
-      <%= link_to "Relatórios de jogo", match_reports_path, class: "btn btn-outline btn-block justify-start" %>
-      <%= link_to "Suspensões", suspensions_path, class: "btn btn-outline btn-block justify-start" %>
-      <%= link_to "Parceiros", partners_path, class: "btn btn-outline btn-block justify-start" %>
-    </div>
-  <% end %>
-
-  <%= surface_card(
-    title: "Parceiros em destaque",
-    subtitle: "Pontos de saída rápidos para apoiadores do campeonato."
-  ) do %>
-    <div class="space-y-3">
-      <% if @featured_partners.any? %>
-        <% @featured_partners.each do |partner| %>
-          <div class="rounded-2xl bg-base-200 p-4">
-            <p class="font-medium"><%= partner.name %></p>
-            <p class="text-xs text-base-content/50"><%= partner.tier.titleize %></p>
-          </div>
-        <% end %>
-      <% else %>
-        <%= empty_state(
-          title: "Sem parceiros em destaque",
-          description: "Os apoiadores do campeonato aparecerão aqui."
-        ) %>
-      <% end %>
-    </div>
-  <% end %>
-</section>
-
-<section class="grid gap-6 xl:grid-cols-2">
-  <%= surface_card(title: "Últimos jogos", subtitle: "Partidas recentes com placar e contexto.") do %>
-    <div class="space-y-3">
-      <% if @recent_matches.any? %>
-        <% @recent_matches.each do |match| %>
-          <%= match_card(match, compact: true) %>
-        <% end %>
-      <% else %>
-        <%= empty_state(
-          title: "Sem jogos registrados",
-          description: "As partidas aparecerão aqui quando houver dados importados."
-        ) %>
-      <% end %>
-    </div>
-  <% end %>
-
-  <%= surface_card(title: "Top atletas", subtitle: "Ranking geral do campeonato.", actions: [tag.span("#{@top_athletes.size} atletas", class: "badge badge-outline")]) do %>
-    <div class="space-y-3">
-      <% if @top_athletes.any? %>
-        <% @top_athletes.each do |athlete| %>
-          <%= ranking_entry_card(athlete) %>
-        <% end %>
-      <% else %>
-        <%= empty_state(
-          title: "Sem atletas em destaque",
-          description: "Os atletas mais relevantes aparecerão aqui quando houver eventos registrados."
-        ) %>
-      <% end %>
-    </div>
-  <% end %>
-</section>
-
-<section class="grid gap-6 xl:grid-cols-2">
-  <%= surface_card(title: "Classificação", subtitle: "Tabela consolidada por categoria.") do %>
-    <div class="space-y-6">
-      <% if @standings_by_category.present? %>
-        <% @standings_by_category.each do |category, rows| %>
-          <%= standing_table(category, rows) %>
-        <% end %>
-      <% else %>
-        <%= empty_state(
-          title: "Classificação ainda não disponível",
-          description: "Quando as partidas forem processadas, a tabela vai aparecer aqui."
-        ) %>
-      <% end %>
-    </div>
-  <% end %>
-</section>
-
-<dialog id="championship-team-signup-modal" class="modal">
-  <div class="modal-box max-w-5xl">
-    <h3 class="text-2xl font-bold">Inscrição de equipes</h3>
-    <p class="mt-2 text-sm text-base-content/70">
-      Selecione um time já cadastrado e vincule-o à categoria do campeonato.
-    </p>
-
-    <% if @team&.errors&.any? %>
-      <div class="alert alert-error mt-4 shadow-sm">
-        <span><%= @team.errors.full_messages.join(" · ") %></span>
+<section class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
+  <div class="space-y-6">
+    <%= surface_card(
+      title: "Operação do campeonato",
+      subtitle: "Fluxos que o usuário normalmente procura para administrar jogo, disciplina e comunicação.",
+      classes: "self-start"
+    ) do %>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <%= link_to "Locais", venues_path, class: "btn btn-outline btn-block justify-start" %>
+        <%= link_to "Árbitros", referees_path, class: "btn btn-outline btn-block justify-start" %>
+        <%= link_to "Eventos de jogo", match_events_path, class: "btn btn-outline btn-block justify-start" %>
+        <%= link_to "Relatórios de jogo", match_reports_path, class: "btn btn-outline btn-block justify-start" %>
+        <%= link_to "Suspensões", suspensions_path, class: "btn btn-outline btn-block justify-start" %>
+        <%= link_to "Parceiros", partners_path, class: "btn btn-outline btn-block justify-start" %>
       </div>
     <% end %>
 
-    <div class="mt-6">
-      <%= render "championship_team_signups/form",
-        championship: @championship,
-        teams: @available_teams,
-        categories: @championship.categories.order(:name),
-        team: @team || Team.new,
-        selected_category: @category,
-        close_on_submit: true %>
-    </div>
+    <%= surface_card(title: "Últimos jogos", subtitle: "Partidas recentes com placar e contexto.", classes: "self-start") do %>
+      <div class="space-y-3">
+        <% if @recent_matches.any? %>
+          <% @recent_matches.each do |match| %>
+            <%= match_card(match, compact: true) %>
+          <% end %>
+        <% else %>
+          <%= empty_state(
+            title: "Sem jogos registrados",
+            description: "As partidas aparecerão aqui quando houver dados importados."
+          ) %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= surface_card(title: "Top atletas", subtitle: "Ranking geral do campeonato.", actions: [tag.span("#{@top_athletes.size} atletas", class: "badge badge-outline")], classes: "self-start") do %>
+      <div class="space-y-3">
+        <% if @top_athletes.any? %>
+          <% @top_athletes.each do |athlete| %>
+            <%= ranking_entry_card(athlete) %>
+          <% end %>
+        <% else %>
+          <%= empty_state(
+            title: "Sem atletas em destaque",
+            description: "Os atletas mais relevantes aparecerão aqui quando houver eventos registrados."
+          ) %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= surface_card(title: "Classificação", subtitle: "Tabela consolidada por categoria.", classes: "self-start") do %>
+      <div class="space-y-6">
+        <% if @standing_groups.present? %>
+          <% @standing_groups.each do |group| %>
+            <%= standing_table(group.category, group.rows, group_key: group.group_key) %>
+          <% end %>
+        <% else %>
+          <%= empty_state(
+            title: "Classificação ainda não disponível",
+            description: "Quando as partidas forem processadas, a tabela vai aparecer aqui."
+          ) %>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 
-  <form method="dialog" class="modal-backdrop">
-    <button aria-label="Fechar">close</button>
-  </form>
-</dialog>
+  <div class="space-y-6">
+    <%= surface_card(
+      title: "Inscrições de equipes",
+      subtitle: "Times já enviados para o campeonato e o status de cada inscrição.",
+      classes: "self-start",
+      actions: [
+        (current_user&.admin? && @championship.categories.flat_map(&:teams).any?(&:registration_status_pendente?) ? button_to("Confirmar todos", confirm_all_team_registrations_championship_path(@championship), method: :patch, class: "btn btn-primary btn-sm", data: { turbo_confirm: "Confirmar todas as inscrições pendentes?" }) : nil)
+      ].compact
+    ) do %>
+      <% championship_teams = @championship.categories.flat_map(&:teams) %>
+
+      <% if championship_teams.any? %>
+        <div class="space-y-3">
+          <% @championship.categories.each do |category| %>
+            <% teams = category.teams.sort_by { |team| [team.registration_status.to_s, team.name.to_s.downcase] } %>
+            <% next if teams.blank? %>
+
+            <div class="rounded-2xl bg-base-200 p-3">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="text-sm font-semibold"><%= category.name %></p>
+                  <p class="text-xs text-base-content/60"><%= teams.size %> equipe(s)</p>
+                </div>
+                <%= link_to "Ver categoria", category_path(category), class: "link link-primary" %>
+              </div>
+
+              <div class="mt-3 space-y-2">
+                <% teams.each do |team| %>
+                  <div class="flex items-center justify-between gap-3 rounded-xl bg-base-100 px-3 py-2">
+                    <div class="min-w-0 flex-1">
+                      <p class="truncate text-sm font-medium"><%= link_to team.name, team_path(team), class: "link link-primary", title: team.name %></p>
+                      <p class="truncate text-xs text-base-content/60" title="<%= team.entity.name %>"><%= team.entity.name %></p>
+                    </div>
+                    <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                      <% if current_user&.admin? %>
+                        <div class="rounded-2xl border px-2 py-1 <%= status_surface_class(team.registration_status) %>">
+                          <%= form_with model: team, url: team_path(team), method: :patch, local: true, class: "flex shrink-0 items-center gap-2", data: { controller: "autosave-form", action: "change->autosave-form#queue turbo:submit-end->autosave-form#complete" } do |f| %>
+                            <%= f.select :registration_status,
+                              options_for_select(Team.registration_statuses.keys.map { |status| [status.titleize, status] }, team.registration_status),
+                              {},
+                              class: ["select select-bordered select-xs h-8 min-h-8 w-40 bg-base-100", status_select_class(team.registration_status)] %>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <%= empty_state(
+          title: "Nenhuma equipe inscrita",
+          description: "As equipes enviadas para o campeonato vão aparecer aqui com o respectivo status."
+        ) %>
+      <% end %>
+    <% end %>
+
+    <%= surface_card(
+      title: "Parceiros em destaque",
+      subtitle: "Pontos de saída rápidos para apoiadores do campeonato.",
+      classes: "self-start"
+    ) do %>
+      <div class="space-y-3">
+        <% if @featured_partners.any? %>
+          <% @featured_partners.each do |partner| %>
+            <div class="rounded-2xl bg-base-200 p-4">
+              <p class="font-medium"><%= partner.name %></p>
+              <p class="text-xs text-base-content/50"><%= partner.tier.titleize %></p>
+            </div>
+          <% end %>
+        <% else %>
+          <%= empty_state(
+            title: "Sem parceiros em destaque",
+            description: "Os apoiadores do campeonato aparecerão aqui."
+          ) %>
+        <% end %>
+
+        <% if user_signed_in? && @championship.manageable_by?(current_user) %>
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Acesso rápido</p>
+            <p class="mt-2 text-sm text-base-content/70">
+              Crie um parceiro novo ou abra o gerenciador para vincular um já cadastrado.
+            </p>
+            <div class="mt-4 flex flex-wrap gap-3">
+              <%= link_to "Criar parceiro", partners_path(anchor: "novo-parceiro"), class: "btn btn-primary btn-sm" %>
+              <%= button_tag("Gerenciar parceiros", type: "button", class: "btn btn-outline btn-sm", onclick: "document.getElementById('partners-modal')?.showModal()") %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<% if @championship.team_signup_open? %>
+  <dialog id="championship-team-signup-modal" class="modal">
+    <div class="modal-box max-w-5xl">
+      <h3 class="text-2xl font-bold">Inscrição de equipes</h3>
+      <p class="mt-2 text-sm text-base-content/70">
+        Selecione um time já cadastrado e vincule-o à categoria do campeonato.
+      </p>
+
+      <% if @team&.errors&.any? %>
+        <div class="alert alert-error mt-4 shadow-sm">
+          <span><%= @team.errors.full_messages.join(" · ") %></span>
+        </div>
+      <% end %>
+
+      <div class="mt-6">
+        <%= render "championship_team_signups/form",
+          championship: @championship,
+          teams: @available_teams,
+          categories: @championship.categories.order(:name),
+          team: @team || Team.new,
+          selected_category: @category,
+          close_on_submit: true %>
+      </div>
+    </div>
+
+    <form method="dialog" class="modal-backdrop">
+      <button aria-label="Fechar">close</button>
+    </form>
+  </dialog>
+<% end %>
+
+<% if user_signed_in? && @championship.manageable_by?(current_user) %>
+  <dialog id="partners-modal" class="modal">
+    <div class="modal-box max-w-6xl">
+      <h3 class="text-2xl font-bold">Gerenciar parceiros</h3>
+      <p class="mt-2 text-sm text-base-content/70">
+        Adicione parceiros já cadastrados em outros campeonatos e controle quais ficam em destaque nesta página.
+      </p>
+
+      <div class="mt-6 grid gap-6 lg:grid-cols-2">
+        <div class="space-y-3">
+          <div class="flex items-center justify-between gap-3">
+            <h4 class="font-semibold">Neste campeonato</h4>
+            <span class="badge badge-outline"><%= @championship_partners.size %> parceiro(s)</span>
+          </div>
+
+          <% if @championship_partners.any? %>
+            <div class="space-y-2">
+              <% @championship_partners.each do |partner| %>
+                <div class="rounded-2xl bg-base-200 p-4">
+                  <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p class="font-medium"><%= partner.name %></p>
+                      <p class="text-xs text-base-content/60">
+                        <%= [partner.tier.titleize, partner.category&.name.presence].compact.join(" · ").presence || "Sem categoria" %>
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <%= status_badge(partner.status) %>
+                      <% if partner.highlight? %>
+                        <span class="badge badge-primary">Destaque</span>
+                      <% end %>
+                    </div>
+                  </div>
+
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <%= button_to(
+                      partner.highlight? ? "Remover do destaque" : "Destacar",
+                      partner_path(partner),
+                      method: :patch,
+                      params: { partner: { highlight: !partner.highlight? } },
+                      class: "btn btn-outline btn-sm"
+                    ) %>
+                    <%= link_to "Abrir", partner_path(partner), class: "link link-primary self-center" %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <%= empty_state(
+              title: "Nenhum parceiro vinculado",
+              description: "Adicione um parceiro existente para preencher esta área.",
+              action: link_to("Criar parceiro", partners_path(anchor: "novo-parceiro"), class: "btn btn-primary btn-sm")
+            ) %>
+          <% end %>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between gap-3">
+            <h4 class="font-semibold">Disponíveis para adicionar</h4>
+            <span class="badge badge-outline"><%= @available_partners_to_link.size %> disponível(is)</span>
+          </div>
+
+          <% if @available_partners_to_link.any? %>
+            <div class="space-y-2">
+              <% @available_partners_to_link.each do |partner| %>
+                <div class="rounded-2xl bg-base-200 p-4">
+                  <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p class="font-medium"><%= partner.name %></p>
+                      <p class="text-xs text-base-content/60">
+                        <%= [partner.championship.name, partner.tier.titleize, partner.category&.name.presence].compact.join(" · ") %>
+                      </p>
+                    </div>
+                    <%= status_badge(partner.status) %>
+                  </div>
+
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <%= button_to "Adicionar ao campeonato", attach_partner_championship_path(@championship), method: :patch, params: { partner_id: partner.id }, class: "btn btn-primary btn-sm" %>
+                    <%= link_to "Abrir origem", partner_path(partner), class: "link link-primary self-center" %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <%= empty_state(
+              title: "Sem parceiros disponíveis",
+              description: "Não há outros parceiros ativos para copiar para este campeonato.",
+              action: link_to("Criar parceiro", partners_path(anchor: "novo-parceiro"), class: "btn btn-primary btn-sm")
+            ) %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('partners-modal')?.close()">Fechar</button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button aria-label="Fechar">close</button>
+    </form>
+  </dialog>
+<% end %>

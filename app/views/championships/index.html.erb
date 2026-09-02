@@ -5,6 +5,7 @@
   subtitle: "Visão geral dos campeonatos públicos e acessíveis.",
   badge: "Visão",
   actions: [
+    (current_user&.admin? ? link_to("Novo campeonato", new_championship_path, class: "btn btn-outline") : nil),
     (current_championship.present? ? link_to("Onboarding do campeonato", setup_championship_path(current_championship), class: "btn btn-primary") : nil)
   ].compact
 ) %>

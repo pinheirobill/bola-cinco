@@ -1,5 +1,4 @@
 class Match < ApplicationRecord
-  AUTO_GOAL_PREFIX = "auto-goal".freeze
   EVENT_SHEET_PREFIX = "event-sheet".freeze
   EVENT_SHEET_KINDS = {
     yellow_card: "cartao_amarelo",
@@ -60,32 +59,14 @@ class Match < ApplicationRecord
 
   def sync_competition_state!
     championship.rebuild_standings! if classification_phase? && (status_finalizado? || status_wo?)
+    championship.advance_group_stage_knockout_from!(self) if classification_phase? && (status_finalizado? || status_wo?)
     championship.advance_knockout_from!(self) if knockout_phase? && (status_finalizado? || status_wo?)
-  end
-
-  def auto_goal_minutes_by_side
-    {
-      "a" => auto_goal_events_for("a").map { |event| event.minute&.to_s.presence || "" },
-      "b" => auto_goal_events_for("b").map { |event| event.minute&.to_s.presence || "" }
-    }
-  end
-
-  def auto_goal_penalties_by_side
-    {
-      "a" => auto_goal_events_for("a").map { |event| event.source_data["penalty"] == true },
-      "b" => auto_goal_events_for("b").map { |event| event.source_data["penalty"] == true }
-    }
   end
 
   def roster_athletes
     roster_athlete_entries.map(&:last).uniq(&:id).sort_by do |athlete|
       [athlete.team&.name.to_s.downcase, athlete.shirt_number_sort_key, athlete.quick_label.downcase, athlete.name.downcase]
     end
-  end
-
-  def sync_auto_goal_events!(goal_minutes_a:, goal_minutes_b:, goal_penalties_a: [], goal_penalties_b: [])
-    sync_auto_goal_events_for!("a", team_a, score_a.to_i, Array(goal_minutes_a), Array(goal_penalties_a))
-    sync_auto_goal_events_for!("b", team_b, score_b.to_i, Array(goal_minutes_b), Array(goal_penalties_b))
   end
 
   def sync_event_sheet!(sheet_params)
@@ -106,11 +87,18 @@ class Match < ApplicationRecord
   end
 
   def event_sheet_state_for(team, athlete)
+    goal_events = event_sheet_events_for(team, athlete, "gol")
+    goal_minutes_list = goal_events.map { |event| event.minute&.to_s.presence || "" }
+    substitution_events = event_sheet_events_for(team, athlete, "substituicao")
+    substitution_minutes_list = substitution_events.map { |event| event.minute&.to_s.presence || "" }
+
     {
       yellow_card: event_sheet_events_for(team, athlete, "cartao_amarelo").any?,
       red_card: event_sheet_events_for(team, athlete, "cartao_vermelho").any?,
-      goal_minutes: event_sheet_events_for(team, athlete, "gol").map { |event| event.minute&.to_s.presence }.compact.join(", "),
-      substitution_minutes: event_sheet_events_for(team, athlete, "substituicao").map { |event| event.minute&.to_s.presence }.compact.join(", ")
+      goal_minutes: goal_minutes_list.reject(&:blank?).join(", "),
+      goal_minutes_list: goal_minutes_list,
+      substitution_minutes: substitution_minutes_list.reject(&:blank?).join(", "),
+      substitution_minutes_list: substitution_minutes_list
     }
   end
 
@@ -129,40 +117,10 @@ class Match < ApplicationRecord
     self.winner = resolved_winner
   end
 
-  def auto_goal_events_for(side)
-    match_events
-      .select { |event| event.kind_gol? && event.source_data["auto_generated"] && event.source_data["auto_goal_side"].to_s == side.to_s }
-      .sort_by { |event| event.source_data["auto_goal_index"].to_i }
-  end
-
   def roster_athlete_entries
     [team_a, team_b].compact.flat_map do |team|
       team.athletes.includes(:team).map { |athlete| [team, athlete] }
     end
-  end
-
-  def sync_auto_goal_events_for!(side, team, count, minutes, penalties)
-    events = auto_goal_events_for(side)
-
-    count.times do |index|
-      event = events[index] || match_events.find_by(source_id: auto_goal_source_id(side, index + 1)) || match_events.new(source_id: auto_goal_source_id(side, index + 1))
-      penalty = [true, "true", 1, "1"].include?(penalties[index])
-      event.assign_attributes(
-        kind: :gol,
-        team: team,
-        minute: normalize_goal_minute(minutes[index]),
-        notes: penalty ? "Gol automático de pênalti" : "Gol automático",
-        source_data: event.source_data.merge(
-          "auto_generated" => true,
-          "auto_goal_side" => side.to_s,
-          "auto_goal_index" => index + 1,
-          "penalty" => penalty
-        )
-      )
-      event.save!
-    end
-
-    events.drop(count).each(&:destroy!)
   end
 
   def sync_event_sheet_row!(team, athlete, row_params)
@@ -205,11 +163,12 @@ class Match < ApplicationRecord
   end
 
   def sync_event_sheet_minutes!(team, athlete, kind, value, notes)
-    minutes = normalize_event_sheet_minutes(value)
+    minutes = normalize_event_sheet_minutes_list(value)
     events = event_sheet_events_for(team, athlete, kind)
     managed_source_ids = []
 
-    minutes.each_with_index do |minute, index|
+    minutes.length.times do |index|
+      minute = minutes[index]
       event = match_events.find_by(source_id: event_sheet_source_id(team, athlete, kind, index + 1)) || events[index] || match_events.find_or_initialize_by(source_id: event_sheet_source_id(team, athlete, kind, index + 1))
       event.assign_attributes(
         kind: kind,
@@ -231,10 +190,6 @@ class Match < ApplicationRecord
 
     events.reject { |event| managed_source_ids.include?(event.source_id) }.each(&:destroy!)
     managed_source_ids
-  end
-
-  def auto_goal_source_id(side, index)
-    "#{AUTO_GOAL_PREFIX}-#{id}-#{side}-#{index}"
   end
 
   def pending_participation_source_id(team, athlete)
@@ -275,6 +230,17 @@ class Match < ApplicationRecord
     end
   end
 
+  def normalize_event_sheet_minutes_list(value)
+    values =
+      if value.is_a?(Array)
+        value
+      else
+        value.to_s.split(/[,\n;]+/)
+      end
+
+    values.map { |part| part.to_s.strip }.reject(&:blank?)
+  end
+
   def truthy_param?(value)
     [true, "true", 1, "1", "on", "yes"].include?(value)
   end
@@ -285,13 +251,6 @@ class Match < ApplicationRecord
     match_events
       .select { |event| event.source_id.start_with?("#{EVENT_SHEET_PREFIX}-#{id}-") && !allowed.include?(event.source_id) }
       .each(&:destroy!)
-  end
-
-  def normalize_goal_minute(value)
-    cleaned = value.to_s.strip
-    return if cleaned.blank?
-
-    cleaned.to_i
   end
 
   def resolved_winner

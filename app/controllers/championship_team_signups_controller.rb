@@ -3,7 +3,7 @@ class ChampionshipTeamSignupsController < ApplicationController
 
   def new
     load_championship
-    return forbidden! unless @championship.publicly_visible? && @championship.team_signup_open?
+    return forbidden! unless @championship.team_signup_open?
 
     @teams = Team.includes(:entity, :category).order(:name)
     @categories = @championship.categories.order(:name)
@@ -12,7 +12,7 @@ class ChampionshipTeamSignupsController < ApplicationController
 
   def create
     load_championship
-    return forbidden! unless @championship.publicly_visible? && @championship.team_signup_open?
+    return forbidden! unless @championship.team_signup_open?
 
     @teams = Team.includes(:entity, :category).order(:name)
     @categories = @championship.categories.order(:name)

@@ -7,6 +7,7 @@
   actions: [
     link_to("Voltar", matches_path, class: "btn btn-outline"),
     link_to("Editar súmula", edit_match_path(@match), class: "btn btn-outline"),
+    button_tag("Importar súmula", type: "button", class: "btn btn-primary", onclick: "document.getElementById('match-summula-import-modal').showModal()"),
     link_to("Classificação", standing_rows_path, class: "btn btn-primary")
   ]
 ) %>
@@ -48,6 +49,34 @@
     </div>
   </div>
 </section>
+
+<dialog id="match-summula-import-modal" class="modal">
+  <div class="modal-box max-w-2xl">
+    <h3 class="text-2xl font-bold">Importar súmula</h3>
+    <p class="mt-2 text-sm text-base-content/70">
+      Envie o PDF da súmula para comparar o que foi detectado com o jogo atual e confirmar equipe e atletas antes de salvar.
+    </p>
+
+    <%= form_with url: import_summula_match_path(@match), method: :post, multipart: true, class: "mt-6 space-y-4", data: { turbo: false } do %>
+      <div class="form-control gap-2">
+        <label class="label-text font-medium" for="match_summula_import_pdf">PDF ou foto da súmula</label>
+        <input id="match_summula_import_pdf" type="file" name="match_summula_import[pdf]" accept="application/pdf,image/*,.pdf,.jpg,.jpeg,.png" class="file-input file-input-bordered w-full" required>
+      </div>
+
+      <div class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/70">
+        Se vier PDF com texto extraível, o sistema tenta sugerir times e jogadores. Se for foto ou a leitura falhar, a tela seguinte abre no modo manual com o <strong>de/para</strong> para conferência.
+      </div>
+
+      <div class="modal-action">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('match-summula-import-modal').close()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Enviar PDF</button>
+      </div>
+    <% end %>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
 
 <%= stats_grid([
   { label: "Placar", value: "#{@match.score_a || '-'} x #{@match.score_b || '-'}", value_class: "text-3xl" },
