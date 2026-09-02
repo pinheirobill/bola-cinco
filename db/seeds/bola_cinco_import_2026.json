@@ -1,0 +1,3879 @@
+{
+  "championship": {
+    "id": "copa-bola-5-37-interescolas-futsal-2026",
+    "name": "COPA BOLA 5 - 37ª INTERESCOLAS DE FUTSAL - 2026",
+    "season": 2026,
+    "status": "em_andamento",
+    "modality": "football"
+  },
+  "categories": [
+    {
+      "id": "sub-08",
+      "championshipId": "copa-bola-5-37-interescolas-futsal-2026",
+      "name": "Sub 08",
+      "gender": null,
+      "minBirthYear": null,
+      "maxBirthYear": null,
+      "maxAthletes": null
+    },
+    {
+      "id": "sub-09",
+      "championshipId": "copa-bola-5-37-interescolas-futsal-2026",
+      "name": "Sub 09",
+      "gender": null,
+      "minBirthYear": null,
+      "maxBirthYear": null,
+      "maxAthletes": null
+    },
+    {
+      "id": "sub-10",
+      "championshipId": "copa-bola-5-37-interescolas-futsal-2026",
+      "name": "Sub 10",
+      "gender": null,
+      "minBirthYear": null,
+      "maxBirthYear": null,
+      "maxAthletes": null
+    },
+    {
+      "id": "sub-11",
+      "championshipId": "copa-bola-5-37-interescolas-futsal-2026",
+      "name": "Sub 11",
+      "gender": null,
+      "minBirthYear": null,
+      "maxBirthYear": null,
+      "maxAthletes": null
+    },
+    {
+      "id": "sub-12",
+      "championshipId": "copa-bola-5-37-interescolas-futsal-2026",
+      "name": "Sub 12",
+      "gender": null,
+      "minBirthYear": null,
+      "maxBirthYear": null,
+      "maxAthletes": null
+    },
+    {
+      "id": "sub-13",
+      "championshipId": "copa-bola-5-37-interescolas-futsal-2026",
+      "name": "Sub 13",
+      "gender": null,
+      "minBirthYear": null,
+      "maxBirthYear": null,
+      "maxAthletes": null
+    }
+  ],
+  "entities": [
+    {
+      "id": "academy-acesos",
+      "name": "ACADEMY ACESOS"
+    },
+    {
+      "id": "col-anglo-morumbi",
+      "name": "COL. ANGLO MORUMBI"
+    },
+    {
+      "id": "col-beit-yaacov",
+      "name": "COL. BEIT YAACOV"
+    },
+    {
+      "id": "col-iavne",
+      "name": "COL. IAVNE"
+    },
+    {
+      "id": "col-j-sao-paulo-tremembe",
+      "name": "COL. J. SÃO PAULO TREMEMBÉ"
+    },
+    {
+      "id": "col-pentagono-perdizes",
+      "name": "COL. PENTÁGONO PERDIZES"
+    },
+    {
+      "id": "coopercotia",
+      "name": "COOPERCOTIA"
+    },
+    {
+      "id": "l-b-v",
+      "name": "L.B.V."
+    },
+    {
+      "id": "tenis-clube-paulista",
+      "name": "TÊNIS CLUBE PAULISTA"
+    },
+    {
+      "id": "w-p-sports",
+      "name": "W.P. SPORTS"
+    }
+  ],
+  "teams": [
+    {
+      "id": "sub-09-academy-acesos",
+      "entityId": "academy-acesos",
+      "categoryId": "sub-09",
+      "group": null,
+      "name": "ACADEMY ACESOS",
+      "shortName": "ACADEMY ACESOS",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-11-academy-acesos",
+      "entityId": "academy-acesos",
+      "categoryId": "sub-11",
+      "group": null,
+      "name": "ACADEMY ACESOS",
+      "shortName": "ACADEMY ACESOS",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-09-col-anglo-morumbi",
+      "entityId": "col-anglo-morumbi",
+      "categoryId": "sub-09",
+      "group": null,
+      "name": "COL. ANGLO MORUMBI",
+      "shortName": "COL. ANGLO MORUMBI",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-10-col-anglo-morumbi",
+      "entityId": "col-anglo-morumbi",
+      "categoryId": "sub-10",
+      "group": null,
+      "name": "COL. ANGLO MORUMBI",
+      "shortName": "COL. ANGLO MORUMBI",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-11-col-anglo-morumbi",
+      "entityId": "col-anglo-morumbi",
+      "categoryId": "sub-11",
+      "group": null,
+      "name": "COL. ANGLO MORUMBI",
+      "shortName": "COL. ANGLO MORUMBI",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-12-col-anglo-morumbi",
+      "entityId": "col-anglo-morumbi",
+      "categoryId": "sub-12",
+      "group": null,
+      "name": "COL. ANGLO MORUMBI",
+      "shortName": "COL. ANGLO MORUMBI",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-13-col-anglo-morumbi",
+      "entityId": "col-anglo-morumbi",
+      "categoryId": "sub-13",
+      "group": null,
+      "name": "COL. ANGLO MORUMBI",
+      "shortName": "COL. ANGLO MORUMBI",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-08-col-beit-yaacov",
+      "entityId": "col-beit-yaacov",
+      "categoryId": "sub-08",
+      "group": null,
+      "name": "COL. BEIT YAACOV",
+      "shortName": "COL. BEIT YAACOV",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-09-col-beit-yaacov",
+      "entityId": "col-beit-yaacov",
+      "categoryId": "sub-09",
+      "group": null,
+      "name": "COL. BEIT YAACOV",
+      "shortName": "COL. BEIT YAACOV",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-10-col-beit-yaacov",
+      "entityId": "col-beit-yaacov",
+      "categoryId": "sub-10",
+      "group": null,
+      "name": "COL. BEIT YAACOV",
+      "shortName": "COL. BEIT YAACOV",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-11-col-beit-yaacov",
+      "entityId": "col-beit-yaacov",
+      "categoryId": "sub-11",
+      "group": null,
+      "name": "COL. BEIT YAACOV",
+      "shortName": "COL. BEIT YAACOV",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-12-col-beit-yaacov",
+      "entityId": "col-beit-yaacov",
+      "categoryId": "sub-12",
+      "group": null,
+      "name": "COL. BEIT YAACOV",
+      "shortName": "COL. BEIT YAACOV",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-08-col-iavne",
+      "entityId": "col-iavne",
+      "categoryId": "sub-08",
+      "group": null,
+      "name": "COL. IAVNE",
+      "shortName": "COL. IAVNE",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-10-col-iavne",
+      "entityId": "col-iavne",
+      "categoryId": "sub-10",
+      "group": null,
+      "name": "COL. IAVNE",
+      "shortName": "COL. IAVNE",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-11-col-iavne",
+      "entityId": "col-iavne",
+      "categoryId": "sub-11",
+      "group": null,
+      "name": "COL. IAVNE",
+      "shortName": "COL. IAVNE",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-12-col-iavne",
+      "entityId": "col-iavne",
+      "categoryId": "sub-12",
+      "group": null,
+      "name": "COL. IAVNE",
+      "shortName": "COL. IAVNE",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-08-col-j-sao-paulo-tremembe",
+      "entityId": "col-j-sao-paulo-tremembe",
+      "categoryId": "sub-08",
+      "group": null,
+      "name": "COL. J. SÃO PAULO TREMEMBÉ",
+      "shortName": "COL. J. SÃO PAULO TREMEMBÉ",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-09-col-j-sao-paulo-tremembe",
+      "entityId": "col-j-sao-paulo-tremembe",
+      "categoryId": "sub-09",
+      "group": null,
+      "name": "COL. J. SÃO PAULO TREMEMBÉ",
+      "shortName": "COL. J. SÃO PAULO TREMEMBÉ",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-10-col-j-sao-paulo-tremembe",
+      "entityId": "col-j-sao-paulo-tremembe",
+      "categoryId": "sub-10",
+      "group": null,
+      "name": "COL. J. SÃO PAULO TREMEMBÉ",
+      "shortName": "COL. J. SÃO PAULO TREMEMBÉ",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-11-col-j-sao-paulo-tremembe",
+      "entityId": "col-j-sao-paulo-tremembe",
+      "categoryId": "sub-11",
+      "group": null,
+      "name": "COL. J. SÃO PAULO TREMEMBÉ",
+      "shortName": "COL. J. SÃO PAULO TREMEMBÉ",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-12-col-j-sao-paulo-tremembe",
+      "entityId": "col-j-sao-paulo-tremembe",
+      "categoryId": "sub-12",
+      "group": null,
+      "name": "COL. J. SÃO PAULO TREMEMBÉ",
+      "shortName": "COL. J. SÃO PAULO TREMEMBÉ",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-09-col-pentagono-perdizes",
+      "entityId": "col-pentagono-perdizes",
+      "categoryId": "sub-09",
+      "group": null,
+      "name": "COL. PENTÁGONO PERDIZES",
+      "shortName": "COL. PENTÁGONO PERDIZES",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-10-col-pentagono-perdizes",
+      "entityId": "col-pentagono-perdizes",
+      "categoryId": "sub-10",
+      "group": null,
+      "name": "COL. PENTÁGONO PERDIZES",
+      "shortName": "COL. PENTÁGONO PERDIZES",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-11-col-pentagono-perdizes",
+      "entityId": "col-pentagono-perdizes",
+      "categoryId": "sub-11",
+      "group": null,
+      "name": "COL. PENTÁGONO PERDIZES",
+      "shortName": "COL. PENTÁGONO PERDIZES",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-12-col-pentagono-perdizes",
+      "entityId": "col-pentagono-perdizes",
+      "categoryId": "sub-12",
+      "group": null,
+      "name": "COL. PENTÁGONO PERDIZES",
+      "shortName": "COL. PENTÁGONO PERDIZES",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-13-col-pentagono-perdizes",
+      "entityId": "col-pentagono-perdizes",
+      "categoryId": "sub-13",
+      "group": null,
+      "name": "COL. PENTÁGONO PERDIZES",
+      "shortName": "COL. PENTÁGONO PERDIZES",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-08-coopercotia",
+      "entityId": "coopercotia",
+      "categoryId": "sub-08",
+      "group": null,
+      "name": "COOPERCOTIA",
+      "shortName": "COOPERCOTIA",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-10-coopercotia",
+      "entityId": "coopercotia",
+      "categoryId": "sub-10",
+      "group": null,
+      "name": "COOPERCOTIA",
+      "shortName": "COOPERCOTIA",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-12-coopercotia",
+      "entityId": "coopercotia",
+      "categoryId": "sub-12",
+      "group": null,
+      "name": "COOPERCOTIA",
+      "shortName": "COOPERCOTIA",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-12-l-b-v",
+      "entityId": "l-b-v",
+      "categoryId": "sub-12",
+      "group": null,
+      "name": "L.B.V.",
+      "shortName": "L.B.V.",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-13-l-b-v",
+      "entityId": "l-b-v",
+      "categoryId": "sub-13",
+      "group": null,
+      "name": "L.B.V.",
+      "shortName": "L.B.V.",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-08-tenis-clube-paulista",
+      "entityId": "tenis-clube-paulista",
+      "categoryId": "sub-08",
+      "group": null,
+      "name": "TÊNIS CLUBE PAULISTA",
+      "shortName": "TÊNIS CLUBE PAULISTA",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-10-tenis-clube-paulista",
+      "entityId": "tenis-clube-paulista",
+      "categoryId": "sub-10",
+      "group": null,
+      "name": "TÊNIS CLUBE PAULISTA",
+      "shortName": "TÊNIS CLUBE PAULISTA",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-08-w-p-sports",
+      "entityId": "w-p-sports",
+      "categoryId": "sub-08",
+      "group": null,
+      "name": "W.P. SPORTS",
+      "shortName": "W.P. SPORTS",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-09-w-p-sports",
+      "entityId": "w-p-sports",
+      "categoryId": "sub-09",
+      "group": null,
+      "name": "W.P. SPORTS",
+      "shortName": "W.P. SPORTS",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-10-w-p-sports",
+      "entityId": "w-p-sports",
+      "categoryId": "sub-10",
+      "group": null,
+      "name": "W.P. SPORTS",
+      "shortName": "W.P. SPORTS",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "sub-11-w-p-sports",
+      "entityId": "w-p-sports",
+      "categoryId": "sub-11",
+      "group": null,
+      "name": "W.P. SPORTS",
+      "shortName": "W.P. SPORTS",
+      "registration": {
+        "status": "pendente"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    }
+  ],
+  "athletes": [],
+  "matches": [
+    {
+      "id": "match-001",
+      "categoryId": "sub-11",
+      "code": "JG001",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-04-11",
+      "time": "09H00",
+      "teamAId": "sub-11-col-anglo-morumbi",
+      "teamBId": "sub-11-academy-acesos",
+      "sourceA": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "sourceB": {
+        "name": "ACADEMY ACESOS"
+      },
+      "scoreA": 4,
+      "scoreB": 0,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-11-col-anglo-morumbi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO ANGLO MORUMBI",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 5
+      }
+    },
+    {
+      "id": "match-002",
+      "categoryId": "sub-10",
+      "code": "JG002",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-04-11",
+      "time": "10H00",
+      "teamAId": "sub-10-col-anglo-morumbi",
+      "teamBId": "sub-10-tenis-clube-paulista",
+      "sourceA": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "sourceB": {
+        "name": "TÊNIS CLUBE PAULISTA"
+      },
+      "scoreA": 3,
+      "scoreB": 0,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-10-col-anglo-morumbi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO ANGLO MORUMBI",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 6
+      }
+    },
+    {
+      "id": "match-003",
+      "categoryId": "sub-08",
+      "code": "JG003",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-04-26",
+      "time": "09H30",
+      "teamAId": "sub-08-col-beit-yaacov",
+      "teamBId": "sub-08-w-p-sports",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": 2,
+      "scoreB": 6,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-08-w-p-sports",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 9
+      }
+    },
+    {
+      "id": "match-004",
+      "categoryId": "sub-09",
+      "code": "JG004",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-04-26",
+      "time": "10H30",
+      "teamAId": "sub-09-col-beit-yaacov",
+      "teamBId": "sub-09-w-p-sports",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": 1,
+      "scoreB": 9,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-09-w-p-sports",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 10
+      }
+    },
+    {
+      "id": "match-005",
+      "categoryId": "sub-10",
+      "code": "JG005",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-04-26",
+      "time": "11H20",
+      "teamAId": "sub-10-col-beit-yaacov",
+      "teamBId": "sub-10-w-p-sports",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": 1,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-10-w-p-sports",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 11
+      }
+    },
+    {
+      "id": "match-006",
+      "categoryId": "sub-11",
+      "code": "JG006",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-04-26",
+      "time": "12H10",
+      "teamAId": "sub-11-col-beit-yaacov",
+      "teamBId": "sub-11-w-p-sports",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": 5,
+      "scoreB": 7,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-11-w-p-sports",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 12
+      }
+    },
+    {
+      "id": "match-007",
+      "categoryId": "sub-09",
+      "code": "JG007",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-05-06",
+      "time": "19H50",
+      "teamAId": "sub-09-academy-acesos",
+      "teamBId": "sub-09-col-anglo-morumbi",
+      "sourceA": {
+        "name": "ACADEMY ACESOS"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": 3,
+      "scoreB": 7,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-09-col-anglo-morumbi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "CDC LORENÇO CABRERA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 16
+      }
+    },
+    {
+      "id": "match-008",
+      "categoryId": "sub-08",
+      "code": "JG008",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-05-24",
+      "time": "09H45",
+      "teamAId": "sub-08-coopercotia",
+      "teamBId": "sub-08-col-iavne",
+      "sourceA": {
+        "name": "COOPERCOTIA"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": 1,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COOPERCOTIA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 20
+      }
+    },
+    {
+      "id": "match-009",
+      "categoryId": "sub-10",
+      "code": "JG009",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-05-24",
+      "time": "10H45",
+      "teamAId": "sub-10-coopercotia",
+      "teamBId": "sub-10-col-iavne",
+      "sourceA": {
+        "name": "COOPERCOTIA"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": 3,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COOPERCOTIA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 21
+      }
+    },
+    {
+      "id": "match-010",
+      "categoryId": "sub-11",
+      "code": "JG010",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-05-24",
+      "time": "11H45",
+      "teamAId": "sub-11-col-pentagono-perdizes",
+      "teamBId": "sub-11-col-iavne",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": 6,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-11-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COOPERCOTIA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 22
+      }
+    },
+    {
+      "id": "match-011",
+      "categoryId": "sub-12",
+      "code": "JG011",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-05-24",
+      "time": "12H45",
+      "teamAId": "sub-12-coopercotia",
+      "teamBId": "sub-12-col-pentagono-perdizes",
+      "sourceA": {
+        "name": "COOPERCOTIA"
+      },
+      "sourceB": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "scoreA": 0,
+      "scoreB": 7,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-12-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COOPERCOTIA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 23
+      }
+    },
+    {
+      "id": "match-012",
+      "categoryId": "sub-08",
+      "code": "JG012",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-05-25",
+      "time": "18H40",
+      "teamAId": "sub-08-col-iavne",
+      "teamBId": "sub-08-col-j-sao-paulo-tremembe",
+      "sourceA": {
+        "name": "COL. IAVNE"
+      },
+      "sourceB": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "scoreA": 3,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. IAVNE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 27
+      }
+    },
+    {
+      "id": "match-013",
+      "categoryId": "sub-10",
+      "code": "JG013",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-05-25",
+      "time": "19H40",
+      "teamAId": "sub-10-col-iavne",
+      "teamBId": "sub-10-col-j-sao-paulo-tremembe",
+      "sourceA": {
+        "name": "COL. IAVNE"
+      },
+      "sourceB": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "scoreA": 2,
+      "scoreB": 5,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-10-col-j-sao-paulo-tremembe",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. IAVNE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 28
+      }
+    },
+    {
+      "id": "match-014",
+      "categoryId": "sub-10",
+      "code": "JG014",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-05-31",
+      "time": "16H50",
+      "teamAId": "sub-10-tenis-clube-paulista",
+      "teamBId": "sub-10-col-pentagono-perdizes",
+      "sourceA": {
+        "name": "TÊNIS CLUBE PAULISTA"
+      },
+      "sourceB": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "scoreA": 0,
+      "scoreB": 4,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-10-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "TÊNIS CLUBE PAULISTA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 32
+      }
+    },
+    {
+      "id": "match-015",
+      "categoryId": "sub-13",
+      "code": "JG015",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-05-31",
+      "time": "17H50",
+      "teamAId": "sub-13-col-pentagono-perdizes",
+      "teamBId": "sub-13-l-b-v",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "L.B.V."
+      },
+      "scoreA": 6,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-13-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "TÊNIS CLUBE PAULISTA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 33
+      }
+    },
+    {
+      "id": "match-016",
+      "categoryId": "sub-11",
+      "code": "JG016",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-09",
+      "time": "18H40",
+      "teamAId": "sub-11-col-beit-yaacov",
+      "teamBId": "sub-11-col-j-sao-paulo-tremembe",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "scoreA": 6,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-11-col-beit-yaacov",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 37
+      }
+    },
+    {
+      "id": "match-017",
+      "categoryId": "sub-12",
+      "code": "JG017",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-09",
+      "time": "19H50",
+      "teamAId": "sub-12-col-beit-yaacov",
+      "teamBId": "sub-12-col-j-sao-paulo-tremembe",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "scoreA": 7,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-12-col-beit-yaacov",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 38
+      }
+    },
+    {
+      "id": "match-020",
+      "categoryId": "sub-09",
+      "code": "JG020",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-14",
+      "time": "10H00",
+      "teamAId": "sub-09-col-beit-yaacov",
+      "teamBId": "sub-09-col-pentagono-perdizes",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "scoreA": 2,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-09-col-beit-yaacov",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 47
+      }
+    },
+    {
+      "id": "match-021",
+      "categoryId": "sub-10",
+      "code": "JG021",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-14",
+      "time": "11H00",
+      "teamAId": "sub-10-col-beit-yaacov",
+      "teamBId": "sub-10-col-pentagono-perdizes",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "scoreA": 2,
+      "scoreB": 4,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-10-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 48
+      }
+    },
+    {
+      "id": "match-018",
+      "categoryId": "sub-08",
+      "code": "JG018",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-14",
+      "time": "17H00",
+      "teamAId": "sub-08-tenis-clube-paulista",
+      "teamBId": "sub-08-coopercotia",
+      "sourceA": {
+        "name": "TÊNIS CLUBE PAULISTA"
+      },
+      "sourceB": {
+        "name": "COOPERCOTIA"
+      },
+      "scoreA": 12,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-08-tenis-clube-paulista",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "TÊNIS CLUBE PAULISTA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 42
+      }
+    },
+    {
+      "id": "match-019",
+      "categoryId": "sub-10",
+      "code": "JG019",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-14",
+      "time": "18H00",
+      "teamAId": "sub-10-tenis-clube-paulista",
+      "teamBId": "sub-10-coopercotia",
+      "sourceA": {
+        "name": "TÊNIS CLUBE PAULISTA"
+      },
+      "sourceB": {
+        "name": "COOPERCOTIA"
+      },
+      "scoreA": 3,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "TÊNIS CLUBE PAULISTA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 43
+      }
+    },
+    {
+      "id": "match-022",
+      "categoryId": "sub-11",
+      "code": "JG022",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-16",
+      "time": "18H00",
+      "teamAId": "sub-11-col-beit-yaacov",
+      "teamBId": "sub-11-col-iavne",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": 14,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-11-col-beit-yaacov",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 51
+      }
+    },
+    {
+      "id": "match-023",
+      "categoryId": "sub-12",
+      "code": "JG023",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-16",
+      "time": "18H50",
+      "teamAId": "sub-12-col-beit-yaacov",
+      "teamBId": "sub-12-col-iavne",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": 1,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-12-col-iavne",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 52
+      }
+    },
+    {
+      "id": "match-024",
+      "categoryId": "sub-09",
+      "code": "JG024",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-20",
+      "time": "09H00",
+      "teamAId": "sub-09-col-pentagono-perdizes",
+      "teamBId": "sub-09-w-p-sports",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": 3,
+      "scoreB": 9,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-09-w-p-sports",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. PENTÁGONO PERDIZES",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 56
+      }
+    },
+    {
+      "id": "match-025",
+      "categoryId": "sub-11",
+      "code": "JG025",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-20",
+      "time": "10H00",
+      "teamAId": "sub-11-col-pentagono-perdizes",
+      "teamBId": "sub-11-w-p-sports",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": 2,
+      "scoreB": 0,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-11-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. PENTÁGONO PERDIZES",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 57
+      }
+    },
+    {
+      "id": "match-026",
+      "categoryId": "sub-12",
+      "code": "JG026",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-20",
+      "time": "11H00",
+      "teamAId": "sub-12-col-pentagono-perdizes",
+      "teamBId": "sub-12-l-b-v",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "L.B.V."
+      },
+      "scoreA": 11,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-12-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. PENTÁGONO PERDIZES",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 58
+      }
+    },
+    {
+      "id": "match-027",
+      "categoryId": "sub-11",
+      "code": "JG027",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-22",
+      "time": "19H00",
+      "teamAId": "sub-11-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-11-col-anglo-morumbi",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": 1,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-11-col-anglo-morumbi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 62
+      }
+    },
+    {
+      "id": "match-028",
+      "categoryId": "sub-12",
+      "code": "JG028",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-22",
+      "time": "20H00",
+      "teamAId": "sub-12-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-12-col-anglo-morumbi",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": 5,
+      "scoreB": 4,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-12-col-j-sao-paulo-tremembe",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 63
+      }
+    },
+    {
+      "id": "match-029",
+      "categoryId": "sub-09",
+      "code": "JG029",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-25",
+      "time": "19H30",
+      "teamAId": "sub-09-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-09-col-anglo-morumbi",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": 3,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-09-col-j-sao-paulo-tremembe",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 67
+      }
+    },
+    {
+      "id": "match-030",
+      "categoryId": "sub-10",
+      "code": "JG030",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-25",
+      "time": "20H30",
+      "teamAId": "sub-10-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-10-col-anglo-morumbi",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": 2,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-10-col-anglo-morumbi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 68
+      }
+    },
+    {
+      "id": "match-031",
+      "categoryId": "sub-08",
+      "code": "JG031",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-27",
+      "time": "08H30",
+      "teamAId": "sub-08-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-08-tenis-clube-paulista",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "TÊNIS CLUBE PAULISTA"
+      },
+      "scoreA": 3,
+      "scoreB": 6,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-08-tenis-clube-paulista",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. SÃO PAULO RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 72
+      }
+    },
+    {
+      "id": "match-032",
+      "categoryId": "sub-12",
+      "code": "JG032",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-27",
+      "time": "09H30",
+      "teamAId": "sub-12-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-12-l-b-v",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "L.B.V."
+      },
+      "scoreA": 11,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-12-col-j-sao-paulo-tremembe",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. SÃO PAULO RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 73
+      }
+    },
+    {
+      "id": "match-035",
+      "categoryId": "sub-08",
+      "code": "JG035",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-27",
+      "time": "10H25",
+      "teamAId": "sub-08-coopercotia",
+      "teamBId": "sub-08-w-p-sports",
+      "sourceA": {
+        "name": "COOPERCOTIA"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. SÃO PAULO RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 78
+      }
+    },
+    {
+      "id": "match-033",
+      "categoryId": "sub-09",
+      "code": "JG033",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-27",
+      "time": "10H30",
+      "teamAId": "sub-09-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-09-academy-acesos",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "ACADEMY ACESOS"
+      },
+      "scoreA": 5,
+      "scoreB": 5,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. SÃO PAULO RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 74
+      }
+    },
+    {
+      "id": "match-034",
+      "categoryId": "sub-11",
+      "code": "JG034",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-27",
+      "time": "11H30",
+      "teamAId": "sub-11-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-11-academy-acesos",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "ACADEMY ACESOS"
+      },
+      "scoreA": 1,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. SÃO PAULO RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 75
+      }
+    },
+    {
+      "id": "match-036",
+      "categoryId": "sub-10",
+      "code": "JG036",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-27",
+      "time": "11H30",
+      "teamAId": "sub-10-coopercotia",
+      "teamBId": "sub-10-w-p-sports",
+      "sourceA": {
+        "name": "COOPERCOTIA"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. SÃO PAULO RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 79
+      }
+    },
+    {
+      "id": "match-037",
+      "categoryId": "sub-08",
+      "code": "JG037",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-28",
+      "time": "10H35",
+      "teamAId": "sub-08-coopercotia",
+      "teamBId": "sub-08-w-p-sports",
+      "sourceA": {
+        "name": "COOPERCOTIA"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": 2,
+      "scoreB": 4,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-08-w-p-sports",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COOPERCOTIA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 86
+      }
+    },
+    {
+      "id": "match-038",
+      "categoryId": "sub-10",
+      "code": "JG038",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-06-28",
+      "time": "11H30",
+      "teamAId": "sub-10-coopercotia",
+      "teamBId": "sub-10-w-p-sports",
+      "sourceA": {
+        "name": "COOPERCOTIA"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": 1,
+      "scoreB": 4,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-10-w-p-sports",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COOPERCOTIA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 87
+      }
+    },
+    {
+      "id": "match-039",
+      "categoryId": "sub-08",
+      "code": "JG039",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-02",
+      "time": "16H50",
+      "teamAId": "sub-08-tenis-clube-paulista",
+      "teamBId": "sub-08-col-iavne",
+      "sourceA": {
+        "name": "TÊNIS CLUBE PAULISTA"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": 7,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-08-tenis-clube-paulista",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "TÊNIS CLUBE PAULISTA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 96
+      }
+    },
+    {
+      "id": "match-040",
+      "categoryId": "sub-10",
+      "code": "JG040",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-02",
+      "time": "17H50",
+      "teamAId": "sub-10-tenis-clube-paulista",
+      "teamBId": "sub-10-col-iavne",
+      "sourceA": {
+        "name": "TÊNIS CLUBE PAULISTA"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": 3,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "TÊNIS CLUBE PAULISTA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 97
+      }
+    },
+    {
+      "id": "match-041",
+      "categoryId": "sub-08",
+      "code": "JG041",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-13",
+      "time": "18H00",
+      "teamAId": "sub-08-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-08-col-beit-yaacov",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "scoreA": 7,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-08-col-j-sao-paulo-tremembe",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 101
+      }
+    },
+    {
+      "id": "match-042",
+      "categoryId": "sub-09",
+      "code": "JG042",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-13",
+      "time": "19H00",
+      "teamAId": "sub-09-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-09-col-beit-yaacov",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "scoreA": 1,
+      "scoreB": 5,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-09-col-beit-yaacov",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 102
+      }
+    },
+    {
+      "id": "match-046",
+      "categoryId": "sub-12",
+      "code": "JG046",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-16",
+      "time": "09H00",
+      "teamAId": "sub-12-col-anglo-morumbi",
+      "teamBId": "sub-12-col-iavne",
+      "sourceA": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": 3,
+      "scoreB": 0,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-12-col-anglo-morumbi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 113
+      }
+    },
+    {
+      "id": "match-047",
+      "categoryId": "sub-09",
+      "code": "JG047",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-16",
+      "time": "10H00",
+      "teamAId": "sub-09-col-beit-yaacov",
+      "teamBId": "sub-09-col-anglo-morumbi",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": 3,
+      "scoreB": 9,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-09-col-anglo-morumbi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 114
+      }
+    },
+    {
+      "id": "match-043",
+      "categoryId": "sub-09",
+      "code": "JG043",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-16",
+      "time": "10H25",
+      "teamAId": "sub-09-col-pentagono-perdizes",
+      "teamBId": "sub-09-academy-acesos",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "ACADEMY ACESOS"
+      },
+      "scoreA": 2,
+      "scoreB": 6,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-09-academy-acesos",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COOPERCOTIA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 106
+      }
+    },
+    {
+      "id": "match-048",
+      "categoryId": "sub-10",
+      "code": "JG048",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-16",
+      "time": "11H00",
+      "teamAId": "sub-10-col-beit-yaacov",
+      "teamBId": "sub-10-tenis-clube-paulista",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "TÊNIS CLUBE PAULISTA"
+      },
+      "scoreA": 9,
+      "scoreB": 5,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-10-col-beit-yaacov",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 115
+      }
+    },
+    {
+      "id": "match-044",
+      "categoryId": "sub-10",
+      "code": "JG044",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-16",
+      "time": "11H30",
+      "teamAId": "sub-10-col-pentagono-perdizes",
+      "teamBId": "sub-10-coopercotia",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "COOPERCOTIA"
+      },
+      "scoreA": 2,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-10-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COOPERCOTIA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 107
+      }
+    },
+    {
+      "id": "match-045",
+      "categoryId": "sub-12",
+      "code": "JG045",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-16",
+      "time": "12H30",
+      "teamAId": "sub-12-l-b-v",
+      "teamBId": "sub-12-coopercotia",
+      "sourceA": {
+        "name": "L.B.V."
+      },
+      "sourceB": {
+        "name": "COOPERCOTIA"
+      },
+      "scoreA": 1,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-12-coopercotia",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COOPERCOTIA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 108
+      }
+    },
+    {
+      "id": "match-049",
+      "categoryId": "sub-10",
+      "code": "JG049",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-16",
+      "time": "13H50",
+      "teamAId": "sub-10-col-iavne",
+      "teamBId": "sub-10-w-p-sports",
+      "sourceA": {
+        "name": "COL. IAVNE"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": 2,
+      "scoreB": 5,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-10-w-p-sports",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "TÊNIS CLUBE PAULISTA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 119
+      }
+    },
+    {
+      "id": "match-050",
+      "categoryId": "sub-08",
+      "code": "JG050",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-16",
+      "time": "14H50",
+      "teamAId": "sub-08-tenis-clube-paulista",
+      "teamBId": "sub-08-w-p-sports",
+      "sourceA": {
+        "name": "TÊNIS CLUBE PAULISTA"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": 1,
+      "scoreB": 6,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-08-w-p-sports",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "TÊNIS CLUBE PAULISTA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 120
+      }
+    },
+    {
+      "id": "match-051",
+      "categoryId": "sub-08",
+      "code": "JG051",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-16",
+      "time": "18H00",
+      "teamAId": "sub-08-col-beit-yaacov",
+      "teamBId": "sub-08-col-iavne",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "TÊNIS CLUBE PAULISTA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 125
+      }
+    },
+    {
+      "id": "match-052",
+      "categoryId": "sub-10",
+      "code": "JG052",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-16",
+      "time": "19H00",
+      "teamAId": "sub-10-col-beit-yaacov",
+      "teamBId": "sub-10-col-j-sao-paulo-tremembe",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "TÊNIS CLUBE PAULISTA",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 126
+      }
+    },
+    {
+      "id": "match-053",
+      "categoryId": "sub-09",
+      "code": "JG053",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-22",
+      "time": "09h00",
+      "teamAId": "sub-09-col-pentagono-perdizes",
+      "teamBId": "sub-09-col-anglo-morumbi",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": 1,
+      "scoreB": 4,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-09-col-anglo-morumbi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO ANGLO MORUMBI",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 130
+      }
+    },
+    {
+      "id": "match-054",
+      "categoryId": "sub-10",
+      "code": "JG054",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-22",
+      "time": "10h00",
+      "teamAId": "sub-10-col-pentagono-perdizes",
+      "teamBId": "sub-10-col-anglo-morumbi",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": 5,
+      "scoreB": 0,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-10-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO ANGLO MORUMBI",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 131
+      }
+    },
+    {
+      "id": "match-055",
+      "categoryId": "sub-11",
+      "code": "JG055",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-22",
+      "time": "11h00",
+      "teamAId": "sub-11-col-pentagono-perdizes",
+      "teamBId": "sub-11-col-anglo-morumbi",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": 4,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-11-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO ANGLO MORUMBI",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 132
+      }
+    },
+    {
+      "id": "match-056",
+      "categoryId": "sub-12",
+      "code": "JG056",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-22",
+      "time": "11h50",
+      "teamAId": "sub-12-col-pentagono-perdizes",
+      "teamBId": "sub-12-col-anglo-morumbi",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": 4,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-12-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO ANGLO MORUMBI",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 133
+      }
+    },
+    {
+      "id": "match-057",
+      "categoryId": "sub-13",
+      "code": "JG057",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-22",
+      "time": "12h40",
+      "teamAId": "sub-13-col-pentagono-perdizes",
+      "teamBId": "sub-13-col-anglo-morumbi",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": 5,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-13-col-pentagono-perdizes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO ANGLO MORUMBI",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 134
+      }
+    },
+    {
+      "id": "match-058",
+      "categoryId": "sub-12",
+      "code": "JG058",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-23",
+      "time": "08H45",
+      "teamAId": "sub-12-coopercotia",
+      "teamBId": "sub-12-col-iavne",
+      "sourceA": {
+        "name": "COOPERCOTIA"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": 5,
+      "scoreB": 5,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 138
+      }
+    },
+    {
+      "id": "match-059",
+      "categoryId": "sub-11",
+      "code": "JG059",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-23",
+      "time": "09H45",
+      "teamAId": "sub-11-col-iavne",
+      "teamBId": "sub-11-academy-acesos",
+      "sourceA": {
+        "name": "COL. IAVNE"
+      },
+      "sourceB": {
+        "name": "ACADEMY ACESOS"
+      },
+      "scoreA": 3,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 139
+      }
+    },
+    {
+      "id": "match-060",
+      "categoryId": "sub-09",
+      "code": "JG060",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-23",
+      "time": "10H30",
+      "teamAId": "sub-09-academy-acesos",
+      "teamBId": "sub-09-col-beit-yaacov",
+      "sourceA": {
+        "name": "ACADEMY ACESOS"
+      },
+      "sourceB": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "scoreA": 4,
+      "scoreB": 4,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 140
+      }
+    },
+    {
+      "id": "match-061",
+      "categoryId": "sub-08",
+      "code": "JG061",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-23",
+      "time": "11H30",
+      "teamAId": "sub-08-col-beit-yaacov",
+      "teamBId": "sub-08-tenis-clube-paulista",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "TÊNIS CLUBE PAULISTA"
+      },
+      "scoreA": 2,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "sub-08-tenis-clube-paulista",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 141
+      }
+    },
+    {
+      "id": "match-062",
+      "categoryId": "sub-11",
+      "code": "JG062",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-24",
+      "time": "18H30",
+      "teamAId": "sub-11-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-11-col-iavne",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 145
+      }
+    },
+    {
+      "id": "match-063",
+      "categoryId": "sub-12",
+      "code": "JG063",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-24",
+      "time": "19H30",
+      "teamAId": "sub-12-col-iavne",
+      "teamBId": "sub-12-col-j-sao-paulo-tremembe",
+      "sourceA": {
+        "name": "COL. IAVNE"
+      },
+      "sourceB": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 146
+      }
+    },
+    {
+      "id": "match-064",
+      "categoryId": "sub-09",
+      "code": "JG064",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-28",
+      "time": "18H30",
+      "teamAId": "sub-09-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-09-col-pentagono-perdizes",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. PENTÁGONO PERDIZES Endereço: RUA CAIUBI, 123 PERDIZES",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 150
+      }
+    },
+    {
+      "id": "match-065",
+      "categoryId": "sub-10",
+      "code": "JG065",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-28",
+      "time": "19H30",
+      "teamAId": "sub-10-col-pentagono-perdizes",
+      "teamBId": "sub-10-col-j-sao-paulo-tremembe",
+      "sourceA": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "sourceB": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. PENTÁGONO PERDIZES Endereço: RUA CAIUBI, 123 PERDIZES",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 151
+      }
+    },
+    {
+      "id": "match-066",
+      "categoryId": "sub-08",
+      "code": "JG066",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-30",
+      "time": "08H45",
+      "teamAId": "sub-08-coopercotia",
+      "teamBId": "sub-08-col-beit-yaacov",
+      "sourceA": {
+        "name": "COOPERCOTIA"
+      },
+      "sourceB": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 157
+      }
+    },
+    {
+      "id": "match-067",
+      "categoryId": "sub-10",
+      "code": "JG067",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-30",
+      "time": "09H45",
+      "teamAId": "sub-10-coopercotia",
+      "teamBId": "sub-10-col-beit-yaacov",
+      "sourceA": {
+        "name": "COOPERCOTIA"
+      },
+      "sourceB": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 158
+      }
+    },
+    {
+      "id": "match-068",
+      "categoryId": "sub-12",
+      "code": "JG068",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-30",
+      "time": "10H45",
+      "teamAId": "sub-12-coopercotia",
+      "teamBId": "sub-12-col-beit-yaacov",
+      "sourceA": {
+        "name": "COOPERCOTIA"
+      },
+      "sourceB": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 159
+      }
+    },
+    {
+      "id": "match-069",
+      "categoryId": "sub-09",
+      "code": "JG069",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-30",
+      "time": "11H45",
+      "teamAId": "sub-09-academy-acesos",
+      "teamBId": "sub-09-w-p-sports",
+      "sourceA": {
+        "name": "ACADEMY ACESOS"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 160
+      }
+    },
+    {
+      "id": "match-070",
+      "categoryId": "sub-11",
+      "code": "JG070",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-30",
+      "time": "12H45",
+      "teamAId": "sub-11-academy-acesos",
+      "teamBId": "sub-11-w-p-sports",
+      "sourceA": {
+        "name": "ACADEMY ACESOS"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 161
+      }
+    },
+    {
+      "id": "match-071",
+      "categoryId": "sub-11",
+      "code": "JG071",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-31",
+      "time": "18H45",
+      "teamAId": "sub-11-col-beit-yaacov",
+      "teamBId": "sub-11-col-pentagono-perdizes",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 165
+      }
+    },
+    {
+      "id": "match-072",
+      "categoryId": "sub-12",
+      "code": "JG072",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-08-31",
+      "time": "19H45",
+      "teamAId": "sub-12-col-beit-yaacov",
+      "teamBId": "sub-12-col-pentagono-perdizes",
+      "sourceA": {
+        "name": "COL. BEIT YAACOV"
+      },
+      "sourceB": {
+        "name": "COL. PENTÁGONO PERDIZES"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COLÉGIO BEIT YAACOV",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 166
+      }
+    },
+    {
+      "id": "match-076",
+      "categoryId": "sub-10",
+      "code": "JG076",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-09-12",
+      "time": null,
+      "teamAId": "sub-10-col-iavne",
+      "teamBId": "sub-10-col-anglo-morumbi",
+      "sourceA": {
+        "name": "COL. IAVNE"
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 179
+      }
+    },
+    {
+      "id": "match-077",
+      "categoryId": "sub-08",
+      "code": "JG077",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-09-12",
+      "time": null,
+      "teamAId": "sub-08-w-p-sports",
+      "teamBId": "sub-08-col-iavne",
+      "sourceA": {
+        "name": "W.P. SPORTS"
+      },
+      "sourceB": {
+        "name": "COL. IAVNE"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 180
+      }
+    },
+    {
+      "id": "match-078",
+      "categoryId": "sub-09",
+      "code": "JG078",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-09-12",
+      "time": "08H30",
+      "teamAId": "sub-09-col-anglo-morumbi",
+      "teamBId": "sub-09-w-p-sports",
+      "sourceA": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 184
+      }
+    },
+    {
+      "id": "match-073",
+      "categoryId": "sub-08",
+      "code": "JG073",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-09-12",
+      "time": "09H00",
+      "teamAId": "sub-08-w-p-sports",
+      "teamBId": "sub-08-col-j-sao-paulo-tremembe",
+      "sourceA": {
+        "name": "W.P. SPORTS"
+      },
+      "sourceB": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 170
+      }
+    },
+    {
+      "id": "match-079",
+      "categoryId": "sub-10",
+      "code": "JG079",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-09-12",
+      "time": "09H30",
+      "teamAId": "sub-10-col-anglo-morumbi",
+      "teamBId": "sub-10-w-p-sports",
+      "sourceA": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 185
+      }
+    },
+    {
+      "id": "match-074",
+      "categoryId": "sub-09",
+      "code": "JG074",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-09-12",
+      "time": "10H00",
+      "teamAId": "sub-09-w-p-sports",
+      "teamBId": "sub-09-col-j-sao-paulo-tremembe",
+      "sourceA": {
+        "name": "W.P. SPORTS"
+      },
+      "sourceB": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 171
+      }
+    },
+    {
+      "id": "match-075",
+      "categoryId": "sub-10",
+      "code": "JG075",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-09-12",
+      "time": "11H00",
+      "teamAId": "sub-10-col-j-sao-paulo-tremembe",
+      "teamBId": "sub-10-w-p-sports",
+      "sourceA": {
+        "name": "COL. J. SÃO PAULO TREMEMBÉ"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 172
+      }
+    },
+    {
+      "id": "match-080",
+      "categoryId": "sub-11",
+      "code": "JG080",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-09-12",
+      "time": "11H30",
+      "teamAId": "sub-11-col-anglo-morumbi",
+      "teamBId": "sub-11-w-p-sports",
+      "sourceA": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "sourceB": {
+        "name": "W.P. SPORTS"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 186
+      }
+    },
+    {
+      "id": "match-081",
+      "categoryId": "sub-13",
+      "code": "JG081",
+      "phase": "classificatoria",
+      "group": null,
+      "round": null,
+      "date": "2026-09-12",
+      "time": "12H00",
+      "teamAId": "sub-13-l-b-v",
+      "teamBId": "sub-13-col-anglo-morumbi",
+      "sourceA": {
+        "name": "L.B.V."
+      },
+      "sourceB": {
+        "name": "COL. ANGLO MORUMBI"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "COL. J. S. P. RECANTO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO 1º SEMESTRE",
+        "row": 187
+      }
+    }
+  ],
+  "standingsSnapshot": [
+    {
+      "teamId": "sub-08-tenis-clube-paulista",
+      "groupKey": "",
+      "position": 1,
+      "played": 5,
+      "wins": 4,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 29,
+      "goalsAgainst": 13,
+      "goalDiff": 16,
+      "points": 12,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-08-w-p-sports",
+      "groupKey": "",
+      "position": 2,
+      "played": 3,
+      "wins": 3,
+      "draws": 0,
+      "losses": 0,
+      "goalsFor": 16,
+      "goalsAgainst": 5,
+      "goalDiff": 11,
+      "points": 9,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-08-col-j-sao-paulo-tremembe",
+      "groupKey": "",
+      "position": 3,
+      "played": 3,
+      "wins": 1,
+      "draws": 1,
+      "losses": 1,
+      "goalsFor": 13,
+      "goalsAgainst": 12,
+      "goalDiff": 1,
+      "points": 4,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-08-col-iavne",
+      "groupKey": "",
+      "position": 4,
+      "played": 3,
+      "wins": 0,
+      "draws": 2,
+      "losses": 1,
+      "goalsFor": 5,
+      "goalsAgainst": 11,
+      "goalDiff": -6,
+      "points": 2,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-08-coopercotia",
+      "groupKey": "",
+      "position": 5,
+      "played": 3,
+      "wins": 0,
+      "draws": 1,
+      "losses": 2,
+      "goalsFor": 4,
+      "goalsAgainst": 17,
+      "goalDiff": -13,
+      "points": 1,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-08-col-beit-yaacov",
+      "groupKey": "",
+      "position": 6,
+      "played": 3,
+      "wins": 0,
+      "draws": 0,
+      "losses": 3,
+      "goalsFor": 7,
+      "goalsAgainst": 16,
+      "goalDiff": -9,
+      "points": 0,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-09-col-anglo-morumbi",
+      "groupKey": "",
+      "position": 1,
+      "played": 4,
+      "wins": 3,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 22,
+      "goalsAgainst": 10,
+      "goalDiff": 12,
+      "points": 9,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-09-col-beit-yaacov",
+      "groupKey": "",
+      "position": 2,
+      "played": 5,
+      "wins": 2,
+      "draws": 1,
+      "losses": 2,
+      "goalsFor": 15,
+      "goalsAgainst": 24,
+      "goalDiff": -9,
+      "points": 7,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-09-w-p-sports",
+      "groupKey": "",
+      "position": 3,
+      "played": 2,
+      "wins": 2,
+      "draws": 0,
+      "losses": 0,
+      "goalsFor": 18,
+      "goalsAgainst": 4,
+      "goalDiff": 14,
+      "points": 6,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-09-academy-acesos",
+      "groupKey": "",
+      "position": 4,
+      "played": 4,
+      "wins": 1,
+      "draws": 2,
+      "losses": 1,
+      "goalsFor": 18,
+      "goalsAgainst": 18,
+      "goalDiff": 0,
+      "points": 5,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-09-col-j-sao-paulo-tremembe",
+      "groupKey": "",
+      "position": 5,
+      "played": 3,
+      "wins": 1,
+      "draws": 1,
+      "losses": 1,
+      "goalsFor": 9,
+      "goalsAgainst": 12,
+      "goalDiff": -3,
+      "points": 4,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-09-col-pentagono-perdizes",
+      "groupKey": "",
+      "position": 6,
+      "played": 4,
+      "wins": 0,
+      "draws": 0,
+      "losses": 4,
+      "goalsFor": 7,
+      "goalsAgainst": 21,
+      "goalDiff": -14,
+      "points": 0,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-10-col-pentagono-perdizes",
+      "groupKey": "",
+      "position": 1,
+      "played": 4,
+      "wins": 4,
+      "draws": 0,
+      "losses": 0,
+      "goalsFor": 15,
+      "goalsAgainst": 3,
+      "goalDiff": 12,
+      "points": 12,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-10-w-p-sports",
+      "groupKey": "",
+      "position": 2,
+      "played": 3,
+      "wins": 3,
+      "draws": 0,
+      "losses": 0,
+      "goalsFor": 12,
+      "goalsAgainst": 4,
+      "goalDiff": 8,
+      "points": 9,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-10-col-anglo-morumbi",
+      "groupKey": "",
+      "position": 3,
+      "played": 3,
+      "wins": 2,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 6,
+      "goalsAgainst": 7,
+      "goalDiff": -1,
+      "points": 6,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-10-col-j-sao-paulo-tremembe",
+      "groupKey": "",
+      "position": 4,
+      "played": 2,
+      "wins": 1,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 7,
+      "goalsAgainst": 5,
+      "goalDiff": 2,
+      "points": 3,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-10-col-beit-yaacov",
+      "groupKey": "",
+      "position": 5,
+      "played": 3,
+      "wins": 1,
+      "draws": 0,
+      "losses": 2,
+      "goalsFor": 12,
+      "goalsAgainst": 12,
+      "goalDiff": 0,
+      "points": 3,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-10-coopercotia",
+      "groupKey": "",
+      "position": 6,
+      "played": 4,
+      "wins": 0,
+      "draws": 2,
+      "losses": 2,
+      "goalsFor": 8,
+      "goalsAgainst": 12,
+      "goalDiff": -4,
+      "points": 2,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-10-col-iavne",
+      "groupKey": "",
+      "position": 7,
+      "played": 4,
+      "wins": 0,
+      "draws": 2,
+      "losses": 2,
+      "goalsFor": 10,
+      "goalsAgainst": 16,
+      "goalDiff": -6,
+      "points": 2,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-10-tenis-clube-paulista",
+      "groupKey": "",
+      "position": 8,
+      "played": 5,
+      "wins": 0,
+      "draws": 2,
+      "losses": 3,
+      "goalsFor": 11,
+      "goalsAgainst": 22,
+      "goalDiff": -11,
+      "points": 2,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-11-col-pentagono-perdizes",
+      "groupKey": "",
+      "position": 1,
+      "played": 3,
+      "wins": 3,
+      "draws": 0,
+      "losses": 0,
+      "goalsFor": 12,
+      "goalsAgainst": 4,
+      "goalDiff": 8,
+      "points": 9,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-11-col-beit-yaacov",
+      "groupKey": "",
+      "position": 2,
+      "played": 3,
+      "wins": 2,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 25,
+      "goalsAgainst": 12,
+      "goalDiff": 13,
+      "points": 6,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-11-col-anglo-morumbi",
+      "groupKey": "",
+      "position": 3,
+      "played": 3,
+      "wins": 2,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 9,
+      "goalsAgainst": 5,
+      "goalDiff": 4,
+      "points": 6,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-11-w-p-sports",
+      "groupKey": "",
+      "position": 4,
+      "played": 2,
+      "wins": 1,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 7,
+      "goalsAgainst": 7,
+      "goalDiff": 0,
+      "points": 3,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-11-academy-acesos",
+      "groupKey": "",
+      "position": 5,
+      "played": 3,
+      "wins": 0,
+      "draws": 2,
+      "losses": 1,
+      "goalsFor": 4,
+      "goalsAgainst": 8,
+      "goalDiff": -4,
+      "points": 2,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-11-col-j-sao-paulo-tremembe",
+      "groupKey": "",
+      "position": 6,
+      "played": 3,
+      "wins": 0,
+      "draws": 1,
+      "losses": 2,
+      "goalsFor": 5,
+      "goalsAgainst": 9,
+      "goalDiff": -4,
+      "points": 1,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-11-col-iavne",
+      "groupKey": "",
+      "position": 7,
+      "played": 3,
+      "wins": 0,
+      "draws": 1,
+      "losses": 2,
+      "goalsFor": 6,
+      "goalsAgainst": 23,
+      "goalDiff": -17,
+      "points": 1,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-12-col-pentagono-perdizes",
+      "groupKey": "",
+      "position": 1,
+      "played": 3,
+      "wins": 3,
+      "draws": 0,
+      "losses": 0,
+      "goalsFor": 22,
+      "goalsAgainst": 4,
+      "goalDiff": 18,
+      "points": 9,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-12-col-j-sao-paulo-tremembe",
+      "groupKey": "",
+      "position": 2,
+      "played": 3,
+      "wins": 2,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 18,
+      "goalsAgainst": 13,
+      "goalDiff": 5,
+      "points": 6,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-12-col-beit-yaacov",
+      "groupKey": "",
+      "position": 3,
+      "played": 2,
+      "wins": 1,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 8,
+      "goalsAgainst": 4,
+      "goalDiff": 4,
+      "points": 3,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-12-col-anglo-morumbi",
+      "groupKey": "",
+      "position": 4,
+      "played": 3,
+      "wins": 1,
+      "draws": 0,
+      "losses": 2,
+      "goalsFor": 10,
+      "goalsAgainst": 9,
+      "goalDiff": 1,
+      "points": 3,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-12-col-iavne",
+      "groupKey": "",
+      "position": 5,
+      "played": 3,
+      "wins": 1,
+      "draws": 1,
+      "losses": 1,
+      "goalsFor": 7,
+      "goalsAgainst": 9,
+      "goalDiff": -2,
+      "points": 4,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-12-coopercotia",
+      "groupKey": "",
+      "position": 6,
+      "played": 3,
+      "wins": 1,
+      "draws": 1,
+      "losses": 1,
+      "goalsFor": 8,
+      "goalsAgainst": 13,
+      "goalDiff": -5,
+      "points": 4,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-12-l-b-v",
+      "groupKey": "",
+      "position": 7,
+      "played": 3,
+      "wins": 0,
+      "draws": 0,
+      "losses": 3,
+      "goalsFor": 4,
+      "goalsAgainst": 25,
+      "goalDiff": -21,
+      "points": 0,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-13-col-pentagono-perdizes",
+      "groupKey": "",
+      "position": 1,
+      "played": 2,
+      "wins": 2,
+      "draws": 0,
+      "losses": 0,
+      "goalsFor": 11,
+      "goalsAgainst": 2,
+      "goalDiff": 9,
+      "points": 0,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-13-l-b-v",
+      "groupKey": "",
+      "position": 2,
+      "played": 1,
+      "wins": 0,
+      "draws": 0,
+      "losses": 1,
+      "goalsFor": 1,
+      "goalsAgainst": 6,
+      "goalDiff": -5,
+      "points": 0,
+      "qualified": null
+    },
+    {
+      "teamId": "sub-13-col-anglo-morumbi",
+      "groupKey": "",
+      "position": 3,
+      "played": 0,
+      "wins": 0,
+      "draws": 1,
+      "losses": 1,
+      "goalsFor": 1,
+      "goalsAgainst": 5,
+      "goalDiff": -4,
+      "points": 0,
+      "qualified": null
+    }
+  ],
+  "rules": {
+    "registration": {
+      "max_athletes_per_team": 18,
+      "max_staff_members_per_team": 5,
+      "athlete_actions": {
+        "allow_register": true,
+        "allow_edit": true,
+        "allow_remove": false
+      },
+      "team_signups": {
+        "enabled": true,
+        "status": "inscricoes_abertas"
+      },
+      "athlete_form": {
+        "apelido": "obrigatorio",
+        "foto": "informar",
+        "cpf": "obrigatorio",
+        "rg": "informar",
+        "certidao_nascimento": "informar",
+        "data_nascimento": "obrigatorio",
+        "posicao": "obrigatorio",
+        "numero_camisa": "obrigatorio",
+        "celular": "obrigatorio",
+        "email": "obrigatorio",
+        "passaporte": "informar",
+        "titulo_eleitor": "informar",
+        "genero": "obrigatorio",
+        "documentos_anexo": "informar"
+      },
+      "printed_summary_field": "cpf"
+    }
+  },
+  "format": {
+    "mode": "pontuacao",
+    "teamCount": 37,
+    "groupCount": 6,
+    "qualifiedPerGroup": 4,
+    "matchesPerOpponent": 1
+  },
+  "scoring": {
+    "win": 3,
+    "draw": 1,
+    "loss": 0,
+    "wo": -1,
+    "woScore": 2,
+    "qualifiedPerGroup": 4,
+    "tiebreakers": [
+      "vitorias",
+      "saldo_gols",
+      "gols_pro",
+      "confronto_direto",
+      "menos_gols_sofridos",
+      "sorteio"
+    ]
+  },
+  "notes": null
+}

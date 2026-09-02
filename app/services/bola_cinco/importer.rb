@@ -153,8 +153,10 @@ module BolaCinco
         team = teams.fetch(item.fetch("teamId"))
         category = team.category
         positions_by_category[category.id] += 1
-        record = StandingRow.find_or_initialize_by(championship: championship, category: team.category, team: team)
+        group_key = item["groupKey"].to_s
+        record = StandingRow.find_or_initialize_by(championship: championship, category: team.category, team: team, group_key: group_key)
         record.update!(
+          group_key: group_key,
           position: item["position"] || positions_by_category[category.id],
           played: item.fetch("played"),
           wins: item.fetch("wins"),

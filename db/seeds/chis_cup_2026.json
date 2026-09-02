@@ -1,0 +1,2531 @@
+{
+  "championship": {
+    "id": "chis-cup-2026",
+    "name": "CHIS CUP 2026",
+    "season": 2026,
+    "status": "em_andamento",
+    "modality": "football"
+  },
+  "categories": [
+    {
+      "id": "chis-cup-2026",
+      "championshipId": "chis-cup-2026",
+      "name": "CHIS CUP 2026",
+      "gender": "masculino",
+      "minBirthYear": null,
+      "maxBirthYear": null,
+      "maxAthletes": 25
+    }
+  ],
+  "entities": [
+    {
+      "id": "entity-171-fc",
+      "name": "171 FC"
+    },
+    {
+      "id": "entity-ajax-centro",
+      "name": "AJAX CENTRO"
+    },
+    {
+      "id": "entity-assuncao",
+      "name": "ASSUNÇÃO"
+    },
+    {
+      "id": "entity-brooklin-futsal",
+      "name": "BROOKLIN FUTSAL"
+    },
+    {
+      "id": "entity-capela-do-socorro",
+      "name": "CAPELA DO SOCORRO"
+    },
+    {
+      "id": "entity-cdd-embu-das-artes",
+      "name": "CDD EMBU DAS ARTES"
+    },
+    {
+      "id": "entity-diferente-f-c",
+      "name": "DIFERENTE F.C."
+    },
+    {
+      "id": "entity-extremo-leste",
+      "name": "EXTREMO LESTE"
+    },
+    {
+      "id": "entity-mete-marcha",
+      "name": "METE MARCHA"
+    },
+    {
+      "id": "entity-resolve-facil",
+      "name": "RESOLVE FÁCIL"
+    },
+    {
+      "id": "entity-sem-ferias-100-perreco",
+      "name": "SEM FÉRIAS/100 PERRECO"
+    },
+    {
+      "id": "entity-sem-querer",
+      "name": "SEM QUERER"
+    },
+    {
+      "id": "entity-so-mito-fc",
+      "name": "SÓ MITO FC"
+    },
+    {
+      "id": "entity-so-pudim",
+      "name": "SÓ PUDIM"
+    },
+    {
+      "id": "entity-tudo-nosso",
+      "name": "TUDO NOSSO"
+    },
+    {
+      "id": "entity-ufc-uniao-fc",
+      "name": "UFC - UNIÃO FC"
+    },
+    {
+      "id": "entity-unidos-da-leste",
+      "name": "UNIDOS DA LESTE"
+    },
+    {
+      "id": "entity-unidos-vila-maria",
+      "name": "UNIDOS VILA MARIA"
+    },
+    {
+      "id": "entity-uniao-vila-carrao",
+      "name": "UNIÃO VILA CARRÃO"
+    },
+    {
+      "id": "entity-vila-nova-cachoeirinha",
+      "name": "VILA NOVA CACHOEIRINHA"
+    }
+  ],
+  "teams": [
+    {
+      "id": "team-chis-cup-2026-B-171-fc",
+      "entityId": "entity-171-fc",
+      "categoryId": "chis-cup-2026",
+      "group": "B",
+      "name": "171 FC",
+      "shortName": "171 FC",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-C-ajax-centro",
+      "entityId": "entity-ajax-centro",
+      "categoryId": "chis-cup-2026",
+      "group": "C",
+      "name": "AJAX CENTRO",
+      "shortName": "AJAX CENTRO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-D-assuncao",
+      "entityId": "entity-assuncao",
+      "categoryId": "chis-cup-2026",
+      "group": "D",
+      "name": "ASSUNÇÃO",
+      "shortName": "ASSUNÇÃO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-A-brooklin-futsal",
+      "entityId": "entity-brooklin-futsal",
+      "categoryId": "chis-cup-2026",
+      "group": "A",
+      "name": "BROOKLIN FUTSAL",
+      "shortName": "BROOKLIN FUTSAL",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-B-capela-do-socorro",
+      "entityId": "entity-capela-do-socorro",
+      "categoryId": "chis-cup-2026",
+      "group": "B",
+      "name": "CAPELA DO SOCORRO",
+      "shortName": "CAPELA DO SOCORRO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-D-cdd-embu-das-artes",
+      "entityId": "entity-cdd-embu-das-artes",
+      "categoryId": "chis-cup-2026",
+      "group": "D",
+      "name": "CDD EMBU DAS ARTES",
+      "shortName": "CDD EMBU DAS ARTES",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-A-diferente-f-c",
+      "entityId": "entity-diferente-f-c",
+      "categoryId": "chis-cup-2026",
+      "group": "A",
+      "name": "DIFERENTE F.C.",
+      "shortName": "DIFERENTE F.C.",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-B-extremo-leste",
+      "entityId": "entity-extremo-leste",
+      "categoryId": "chis-cup-2026",
+      "group": "B",
+      "name": "EXTREMO LESTE",
+      "shortName": "EXTREMO LESTE",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-D-mete-marcha",
+      "entityId": "entity-mete-marcha",
+      "categoryId": "chis-cup-2026",
+      "group": "D",
+      "name": "METE MARCHA",
+      "shortName": "METE MARCHA",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-D-resolve-facil",
+      "entityId": "entity-resolve-facil",
+      "categoryId": "chis-cup-2026",
+      "group": "D",
+      "name": "RESOLVE FÁCIL",
+      "shortName": "RESOLVE FÁCIL",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-C-sem-ferias-100-perreco",
+      "entityId": "entity-sem-ferias-100-perreco",
+      "categoryId": "chis-cup-2026",
+      "group": "C",
+      "name": "SEM FÉRIAS/100 PERRECO",
+      "shortName": "SEM FÉRIAS/100 PERRECO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-C-sem-querer",
+      "entityId": "entity-sem-querer",
+      "categoryId": "chis-cup-2026",
+      "group": "C",
+      "name": "SEM QUERER",
+      "shortName": "SEM QUERER",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-C-so-mito-fc",
+      "entityId": "entity-so-mito-fc",
+      "categoryId": "chis-cup-2026",
+      "group": "C",
+      "name": "SÓ MITO FC",
+      "shortName": "SÓ MITO FC",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-A-so-pudim",
+      "entityId": "entity-so-pudim",
+      "categoryId": "chis-cup-2026",
+      "group": "A",
+      "name": "SÓ PUDIM",
+      "shortName": "SÓ PUDIM",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-C-tudo-nosso",
+      "entityId": "entity-tudo-nosso",
+      "categoryId": "chis-cup-2026",
+      "group": "C",
+      "name": "TUDO NOSSO",
+      "shortName": "TUDO NOSSO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-B-ufc-uniao-fc",
+      "entityId": "entity-ufc-uniao-fc",
+      "categoryId": "chis-cup-2026",
+      "group": "B",
+      "name": "UFC - UNIÃO FC",
+      "shortName": "UFC - UNIÃO FC",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-D-unidos-da-leste",
+      "entityId": "entity-unidos-da-leste",
+      "categoryId": "chis-cup-2026",
+      "group": "D",
+      "name": "UNIDOS DA LESTE",
+      "shortName": "UNIDOS DA LESTE",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-A-unidos-vila-maria",
+      "entityId": "entity-unidos-vila-maria",
+      "categoryId": "chis-cup-2026",
+      "group": "A",
+      "name": "UNIDOS VILA MARIA",
+      "shortName": "UNIDOS VILA MARIA",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-A-uniao-vila-carrao",
+      "entityId": "entity-uniao-vila-carrao",
+      "categoryId": "chis-cup-2026",
+      "group": "A",
+      "name": "UNIÃO VILA CARRÃO",
+      "shortName": "UNIÃO VILA CARRÃO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-chis-cup-2026-B-vila-nova-cachoeirinha",
+      "entityId": "entity-vila-nova-cachoeirinha",
+      "categoryId": "chis-cup-2026",
+      "group": "B",
+      "name": "VILA NOVA CACHOEIRINHA",
+      "shortName": "VILA NOVA CACHOEIRINHA",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    }
+  ],
+  "athletes": [],
+  "matches": [
+    {
+      "id": "match-chis-cup-2026-classificatoria-a-1-so-pudim-unidos-vila-maria",
+      "categoryId": "chis-cup-2026",
+      "code": "A-UNIDOS-VILA-MARIA-SO-PUDIM",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 1,
+      "date": "2023-09-16",
+      "time": "14H30",
+      "teamAId": "team-chis-cup-2026-A-unidos-vila-maria",
+      "teamBId": "team-chis-cup-2026-A-so-pudim",
+      "sourceA": {
+        "name": "UNIDOS VILA MARIA"
+      },
+      "sourceB": {
+        "name": "SÓ PUDIM"
+      },
+      "scoreA": 9,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-A-unidos-vila-maria",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 70,
+        "note": null,
+        "rawA": "14H30",
+        "rawB": "A"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-d-1-assuncao-cdd-embu-das-artes",
+      "categoryId": "chis-cup-2026",
+      "code": "D-ASSUNCAO-W-O-CDD-EMBU",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 1,
+      "date": "2023-09-16",
+      "time": "15H30",
+      "teamAId": "team-chis-cup-2026-D-assuncao",
+      "teamBId": "team-chis-cup-2026-D-cdd-embu-das-artes",
+      "sourceA": {
+        "name": "ASSUNÇÃO - W.O."
+      },
+      "sourceB": {
+        "name": "CDD EMBÚ"
+      },
+      "scoreA": 0,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-D-cdd-embu-das-artes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 71,
+        "note": null,
+        "rawA": "15H30",
+        "rawB": "D"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-c-2-ajax-centro-sem-ferias-100-perreco",
+      "categoryId": "chis-cup-2026",
+      "code": "C-SEM-FERIAS-100-PERRECO-AJAX-CENTRO",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 2,
+      "date": "2023-09-16",
+      "time": "15H30",
+      "teamAId": "team-chis-cup-2026-C-sem-ferias-100-perreco",
+      "teamBId": "team-chis-cup-2026-C-ajax-centro",
+      "sourceA": {
+        "name": "SEM FÉRIAS/100 PERRECO"
+      },
+      "sourceB": {
+        "name": "AJAX CENTRO"
+      },
+      "scoreA": 11,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-C-sem-ferias-100-perreco",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO ARCO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 77,
+        "note": null,
+        "rawA": "15H30",
+        "rawB": "C"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-b-1-171-fc-extremo-leste",
+      "categoryId": "chis-cup-2026",
+      "code": "B-171-FC-EXTREMO-LESTE",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 1,
+      "date": "2023-09-16",
+      "time": "16H30",
+      "teamAId": "team-chis-cup-2026-B-171-fc",
+      "teamBId": "team-chis-cup-2026-B-extremo-leste",
+      "sourceA": {
+        "name": "171 FC"
+      },
+      "sourceB": {
+        "name": "EXTREMO LESTE"
+      },
+      "scoreA": 7,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-B-171-fc",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 72,
+        "note": null,
+        "rawA": "16H30",
+        "rawB": "B"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-c-2-sem-querer-so-mito-fc",
+      "categoryId": "chis-cup-2026",
+      "code": "C-SEM-QUERER-SO-MITO-FUT-SAMBA",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 2,
+      "date": "2023-09-16",
+      "time": "16H30",
+      "teamAId": "team-chis-cup-2026-C-sem-querer",
+      "teamBId": "team-chis-cup-2026-C-so-mito-fc",
+      "sourceA": {
+        "name": "SEM QUERER"
+      },
+      "sourceB": {
+        "name": "SÓ MITO FUT SAMBA"
+      },
+      "scoreA": 7,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-C-sem-querer",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO ARCO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 78,
+        "note": null,
+        "rawA": "16H30",
+        "rawB": "C"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-b-1-capela-do-socorro-vila-nova-cachoeirinha",
+      "categoryId": "chis-cup-2026",
+      "code": "B-VILA-NOVA-CACHOEIRINHA-CAPELA-DO-SOCORRO",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 1,
+      "date": "2023-09-16",
+      "time": "17H30",
+      "teamAId": "team-chis-cup-2026-B-vila-nova-cachoeirinha",
+      "teamBId": "team-chis-cup-2026-B-capela-do-socorro",
+      "sourceA": {
+        "name": "VILA NOVA CACHOEIRINHA"
+      },
+      "sourceB": {
+        "name": "CAPELA DO SOCORRO"
+      },
+      "scoreA": 3,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 73,
+        "note": null,
+        "rawA": "17H30",
+        "rawB": "B"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-d-2-mete-marcha-resolve-facil",
+      "categoryId": "chis-cup-2026",
+      "code": "D-METE-MARCHA-RESOLVE-FACIL",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 2,
+      "date": "2023-09-16",
+      "time": "17H30",
+      "teamAId": "team-chis-cup-2026-D-mete-marcha",
+      "teamBId": "team-chis-cup-2026-D-resolve-facil",
+      "sourceA": {
+        "name": "METE MARCHA"
+      },
+      "sourceB": {
+        "name": "RESOLVE FÁCIL"
+      },
+      "scoreA": 9,
+      "scoreB": 0,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-D-mete-marcha",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO ARCO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 79,
+        "note": null,
+        "rawA": "17H30",
+        "rawB": "D"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-a-1-diferente-f-c-uniao-vila-carrao",
+      "categoryId": "chis-cup-2026",
+      "code": "A-UNIAO-CARRAO-DIFERENTE-F-C",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 1,
+      "date": "2023-09-16",
+      "time": "18H30",
+      "teamAId": "team-chis-cup-2026-A-uniao-vila-carrao",
+      "teamBId": "team-chis-cup-2026-A-diferente-f-c",
+      "sourceA": {
+        "name": "UNIÃO CARRÃO"
+      },
+      "sourceB": {
+        "name": "DIFERENTE F.C."
+      },
+      "scoreA": 3,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-A-uniao-vila-carrao",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 74,
+        "note": null,
+        "rawA": "18H30",
+        "rawB": "A"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-d-3-cdd-embu-das-artes-unidos-da-leste",
+      "categoryId": "chis-cup-2026",
+      "code": "D-CDD-EMBU-UNIDOS-DA-LESTE",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 3,
+      "date": "2023-09-23",
+      "time": "14H15",
+      "teamAId": "team-chis-cup-2026-D-cdd-embu-das-artes",
+      "teamBId": "team-chis-cup-2026-D-unidos-da-leste",
+      "sourceA": {
+        "name": "CDD EMBÚ"
+      },
+      "sourceB": {
+        "name": "UNIDOS DA LESTE"
+      },
+      "scoreA": 3,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 83,
+        "note": null,
+        "rawA": "14H15",
+        "rawB": "D"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-a-3-unidos-vila-maria-uniao-vila-carrao",
+      "categoryId": "chis-cup-2026",
+      "code": "A-UNIDOS-VILA-MARIA-UNIAO-VILA-CARRAO",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 3,
+      "date": "2023-09-23",
+      "time": "15H00",
+      "teamAId": "team-chis-cup-2026-A-unidos-vila-maria",
+      "teamBId": "team-chis-cup-2026-A-uniao-vila-carrao",
+      "sourceA": {
+        "name": "UNIDOS VILA MARIA"
+      },
+      "sourceB": {
+        "name": "UNIÃO VILA CARRÃO"
+      },
+      "scoreA": 3,
+      "scoreB": 4,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-A-uniao-vila-carrao",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 84,
+        "note": null,
+        "rawA": "15H00",
+        "rawB": "A"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-c-3-ajax-centro-tudo-nosso",
+      "categoryId": "chis-cup-2026",
+      "code": "C-AJAX-CENTRO-TUDO-NOSSO",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 3,
+      "date": "2023-09-23",
+      "time": "16H00",
+      "teamAId": "team-chis-cup-2026-C-ajax-centro",
+      "teamBId": "team-chis-cup-2026-C-tudo-nosso",
+      "sourceA": {
+        "name": "AJAX CENTRO"
+      },
+      "sourceB": {
+        "name": "TUDO NOSSO"
+      },
+      "scoreA": 2,
+      "scoreB": 22,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-C-tudo-nosso",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 85,
+        "note": null,
+        "rawA": "16H00",
+        "rawB": "C"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-b-3-extremo-leste-ufc-uniao-fc",
+      "categoryId": "chis-cup-2026",
+      "code": "B-EXTREMO-LESTE-UFC-UNIAO-FC",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 3,
+      "date": "2023-09-23",
+      "time": "17H00",
+      "teamAId": "team-chis-cup-2026-B-extremo-leste",
+      "teamBId": "team-chis-cup-2026-B-ufc-uniao-fc",
+      "sourceA": {
+        "name": "EXTREMO LESTE"
+      },
+      "sourceB": {
+        "name": "UFC - UNIÃO FC"
+      },
+      "scoreA": 1,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-B-ufc-uniao-fc",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 86,
+        "note": null,
+        "rawA": "17H00",
+        "rawB": "B"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-a-3-brooklin-futsal-diferente-f-c",
+      "categoryId": "chis-cup-2026",
+      "code": "A-DIFERENTE-F-C-BROOKLIN-FUTSAL",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 3,
+      "date": "2023-09-23",
+      "time": "17H50",
+      "teamAId": "team-chis-cup-2026-A-diferente-f-c",
+      "teamBId": "team-chis-cup-2026-A-brooklin-futsal",
+      "sourceA": {
+        "name": "DIFERENTE F.C."
+      },
+      "sourceB": {
+        "name": "BROOKLIN FUTSAL"
+      },
+      "scoreA": 4,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-A-diferente-f-c",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 87,
+        "note": null,
+        "rawA": "17H50",
+        "rawB": "A"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-a-4-so-pudim-uniao-vila-carrao",
+      "categoryId": "chis-cup-2026",
+      "code": "A-SO-PUDIM-UNIAO-VILA-CARRAO",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 4,
+      "date": "2023-09-30",
+      "time": "14H30",
+      "teamAId": "team-chis-cup-2026-A-so-pudim",
+      "teamBId": "team-chis-cup-2026-A-uniao-vila-carrao",
+      "sourceA": {
+        "name": "SÓ PUDIM"
+      },
+      "sourceB": {
+        "name": "UNIÃO VILA CARRÃO"
+      },
+      "scoreA": 2,
+      "scoreB": 8,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-A-uniao-vila-carrao",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 90,
+        "note": null,
+        "rawA": "14H30",
+        "rawB": "A"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-a-4-brooklin-futsal-unidos-vila-maria",
+      "categoryId": "chis-cup-2026",
+      "code": "A-BROOKLIN-FUTSAL-UNIDOS-VILA-MARIA",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 4,
+      "date": "2023-09-30",
+      "time": "15H30",
+      "teamAId": "team-chis-cup-2026-A-brooklin-futsal",
+      "teamBId": "team-chis-cup-2026-A-unidos-vila-maria",
+      "sourceA": {
+        "name": "BROOKLIN FUTSAL"
+      },
+      "sourceB": {
+        "name": "UNIDOS VILA MARIA"
+      },
+      "scoreA": 1,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-A-unidos-vila-maria",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 91,
+        "note": null,
+        "rawA": "15H30",
+        "rawB": "A"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-b-4-171-fc-vila-nova-cachoeirinha",
+      "categoryId": "chis-cup-2026",
+      "code": "B-VILA-NOVA-CACHOEIRINHA-171-FC",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 4,
+      "date": "2023-09-30",
+      "time": "16H30",
+      "teamAId": "team-chis-cup-2026-B-vila-nova-cachoeirinha",
+      "teamBId": "team-chis-cup-2026-B-171-fc",
+      "sourceA": {
+        "name": "VILA NOVA CACHOEIRINHA"
+      },
+      "sourceB": {
+        "name": "171 FC"
+      },
+      "scoreA": 3,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 92,
+        "note": null,
+        "rawA": "16H30",
+        "rawB": "B"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-d-4-assuncao-mete-marcha",
+      "categoryId": "chis-cup-2026",
+      "code": "D-METE-MARCHA-ASSUNCAO-W-O",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 4,
+      "date": "2023-09-30",
+      "time": "17H30",
+      "teamAId": "team-chis-cup-2026-D-mete-marcha",
+      "teamBId": "team-chis-cup-2026-D-assuncao",
+      "sourceA": {
+        "name": "METE MARCHA"
+      },
+      "sourceB": {
+        "name": "ASSUNÇÃO - W.O."
+      },
+      "scoreA": 1,
+      "scoreB": 0,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-D-mete-marcha",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 93,
+        "note": null,
+        "rawA": "17H30",
+        "rawB": "D"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-a-5-brooklin-futsal-uniao-vila-carrao",
+      "categoryId": "chis-cup-2026",
+      "code": "A-UNIAO-VILA-CARRAO-BROOKLIN-FUTSAL",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 5,
+      "date": "2023-10-07",
+      "time": "15H00",
+      "teamAId": "team-chis-cup-2026-A-uniao-vila-carrao",
+      "teamBId": "team-chis-cup-2026-A-brooklin-futsal",
+      "sourceA": {
+        "name": "UNIÃO VILA CARRÃO"
+      },
+      "sourceB": {
+        "name": "BROOKLIN FUTSAL"
+      },
+      "scoreA": 9,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-A-uniao-vila-carrao",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 96,
+        "note": null,
+        "rawA": "15H00",
+        "rawB": "A"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-b-5-ufc-uniao-fc-vila-nova-cachoeirinha",
+      "categoryId": "chis-cup-2026",
+      "code": "B-UFC-UNIAO-FC-VILA-NOVA-CACHOEIRINHA",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 5,
+      "date": "2023-10-07",
+      "time": "16H00",
+      "teamAId": "team-chis-cup-2026-B-ufc-uniao-fc",
+      "teamBId": "team-chis-cup-2026-B-vila-nova-cachoeirinha",
+      "sourceA": {
+        "name": "UFC - UNIÃO FC"
+      },
+      "sourceB": {
+        "name": "VILA NOVA CACHOEIRINHA"
+      },
+      "scoreA": 0,
+      "scoreB": 8,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-B-vila-nova-cachoeirinha",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 97,
+        "note": null,
+        "rawA": "16H00",
+        "rawB": "B"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-c-5-sem-querer-tudo-nosso",
+      "categoryId": "chis-cup-2026",
+      "code": "C-SEM-QUERER-TUDO-NOSSO",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 5,
+      "date": "2023-10-07",
+      "time": "17H00",
+      "teamAId": "team-chis-cup-2026-C-sem-querer",
+      "teamBId": "team-chis-cup-2026-C-tudo-nosso",
+      "sourceA": {
+        "name": "SEM QUERER"
+      },
+      "sourceB": {
+        "name": "TUDO NOSSO"
+      },
+      "scoreA": 1,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-C-tudo-nosso",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 98,
+        "note": null,
+        "rawA": "17H00",
+        "rawB": "C"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-d-5-mete-marcha-unidos-da-leste",
+      "categoryId": "chis-cup-2026",
+      "code": "D-UNIDOS-DA-LESTE-METE-MARCHA",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 5,
+      "date": "2023-10-07",
+      "time": "18H00",
+      "teamAId": "team-chis-cup-2026-D-unidos-da-leste",
+      "teamBId": "team-chis-cup-2026-D-mete-marcha",
+      "sourceA": {
+        "name": "UNIDOS DA LESTE"
+      },
+      "sourceB": {
+        "name": "METE MARCHA"
+      },
+      "scoreA": 4,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-D-unidos-da-leste",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 99,
+        "note": null,
+        "rawA": "18H00",
+        "rawB": "D"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-d-5-cdd-embu-das-artes-resolve-facil",
+      "categoryId": "chis-cup-2026",
+      "code": "D-RESOLVE-FACIL-CDD-EMBU",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 5,
+      "date": "2023-10-07",
+      "time": "19H00",
+      "teamAId": "team-chis-cup-2026-D-resolve-facil",
+      "teamBId": "team-chis-cup-2026-D-cdd-embu-das-artes",
+      "sourceA": {
+        "name": "RESOLVE FÁCIL"
+      },
+      "sourceB": {
+        "name": "CDD EMBÚ"
+      },
+      "scoreA": 1,
+      "scoreB": 4,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-D-cdd-embu-das-artes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 100,
+        "note": null,
+        "rawA": "19H00",
+        "rawB": "D"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-b-7-extremo-leste-vila-nova-cachoeirinha",
+      "categoryId": "chis-cup-2026",
+      "code": "B-V-N-CACHOEIRINHA-EXTREMO-LESTE",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 7,
+      "date": "2023-10-21",
+      "time": null,
+      "teamAId": "team-chis-cup-2026-B-vila-nova-cachoeirinha",
+      "teamBId": "team-chis-cup-2026-B-extremo-leste",
+      "sourceA": {
+        "name": "V. N. CACHOEIRINHA"
+      },
+      "sourceB": {
+        "name": "EXTREMO LESTE"
+      },
+      "scoreA": 3,
+      "scoreB": 0,
+      "status": "wo",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-B-vila-nova-cachoeirinha",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO ARCO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 110,
+        "note": null,
+        "rawA": "EXCLUÍDO",
+        "rawB": "B"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-a-7-diferente-f-c-so-pudim",
+      "categoryId": "chis-cup-2026",
+      "code": "A-DIFERENTE-F-C-SO-PUDIM",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 7,
+      "date": "2023-10-21",
+      "time": "14H30",
+      "teamAId": "team-chis-cup-2026-A-diferente-f-c",
+      "teamBId": "team-chis-cup-2026-A-so-pudim",
+      "sourceA": {
+        "name": "DIFERENTE F.C."
+      },
+      "sourceB": {
+        "name": "SÓ PUDIM"
+      },
+      "scoreA": 6,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-A-diferente-f-c",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO ARCO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 105,
+        "note": null,
+        "rawA": "14H30",
+        "rawB": "A"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-b-7-capela-do-socorro-ufc-uniao-fc",
+      "categoryId": "chis-cup-2026",
+      "code": "B-UFC-UNIAO-FC-CAPELA-DO-SOCORRO",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 7,
+      "date": "2023-10-21",
+      "time": "16H00",
+      "teamAId": "team-chis-cup-2026-B-ufc-uniao-fc",
+      "teamBId": "team-chis-cup-2026-B-capela-do-socorro",
+      "sourceA": {
+        "name": "UFC - UNIÃO FC"
+      },
+      "sourceB": {
+        "name": "CAPELA DO SOCORRO"
+      },
+      "scoreA": 0,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-B-capela-do-socorro",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO ARCO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 106,
+        "note": null,
+        "rawA": "16H00",
+        "rawB": "B"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-c-7-sem-ferias-100-perreco-sem-querer",
+      "categoryId": "chis-cup-2026",
+      "code": "C-SEM-QUERER-SEM-FERIAS-100-PERRECO",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 7,
+      "date": "2023-10-21",
+      "time": "17H00",
+      "teamAId": "team-chis-cup-2026-C-sem-querer",
+      "teamBId": "team-chis-cup-2026-C-sem-ferias-100-perreco",
+      "sourceA": {
+        "name": "SEM QUERER"
+      },
+      "sourceB": {
+        "name": "SEM FÉRIAS/100 PERRECO"
+      },
+      "scoreA": 3,
+      "scoreB": 5,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-C-sem-ferias-100-perreco",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO ARCO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 107,
+        "note": null,
+        "rawA": "17H00",
+        "rawB": "C"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-c-7-ajax-centro-so-mito-fc",
+      "categoryId": "chis-cup-2026",
+      "code": "C-AJAX-CENTRO-SO-MITO-FC",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 7,
+      "date": "2023-10-21",
+      "time": "18H00",
+      "teamAId": "team-chis-cup-2026-C-ajax-centro",
+      "teamBId": "team-chis-cup-2026-C-so-mito-fc",
+      "sourceA": {
+        "name": "AJAX CENTRO"
+      },
+      "sourceB": {
+        "name": "SÓ MITO FC"
+      },
+      "scoreA": 0,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-C-so-mito-fc",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO ARCO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 108,
+        "note": null,
+        "rawA": "18H00",
+        "rawB": "C"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-c-7-so-mito-fc-tudo-nosso",
+      "categoryId": "chis-cup-2026",
+      "code": "C-SO-MITO-FC-TUDO-NOSSO",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 7,
+      "date": "2023-10-28",
+      "time": "17H30",
+      "teamAId": "team-chis-cup-2026-C-tudo-nosso",
+      "teamBId": "team-chis-cup-2026-C-so-mito-fc",
+      "sourceA": {
+        "name": "TUDO NOSSO"
+      },
+      "sourceB": {
+        "name": "SÓ MITO FUT SAMBA"
+      },
+      "scoreA": 3,
+      "scoreB": 7,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-C-so-mito-fc",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO NACIONAL",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 113,
+        "note": null,
+        "rawA": "17H30",
+        "rawB": "C"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-d-8-assuncao-resolve-facil",
+      "categoryId": "chis-cup-2026",
+      "code": "D-ASSUNCAO-RESOLVE-FACIL",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 8,
+      "date": "2023-10-28",
+      "time": "17H30",
+      "teamAId": "team-chis-cup-2026-D-assuncao",
+      "teamBId": "team-chis-cup-2026-D-resolve-facil",
+      "sourceA": {
+        "name": "ASSUNÇÃO"
+      },
+      "sourceB": {
+        "name": "RESOLVE FÁCIL"
+      },
+      "scoreA": 0,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-D-resolve-facil",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 109,
+        "note": "TROCAR ADVERSÁRIO UNIDOS, PARA RESOLVE FÁCIL",
+        "rawA": "EXCLUÍDO",
+        "rawB": "D"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-d-7-resolve-facil-unidos-da-leste",
+      "categoryId": "chis-cup-2026",
+      "code": "D-UNIDOS-DA-LESTE-RESOLVE-FACIL",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 7,
+      "date": "2023-10-28",
+      "time": "18H30",
+      "teamAId": "team-chis-cup-2026-D-unidos-da-leste",
+      "teamBId": "team-chis-cup-2026-D-resolve-facil",
+      "sourceA": {
+        "name": "UNIDOS DA LESTE"
+      },
+      "sourceB": {
+        "name": "RESOLVE FÁCIL"
+      },
+      "scoreA": 9,
+      "scoreB": 4,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-D-unidos-da-leste",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO NACIONAL",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 114,
+        "note": "PASSAR JOGO PARA DIA 28/10 BABY BARIONE AS 17H30",
+        "rawA": "18H30",
+        "rawB": "D"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-c-8-sem-ferias-100-perreco-tudo-nosso",
+      "categoryId": "chis-cup-2026",
+      "code": "C-SEM-FERIAS-TUDO-NOSSO",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 8,
+      "date": "2023-11-04",
+      "time": "15H00",
+      "teamAId": "team-chis-cup-2026-C-sem-ferias-100-perreco",
+      "teamBId": "team-chis-cup-2026-C-tudo-nosso",
+      "sourceA": {
+        "name": "SEM FÉRIAS/100 PERRECO"
+      },
+      "sourceB": {
+        "name": "TUDO NOSSO"
+      },
+      "scoreA": 2,
+      "scoreB": 6,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-C-tudo-nosso",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO ARCO",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 117,
+        "note": null,
+        "rawA": "15H00",
+        "rawB": "C"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-d-9-cdd-embu-das-artes-mete-marcha",
+      "categoryId": "chis-cup-2026",
+      "code": "D-CDD-EMBU-METE-MARCHA",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 9,
+      "date": "2023-11-11",
+      "time": "14H30",
+      "teamAId": "team-chis-cup-2026-D-cdd-embu-das-artes",
+      "teamBId": "team-chis-cup-2026-D-mete-marcha",
+      "sourceA": {
+        "name": "CDD EMBU"
+      },
+      "sourceB": {
+        "name": "METE MARCHA"
+      },
+      "scoreA": 2,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 120,
+        "note": null,
+        "rawA": "14H30",
+        "rawB": "D"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-b-9-capela-do-socorro-extremo-leste",
+      "categoryId": "chis-cup-2026",
+      "code": "B-EXTREMO-LESTE-CAPELA-DO-SOCORRO",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 9,
+      "date": "2023-11-11",
+      "time": "15H00",
+      "teamAId": "team-chis-cup-2026-B-extremo-leste",
+      "teamBId": "team-chis-cup-2026-B-capela-do-socorro",
+      "sourceA": {
+        "name": "EXTREMO LESTE"
+      },
+      "sourceB": {
+        "name": "CAPELA DO SOCORRO"
+      },
+      "scoreA": 0,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-B-capela-do-socorro",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 127,
+        "note": null,
+        "rawA": "15H00",
+        "rawB": "B"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-a-9-diferente-f-c-unidos-vila-maria",
+      "categoryId": "chis-cup-2026",
+      "code": "A-UNIDOS-VILA-MARIA-DIFERENTES",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 9,
+      "date": "2023-11-11",
+      "time": "15H30",
+      "teamAId": "team-chis-cup-2026-A-unidos-vila-maria",
+      "teamBId": "team-chis-cup-2026-A-diferente-f-c",
+      "sourceA": {
+        "name": "UNIDOS VILA MARIA"
+      },
+      "sourceB": {
+        "name": "DIFERENTES"
+      },
+      "scoreA": 1,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-A-diferente-f-c",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 121,
+        "note": null,
+        "rawA": "15H30",
+        "rawB": "A"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-b-9-171-fc-ufc-uniao-fc",
+      "categoryId": "chis-cup-2026",
+      "code": "B-171-FC-UFC-UNIAO-FC",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 9,
+      "date": "2023-11-11",
+      "time": "16H00",
+      "teamAId": "team-chis-cup-2026-B-171-fc",
+      "teamBId": "team-chis-cup-2026-B-ufc-uniao-fc",
+      "sourceA": {
+        "name": "171 FC"
+      },
+      "sourceB": {
+        "name": "UFC - UNIÃO FC"
+      },
+      "scoreA": 1,
+      "scoreB": 0,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-B-171-fc",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 128,
+        "note": null,
+        "rawA": "16H00",
+        "rawB": "B"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-b-9-171-fc-capela-do-socorro",
+      "categoryId": "chis-cup-2026",
+      "code": "B-CAPELA-DO-SOCORRO-171-FC",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 9,
+      "date": "2023-11-11",
+      "time": "16H30",
+      "teamAId": "team-chis-cup-2026-B-capela-do-socorro",
+      "teamBId": "team-chis-cup-2026-B-171-fc",
+      "sourceA": {
+        "name": "CAPELA DO SOCORRO"
+      },
+      "sourceB": {
+        "name": "171 FC"
+      },
+      "scoreA": 3,
+      "scoreB": 0,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-B-capela-do-socorro",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 122,
+        "note": null,
+        "rawA": "16H30",
+        "rawB": "B"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-c-9-sem-ferias-100-perreco-so-mito-fc",
+      "categoryId": "chis-cup-2026",
+      "code": "C-SO-MITO-FS-SEM-FERIAS-100-PERRECO",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 9,
+      "date": "2023-11-11",
+      "time": "17H30",
+      "teamAId": "team-chis-cup-2026-C-so-mito-fc",
+      "teamBId": "team-chis-cup-2026-C-sem-ferias-100-perreco",
+      "sourceA": {
+        "name": "SÓ MITO FS"
+      },
+      "sourceB": {
+        "name": "SEM FÉRIAS/100 PERRECO"
+      },
+      "scoreA": 0,
+      "scoreB": 5,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-C-sem-ferias-100-perreco",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 123,
+        "note": null,
+        "rawA": "17H30",
+        "rawB": "C"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-c-9-ajax-centro-sem-querer",
+      "categoryId": "chis-cup-2026",
+      "code": "C-SEM-QUERER-AJAX",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 9,
+      "date": "2023-11-11",
+      "time": "18H30",
+      "teamAId": "team-chis-cup-2026-C-sem-querer",
+      "teamBId": "team-chis-cup-2026-C-ajax-centro",
+      "sourceA": {
+        "name": "SEM QUERER"
+      },
+      "sourceB": {
+        "name": "AJAX"
+      },
+      "scoreA": 1,
+      "scoreB": 0,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-C-sem-querer",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 124,
+        "note": "ANTECIPAR HORÁRIO PARA 19H",
+        "rawA": "18H30",
+        "rawB": "C"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-classificatoria-a-9-brooklin-futsal-so-pudim",
+      "categoryId": "chis-cup-2026",
+      "code": "A-BROOKLIN-FUTSAL-SO-PUDIM",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 9,
+      "date": "2023-11-11",
+      "time": "19H30",
+      "teamAId": "team-chis-cup-2026-A-brooklin-futsal",
+      "teamBId": "team-chis-cup-2026-A-so-pudim",
+      "sourceA": {
+        "name": "BROOKLIN FUTSAL"
+      },
+      "sourceB": {
+        "name": "SÓ PUDIM"
+      },
+      "scoreA": 0,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-A-so-pudim",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 125,
+        "note": null,
+        "rawA": "19H30",
+        "rawB": "A"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-1-cdd-embu-das-artes-vila-nova-cachoeirinha",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-E-VILA-NOVA-CACHOEIRINHA-CDD-EMBU",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 1,
+      "date": "2023-11-25",
+      "time": "14H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "VILA NOVA CACHOEIRINHA"
+      },
+      "sourceB": {
+        "name": "CDD EMBÚ"
+      },
+      "scoreA": 3,
+      "scoreB": 2,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-B-vila-nova-cachoeirinha",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 131,
+        "note": null,
+        "rawA": "14H30",
+        "rawB": "CHAVE E"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-1-tudo-nosso-uniao-vila-carrao",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-E-UNIAO-CARRAO-TUDO-NOSSO",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 1,
+      "date": "2023-11-25",
+      "time": "15H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "UNIÃO CARRÃO"
+      },
+      "sourceB": {
+        "name": "TUDO NOSSO"
+      },
+      "scoreA": 2,
+      "scoreB": 4,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-C-tudo-nosso",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 132,
+        "note": null,
+        "rawA": "15H30",
+        "rawB": "CHAVE E"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-1-capela-do-socorro-unidos-da-leste",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-F-CAPELA-DO-SOCORRO-UNIDOS-DA-LESTE",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 1,
+      "date": "2023-11-25",
+      "time": "16H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "CAPELA DO SOCORRO"
+      },
+      "sourceB": {
+        "name": "UNIDOS DA LESTE"
+      },
+      "scoreA": 9,
+      "scoreB": 1,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-chis-cup-2026-B-capela-do-socorro",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 133,
+        "note": null,
+        "rawA": "16H30",
+        "rawB": "CHAVE F"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-1-diferente-f-c-sem-ferias-100-perreco",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-F-DIFERENTE-SEM-FERIAS-100-PERRECO",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 1,
+      "date": "2023-11-25",
+      "time": "17H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "DIFERENTE"
+      },
+      "sourceB": {
+        "name": "SEM FÉRIAS/ 100 PERRECO"
+      },
+      "scoreA": 3,
+      "scoreB": 3,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 134,
+        "note": null,
+        "rawA": "17H30",
+        "rawB": "CHAVE F"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-2-cdd-embu-das-artes-uniao-vila-carrao",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-E-CDD-EMBU-UNIAO-CARRAO",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 2,
+      "date": "2023-12-02",
+      "time": "14H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "CDD EMBÚ"
+      },
+      "sourceB": {
+        "name": "UNIÃO CARRÃO"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 137,
+        "note": null,
+        "rawA": "14H30",
+        "rawB": "CHAVE E"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-2-tudo-nosso-vila-nova-cachoeirinha",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-E-TUDO-NOSSO-VILA-NOVA-CACHOEIRINHA",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 2,
+      "date": "2023-12-02",
+      "time": "15H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "TUDO NOSSO"
+      },
+      "sourceB": {
+        "name": "VILA NOVA CACHOEIRINHA"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 138,
+        "note": null,
+        "rawA": "15H30",
+        "rawB": "CHAVE E"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-2-diferente-f-c-unidos-da-leste",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-F-UNIDOS-DA-LESTE-DIFERENTE",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 2,
+      "date": "2023-12-02",
+      "time": "16H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "UNIDOS DA LESTE"
+      },
+      "sourceB": {
+        "name": "DIFERENTE"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 139,
+        "note": null,
+        "rawA": "16H30",
+        "rawB": "CHAVE F"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-2-capela-do-socorro-sem-ferias-100-perreco",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-F-SEM-FERIAS-100-PERRECO-CAPELA-DO-SOCORRO",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 2,
+      "date": "2023-12-02",
+      "time": "17H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "SEM FÉRIAS/ 100 PERRECO"
+      },
+      "sourceB": {
+        "name": "CAPELA DO SOCORRO"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 140,
+        "note": null,
+        "rawA": "17H30",
+        "rawB": "CHAVE F"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-3-cdd-embu-das-artes-tudo-nosso",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-E-TUDO-NOSSO-CDD-EMBU",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 3,
+      "date": "2023-12-09",
+      "time": "14H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "TUDO NOSSO"
+      },
+      "sourceB": {
+        "name": "CDD EMBÚ"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "SEDE DA ARCO-SPM",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 143,
+        "note": null,
+        "rawA": "14H30",
+        "rawB": "CHAVE E"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-3-uniao-vila-carrao-vila-nova-cachoeirinha",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-E-VILA-NOVA-CACHOEIRINHA-UNIAO-CARRAO",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 3,
+      "date": "2023-12-09",
+      "time": "15H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "VILA NOVA CACHOEIRINHA"
+      },
+      "sourceB": {
+        "name": "UNIÃO CARRÃO"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "SEDE DA ARCO-SPM",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 144,
+        "note": null,
+        "rawA": "15H30",
+        "rawB": "CHAVE E"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-3-capela-do-socorro-diferente-f-c",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-F-CAPELA-DO-SOCORRO-DIFERENTE",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 3,
+      "date": "2023-12-09",
+      "time": "16H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "CAPELA DO SOCORRO"
+      },
+      "sourceB": {
+        "name": "DIFERENTE"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "SEDE DA ARCO-SPM",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 145,
+        "note": null,
+        "rawA": "16H30",
+        "rawB": "CHAVE F"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-3-sem-ferias-100-perreco-unidos-da-leste",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-F-SEM-FERIAS-100-PERRECO-UNIDOS-DA-LESTE",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 3,
+      "date": "2023-12-09",
+      "time": "17H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "SEM FÉRIAS/100 PERRECO"
+      },
+      "sourceB": {
+        "name": "UNIDOS DA LESTE"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "SEDE DA ARCO-SPM",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 146,
+        "note": null,
+        "rawA": "17H30",
+        "rawB": "CHAVE F"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-3-1-c-tudo-nosso-2-d-cdd-embu",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-E-1-C-TUDO-NOSSO-2-D-CDD-EMBU",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 3,
+      "date": "2023-12-10",
+      "time": "09H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "1ºC - TUDO NOSSO"
+      },
+      "sourceB": {
+        "name": "2ºD - CDD EMBÚ"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 148,
+        "note": null,
+        "rawA": "09H30",
+        "rawB": "CHAVE E"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-3-1-a-uniao-carrao-2-b-vila-nova-cachoeirinha",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-E-2-B-VILA-NOVA-CACHOEIRINHA-1-A-UNIAO-CARRAO",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 3,
+      "date": "2023-12-10",
+      "time": "10H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "2ºB- VILA NOVA CACHOEIRINHA"
+      },
+      "sourceB": {
+        "name": "1ºA - UNIÃO CARRÃO"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 149,
+        "note": null,
+        "rawA": "10H30",
+        "rawB": "CHAVE E"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-3-1-b-capela-do-socorro-2-a-diferente",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-F-1-B-CAPELA-DO-SOCORRO-2-A-DIFERENTE",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 3,
+      "date": "2023-12-10",
+      "time": "11H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "1ºB - CAPELA DO SOCORRO"
+      },
+      "sourceB": {
+        "name": "2ºA - DIFERENTE"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 150,
+        "note": null,
+        "rawA": "11H30",
+        "rawB": "CHAVE F"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-general-3-1-d-unidos-da-leste-2-c-sem-ferias-100-perreco",
+      "categoryId": "chis-cup-2026",
+      "code": "CHAVE-F-2-C-SEM-FERIAS-100-PERRECO-1-D-UNIDOS-DA-LESTE",
+      "phase": "mata_mata",
+      "group": null,
+      "round": 3,
+      "date": "2023-12-10",
+      "time": "12H30",
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "2ºC - SEM FÉRIAS/100 PERRECO"
+      },
+      "sourceB": {
+        "name": "1ºD - UNIDOS DA LESTE"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 151,
+        "note": null,
+        "rawA": "12H30",
+        "rawB": "CHAVE F"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-sf01-3-1-e-x-2-f",
+      "categoryId": "chis-cup-2026",
+      "code": "SF01-1-E-2-F",
+      "phase": "mata_mata",
+      "group": "SF01",
+      "round": 3,
+      "date": "2023-12-16",
+      "time": null,
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "1º E"
+      },
+      "sourceB": {
+        "name": "2ºF"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 154,
+        "note": null,
+        "rawA": "",
+        "rawB": "SF01"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-sf02-3-1-f-x-2-e",
+      "categoryId": "chis-cup-2026",
+      "code": "SF02-1-F-2-E",
+      "phase": "mata_mata",
+      "group": "SF02",
+      "round": 3,
+      "date": "2023-12-16",
+      "time": null,
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "1ºF"
+      },
+      "sourceB": {
+        "name": "2º E"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 155,
+        "note": null,
+        "rawA": "",
+        "rawB": "SF02"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-sf01-3-perd-sf01-x-perd-sf02",
+      "categoryId": "chis-cup-2026",
+      "code": "SF01-PERD-SF01-PERD-SF02",
+      "phase": "mata_mata",
+      "group": "SF01",
+      "round": 3,
+      "date": "2023-12-16",
+      "time": null,
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "PERD. SF01"
+      },
+      "sourceB": {
+        "name": "PERD. SF02"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 158,
+        "note": null,
+        "rawA": "",
+        "rawB": "SF01"
+      }
+    },
+    {
+      "id": "match-chis-cup-2026-mata_mata-sf02-3-venc-sf02-x-venc-sf02",
+      "categoryId": "chis-cup-2026",
+      "code": "SF02-VENC-SF02-VENC-SF02",
+      "phase": "mata_mata",
+      "group": "SF02",
+      "round": 3,
+      "date": "2023-12-16",
+      "time": null,
+      "teamAId": null,
+      "teamBId": null,
+      "sourceA": {
+        "name": "VENC. SF02"
+      },
+      "sourceB": {
+        "name": "VENC. SF02"
+      },
+      "scoreA": null,
+      "scoreB": null,
+      "status": "agendado",
+      "wo": null,
+      "winnerId": null,
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "GINÁSIO BABY BARIONE",
+      "_source": {
+        "sheet": "PROGRAMAÇÃO",
+        "row": 159,
+        "note": null,
+        "rawA": "",
+        "rawB": "SF02"
+      }
+    }
+  ],
+  "standingsSnapshot": [
+    {
+      "teamId": "team-chis-cup-2026-A-uniao-vila-carrao",
+      "groupKey": "",
+      "position": 1,
+      "played": 4,
+      "wins": 4,
+      "draws": 0,
+      "losses": 0,
+      "goalsFor": 24,
+      "goalsAgainst": 7,
+      "goalDiff": 17,
+      "points": 12,
+      "qualified": true
+    }
+  ],
+  "rules": {},
+  "format": {},
+  "scoring": {},
+  "notes": null
+}

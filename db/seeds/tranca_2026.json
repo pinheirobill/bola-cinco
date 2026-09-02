@@ -1,0 +1,3656 @@
+{
+  "championship": {
+    "id": "11-torneio-de-tranca-ec-pinheiros-2026",
+    "name": "11º TORNEIO DE TRANCA E.C. PINHEIROS 2026",
+    "season": 2026,
+    "status": "em_andamento",
+    "modality": "tranca"
+  },
+  "categories": [
+    {
+      "id": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "championshipId": "11-torneio-de-tranca-ec-pinheiros-2026",
+      "name": "11º TORNEIO DE TRANCA E.C. PINHEIROS 2026",
+      "gender": "misto",
+      "minBirthYear": null,
+      "maxBirthYear": null,
+      "maxAthletes": 2
+    }
+  ],
+  "entities": [
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-36-luis-roberto-l-arruda-e-leila-b-s-zuccari",
+      "name": "36 LUIS ROBERTO L. ARRUDA E LEILA B.S. ZUCCARI"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-adriana-braga-e-cleusa-b-costa",
+      "name": "ADRIANA BRAGA E CLEUSA B. COSTA"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "name": "ALICE G. SARAIVA E MARIA LYDIA DE CAMPO"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-anna-maria-b-della-e-nubia-barros-shrensperger",
+      "name": "ANNA MARIA B. DELLA E NÚBIA BARROS SHRENSPERGER"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "name": "ANTÓNIO ALOI E MARINA DE SOUZA P.C. ALOI"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-carlos-otto-m-c-schutt-e-regina-maria-c-m-c-schutt",
+      "name": "CARLOS OTTO M. C. SCHUTT E REGINA MARIA C.M.C. SCHUTT"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-catharina-parodi-e-cecilia-maria-silva-ramos",
+      "name": "CATHARINA PARODI E CECÍLIA MARIA SILVA RAMOS"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "name": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "name": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "name": "ELISABETA MALAGOLI E LUÍZA BIANCO CHECCIA"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "name": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-erece-assaf-ricotti-e-maria-lucia-stape",
+      "name": "ERECÊ ASSAF RICOTTI E MARIA LÚCIA STAPE"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-fabio-andrade-reinbold-e-silvia-moll-reinbold",
+      "name": "FÁBIO ANDRADE REINBOLD E SILVIA MOLL REINBOLD"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "name": "GLAUCIA OSSE E ARNALDO OSSE"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "name": "JULIANA MONTEIRO MACHADO E VALÉRIA EBERLE PAGLIOLI"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "name": "LAURINDA ROCHA TAFARELLO E VIRGÍNIA DE BARROS BASTO"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-leila-bacelar-chicca-e-carolina-bacelar-chicca",
+      "name": "LEILA BACELAR CHICCA E CAROLINA BACELAR CHICCA"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-leon-majer-e-marta-dubrez-p-campos",
+      "name": "LEON MAJER E MARTA DUBREZ P. CAMPOS"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "name": "LILIAN BPTISTA SILVA E TATIANA B. SILVA ZUCCARI"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-maria-cecilia-loviat-e-andiara-maria-r-guimaraes",
+      "name": "MARIA CECÍLIA LOVIAT E ANDIARA MARIA R. GUIMARÃES"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-maria-clara-goes-b-nave-e-meilli-jatene-lima",
+      "name": "MARIA CLARA GOES B. NAVE E MEILLI JATENE LIMA"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-marilena-graziano-de-a-barros-e-vera-lucia-paris-a-cunha",
+      "name": "MARILENA GRAZIANO DE A. BARROS E VERA LÚCIA PARIS A. CUNHA"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-mario-montenegro-gasparini-e-renata-chequer-machado",
+      "name": "MÁRIO MONTENEGRO GASPARINI E RENATA CHEQUER MACHADO"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-monica-b-medina-e-marco-antonio-gomes",
+      "name": "MÔNICA B. MEDINA E MARCO ANTÓNIO GOMES"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-neusa-da-rocha-f-mendes-e-neide-neli-richter",
+      "name": "NEUSA DA ROCHA F. MENDES E NEIDE NELI RICHTER"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "name": "NILDE C. RAINHO E ROSÂNGELA GIOIA MARQUES"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "name": "RENATA PAIVA DE ANDRADE E MARIA OFÉLIA P. ANDRADE"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-renato-viana-e-marisa-dutra-viana",
+      "name": "RENATO VIANA E MARISA DUTRA VIANA"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "name": "ROSA MARIA BARONE E CLAUDIA M.G.L. GREGÓRIO"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-rosana-campi-sophia-e-eduardo-luiz-sophia",
+      "name": "ROSANA CAMPI SOPHIA E EDUARDO LUIZ SOPHIA"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "name": "RÚBIA MARA CINEZE E AMÉLIA MARIA O. PLATZECK"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-stella-maria-de-faria-e-mirtes-lapate-menegatti",
+      "name": "STELLA MARIA DE FARIA E MIRTES LAPATE MENEGATTI"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "name": "SÉRGIO ROBERTO GRANIERI E CARLOS ALBERTO PEDRESHI"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-sonia-maria-farhat-e-luciana-cosac-saquy",
+      "name": "SÔNIA MARIA FARHAT E LUCIANA COSAC SAQUY"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "name": "SÔNIA REGINA M. AUGUSTO E NEIDE MARIA DE CARVALHO"
+    },
+    {
+      "id": "entity-11-torneio-de-tranca-ec-pinheiros-2026-telma-magalhaes-buckup-e-maria-angela-souza-n-de-freitas",
+      "name": "TELMA MAGALHÃES BUCKUP E MARIA ANGELA SOUZA N. DE FREITAS"
+    }
+  ],
+  "teams": [
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-36-luis-roberto-l-arruda-e-leila-b-s-zuccari",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-36-luis-roberto-l-arruda-e-leila-b-s-zuccari",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "I",
+      "name": "36 LUIS ROBERTO L. ARRUDA E LEILA B.S. ZUCCARI",
+      "shortName": "36 LUIS ROBERTO L. ARRUDA E LEILA B.S. ZUCCARI",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-adriana-braga-e-cleusa-b-costa",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-adriana-braga-e-cleusa-b-costa",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "A",
+      "name": "ADRIANA BRAGA E CLEUSA B. COSTA",
+      "shortName": "ADRIANA BRAGA E CLEUSA B. COSTA",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "B",
+      "name": "ALICE G. SARAIVA E MARIA LYDIA DE CAMPO",
+      "shortName": "ALICE G. SARAIVA E MARIA LYDIA DE CAMPO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-anna-maria-b-della-e-nubia-barros-shrensperger",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-anna-maria-b-della-e-nubia-barros-shrensperger",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "C",
+      "name": "ANNA MARIA B. DELLA E NÚBIA BARROS SHRENSPERGER",
+      "shortName": "ANNA MARIA B. DELLA E NÚBIA BARROS SHRENSPERGER",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "D",
+      "name": "ANTÓNIO ALOI E MARINA DE SOUZA P.C. ALOI",
+      "shortName": "ANTÓNIO ALOI E MARINA DE SOUZA P.C. ALOI",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-carlos-otto-m-c-schutt-e-regina-maria-c-m-c-schutt",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-carlos-otto-m-c-schutt-e-regina-maria-c-m-c-schutt",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "F",
+      "name": "CARLOS OTTO M. C. SCHUTT E REGINA MARIA C.M.C. SCHUTT",
+      "shortName": "CARLOS OTTO M. C. SCHUTT E REGINA MARIA C.M.C. SCHUTT",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-catharina-parodi-e-cecilia-maria-silva-ramos",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-catharina-parodi-e-cecilia-maria-silva-ramos",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "G",
+      "name": "CATHARINA PARODI E CECÍLIA MARIA SILVA RAMOS",
+      "shortName": "CATHARINA PARODI E CECÍLIA MARIA SILVA RAMOS",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "H",
+      "name": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO",
+      "shortName": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "E",
+      "name": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE",
+      "shortName": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "A",
+      "name": "ELISABETA MALAGOLI E LUÍZA BIANCO CHECCIA",
+      "shortName": "ELISABETA MALAGOLI E LUÍZA BIANCO CHECCIA",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "B",
+      "name": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO",
+      "shortName": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-erece-assaf-ricotti-e-maria-lucia-stape",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-erece-assaf-ricotti-e-maria-lucia-stape",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "C",
+      "name": "ERECÊ ASSAF RICOTTI E MARIA LÚCIA STAPE",
+      "shortName": "ERECÊ ASSAF RICOTTI E MARIA LÚCIA STAPE",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-fabio-andrade-reinbold-e-silvia-moll-reinbold",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-fabio-andrade-reinbold-e-silvia-moll-reinbold",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "D",
+      "name": "FÁBIO ANDRADE REINBOLD E SILVIA MOLL REINBOLD",
+      "shortName": "FÁBIO ANDRADE REINBOLD E SILVIA MOLL REINBOLD",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "I",
+      "name": "GLAUCIA OSSE E ARNALDO OSSE",
+      "shortName": "GLAUCIA OSSE E ARNALDO OSSE",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "E",
+      "name": "JULIANA MONTEIRO MACHADO E VALÉRIA EBERLE PAGLIOLI",
+      "shortName": "JULIANA MONTEIRO MACHADO E VALÉRIA EBERLE PAGLIOLI",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "F",
+      "name": "LAURINDA ROCHA TAFARELLO E VIRGÍNIA DE BARROS BASTO",
+      "shortName": "LAURINDA ROCHA TAFARELLO E VIRGÍNIA DE BARROS BASTO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-leila-bacelar-chicca-e-carolina-bacelar-chicca",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-leila-bacelar-chicca-e-carolina-bacelar-chicca",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "G",
+      "name": "LEILA BACELAR CHICCA E CAROLINA BACELAR CHICCA",
+      "shortName": "LEILA BACELAR CHICCA E CAROLINA BACELAR CHICCA",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-leon-majer-e-marta-dubrez-p-campos",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-leon-majer-e-marta-dubrez-p-campos",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "H",
+      "name": "LEON MAJER E MARTA DUBREZ P. CAMPOS",
+      "shortName": "LEON MAJER E MARTA DUBREZ P. CAMPOS",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "I",
+      "name": "LILIAN BPTISTA SILVA E TATIANA B. SILVA ZUCCARI",
+      "shortName": "LILIAN BPTISTA SILVA E TATIANA B. SILVA ZUCCARI",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-maria-cecilia-loviat-e-andiara-maria-r-guimaraes",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-maria-cecilia-loviat-e-andiara-maria-r-guimaraes",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "H",
+      "name": "MARIA CECÍLIA LOVIAT E ANDIARA MARIA R. GUIMARÃES",
+      "shortName": "MARIA CECÍLIA LOVIAT E ANDIARA MARIA R. GUIMARÃES",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-maria-clara-goes-b-nave-e-meilli-jatene-lima",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-maria-clara-goes-b-nave-e-meilli-jatene-lima",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "B",
+      "name": "MARIA CLARA GOES B. NAVE E MEILLI JATENE LIMA",
+      "shortName": "MARIA CLARA GOES B. NAVE E MEILLI JATENE LIMA",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-marilena-graziano-de-a-barros-e-vera-lucia-paris-a-cunha",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-marilena-graziano-de-a-barros-e-vera-lucia-paris-a-cunha",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "C",
+      "name": "MARILENA GRAZIANO DE A. BARROS E VERA LÚCIA PARIS A. CUNHA",
+      "shortName": "MARILENA GRAZIANO DE A. BARROS E VERA LÚCIA PARIS A. CUNHA",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-mario-montenegro-gasparini-e-renata-chequer-machado",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-mario-montenegro-gasparini-e-renata-chequer-machado",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "D",
+      "name": "MÁRIO MONTENEGRO GASPARINI E RENATA CHEQUER MACHADO",
+      "shortName": "MÁRIO MONTENEGRO GASPARINI E RENATA CHEQUER MACHADO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-monica-b-medina-e-marco-antonio-gomes",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-monica-b-medina-e-marco-antonio-gomes",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "E",
+      "name": "MÔNICA B. MEDINA E MARCO ANTÓNIO GOMES",
+      "shortName": "MÔNICA B. MEDINA E MARCO ANTÓNIO GOMES",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-neusa-da-rocha-f-mendes-e-neide-neli-richter",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-neusa-da-rocha-f-mendes-e-neide-neli-richter",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "F",
+      "name": "NEUSA DA ROCHA F. MENDES E NEIDE NELI RICHTER",
+      "shortName": "NEUSA DA ROCHA F. MENDES E NEIDE NELI RICHTER",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "G",
+      "name": "NILDE C. RAINHO E ROSÂNGELA GIOIA MARQUES",
+      "shortName": "NILDE C. RAINHO E ROSÂNGELA GIOIA MARQUES",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "H",
+      "name": "RENATA PAIVA DE ANDRADE E MARIA OFÉLIA P. ANDRADE",
+      "shortName": "RENATA PAIVA DE ANDRADE E MARIA OFÉLIA P. ANDRADE",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-renato-viana-e-marisa-dutra-viana",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-renato-viana-e-marisa-dutra-viana",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "I",
+      "name": "RENATO VIANA E MARISA DUTRA VIANA",
+      "shortName": "RENATO VIANA E MARISA DUTRA VIANA",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "H",
+      "name": "ROSA MARIA BARONE E CLAUDIA M.G.L. GREGÓRIO",
+      "shortName": "ROSA MARIA BARONE E CLAUDIA M.G.L. GREGÓRIO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosana-campi-sophia-e-eduardo-luiz-sophia",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-rosana-campi-sophia-e-eduardo-luiz-sophia",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "B",
+      "name": "ROSANA CAMPI SOPHIA E EDUARDO LUIZ SOPHIA",
+      "shortName": "ROSANA CAMPI SOPHIA E EDUARDO LUIZ SOPHIA",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "C",
+      "name": "RÚBIA MARA CINEZE E AMÉLIA MARIA O. PLATZECK",
+      "shortName": "RÚBIA MARA CINEZE E AMÉLIA MARIA O. PLATZECK",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-stella-maria-de-faria-e-mirtes-lapate-menegatti",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-stella-maria-de-faria-e-mirtes-lapate-menegatti",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "G",
+      "name": "STELLA MARIA DE FARIA E MIRTES LAPATE MENEGATTI",
+      "shortName": "STELLA MARIA DE FARIA E MIRTES LAPATE MENEGATTI",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "D",
+      "name": "SÉRGIO ROBERTO GRANIERI E CARLOS ALBERTO PEDRESHI",
+      "shortName": "SÉRGIO ROBERTO GRANIERI E CARLOS ALBERTO PEDRESHI",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-maria-farhat-e-luciana-cosac-saquy",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-sonia-maria-farhat-e-luciana-cosac-saquy",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "E",
+      "name": "SÔNIA MARIA FARHAT E LUCIANA COSAC SAQUY",
+      "shortName": "SÔNIA MARIA FARHAT E LUCIANA COSAC SAQUY",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "F",
+      "name": "SÔNIA REGINA M. AUGUSTO E NEIDE MARIA DE CARVALHO",
+      "shortName": "SÔNIA REGINA M. AUGUSTO E NEIDE MARIA DE CARVALHO",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    },
+    {
+      "id": "team-11-torneio-de-tranca-ec-pinheiros-2026-telma-magalhaes-buckup-e-maria-angela-souza-n-de-freitas",
+      "entityId": "entity-11-torneio-de-tranca-ec-pinheiros-2026-telma-magalhaes-buckup-e-maria-angela-souza-n-de-freitas",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "group": "H",
+      "name": "TELMA MAGALHÃES BUCKUP E MARIA ANGELA SOUZA N. DE FREITAS",
+      "shortName": "TELMA MAGALHÃES BUCKUP E MARIA ANGELA SOUZA N. DE FREITAS",
+      "registration": {
+        "status": "aprovada"
+      },
+      "finance": {
+        "status": "pendente"
+      }
+    }
+  ],
+  "athletes": [],
+  "matches": [
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-1-1-jg-1-juliana-monteiro-machado-e-valeria-eberle-paglioli-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 1",
+      "phase": "classificatoria",
+      "group": "1",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "sourceA": {
+        "name": "JULIANA MONTEIRO MACHADO E VALÉRIA EBERLE PAGLIOLI"
+      },
+      "sourceB": {
+        "name": "SÔNIA REGINA M. AUGUSTO E NEIDE MARIA DE CARVALHO"
+      },
+      "scoreA": 1530,
+      "scoreB": 1070,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 1.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "2",
+        "rawCode": "JG 1"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-1-2-jg-2-ciana-reis-s-patricio-e-bruno-penteado-patricio-alice-g-saraiva-e-maria-lydia-de-campo",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 2",
+      "phase": "classificatoria",
+      "group": "1",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "sourceA": {
+        "name": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO"
+      },
+      "sourceB": {
+        "name": "ALICE G. SARAIVA E MARIA LYDIA DE CAMPO"
+      },
+      "scoreA": 2130,
+      "scoreB": 1030,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 2.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "3",
+        "rawCode": "JG 2"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-1-3-jg-3-ciana-reis-s-patricio-e-bruno-penteado-patricio-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 3",
+      "phase": "classificatoria",
+      "group": "1",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "sourceA": {
+        "name": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO"
+      },
+      "sourceB": {
+        "name": "JULIANA MONTEIRO MACHADO E VALÉRIA EBERLE PAGLIOLI"
+      },
+      "scoreA": 810,
+      "scoreB": 1900,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 1.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "4",
+        "rawCode": "JG 3"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-1-4-jg-4-alice-g-saraiva-e-maria-lydia-de-campo-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 4",
+      "phase": "classificatoria",
+      "group": "1",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "sourceA": {
+        "name": "ALICE G. SARAIVA E MARIA LYDIA DE CAMPO"
+      },
+      "sourceB": {
+        "name": "SÔNIA REGINA M. AUGUSTO E NEIDE MARIA DE CARVALHO"
+      },
+      "scoreA": 1670,
+      "scoreB": 1420,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 2.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "5",
+        "rawCode": "JG 4"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-1-5-jg-5-juliana-monteiro-machado-e-valeria-eberle-paglioli-alice-g-saraiva-e-maria-lydia-de-campo",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 5",
+      "phase": "classificatoria",
+      "group": "1",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "sourceA": {
+        "name": "JULIANA MONTEIRO MACHADO E VALÉRIA EBERLE PAGLIOLI"
+      },
+      "sourceB": {
+        "name": "ALICE G. SARAIVA E MARIA LYDIA DE CAMPO"
+      },
+      "scoreA": 1530,
+      "scoreB": 1640,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 1.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "6",
+        "rawCode": "JG 5"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-1-6-jg-6-sonia-regina-m-augusto-e-neide-maria-de-carvalho-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 6",
+      "phase": "classificatoria",
+      "group": "1",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "sourceA": {
+        "name": "SÔNIA REGINA M. AUGUSTO E NEIDE MARIA DE CARVALHO"
+      },
+      "sourceB": {
+        "name": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO"
+      },
+      "scoreA": 1670,
+      "scoreB": 2120,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 2.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "7",
+        "rawCode": "JG 6"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-2-1-jg-7-sergio-roberto-granieri-e-carlos-alberto-pedreshi-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 7",
+      "phase": "classificatoria",
+      "group": "2",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "sourceA": {
+        "name": "SÉRGIO ROBERTO GRANIERI E CARLOS ALBERTO PEDRESHI"
+      },
+      "sourceB": {
+        "name": "ANTÓNIO ALOI E MARINA DE SOUZA P.C. ALOI"
+      },
+      "scoreA": 1200,
+      "scoreB": 1530,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 3.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "10",
+        "rawCode": "JG 7"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-2-2-jg-8-lilian-bptista-silva-e-tatiana-b-silva-zuccari-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 8",
+      "phase": "classificatoria",
+      "group": "2",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "sourceA": {
+        "name": "LILIAN BPTISTA SILVA E TATIANA B. SILVA ZUCCARI"
+      },
+      "sourceB": {
+        "name": "ROSA MARIA BARONE E CLAUDIA M.G.L. GREGÓRIO"
+      },
+      "scoreA": 2530,
+      "scoreB": 1970,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 4.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "11",
+        "rawCode": "JG 8"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-2-3-jg-9-lilian-bptista-silva-e-tatiana-b-silva-zuccari-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 9",
+      "phase": "classificatoria",
+      "group": "2",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "sourceA": {
+        "name": "LILIAN BPTISTA SILVA E TATIANA B. SILVA ZUCCARI"
+      },
+      "sourceB": {
+        "name": "SÉRGIO ROBERTO GRANIERI E CARLOS ALBERTO PEDRESHI"
+      },
+      "scoreA": 990,
+      "scoreB": 1210,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 3.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "12",
+        "rawCode": "JG 9"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-2-4-jg-10-rosa-maria-barone-e-claudia-m-g-l-gregorio-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 10",
+      "phase": "classificatoria",
+      "group": "2",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "sourceA": {
+        "name": "ROSA MARIA BARONE E CLAUDIA M.G.L. GREGÓRIO"
+      },
+      "sourceB": {
+        "name": "ANTÓNIO ALOI E MARINA DE SOUZA P.C. ALOI"
+      },
+      "scoreA": 1630,
+      "scoreB": 2260,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 4.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "13",
+        "rawCode": "JG 10"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-2-5-jg-11-sergio-roberto-granieri-e-carlos-alberto-pedreshi-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 11",
+      "phase": "classificatoria",
+      "group": "2",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "sourceA": {
+        "name": "SÉRGIO ROBERTO GRANIERI E CARLOS ALBERTO PEDRESHI"
+      },
+      "sourceB": {
+        "name": "ROSA MARIA BARONE E CLAUDIA M.G.L. GREGÓRIO"
+      },
+      "scoreA": 1650,
+      "scoreB": 950,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 3.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "14",
+        "rawCode": "JG 11"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-2-6-jg-12-antonio-aloi-e-marina-de-souza-p-c-aloi-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 12",
+      "phase": "classificatoria",
+      "group": "2",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "sourceA": {
+        "name": "ANTÓNIO ALOI E MARINA DE SOUZA P.C. ALOI"
+      },
+      "sourceB": {
+        "name": "LILIAN BPTISTA SILVA E TATIANA B. SILVA ZUCCARI"
+      },
+      "scoreA": 2070,
+      "scoreB": 330,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 4.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "15",
+        "rawCode": "JG 12"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-3-1-jg-13-eloisa-maria-amaro-e-conceicao-pastore-b-camargo-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 13",
+      "phase": "classificatoria",
+      "group": "3",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "sourceA": {
+        "name": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO"
+      },
+      "sourceB": {
+        "name": "ELISABETA MALAGOLI E LUÍZA BIANCO CHECCIA"
+      },
+      "scoreA": 1920,
+      "scoreB": 1160,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 5.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "18",
+        "rawCode": "JG 13"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-3-2-jg-14-glaucia-osse-e-arnaldo-osse-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 14",
+      "phase": "classificatoria",
+      "group": "3",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "sourceA": {
+        "name": "GLAUCIA OSSE E ARNALDO OSSE"
+      },
+      "sourceB": {
+        "name": "LAURINDA ROCHA TAFARELLO E VIRGÍNIA DE BARROS BASTO"
+      },
+      "scoreA": 1680,
+      "scoreB": 1300,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 6.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "19",
+        "rawCode": "JG 14"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-3-3-jg-15-glaucia-osse-e-arnaldo-osse-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 15",
+      "phase": "classificatoria",
+      "group": "3",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "sourceA": {
+        "name": "GLAUCIA OSSE E ARNALDO OSSE"
+      },
+      "sourceB": {
+        "name": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO"
+      },
+      "scoreA": 1000,
+      "scoreB": 1340,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 5.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "20",
+        "rawCode": "JG 15"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-3-4-jg-16-laurinda-rocha-tafarello-e-virginia-de-barros-basto-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 16",
+      "phase": "classificatoria",
+      "group": "3",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "sourceA": {
+        "name": "LAURINDA ROCHA TAFARELLO E VIRGÍNIA DE BARROS BASTO"
+      },
+      "sourceB": {
+        "name": "ELISABETA MALAGOLI E LUÍZA BIANCO CHECCIA"
+      },
+      "scoreA": 1050,
+      "scoreB": 1790,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 6.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "21",
+        "rawCode": "JG 16"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-3-5-jg-17-eloisa-maria-amaro-e-conceicao-pastore-b-camargo-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 17",
+      "phase": "classificatoria",
+      "group": "3",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "sourceA": {
+        "name": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO"
+      },
+      "sourceB": {
+        "name": "LAURINDA ROCHA TAFARELLO E VIRGÍNIA DE BARROS BASTO"
+      },
+      "scoreA": 1310,
+      "scoreB": 2150,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 5.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "22",
+        "rawCode": "JG 17"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-3-6-jg-18-elisabeta-malagoli-e-luiza-bianco-checcia-glaucia-osse-e-arnaldo-osse",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 18",
+      "phase": "classificatoria",
+      "group": "3",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "sourceA": {
+        "name": "ELISABETA MALAGOLI E LUÍZA BIANCO CHECCIA"
+      },
+      "sourceB": {
+        "name": "GLAUCIA OSSE E ARNALDO OSSE"
+      },
+      "scoreA": 1240,
+      "scoreB": 1570,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 6.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "23",
+        "rawCode": "JG 18"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-4-1-jg-19-rubia-mara-cineze-e-amelia-maria-o-platzeck-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 19",
+      "phase": "classificatoria",
+      "group": "4",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "sourceA": {
+        "name": "RÚBIA MARA CINEZE E AMÉLIA MARIA O. PLATZECK"
+      },
+      "sourceB": {
+        "name": "RENATA PAIVA DE ANDRADE E MARIA OFÉLIA P. ANDRADE"
+      },
+      "scoreA": 1690,
+      "scoreB": 1140,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 7.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "26",
+        "rawCode": "JG 19"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-4-2-jg-20-eliane-avancini-lili-e-beatriz-andrade-basile-nilde-c-rainho-e-rosangela-gioia-marques",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 20",
+      "phase": "classificatoria",
+      "group": "4",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "sourceA": {
+        "name": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE"
+      },
+      "sourceB": {
+        "name": "NILDE C. RAINHO E ROSÂNGELA GIOIA MARQUES"
+      },
+      "scoreA": 1130,
+      "scoreB": 140,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 8.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "27",
+        "rawCode": "JG 20"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-4-3-jg-21-eliane-avancini-lili-e-beatriz-andrade-basile-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 21",
+      "phase": "classificatoria",
+      "group": "4",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "sourceA": {
+        "name": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE"
+      },
+      "sourceB": {
+        "name": "RÚBIA MARA CINEZE E AMÉLIA MARIA O. PLATZECK"
+      },
+      "scoreA": 2370,
+      "scoreB": 1890,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 7.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "28",
+        "rawCode": "JG 21"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-4-4-jg-22-nilde-c-rainho-e-rosangela-gioia-marques-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 22",
+      "phase": "classificatoria",
+      "group": "4",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "sourceA": {
+        "name": "NILDE C. RAINHO E ROSÂNGELA GIOIA MARQUES"
+      },
+      "sourceB": {
+        "name": "RENATA PAIVA DE ANDRADE E MARIA OFÉLIA P. ANDRADE"
+      },
+      "scoreA": 2250,
+      "scoreB": 850,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 8.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "29",
+        "rawCode": "JG 22"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-4-5-jg-23-rubia-mara-cineze-e-amelia-maria-o-platzeck-nilde-c-rainho-e-rosangela-gioia-marques",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 23",
+      "phase": "classificatoria",
+      "group": "4",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "sourceA": {
+        "name": "RÚBIA MARA CINEZE E AMÉLIA MARIA O. PLATZECK"
+      },
+      "sourceB": {
+        "name": "NILDE C. RAINHO E ROSÂNGELA GIOIA MARQUES"
+      },
+      "scoreA": 1560,
+      "scoreB": 2180,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 7.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "30",
+        "rawCode": "JG 23"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-4-6-jg-24-renata-paiva-de-andrade-e-maria-ofelia-p-andrade-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 24",
+      "phase": "classificatoria",
+      "group": "4",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "sourceA": {
+        "name": "RENATA PAIVA DE ANDRADE E MARIA OFÉLIA P. ANDRADE"
+      },
+      "sourceB": {
+        "name": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE"
+      },
+      "scoreA": 2230,
+      "scoreB": 2050,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 8.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "31",
+        "rawCode": "JG 24"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-a-1-jg-1-adriana-braga-e-cleusa-b-costa-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 1",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-adriana-braga-e-cleusa-b-costa",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "sourceA": {
+        "name": "ADRIANA BRAGA E CLEUSA B. COSTA"
+      },
+      "sourceB": {
+        "name": "ELISABETA MALAGOLI E LUÍZA BIANCO CHECCIA"
+      },
+      "scoreA": 1670,
+      "scoreB": 2520,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 1.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "2",
+        "rawCode": "JG 1"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-a-2-jg-3-rosa-maria-barone-e-claudia-m-g-l-gregorio-adriana-braga-e-cleusa-b-costa",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 3",
+      "phase": "classificatoria",
+      "group": "A",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-adriana-braga-e-cleusa-b-costa",
+      "sourceA": {
+        "name": "ROSA MARIA BARONE E CLAUDIA M.G.L. GREGÓRIO"
+      },
+      "sourceB": {
+        "name": "ADRIANA BRAGA E CLEUSA B. COSTA"
+      },
+      "scoreA": 2880,
+      "scoreB": 2170,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 1.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "4",
+        "rawCode": "JG 3"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-b-1-jg-7-alice-g-saraiva-e-maria-lydia-de-campo-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 7",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "sourceA": {
+        "name": "ALICE G. SARAIVA E MARIA LYDIA DE CAMPO"
+      },
+      "sourceB": {
+        "name": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO"
+      },
+      "scoreA": 2050,
+      "scoreB": 3240,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 3.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "10",
+        "rawCode": "JG 7"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-b-2-jg-8-rosana-campi-sophia-e-eduardo-luiz-sophia-maria-clara-goes-b-nave-e-meilli-jatene-lima",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 8",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosana-campi-sophia-e-eduardo-luiz-sophia",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-maria-clara-goes-b-nave-e-meilli-jatene-lima",
+      "sourceA": {
+        "name": "ROSANA CAMPI SOPHIA E EDUARDO LUIZ SOPHIA"
+      },
+      "sourceB": {
+        "name": "MARIA CLARA GOES B. NAVE E MEILLI JATENE LIMA"
+      },
+      "scoreA": 3140,
+      "scoreB": 1850,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosana-campi-sophia-e-eduardo-luiz-sophia",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 4.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "11",
+        "rawCode": "JG 8"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-b-3-jg-9-rosana-campi-sophia-e-eduardo-luiz-sophia-alice-g-saraiva-e-maria-lydia-de-campo",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 9",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosana-campi-sophia-e-eduardo-luiz-sophia",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "sourceA": {
+        "name": "ROSANA CAMPI SOPHIA E EDUARDO LUIZ SOPHIA"
+      },
+      "sourceB": {
+        "name": "ALICE G. SARAIVA E MARIA LYDIA DE CAMPO"
+      },
+      "scoreA": 850,
+      "scoreB": 2900,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 3.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "12",
+        "rawCode": "JG 9"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-b-4-jg-10-maria-clara-goes-b-nave-e-meilli-jatene-lima-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 10",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-maria-clara-goes-b-nave-e-meilli-jatene-lima",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "sourceA": {
+        "name": "MARIA CLARA GOES B. NAVE E MEILLI JATENE LIMA"
+      },
+      "sourceB": {
+        "name": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO"
+      },
+      "scoreA": 2720,
+      "scoreB": 3070,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 4.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "13",
+        "rawCode": "JG 10"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-b-5-jg-11-alice-g-saraiva-e-maria-lydia-de-campo-maria-clara-goes-b-nave-e-meilli-jatene-lima",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 11",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-maria-clara-goes-b-nave-e-meilli-jatene-lima",
+      "sourceA": {
+        "name": "ALICE G. SARAIVA E MARIA LYDIA DE CAMPO"
+      },
+      "sourceB": {
+        "name": "MARIA CLARA GOES B. NAVE E MEILLI JATENE LIMA"
+      },
+      "scoreA": 3280,
+      "scoreB": 1940,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-alice-g-saraiva-e-maria-lydia-de-campo",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 3.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "14",
+        "rawCode": "JG 11"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-b-6-jg-12-eloisa-maria-amaro-e-conceicao-pastore-b-camargo-rosana-campi-sophia-e-eduardo-luiz-sophia",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 12",
+      "phase": "classificatoria",
+      "group": "B",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosana-campi-sophia-e-eduardo-luiz-sophia",
+      "sourceA": {
+        "name": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO"
+      },
+      "sourceB": {
+        "name": "ROSANA CAMPI SOPHIA E EDUARDO LUIZ SOPHIA"
+      },
+      "scoreA": 2180,
+      "scoreB": 2150,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 4.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "15",
+        "rawCode": "JG 12"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-c-1-jg-13-anna-maria-b-della-e-nubia-barros-shrensperger-erece-assaf-ricotti-e-maria-lucia-stape",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 13",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-anna-maria-b-della-e-nubia-barros-shrensperger",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-erece-assaf-ricotti-e-maria-lucia-stape",
+      "sourceA": {
+        "name": "ANNA MARIA B. DELLA E NÚBIA BARROS SHRENSPERGER"
+      },
+      "sourceB": {
+        "name": "ERECÊ ASSAF RICOTTI E MARIA LÚCIA STAPE"
+      },
+      "scoreA": 3140,
+      "scoreB": 1450,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-anna-maria-b-della-e-nubia-barros-shrensperger",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 5.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "18",
+        "rawCode": "JG 13"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-c-2-jg-14-rubia-mara-cineze-e-amelia-maria-o-platzeck-marilena-graziano-de-a-barros-e-vera-lucia-paris-a-cunha",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 14",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-marilena-graziano-de-a-barros-e-vera-lucia-paris-a-cunha",
+      "sourceA": {
+        "name": "RÚBIA MARA CINEZE E AMÉLIA MARIA O. PLATZECK"
+      },
+      "sourceB": {
+        "name": "MARILENA GRAZIANO DE A. BARROS E VERA LÚCIA PARIS A. CUNHA"
+      },
+      "scoreA": 2250,
+      "scoreB": 1580,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 6.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "19",
+        "rawCode": "JG 14"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-c-3-jg-15-rubia-mara-cineze-e-amelia-maria-o-platzeck-anna-maria-b-della-e-nubia-barros-shrensperger",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 15",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-anna-maria-b-della-e-nubia-barros-shrensperger",
+      "sourceA": {
+        "name": "RÚBIA MARA CINEZE E AMÉLIA MARIA O. PLATZECK"
+      },
+      "sourceB": {
+        "name": "ANNA MARIA B. DELLA E NÚBIA BARROS SHRENSPERGER"
+      },
+      "scoreA": 3550,
+      "scoreB": 1080,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 5.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "20",
+        "rawCode": "JG 15"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-c-4-jg-16-marilena-graziano-de-a-barros-e-vera-lucia-paris-a-cunha-erece-assaf-ricotti-e-maria-lucia-stape",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 16",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-marilena-graziano-de-a-barros-e-vera-lucia-paris-a-cunha",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-erece-assaf-ricotti-e-maria-lucia-stape",
+      "sourceA": {
+        "name": "MARILENA GRAZIANO DE A. BARROS E VERA LÚCIA PARIS A. CUNHA"
+      },
+      "sourceB": {
+        "name": "ERECÊ ASSAF RICOTTI E MARIA LÚCIA STAPE"
+      },
+      "scoreA": 1860,
+      "scoreB": 2290,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-erece-assaf-ricotti-e-maria-lucia-stape",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 6.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "21",
+        "rawCode": "JG 16"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-c-5-jg-17-anna-maria-b-della-e-nubia-barros-shrensperger-marilena-graziano-de-a-barros-e-vera-lucia-paris-a-cunha",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 17",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-anna-maria-b-della-e-nubia-barros-shrensperger",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-marilena-graziano-de-a-barros-e-vera-lucia-paris-a-cunha",
+      "sourceA": {
+        "name": "ANNA MARIA B. DELLA E NÚBIA BARROS SHRENSPERGER"
+      },
+      "sourceB": {
+        "name": "MARILENA GRAZIANO DE A. BARROS E VERA LÚCIA PARIS A. CUNHA"
+      },
+      "scoreA": 2210,
+      "scoreB": 2871,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-marilena-graziano-de-a-barros-e-vera-lucia-paris-a-cunha",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 5.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "22",
+        "rawCode": "JG 17"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-c-6-jg-18-erece-assaf-ricotti-e-maria-lucia-stape-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 18",
+      "phase": "classificatoria",
+      "group": "C",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-erece-assaf-ricotti-e-maria-lucia-stape",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "sourceA": {
+        "name": "ERECÊ ASSAF RICOTTI E MARIA LÚCIA STAPE"
+      },
+      "sourceB": {
+        "name": "RÚBIA MARA CINEZE E AMÉLIA MARIA O. PLATZECK"
+      },
+      "scoreA": 1650,
+      "scoreB": 2040,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rubia-mara-cineze-e-amelia-maria-o-platzeck",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 6.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "23",
+        "rawCode": "JG 18"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-d-1-jg-19-antonio-aloi-e-marina-de-souza-p-c-aloi-fabio-andrade-reinbold-e-silvia-moll-reinbold",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 19",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-fabio-andrade-reinbold-e-silvia-moll-reinbold",
+      "sourceA": {
+        "name": "ANTÓNIO ALOI E MARINA DE SOUZA P.C. ALOI"
+      },
+      "sourceB": {
+        "name": "FÁBIO ANDRADE REINBOLD E SILVIA MOLL REINBOLD"
+      },
+      "scoreA": 2660,
+      "scoreB": 1530,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 7.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "26",
+        "rawCode": "JG 19"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-d-2-jg-20-sergio-roberto-granieri-e-carlos-alberto-pedreshi-mario-montenegro-gasparini-e-renata-chequer-machado",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 20",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-mario-montenegro-gasparini-e-renata-chequer-machado",
+      "sourceA": {
+        "name": "SÉRGIO ROBERTO GRANIERI E CARLOS ALBERTO PEDRESHI"
+      },
+      "sourceB": {
+        "name": "MÁRIO MONTENEGRO GASPARINI E RENATA CHEQUER MACHADO"
+      },
+      "scoreA": 2800,
+      "scoreB": 1560,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 8.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "27",
+        "rawCode": "JG 20"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-d-3-jg-21-sergio-roberto-granieri-e-carlos-alberto-pedreshi-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 21",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "sourceA": {
+        "name": "SÉRGIO ROBERTO GRANIERI E CARLOS ALBERTO PEDRESHI"
+      },
+      "sourceB": {
+        "name": "ANTÓNIO ALOI E MARINA DE SOUZA P.C. ALOI"
+      },
+      "scoreA": 1810,
+      "scoreB": 920,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 7.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "28",
+        "rawCode": "JG 21"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-d-4-jg-22-mario-montenegro-gasparini-e-renata-chequer-machado-fabio-andrade-reinbold-e-silvia-moll-reinbold",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 22",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-mario-montenegro-gasparini-e-renata-chequer-machado",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-fabio-andrade-reinbold-e-silvia-moll-reinbold",
+      "sourceA": {
+        "name": "MÁRIO MONTENEGRO GASPARINI E RENATA CHEQUER MACHADO"
+      },
+      "sourceB": {
+        "name": "FÁBIO ANDRADE REINBOLD E SILVIA MOLL REINBOLD"
+      },
+      "scoreA": 1860,
+      "scoreB": 1240,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-mario-montenegro-gasparini-e-renata-chequer-machado",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 8.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "29",
+        "rawCode": "JG 22"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-d-5-jg-23-antonio-aloi-e-marina-de-souza-p-c-aloi-mario-montenegro-gasparini-e-renata-chequer-machado",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 23",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-mario-montenegro-gasparini-e-renata-chequer-machado",
+      "sourceA": {
+        "name": "ANTÓNIO ALOI E MARINA DE SOUZA P.C. ALOI"
+      },
+      "sourceB": {
+        "name": "MÁRIO MONTENEGRO GASPARINI E RENATA CHEQUER MACHADO"
+      },
+      "scoreA": 2840,
+      "scoreB": 2530,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 7.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "30",
+        "rawCode": "JG 23"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-d-6-jg-24-fabio-andrade-reinbold-e-silvia-moll-reinbold-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 24",
+      "phase": "classificatoria",
+      "group": "D",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-fabio-andrade-reinbold-e-silvia-moll-reinbold",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "sourceA": {
+        "name": "FÁBIO ANDRADE REINBOLD E SILVIA MOLL REINBOLD"
+      },
+      "sourceB": {
+        "name": "SÉRGIO ROBERTO GRANIERI E CARLOS ALBERTO PEDRESHI"
+      },
+      "scoreA": 3170,
+      "scoreB": 1200,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-fabio-andrade-reinbold-e-silvia-moll-reinbold",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 8.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "31",
+        "rawCode": "JG 24"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-e-1-jg-4-maria-cecilia-loviat-e-andiara-maria-r-guimaraes-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 4",
+      "phase": "classificatoria",
+      "group": "E",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-maria-cecilia-loviat-e-andiara-maria-r-guimaraes",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "sourceA": {
+        "name": "MARIA CECÍLIA LOVIAT E ANDIARA MARIA R. GUIMARÃES"
+      },
+      "sourceB": {
+        "name": "ELISABETA MALAGOLI E LUÍZA BIANCO CHECCIA"
+      },
+      "scoreA": 2510,
+      "scoreB": 3020,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 2.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "5",
+        "rawCode": "JG 4"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-e-2-jg-25-eliane-avancini-lili-e-beatriz-andrade-basile-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 25",
+      "phase": "classificatoria",
+      "group": "E",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "sourceA": {
+        "name": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE"
+      },
+      "sourceB": {
+        "name": "JULIANA MONTEIRO MACHADO E VALÉRIA EBERLE PAGLIOLI"
+      },
+      "scoreA": 2670,
+      "scoreB": 2590,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 9.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "34",
+        "rawCode": "JG 25"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-e-3-jg-26-sonia-maria-farhat-e-luciana-cosac-saquy-monica-b-medina-e-marco-antonio-gomes",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 26",
+      "phase": "classificatoria",
+      "group": "E",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-maria-farhat-e-luciana-cosac-saquy",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-monica-b-medina-e-marco-antonio-gomes",
+      "sourceA": {
+        "name": "SÔNIA MARIA FARHAT E LUCIANA COSAC SAQUY"
+      },
+      "sourceB": {
+        "name": "MÔNICA B. MEDINA E MARCO ANTÓNIO GOMES"
+      },
+      "scoreA": 2330,
+      "scoreB": 1690,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-maria-farhat-e-luciana-cosac-saquy",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 10.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "35",
+        "rawCode": "JG 26"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-e-4-jg-27-sonia-maria-farhat-e-luciana-cosac-saquy-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 27",
+      "phase": "classificatoria",
+      "group": "E",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-maria-farhat-e-luciana-cosac-saquy",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "sourceA": {
+        "name": "SÔNIA MARIA FARHAT E LUCIANA COSAC SAQUY"
+      },
+      "sourceB": {
+        "name": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE"
+      },
+      "scoreA": 1610,
+      "scoreB": 2940,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 9.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "36",
+        "rawCode": "JG 27"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-e-5-jg-28-monica-b-medina-e-marco-antonio-gomes-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 28",
+      "phase": "classificatoria",
+      "group": "E",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-monica-b-medina-e-marco-antonio-gomes",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "sourceA": {
+        "name": "MÔNICA B. MEDINA E MARCO ANTÓNIO GOMES"
+      },
+      "sourceB": {
+        "name": "JULIANA MONTEIRO MACHADO E VALÉRIA EBERLE PAGLIOLI"
+      },
+      "scoreA": 2290,
+      "scoreB": 2770,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 10.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "37",
+        "rawCode": "JG 28"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-e-6-jg-29-eliane-avancini-lili-e-beatriz-andrade-basile-monica-b-medina-e-marco-antonio-gomes",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 29",
+      "phase": "classificatoria",
+      "group": "E",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-monica-b-medina-e-marco-antonio-gomes",
+      "sourceA": {
+        "name": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE"
+      },
+      "sourceB": {
+        "name": "MÔNICA B. MEDINA E MARCO ANTÓNIO GOMES"
+      },
+      "scoreA": 2050,
+      "scoreB": 3200,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-monica-b-medina-e-marco-antonio-gomes",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 9.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "38",
+        "rawCode": "JG 29"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-e-7-jg-30-juliana-monteiro-machado-e-valeria-eberle-paglioli-sonia-maria-farhat-e-luciana-cosac-saquy",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 30",
+      "phase": "classificatoria",
+      "group": "E",
+      "round": 7,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-maria-farhat-e-luciana-cosac-saquy",
+      "sourceA": {
+        "name": "JULIANA MONTEIRO MACHADO E VALÉRIA EBERLE PAGLIOLI"
+      },
+      "sourceB": {
+        "name": "SÔNIA MARIA FARHAT E LUCIANA COSAC SAQUY"
+      },
+      "scoreA": 3520,
+      "scoreB": 3340,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 10.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "39",
+        "rawCode": "JG 30"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-f-1-jg-5-adriana-braga-e-cleusa-b-costa-maria-cecilia-loviat-e-andiara-maria-r-guimaraes",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 5",
+      "phase": "classificatoria",
+      "group": "F",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-adriana-braga-e-cleusa-b-costa",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-maria-cecilia-loviat-e-andiara-maria-r-guimaraes",
+      "sourceA": {
+        "name": "ADRIANA BRAGA E CLEUSA B. COSTA"
+      },
+      "sourceB": {
+        "name": "MARIA CECÍLIA LOVIAT E ANDIARA MARIA R. GUIMARÃES"
+      },
+      "scoreA": 2470,
+      "scoreB": 1980,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-adriana-braga-e-cleusa-b-costa",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 1.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "6",
+        "rawCode": "JG 5"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-f-2-jg-31-carlos-otto-m-c-schutt-e-regina-maria-c-m-c-schutt-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 31",
+      "phase": "classificatoria",
+      "group": "F",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-carlos-otto-m-c-schutt-e-regina-maria-c-m-c-schutt",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "sourceA": {
+        "name": "CARLOS OTTO M. C. SCHUTT E REGINA MARIA C.M.C. SCHUTT"
+      },
+      "sourceB": {
+        "name": "LAURINDA ROCHA TAFARELLO E VIRGÍNIA DE BARROS BASTO"
+      },
+      "scoreA": 2870,
+      "scoreB": 2280,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-carlos-otto-m-c-schutt-e-regina-maria-c-m-c-schutt",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 11.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "42",
+        "rawCode": "JG 31"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-f-3-jg-32-sonia-regina-m-augusto-e-neide-maria-de-carvalho-neusa-da-rocha-f-mendes-e-neide-neli-richter",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 32",
+      "phase": "classificatoria",
+      "group": "F",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-neusa-da-rocha-f-mendes-e-neide-neli-richter",
+      "sourceA": {
+        "name": "SÔNIA REGINA M. AUGUSTO E NEIDE MARIA DE CARVALHO"
+      },
+      "sourceB": {
+        "name": "NEUSA DA ROCHA F. MENDES E NEIDE NELI RICHTER"
+      },
+      "scoreA": 3140,
+      "scoreB": 1310,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 12.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "43",
+        "rawCode": "JG 32"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-f-4-jg-33-sonia-regina-m-augusto-e-neide-maria-de-carvalho-carlos-otto-m-c-schutt-e-regina-maria-c-m-c-schutt",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 33",
+      "phase": "classificatoria",
+      "group": "F",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-carlos-otto-m-c-schutt-e-regina-maria-c-m-c-schutt",
+      "sourceA": {
+        "name": "SÔNIA REGINA M. AUGUSTO E NEIDE MARIA DE CARVALHO"
+      },
+      "sourceB": {
+        "name": "CARLOS OTTO M. C. SCHUTT E REGINA MARIA C.M.C. SCHUTT"
+      },
+      "scoreA": 2020,
+      "scoreB": 1570,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 11.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "44",
+        "rawCode": "JG 33"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-f-5-jg-34-neusa-da-rocha-f-mendes-e-neide-neli-richter-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 34",
+      "phase": "classificatoria",
+      "group": "F",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-neusa-da-rocha-f-mendes-e-neide-neli-richter",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "sourceA": {
+        "name": "NEUSA DA ROCHA F. MENDES E NEIDE NELI RICHTER"
+      },
+      "sourceB": {
+        "name": "LAURINDA ROCHA TAFARELLO E VIRGÍNIA DE BARROS BASTO"
+      },
+      "scoreA": 2050,
+      "scoreB": 2470,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 12.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "45",
+        "rawCode": "JG 34"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-f-6-jg-35-carlos-otto-m-c-schutt-e-regina-maria-c-m-c-schutt-neusa-da-rocha-f-mendes-e-neide-neli-richter",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 35",
+      "phase": "classificatoria",
+      "group": "F",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-carlos-otto-m-c-schutt-e-regina-maria-c-m-c-schutt",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-neusa-da-rocha-f-mendes-e-neide-neli-richter",
+      "sourceA": {
+        "name": "CARLOS OTTO M. C. SCHUTT E REGINA MARIA C.M.C. SCHUTT"
+      },
+      "sourceB": {
+        "name": "NEUSA DA ROCHA F. MENDES E NEIDE NELI RICHTER"
+      },
+      "scoreA": 2170,
+      "scoreB": 1790,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-carlos-otto-m-c-schutt-e-regina-maria-c-m-c-schutt",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 11.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "46",
+        "rawCode": "JG 35"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-f-7-jg-36-laurinda-rocha-tafarello-e-virginia-de-barros-basto-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 36",
+      "phase": "classificatoria",
+      "group": "F",
+      "round": 7,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sonia-regina-m-augusto-e-neide-maria-de-carvalho",
+      "sourceA": {
+        "name": "LAURINDA ROCHA TAFARELLO E VIRGÍNIA DE BARROS BASTO"
+      },
+      "sourceB": {
+        "name": "SÔNIA REGINA M. AUGUSTO E NEIDE MARIA DE CARVALHO"
+      },
+      "scoreA": 2210,
+      "scoreB": 1640,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-laurinda-rocha-tafarello-e-virginia-de-barros-basto",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 12.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "47",
+        "rawCode": "JG 36"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-g-1-jg-37-catharina-parodi-e-cecilia-maria-silva-ramos-leila-bacelar-chicca-e-carolina-bacelar-chicca",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 37",
+      "phase": "classificatoria",
+      "group": "G",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-catharina-parodi-e-cecilia-maria-silva-ramos",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-leila-bacelar-chicca-e-carolina-bacelar-chicca",
+      "sourceA": {
+        "name": "CATHARINA PARODI E CECÍLIA MARIA SILVA RAMOS"
+      },
+      "sourceB": {
+        "name": "LEILA BACELAR CHICCA E CAROLINA BACELAR CHICCA"
+      },
+      "scoreA": 2150,
+      "scoreB": 1470,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-catharina-parodi-e-cecilia-maria-silva-ramos",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 13.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "50",
+        "rawCode": "JG 37"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-g-2-jg-38-stella-maria-de-faria-e-mirtes-lapate-menegatti-nilde-c-rainho-e-rosangela-gioia-marques",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 38",
+      "phase": "classificatoria",
+      "group": "G",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-stella-maria-de-faria-e-mirtes-lapate-menegatti",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "sourceA": {
+        "name": "STELLA MARIA DE FARIA E MIRTES LAPATE MENEGATTI"
+      },
+      "sourceB": {
+        "name": "NILDE C. RAINHO E ROSÂNGELA GIOIA MARQUES"
+      },
+      "scoreA": 1710,
+      "scoreB": 1810,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 14.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "51",
+        "rawCode": "JG 38"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-g-3-jg-39-stella-maria-de-faria-e-mirtes-lapate-menegatti-catharina-parodi-e-cecilia-maria-silva-ramos",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 39",
+      "phase": "classificatoria",
+      "group": "G",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-stella-maria-de-faria-e-mirtes-lapate-menegatti",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-catharina-parodi-e-cecilia-maria-silva-ramos",
+      "sourceA": {
+        "name": "STELLA MARIA DE FARIA E MIRTES LAPATE MENEGATTI"
+      },
+      "sourceB": {
+        "name": "CATHARINA PARODI E CECÍLIA MARIA SILVA RAMOS"
+      },
+      "scoreA": 1570,
+      "scoreB": 500,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-stella-maria-de-faria-e-mirtes-lapate-menegatti",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 13.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "52",
+        "rawCode": "JG 39"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-g-4-jg-40-nilde-c-rainho-e-rosangela-gioia-marques-leila-bacelar-chicca-e-carolina-bacelar-chicca",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 40",
+      "phase": "classificatoria",
+      "group": "G",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-leila-bacelar-chicca-e-carolina-bacelar-chicca",
+      "sourceA": {
+        "name": "NILDE C. RAINHO E ROSÂNGELA GIOIA MARQUES"
+      },
+      "sourceB": {
+        "name": "LEILA BACELAR CHICCA E CAROLINA BACELAR CHICCA"
+      },
+      "scoreA": 2190,
+      "scoreB": 1850,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 14.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "53",
+        "rawCode": "JG 40"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-g-5-jg-41-catharina-parodi-e-cecilia-maria-silva-ramos-nilde-c-rainho-e-rosangela-gioia-marques",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 41",
+      "phase": "classificatoria",
+      "group": "G",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-catharina-parodi-e-cecilia-maria-silva-ramos",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "sourceA": {
+        "name": "CATHARINA PARODI E CECÍLIA MARIA SILVA RAMOS"
+      },
+      "sourceB": {
+        "name": "NILDE C. RAINHO E ROSÂNGELA GIOIA MARQUES"
+      },
+      "scoreA": 2090,
+      "scoreB": 2000,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-catharina-parodi-e-cecilia-maria-silva-ramos",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 13.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "54",
+        "rawCode": "JG 41"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-g-6-jg-42-leila-bacelar-chicca-e-carolina-bacelar-chicca-stella-maria-de-faria-e-mirtes-lapate-menegatti",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 42",
+      "phase": "classificatoria",
+      "group": "G",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-leila-bacelar-chicca-e-carolina-bacelar-chicca",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-stella-maria-de-faria-e-mirtes-lapate-menegatti",
+      "sourceA": {
+        "name": "LEILA BACELAR CHICCA E CAROLINA BACELAR CHICCA"
+      },
+      "sourceB": {
+        "name": "STELLA MARIA DE FARIA E MIRTES LAPATE MENEGATTI"
+      },
+      "scoreA": 1280,
+      "scoreB": 1910,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-stella-maria-de-faria-e-mirtes-lapate-menegatti",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 14.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "55",
+        "rawCode": "JG 42"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-h-1-jg-2-rosa-maria-barone-e-claudia-m-g-l-gregorio-maria-cecilia-loviat-e-andiara-maria-r-guimaraes",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 2",
+      "phase": "classificatoria",
+      "group": "H",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-maria-cecilia-loviat-e-andiara-maria-r-guimaraes",
+      "sourceA": {
+        "name": "ROSA MARIA BARONE E CLAUDIA M.G.L. GREGÓRIO"
+      },
+      "sourceB": {
+        "name": "MARIA CECÍLIA LOVIAT E ANDIARA MARIA R. GUIMARÃES"
+      },
+      "scoreA": 3110,
+      "scoreB": 2500,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 2.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "3",
+        "rawCode": "JG 2"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-h-2-jg-43-ciana-reis-s-patricio-e-bruno-penteado-patricio-leon-majer-e-marta-dubrez-p-campos",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 43",
+      "phase": "classificatoria",
+      "group": "H",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-leon-majer-e-marta-dubrez-p-campos",
+      "sourceA": {
+        "name": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO"
+      },
+      "sourceB": {
+        "name": "LEON MAJER E MARTA DUBREZ P. CAMPOS"
+      },
+      "scoreA": 2590,
+      "scoreB": 2070,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 15.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "58",
+        "rawCode": "JG 43"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-h-3-jg-44-telma-magalhaes-buckup-e-maria-angela-souza-n-de-freitas-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 44",
+      "phase": "classificatoria",
+      "group": "H",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-telma-magalhaes-buckup-e-maria-angela-souza-n-de-freitas",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "sourceA": {
+        "name": "TELMA MAGALHÃES BUCKUP E MARIA ANGELA SOUZA N. DE FREITAS"
+      },
+      "sourceB": {
+        "name": "RENATA PAIVA DE ANDRADE E MARIA OFÉLIA P. ANDRADE"
+      },
+      "scoreA": 2490,
+      "scoreB": 2990,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 16.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "59",
+        "rawCode": "JG 44"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-h-4-jg-45-telma-magalhaes-buckup-e-maria-angela-souza-n-de-freitas-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 45",
+      "phase": "classificatoria",
+      "group": "H",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-telma-magalhaes-buckup-e-maria-angela-souza-n-de-freitas",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "sourceA": {
+        "name": "TELMA MAGALHÃES BUCKUP E MARIA ANGELA SOUZA N. DE FREITAS"
+      },
+      "sourceB": {
+        "name": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO"
+      },
+      "scoreA": 3020,
+      "scoreB": 3390,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 15.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "60",
+        "rawCode": "JG 45"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-h-5-jg-46-renata-paiva-de-andrade-e-maria-ofelia-p-andrade-leon-majer-e-marta-dubrez-p-campos",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 46",
+      "phase": "classificatoria",
+      "group": "H",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-leon-majer-e-marta-dubrez-p-campos",
+      "sourceA": {
+        "name": "RENATA PAIVA DE ANDRADE E MARIA OFÉLIA P. ANDRADE"
+      },
+      "sourceB": {
+        "name": "LEON MAJER E MARTA DUBREZ P. CAMPOS"
+      },
+      "scoreA": 2380,
+      "scoreB": 1070,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 16.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "61",
+        "rawCode": "JG 46"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-h-6-jg-47-ciana-reis-s-patricio-e-bruno-penteado-patricio-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 47",
+      "phase": "classificatoria",
+      "group": "H",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renata-paiva-de-andrade-e-maria-ofelia-p-andrade",
+      "sourceA": {
+        "name": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO"
+      },
+      "sourceB": {
+        "name": "RENATA PAIVA DE ANDRADE E MARIA OFÉLIA P. ANDRADE"
+      },
+      "scoreA": 2880,
+      "scoreB": 2590,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 15.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "62",
+        "rawCode": "JG 47"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-h-7-jg-48-leon-majer-e-marta-dubrez-p-campos-telma-magalhaes-buckup-e-maria-angela-souza-n-de-freitas",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 48",
+      "phase": "classificatoria",
+      "group": "H",
+      "round": 7,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-leon-majer-e-marta-dubrez-p-campos",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-telma-magalhaes-buckup-e-maria-angela-souza-n-de-freitas",
+      "sourceA": {
+        "name": "LEON MAJER E MARTA DUBREZ P. CAMPOS"
+      },
+      "sourceB": {
+        "name": "TELMA MAGALHÃES BUCKUP E MARIA ANGELA SOUZA N. DE FREITAS"
+      },
+      "scoreA": 1180,
+      "scoreB": 2560,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-telma-magalhaes-buckup-e-maria-angela-souza-n-de-freitas",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 16.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "63",
+        "rawCode": "JG 48"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-i-1-jg-6-elisabeta-malagoli-e-luiza-bianco-checcia-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 6",
+      "phase": "classificatoria",
+      "group": "I",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-elisabeta-malagoli-e-luiza-bianco-checcia",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "sourceA": {
+        "name": "ELISABETA MALAGOLI E LUÍZA BIANCO CHECCIA"
+      },
+      "sourceB": {
+        "name": "ROSA MARIA BARONE E CLAUDIA M.G.L. GREGÓRIO"
+      },
+      "scoreA": 2160,
+      "scoreB": 2300,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-rosa-maria-barone-e-claudia-m-g-l-gregorio",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 2.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "7",
+        "rawCode": "JG 6"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-i-2-jg-49-glaucia-osse-e-arnaldo-osse-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 49",
+      "phase": "classificatoria",
+      "group": "I",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "sourceA": {
+        "name": "GLAUCIA OSSE E ARNALDO OSSE"
+      },
+      "sourceB": {
+        "name": "LILIAN BPTISTA SILVA E TATIANA B. SILVA ZUCCARI"
+      },
+      "scoreA": 2210,
+      "scoreB": 2070,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 17.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "67",
+        "rawCode": "JG 49"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-i-3-jg-50-36-luis-roberto-l-arruda-e-leila-b-s-zuccari-renato-viana-e-marisa-dutra-viana",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 50",
+      "phase": "classificatoria",
+      "group": "I",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-36-luis-roberto-l-arruda-e-leila-b-s-zuccari",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renato-viana-e-marisa-dutra-viana",
+      "sourceA": {
+        "name": "36 LUIS ROBERTO L. ARRUDA E LEILA B.S. ZUCCARI"
+      },
+      "sourceB": {
+        "name": "RENATO VIANA E MARISA DUTRA VIANA"
+      },
+      "scoreA": 940,
+      "scoreB": 2810,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renato-viana-e-marisa-dutra-viana",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 18.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "68",
+        "rawCode": "JG 50"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-i-4-jg-51-36-luis-roberto-l-arruda-e-leila-b-s-zuccari-glaucia-osse-e-arnaldo-osse",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 51",
+      "phase": "classificatoria",
+      "group": "I",
+      "round": 4,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-36-luis-roberto-l-arruda-e-leila-b-s-zuccari",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "sourceA": {
+        "name": "36 LUIS ROBERTO L. ARRUDA E LEILA B.S. ZUCCARI"
+      },
+      "sourceB": {
+        "name": "GLAUCIA OSSE E ARNALDO OSSE"
+      },
+      "scoreA": 660,
+      "scoreB": 3110,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 17.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "69",
+        "rawCode": "JG 51"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-i-5-jg-52-renato-viana-e-marisa-dutra-viana-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 52",
+      "phase": "classificatoria",
+      "group": "I",
+      "round": 5,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renato-viana-e-marisa-dutra-viana",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "sourceA": {
+        "name": "RENATO VIANA E MARISA DUTRA VIANA"
+      },
+      "sourceB": {
+        "name": "LILIAN BPTISTA SILVA E TATIANA B. SILVA ZUCCARI"
+      },
+      "scoreA": 1680,
+      "scoreB": 2690,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 18.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "70",
+        "rawCode": "JG 52"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-i-6-jg-53-glaucia-osse-e-arnaldo-osse-renato-viana-e-marisa-dutra-viana",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 53",
+      "phase": "classificatoria",
+      "group": "I",
+      "round": 6,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renato-viana-e-marisa-dutra-viana",
+      "sourceA": {
+        "name": "GLAUCIA OSSE E ARNALDO OSSE"
+      },
+      "sourceB": {
+        "name": "RENATO VIANA E MARISA DUTRA VIANA"
+      },
+      "scoreA": 1500,
+      "scoreB": 1940,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-renato-viana-e-marisa-dutra-viana",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 17.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "71",
+        "rawCode": "JG 53"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-classificatoria-i-7-jg-54-lilian-bptista-silva-e-tatiana-b-silva-zuccari-36-luis-roberto-l-arruda-e-leila-b-s-zuccari",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "JG 54",
+      "phase": "classificatoria",
+      "group": "I",
+      "round": 7,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-36-luis-roberto-l-arruda-e-leila-b-s-zuccari",
+      "sourceA": {
+        "name": "LILIAN BPTISTA SILVA E TATIANA B. SILVA ZUCCARI"
+      },
+      "sourceB": {
+        "name": "36 LUIS ROBERTO L. ARRUDA E LEILA B.S. ZUCCARI"
+      },
+      "scoreA": 2910,
+      "scoreB": 2510,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-lilian-bptista-silva-e-tatiana-b-silva-zuccari",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 18.0",
+      "_source": {
+        "sheet": "TRANCA 1a Fase - 48 duplas",
+        "row": "72",
+        "rawCode": "JG 54"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-mata_mata-3-4-3-3-4-ciana-reis-s-patricio-e-bruno-penteado-patricio-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "3º/4º",
+      "phase": "mata_mata",
+      "group": "3-4",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "sourceA": {
+        "name": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO"
+      },
+      "sourceB": {
+        "name": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO"
+      },
+      "scoreA": 2370,
+      "scoreB": 600,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 2.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "47",
+        "rawCode": "3º/4º"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-mata_mata-final-3-final-glaucia-osse-e-arnaldo-osse-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "Final",
+      "phase": "mata_mata",
+      "group": "FINAL",
+      "round": 3,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "sourceA": {
+        "name": "GLAUCIA OSSE E ARNALDO OSSE"
+      },
+      "sourceB": {
+        "name": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE"
+      },
+      "scoreA": 1750,
+      "scoreB": 750,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 1.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "46",
+        "rawCode": "Final"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-mata_mata-qf-1-qf-1-ciana-reis-s-patricio-e-bruno-penteado-patricio-nilde-c-rainho-e-rosangela-gioia-marques",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "QF 1",
+      "phase": "mata_mata",
+      "group": "QF",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-nilde-c-rainho-e-rosangela-gioia-marques",
+      "sourceA": {
+        "name": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO"
+      },
+      "sourceB": {
+        "name": "NILDE C. RAINHO E ROSÂNGELA GIOIA MARQUES"
+      },
+      "scoreA": 2370,
+      "scoreB": 1570,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 1.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "36",
+        "rawCode": "QF 1"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-mata_mata-qf-1-qf-2-antonio-aloi-e-marina-de-souza-p-c-aloi-glaucia-osse-e-arnaldo-osse",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "QF 2",
+      "phase": "mata_mata",
+      "group": "QF",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-antonio-aloi-e-marina-de-souza-p-c-aloi",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "sourceA": {
+        "name": "ANTÓNIO ALOI E MARINA DE SOUZA P.C. ALOI"
+      },
+      "sourceB": {
+        "name": "GLAUCIA OSSE E ARNALDO OSSE"
+      },
+      "scoreA": 840,
+      "scoreB": 1530,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 2.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "37",
+        "rawCode": "QF 2"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-mata_mata-qf-1-qf-3-eloisa-maria-amaro-e-conceicao-pastore-b-camargo-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "QF 3",
+      "phase": "mata_mata",
+      "group": "QF",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-sergio-roberto-granieri-e-carlos-alberto-pedreshi",
+      "sourceA": {
+        "name": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO"
+      },
+      "sourceB": {
+        "name": "SÉRGIO ROBERTO GRANIERI E CARLOS ALBERTO PEDRESHI"
+      },
+      "scoreA": 2120,
+      "scoreB": 2060,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 3.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "38",
+        "rawCode": "QF 3"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-mata_mata-qf-1-qf-4-eliane-avancini-lili-e-beatriz-andrade-basile-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "QF 4",
+      "phase": "mata_mata",
+      "group": "QF",
+      "round": 1,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-juliana-monteiro-machado-e-valeria-eberle-paglioli",
+      "sourceA": {
+        "name": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE"
+      },
+      "sourceB": {
+        "name": "JULIANA MONTEIRO MACHADO E VALÉRIA EBERLE PAGLIOLI"
+      },
+      "scoreA": 2720,
+      "scoreB": 1530,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 4.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "39",
+        "rawCode": "QF 4"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-mata_mata-sf-2-sf1-ciana-reis-s-patricio-e-bruno-penteado-patricio-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "SF1",
+      "phase": "mata_mata",
+      "group": "SF",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-ciana-reis-s-patricio-e-bruno-penteado-patricio",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "sourceA": {
+        "name": "CIANA REIS S. PATRÍCIO E BRUNO PENTEADO PATRÍCIO"
+      },
+      "sourceB": {
+        "name": "ELIANE AVANCINI (LILI) E BEATRIZ ANDRADE BASILE"
+      },
+      "scoreA": 1440,
+      "scoreB": 1820,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eliane-avancini-lili-e-beatriz-andrade-basile",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 1.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "42",
+        "rawCode": "SF1"
+      }
+    },
+    {
+      "id": "match-11-torneio-de-tranca-ec-pinheiros-2026-mata_mata-sf-2-sf2-glaucia-osse-e-arnaldo-osse-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "categoryId": "category-11-torneio-de-tranca-ec-pinheiros-2026",
+      "code": "SF2",
+      "phase": "mata_mata",
+      "group": "SF",
+      "round": 2,
+      "date": null,
+      "time": null,
+      "teamAId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "teamBId": "team-11-torneio-de-tranca-ec-pinheiros-2026-eloisa-maria-amaro-e-conceicao-pastore-b-camargo",
+      "sourceA": {
+        "name": "GLAUCIA OSSE E ARNALDO OSSE"
+      },
+      "sourceB": {
+        "name": "ELOÍSA MARIA AMARO E CONCEIÇÃO PASTORE B. CAMARGO"
+      },
+      "scoreA": 2270,
+      "scoreB": 1800,
+      "status": "finalizado",
+      "wo": null,
+      "winnerId": "team-11-torneio-de-tranca-ec-pinheiros-2026-glaucia-osse-e-arnaldo-osse",
+      "penaltiesA": null,
+      "penaltiesB": null,
+      "decision": null,
+      "scorers": {},
+      "highlightVideos": [],
+      "venue": "Mesa 2.0",
+      "_source": {
+        "sheet": "2ª FASE - 16 DUPLAS",
+        "row": "43",
+        "rawCode": "SF2"
+      }
+    }
+  ],
+  "standingsSnapshot": [],
+  "rules": {
+    "registration": {
+      "max_athletes_per_team": 2,
+      "max_staff_members_per_team": 2,
+      "athlete_actions": {
+        "allow_register": true,
+        "allow_edit": true,
+        "allow_remove": false
+      },
+      "team_signups": {
+        "enabled": true,
+        "status": "inscricoes_abertas"
+      },
+      "athlete_form": {
+        "apelido": "obrigatorio",
+        "foto": "informar",
+        "cpf": "informar",
+        "rg": "informar",
+        "certidao_nascimento": "informar",
+        "data_nascimento": "informar",
+        "posicao": "informar",
+        "numero_camisa": "informar",
+        "celular": "informar",
+        "email": "informar",
+        "passaporte": "informar",
+        "titulo_eleitor": "informar",
+        "genero": "informar",
+        "documentos_anexo": "informar"
+      },
+      "printed_summary_field": "cpf"
+    }
+  },
+  "format": {
+    "mode": "grupos_mata_mata",
+    "teamCount": 36,
+    "groupCount": 9,
+    "qualifiedPerGroup": 2,
+    "matchesPerOpponent": 1
+  },
+  "scoring": {
+    "win": 3,
+    "draw": 1,
+    "loss": 0,
+    "wo": -1,
+    "woScore": 2,
+    "qualifiedPerGroup": 2,
+    "tiebreakers": [
+      "vitorias",
+      "saldo_gols",
+      "gols_pro",
+      "confronto_direto",
+      "menos_gols_sofridos",
+      "sorteio"
+    ]
+  },
+  "notes": "Regulamento e chaves importados do Excel. Fase 1 com 9 grupos (A-I), 2 classificados por chave. Fase 2 com 4 grupos (1-4), seguida de quartas, semifinais, final e disputa de 3º/4º. Critérios de desempate: vitórias, pontuação e saldo de pontos."
+}

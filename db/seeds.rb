@@ -1,3 +1,5 @@
+require "json"
+
 def clear_seed_data!
   tables = ActiveRecord::Base.connection.tables - %w[users schema_migrations ar_internal_metadata]
 
@@ -23,4 +25,29 @@ users.each do |attrs|
   user.password = "password123"
   user.password_confirmation = "password123"
   user.save!
+end
+
+def import_championship_snapshot!(path)
+  snapshot = JSON.parse(File.read(path))
+  championship = BolaCinco::Importer.new(path: path.to_s).call
+
+  championship.update!(
+    status: snapshot.fetch("championship").fetch("status"),
+    modality: snapshot.fetch("championship").fetch("modality", championship.modality),
+    notes: snapshot["notes"],
+    rules: championship.default_rules.deep_merge(snapshot["rules"] || {}),
+    format: championship.default_format.merge(snapshot["format"] || {}),
+    scoring: championship.default_scoring.merge(snapshot["scoring"] || {})
+  )
+
+  championship
+end
+
+if ENV["BOLA_CINCO_BOOTSTRAP_CHAMPIONSHIPS"] == "1"
+  import_championship_snapshot!(Rails.root.join("db/seeds/bola_cinco_import_2026.json"))
+  import_championship_snapshot!(Rails.root.join("db/seeds/chis_cup_2026.json"))
+  import_championship_snapshot!(Rails.root.join("db/seeds/tranca_2026.json"))
+
+  load Rails.root.join("db/seeds/arbitros_e_campos.rb") if Rails.root.join("db/seeds/arbitros_e_campos.rb").exist?
+  load Rails.root.join("db/seeds/demo_athletes_and_goals.rb") if Rails.root.join("db/seeds/demo_athletes_and_goals.rb").exist?
 end
