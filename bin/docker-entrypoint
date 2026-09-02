@@ -5,10 +5,6 @@ export SECRET_KEY_BASE="${SECRET_KEY_BASE:-3f2c4fbf2b9f4f2d8c4f6b0d4b2f1b0c8b9e4
 # If running the rails server then create or migrate existing database
 if [[ "${*}" == *"rails server"* ]]; then
   ./bin/rails db:prepare
-
-  if [ "${RUN_BOOTSTRAP_IMPORT:-}" = "1" ]; then
-    ./bin/rails data:bootstrap
-  fi
 fi
 
 exec "${@}"
