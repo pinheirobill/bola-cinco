@@ -1,0 +1,54 @@
+<% days = (month.beginning_of_month.beginning_of_week(:monday)..month.end_of_month.end_of_week(:monday)).to_a %>
+<% weekdays = %w[Seg Ter Qua Qui Sex Sáb Dom] %>
+
+<%= surface_card title: "Calendário de jogos", subtitle: "Visual mensal em formato de agenda para os jogos do sistema." do %>
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-base-content/50"><%= month.strftime("%B %Y") %></p>
+      <p class="text-sm text-base-content/70">Status atual: <strong><%= status_filter.to_s.humanize %></strong></p>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "Mês anterior", matches_path(status: status_filter, month: previous_month.strftime("%Y-%m"), page: 1), class: "btn btn-outline btn-sm" %>
+      <%= link_to "Mês atual", matches_path(status: status_filter, month: Date.current.strftime("%Y-%m"), page: 1), class: "btn btn-outline btn-sm" %>
+      <%= link_to "Próximo mês", matches_path(status: status_filter, month: next_month.strftime("%Y-%m"), page: 1), class: "btn btn-outline btn-sm" %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-7 gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-base-content/50">
+    <% weekdays.each do |weekday| %>
+      <div class="px-2 py-1 text-center"><%= weekday %></div>
+    <% end %>
+  </div>
+
+  <div class="mt-2 grid grid-cols-7 gap-2">
+    <% days.each do |day| %>
+      <% in_month = day.month == month.month %>
+      <% matches = Array(matches_by_day[day]).sort_by { |match| [match.scheduled_time.to_s, match.code.to_s, match.id] } %>
+      <div class="<%= ['min-h-32 rounded-2xl border p-3', in_month ? 'border-base-300 bg-base-200/80' : 'border-base-300/40 bg-base-100/40 opacity-60'].join(' ') %>">
+        <div class="flex items-center justify-between gap-2">
+          <p class="text-sm font-semibold"><%= day.day %></p>
+          <% if day == Date.current %>
+            <span class="badge badge-primary badge-xs">Hoje</span>
+          <% end %>
+        </div>
+
+        <% if matches.any? %>
+          <div class="mt-2 space-y-2">
+            <% matches.first(2).each do |match| %>
+              <%= link_to match_path(match), class: "block rounded-xl border border-base-300 bg-base-100 px-2 py-1 text-left transition hover:bg-base-100/80" do %>
+                <p class="truncate text-[0.72rem] font-semibold text-base-content"><%= match.code %></p>
+                <p class="truncate text-[0.68rem] text-base-content/60"><%= [match.scheduled_time&.strftime("%H:%M"), [match.team_a&.name, match.team_b&.name].compact.join(" x ")].compact.join(" · ") %></p>
+              <% end %>
+            <% end %>
+            <% if matches.size > 2 %>
+              <p class="text-[0.68rem] text-base-content/50">+ <%= matches.size - 2 %> jogos</p>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="mt-2 text-[0.68rem] text-base-content/40">Sem jogos</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

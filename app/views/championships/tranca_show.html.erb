@@ -24,73 +24,6 @@
   { label: "Classificação", value: @tranca_total_classificados, description: "Linhas exibidas" }
 ]) %>
 
-<%= surface_card(title: "Navegação da Tranca", subtitle: "Abas iniciais da modalidade") do %>
-  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-    <%= link_to "Início", championship_path(@championship), class: "btn btn-outline btn-block justify-start" %>
-    <%= link_to "Duplas", duplas_championship_path(@championship), class: "btn btn-outline btn-block justify-start" %>
-    <%= link_to "Partidas", partidas_championship_path(@championship), class: "btn btn-outline btn-block justify-start" %>
-    <%= link_to "Rodadas", rodadas_championship_path(@championship), class: "btn btn-outline btn-block justify-start" %>
-    <%= link_to "Classificação", classificacao_championship_path(@championship), class: "btn btn-outline btn-block justify-start" %>
-    <%= link_to "Regulamento", championship_path(@championship, anchor: "regulamento"), class: "btn btn-outline btn-block justify-start" %>
-  </div>
-<% end %>
-
-<section class="grid gap-6 xl:grid-cols-[1.35fr_0.85fr]">
-  <%= surface_card(
-    title: "Dashboard da Tranca",
-    subtitle: "Estrutura inicial para duplas, partidas, mesas, classificação e regulamento.",
-    id: "campeonato"
-  ) do %>
-    <div class="grid gap-4 md:grid-cols-3">
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Modalidade</p>
-        <p class="mt-2 text-lg font-semibold"><%= @championship.modality_label %></p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Temporada</p>
-        <p class="mt-2 text-lg font-semibold"><%= @championship.season %></p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Duplas</p>
-        <p class="mt-2 text-lg font-semibold"><%= @tranca_total_duplas %></p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status</p>
-        <p class="mt-2 text-lg font-semibold"><%= @championship.status.titleize %></p>
-      </div>
-    </div>
-  <% end %>
-
-  <%= surface_card(title: "Regulamento", subtitle: "Base visual para as regras da modalidade.", id: "regulamento") do %>
-    <div class="space-y-3 text-sm text-base-content/70">
-      <p>Jogadores, duplas, rodadas, partidas, mesas e classificação já possuem abas próprias nesta versão.</p>
-      <p>Esta tela organiza a experiência administrativa da Tranca sem misturar com o fluxo de Futebol.</p>
-    </div>
-  <% end %>
-</section>
-
-<section id="duplas" class="grid gap-6 xl:grid-cols-2">
-  <%= surface_card(title: "Duplas", subtitle: "Estrutura pronta para cadastro e vínculo", classes: "self-start") do %>
-    <div class="grid gap-3 sm:grid-cols-2">
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="font-semibold">Jogadores</p>
-        <p class="mt-2 text-sm text-base-content/70">Cadastros individuais ainda separados do futebol.</p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="font-semibold">Duplas</p>
-        <p class="mt-2 text-sm text-base-content/70">Montagem e status das duplas da Tranca.</p>
-      </div>
-    </div>
-  <% end %>
-
-  <%= surface_card(title: "Próximas entregas", subtitle: "O que vem depois da base", classes: "self-start") do %>
-    <div class="space-y-3 text-sm text-base-content/70">
-      <p>Rodadas, mesas e classificação agora vivem em telas dedicadas.</p>
-      <p>O próximo passo natural é persistir duplas e mesas como registros próprios da modalidade.</p>
-    </div>
-  <% end %>
-</section>
-
 <section id="partidas" class="grid gap-6 xl:grid-cols-2">
   <%= surface_card(title: "Ao vivo", subtitle: "Mesas em andamento", classes: "self-start") do %>
     <div class="space-y-4">
@@ -138,7 +71,7 @@
 
 <section id="estatisticas" class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
   <%= surface_card(title: "Classificação", subtitle: "Ranking atual", classes: "self-start") do %>
-    <div class="space-y-3">
+    <div class="max-h-[32rem] space-y-3 overflow-y-auto pr-2 lg:max-h-[36rem]">
       <% if @tranca_standings.any? %>
         <% @tranca_standings.each do |row| %>
           <div class="flex items-center justify-between gap-4 rounded-2xl bg-base-200 px-4 py-3">

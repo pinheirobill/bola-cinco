@@ -6,7 +6,41 @@ class MatchesController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
   def index
-    @matches = scoped_matches.includes(:championship, :category, :team_a, :team_b, :winner).order(scheduled_on: :asc, id: :asc)
+    @status_filter = params[:status].presence_in(%w[agendado finalizado todos]) || "agendado"
+    @page = params[:page].to_i
+    @page = 1 if @page <= 0
+    @per_page = 20
+    @calendar_month = parse_calendar_month(params[:month])
+
+    matches = scoped_matches.includes(:championship, :category, :team_a, :team_b, :winner)
+    matches = case @status_filter
+    when "finalizado"
+      matches.where(status: %w[finalizado wo])
+    when "todos"
+      matches
+    else
+      matches.where(status: %w[agendado em_andamento])
+    end
+
+    @matches = if @status_filter == "finalizado"
+      matches.order(scheduled_on: :desc, scheduled_time: :desc, id: :desc)
+    else
+      matches.order(
+        Arel.sql("CASE status WHEN 'em_andamento' THEN 0 WHEN 'agendado' THEN 1 ELSE 2 END ASC"),
+        scheduled_on: :asc,
+        scheduled_time: :asc,
+        id: :asc
+      )
+    end
+
+    @total_matches = matches.count
+    @total_pages = [(@total_matches.to_f / @per_page).ceil, 1].max
+    @page = @total_pages if @page > @total_pages
+    @matches = matches.offset((@page - 1) * @per_page).limit(@per_page)
+    @calendar_matches = matches.where(scheduled_on: @calendar_month.all_month).order(:scheduled_on, :scheduled_time, :id)
+    @calendar_matches_by_day = @calendar_matches.group_by(&:scheduled_on)
+    @calendar_prev_month = @calendar_month.prev_month
+    @calendar_next_month = @calendar_month.next_month
   end
 
   def create
@@ -126,6 +160,14 @@ class MatchesController < ApplicationController
     return Match.where(championship_id: current_championship.id) if current_championship.present?
 
     Match.none
+  end
+
+  def parse_calendar_month(value)
+    return Date.current.beginning_of_month if value.blank?
+
+    Date.strptime("#{value}-01", "%Y-%m-%d").beginning_of_month
+  rescue ArgumentError
+    Date.current.beginning_of_month
   end
 
   def load_match_context

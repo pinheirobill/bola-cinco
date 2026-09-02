@@ -1,12 +1,33 @@
 <% content_for :title, "Editar súmula | Bola Cinco" %>
+<% content_for :head do %>
+  <script>
+    window.BolaCinco ||= {}
+    window.BolaCinco.openMatchParticipationModal = function(dialogId, teamId) {
+      const dialog = document.getElementById(dialogId)
+      if (!dialog) return
 
-<%= page_header(
-  title: "Editar súmula",
-  subtitle: "#{@match.code} · #{@match.category.name}",
-  badge: "Jogos"
-) %>
+      const search = dialog.querySelector('input[type="search"][data-athlete-picker-target="search"]')
+      if (search) {
+        search.value = ""
+      }
 
-<%= render "matches/score_card", match: @match %>
+      const teamFilters = dialog.querySelectorAll('select[name="match_participation[team_id]"], input[name="match_participation[team_id]"]')
+      teamFilters.forEach((teamFilter) => {
+        teamFilter.value = teamId || ""
+        teamFilter.dispatchEvent(new Event("change", { bubbles: true }))
+      })
+
+      if (typeof dialog.showModal === "function") {
+        if (!dialog.open) {
+          dialog.showModal()
+        }
+        return
+      }
+
+      dialog.setAttribute("open", "")
+    }
+  </script>
+<% end %>
 
 <%= form_with(model: @match, url: match_path(@match), method: :patch, class: "space-y-6", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" }) do |f| %>
   <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
@@ -138,131 +159,21 @@
         match: @match,
         team_a_athletes: @team_a_athletes,
         team_b_athletes: @team_b_athletes,
+        team_a_participations: @team_a_participations,
+        team_b_participations: @team_b_participations,
         team_a_participations_by_athlete: @team_a_participations_by_athlete,
         team_b_participations_by_athlete: @team_b_participations_by_athlete %>
-
-      <div class="grid gap-6 xl:grid-cols-2">
-        <%= render "matches/event_sheet_table",
-          id: "match-event-sheet-team-a",
-          title: "Equipe A",
-          team: @match.team_a,
-          athletes: @team_a_athletes,
-          match_events: @match_events %>
-        <%= render "matches/event_sheet_table",
-          id: "match-event-sheet-team-b",
-          title: "Equipe B",
-          team: @match.team_b,
-          athletes: @team_b_athletes,
-          match_events: @match_events %>
-      </div>
     </div>
 
     <div class="space-y-6 self-start">
       <%= render "matches/event_summary", match: @match, match_events: @match_events %>
-
-      <div class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Fluxo de jogo</p>
-        <p class="mt-3 text-sm text-base-content/70">
-          Cada ajuste na grade cria, atualiza ou remove eventos da súmula sem precisar de um botão extra.
-        </p>
-        <p class="mt-3 text-sm text-base-content/70">
-          A folha impressa continua abaixo para conferência rápida por atleta.
-        </p>
-      </div>
     </div>
   </section>
 
 <% end %>
 
-<section class="grid gap-6 xl:grid-cols-2">
-  <%= surface_card(title: "Escalação A", subtitle: @match.team_a&.name || "-") do %>
-    <% if @team_a_athletes.any? %>
-      <div class="overflow-hidden rounded-3xl border border-base-300">
-        <table class="table">
-          <thead class="bg-base-200">
-            <tr>
-              <th>Nº</th>
-              <th>Jogador</th>
-              <th>Posição</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @team_a_athletes.each do |athlete| %>
-              <tr>
-                <td><%= athlete.shirt_number.presence || "-" %></td>
-                <td><%= athlete.name %></td>
-                <td><%= athlete.position.presence || "-" %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    <% else %>
-      <%= empty_state(title: "Sem atletas", description: "A escalação aparece quando a equipe tiver atletas cadastrados.") %>
-    <% end %>
-  <% end %>
-
-  <%= surface_card(title: "Escalação B", subtitle: @match.team_b&.name || "-") do %>
-    <% if @team_b_athletes.any? %>
-      <div class="overflow-hidden rounded-3xl border border-base-300">
-        <table class="table">
-          <thead class="bg-base-200">
-            <tr>
-              <th>Nº</th>
-              <th>Jogador</th>
-              <th>Posição</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @team_b_athletes.each do |athlete| %>
-              <tr>
-                <td><%= athlete.shirt_number.presence || "-" %></td>
-                <td><%= athlete.name %></td>
-                <td><%= athlete.position.presence || "-" %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    <% else %>
-      <%= empty_state(title: "Sem atletas", description: "A escalação aparece quando a equipe tiver atletas cadastrados.") %>
-    <% end %>
-  <% end %>
-</section>
-
-<section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm">
-  <div class="flex flex-wrap items-start justify-between gap-4">
-    <div>
-      <h3 class="text-2xl font-bold">Participação do jogo</h3>
-      <p class="mt-2 text-sm text-base-content/70">
-        Marque quem realmente participou do jogo. Esse vínculo é separado da equipe e pode incluir atleta convidado.
-      </p>
-    </div>
-    <div class="flex flex-wrap gap-3">
-      <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('match-participation-modal').showModal()">Adicionar participação</button>
-    </div>
-  </div>
-
-  <div class="mt-6 grid gap-6 xl:grid-cols-2">
-    <%= render "matches/participation_roster_table",
-      title: "Equipe A",
-      match: @match,
-      team: @match.team_a,
-      athletes: @team_a_athletes,
-      participations: @team_a_participations,
-      participations_by_athlete: @team_a_participations_by_athlete %>
-    <%= render "matches/participation_roster_table",
-      title: "Equipe B",
-      match: @match,
-      team: @match.team_b,
-      athletes: @team_b_athletes,
-      participations: @team_b_participations,
-      participations_by_athlete: @team_b_participations_by_athlete %>
-  </div>
-</section>
-
 <dialog id="match-participation-modal" class="modal">
-  <div class="modal-box max-w-5xl" data-controller="athlete-picker" data-athlete-picker-team-selection-mode-value="none">
+  <div class="modal-box max-w-5xl" data-controller="athlete-picker">
     <h3 class="text-2xl font-bold">Adicionar participação</h3>
     <p class="mt-2 text-sm text-base-content/70">
       Selecione um ou mais atletas que realmente participaram do jogo. A equipe só define o vínculo da participação, mas a busca usa todos os atletas cadastrados do sistema.
@@ -273,14 +184,17 @@
 
       <div class="form-control gap-2">
         <%= f.label :team_id, "Equipe", class: "label-text font-medium" %>
+        <%= hidden_field_tag "match_participation[team_id]",
+                             @match_participation.team_id,
+                             data: {
+                               athlete_picker_target: "teamFilter",
+                               action: "change->athlete-picker#syncTeamSelection"
+                             } %>
         <%= f.select :team_id,
                      options_from_collection_for_select(@available_teams, :id, :name, @match_participation.team_id),
                      { include_blank: "Selecione" },
                      class: "select select-bordered w-full",
-                     data: {
-                       athlete_picker_target: "teamFilter",
-                       action: "change->athlete-picker#syncTeamSelection"
-                     } %>
+                     disabled: true %>
       </div>
 
       <div class="grid gap-3 lg:grid-cols-[1fr_18rem_auto_auto] lg:items-end">

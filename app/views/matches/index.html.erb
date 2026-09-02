@@ -11,7 +11,29 @@
   { label: "Campeonatos", value: @matches.map(&:championship_id).compact.uniq.size, value_class: "text-2xl" }
 ], columns: "md:grid-cols-2") %>
 
+<%= render "components/matches_calendar",
+  month: @calendar_month,
+  matches_by_day: @calendar_matches_by_day,
+  previous_month: @calendar_prev_month,
+  next_month: @calendar_next_month,
+  status_filter: @status_filter %>
+
 <%= surface_card do %>
+  <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h2 class="text-lg font-bold">Filtro de status</h2>
+      <p class="text-sm text-base-content/70">Os finalizados ficam ocultos por padrão.</p>
+    </div>
+
+    <%= form_with url: matches_path, method: :get, class: "flex items-end gap-3" do %>
+      <div>
+        <%= label_tag :status, "Status", class: "label-text font-medium" %>
+        <%= select_tag :status, options_for_select([["Agendados", "agendado"], ["Finalizados", "finalizado"], ["Todos", "todos"]], @status_filter), class: "select select-bordered min-w-48" %>
+      </div>
+      <%= submit_tag "Aplicar", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+
   <% if @matches.any? %>
     <div class="overflow-x-auto">
       <table class="table">
@@ -38,6 +60,22 @@
           <% end %>
         </tbody>
       </table>
+    </div>
+
+    <div class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-base-300 pt-4">
+      <p class="text-sm text-base-content/70">
+        Página <strong><%= @page %></strong> de <strong><%= @total_pages %></strong> · <%= @total_matches %> jogo(s)
+      </p>
+
+      <div class="flex flex-wrap gap-2">
+        <% if @page > 1 %>
+          <%= link_to "Anterior", matches_path(status: @status_filter, page: @page - 1), class: "btn btn-outline btn-sm" %>
+        <% end %>
+
+        <% if @page < @total_pages %>
+          <%= link_to "Próxima", matches_path(status: @status_filter, page: @page + 1), class: "btn btn-primary btn-sm" %>
+        <% end %>
+      </div>
     </div>
   <% else %>
     <%= empty_state(

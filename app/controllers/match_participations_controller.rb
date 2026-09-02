@@ -78,6 +78,7 @@ class MatchParticipationsController < ApplicationController
     end
 
     created = 0
+    updated = 0
     skipped = 0
 
     batch_selected_athlete_ids.each do |athlete_id|
@@ -85,18 +86,13 @@ class MatchParticipationsController < ApplicationController
       next if athlete.blank?
 
       record = match.match_participations.find_or_initialize_by(team_id: team.id, athlete_id: athlete.id)
-      if record.persisted?
-        skipped += 1
-        next
-      end
-
-      record.source_id = default_source_id("match-participation")
+      record.source_id ||= default_source_id("match-participation")
       record.team = team
       record.athlete = athlete
-      record.status = :pendente
+      record.status = :confirmado
 
       if record.save
-        created += 1
+        record.previous_changes.key?("id") ? created += 1 : updated += 1
       else
         skipped += 1
       end
@@ -104,8 +100,12 @@ class MatchParticipationsController < ApplicationController
 
     if created.positive?
       message = "#{created} #{created == 1 ? 'participação registrada' : 'participações registradas'}."
+      message += " #{updated} atualizadas." if updated.positive?
       message += " #{skipped} já existiam." if skipped.positive?
+      message = "#{updated} participações atualizadas." if created.zero? && updated.positive? && skipped.zero?
       redirect_to return_path(match), notice: message
+    elsif updated.positive?
+      redirect_to return_path(match), notice: "#{updated} participações atualizadas."
     elsif skipped.positive?
       redirect_to return_path(match), notice: "As participações selecionadas já existiam."
     else

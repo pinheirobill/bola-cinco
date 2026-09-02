@@ -26,26 +26,42 @@
 
   <div class="space-y-6">
     <% sides.each do |side| %>
+      <% display_athletes = side[:athletes] + side[:participations].values.filter_map(&:athlete).reject { |athlete| side[:athletes].any? { |existing| existing.id == athlete.id } } %>
+      <% display_count = display_athletes.uniq(&:id).size %>
+
       <div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100">
         <div class="flex flex-wrap items-start justify-between gap-4 border-b border-base-300 bg-base-200 px-4 py-3">
           <div class="min-w-0">
             <p class="font-semibold"><%= side[:team]&.name || side[:label] %></p>
             <p class="text-xs text-base-content/60">Marque os lances do time e deixe o autosave cuidar do restante.</p>
           </div>
-          <div class="flex min-w-0 flex-col items-end gap-1 rounded-xl bg-base-100 px-2 py-2">
-            <%= hidden_field_tag "match[#{side[:team_field]}]", match.public_send(side[:team_field]) %>
-            <%= label_tag "match_#{side[:score_field]}", "Placar", class: "text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-base-content/50" %>
-            <%= number_field_tag "match[#{side[:score_field]}]",
-              match.public_send(side[:score_field]),
-              min: 0,
-              id: "match_#{side[:score_field]}",
-              class: "input input-bordered input-sm h-7 w-12 px-0 text-center text-xs tabular-nums",
-              data: { action: "blur->autosave-form#submit change->autosave-form#submit" } %>
+          <div class="flex min-w-0 flex-col items-end gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="rounded-xl bg-base-100 px-2 py-2">
+                <%= hidden_field_tag "match[#{side[:team_field]}]", match.public_send(side[:team_field]) %>
+                <%= label_tag "match_#{side[:score_field]}", "Placar", class: "text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-base-content/50" %>
+                <%= number_field_tag "match[#{side[:score_field]}]",
+                  match.public_send(side[:score_field]),
+                  min: 0,
+                  id: "match_#{side[:score_field]}",
+                  class: "input input-bordered input-sm h-7 w-12 px-0 text-center text-xs tabular-nums",
+                  data: { action: "blur->autosave-form#submit change->autosave-form#submit" } %>
+              </div>
+
+              <% if side[:team].present? %>
+                <%= button_tag(
+                  "Atletas",
+                  type: "button",
+                  class: "btn btn-outline btn-xs",
+                  onclick: "window.BolaCinco.openMatchParticipationModal('match-participation-modal', '#{side[:team].id}')"
+                ) %>
+              <% end %>
+            </div>
           </div>
-          <div class="badge badge-outline self-center"><%= side[:athletes].size %> atletas</div>
+          <div class="badge badge-outline self-center"><%= display_count %> atletas</div>
         </div>
 
-        <% if side[:athletes].any? %>
+        <% if display_athletes.any? %>
           <div class="overflow-x-auto">
             <table class="table">
               <thead class="bg-base-200">
@@ -61,12 +77,13 @@
               <tbody>
                 <% goal_count = match.public_send(side[:score_field]).to_i %>
                 <% goal_count = 1 if goal_count <= 0 %>
-                <% athlete_rows = side[:athletes].map do |side_athlete| %>
+                <% athlete_rows = display_athletes.map do |side_athlete| %>
+                  <% participation = side[:participations][side_athlete.id] %>
                   <% side_state = match_event_sheet_state(match, side[:team], side_athlete) %>
                   <% {
                     athlete: side_athlete,
-                    participation: side[:participations][side_athlete.id],
-                    participation_badge: match_event_sheet_participation_badge(side[:participations][side_athlete.id]),
+                    participation: participation,
+                    participation_badge: match_participation_status_badge(participation&.status || "pendente"),
                     state: side_state,
                     substitution_minutes: match_event_sheet_minutes_list(side_state, :substitution, count: 5),
                     goal_minutes: match_event_sheet_minutes_list(side_state, :goal, count: goal_count)
@@ -99,7 +116,6 @@
                             <p class="truncate text-xs text-base-content/60">Até 5 tempos da súmula</p>
                           </div>
                         </div>
-
                         <div class="flex flex-nowrap gap-1 overflow-x-auto pb-1">
                           <% row[:substitution_minutes].each_with_index do |minute, index| %>
                             <div class="flex w-[2.75rem] flex-none flex-col gap-0.5 rounded-xl bg-base-100 px-1 py-1">
@@ -156,7 +172,6 @@
                             <p class="truncate text-xs text-base-content/60">Gol 1 fica sempre aberto</p>
                           </div>
                         </div>
-
                         <div class="flex flex-nowrap gap-1 overflow-x-auto pb-1" data-match-event-goals-target="fields">
                           <% row[:goal_minutes].each_with_index do |minute, index| %>
                             <% owner_index = goal_owners[index] %>

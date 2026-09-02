@@ -251,15 +251,12 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     get edit_match_path(@match)
 
     assert_response :success
-    assert_includes response.body, "Editor da súmula"
     assert_includes response.body, "Cabeçalho da súmula"
     assert_includes response.body, "Árbitro e súmula"
-    assert_includes response.body, "Participação do jogo"
-    assert_includes response.body, "Selecionar visíveis"
-    assert_includes response.body, "Selecionados"
     assert_includes response.body, "Lançamentos da súmula"
     assert_includes response.body, "Resumo instantâneo"
     refute_includes response.body, "Gols automáticos"
+    assert_includes response.body, "Atletas"
     assert_includes response.body, "Cartões"
     assert_includes response.body, "Até 5 tempos da súmula"
     assert_includes response.body, "Gol 1 fica sempre aberto"
@@ -272,6 +269,43 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
 
     assert_equal 4, team_a_goal_inputs.size
     assert_equal 1, team_b_goal_inputs.size
+  end
+
+  test "shows confirmed match participations even when the athlete is not on the roster" do
+    team_c = Team.create!(
+      source_id: "team-phase-four-guest",
+      entity: Entity.create!(source_id: "entity-phase-four-guest", name: "Equipe Convidada"),
+      category: @category,
+      name: "Equipe Convidada"
+    )
+
+    guest_athlete = Athlete.create!(
+      source_id: "athlete-phase-four-guest",
+      team: team_c,
+      category: @category,
+      name: "Atleta Convidado"
+    )
+
+    @match.update!(
+      team_a: @team,
+      team_b: @team_b
+    )
+
+    post match_match_participations_path(@match), params: {
+      return_to: edit_match_path(@match),
+      match_participation: {
+        team_id: @team.id,
+        athlete_ids: [guest_athlete.id]
+      }
+    }
+
+    assert_redirected_to edit_match_path(@match)
+
+    get edit_match_path(@match)
+
+    assert_response :success
+    refute_includes response.body, "Participações confirmadas"
+    assert_includes response.body, guest_athlete.name
   end
 
   test "shows global athletes in the participation modal" do
@@ -501,7 +535,27 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_redirected_to match_path(@match)
     participations = @match.reload.match_participations.where(team_id: @team.id).order(:athlete_id)
     assert_equal [@athlete.id, @athlete_c.id], participations.pluck(:athlete_id)
-    assert_equal %w[pendente pendente], participations.pluck(:status)
+    assert_equal %w[confirmado confirmado], participations.pluck(:status)
+  end
+
+  test "confirms existing match participations from the batch modal" do
+    @match.update!(
+      team_a: @team,
+      team_b: @team_b
+    )
+
+    participation = @match.match_participations.find_by!(team_id: @team.id, athlete_id: @athlete.id)
+    assert_equal "pendente", participation.status
+
+    post match_match_participations_path(@match), params: {
+      match_participation: {
+        team_id: @team.id,
+        athlete_ids: [@athlete.id]
+      }
+    }
+
+    assert_redirected_to match_path(@match)
+    assert_equal "confirmado", @match.reload.match_participations.find_by!(team_id: @team.id, athlete_id: @athlete.id).status
   end
 
   test "re-renders the edit page when batch participation has no team" do
