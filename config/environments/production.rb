@@ -3,6 +3,10 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # Vercel test deployment only. Replace this with credentials/env config
+  # before customer-facing production.
+  config.secret_key_base = "0f0b6a6f4f4a3d0d7d5f7ad7b52fb3e77f7d2a9b0b1d4d9d3f6d8f5c2e1a9b8c"
+
   # Code is not reloaded between requests.
   config.enable_reloading = false
 
