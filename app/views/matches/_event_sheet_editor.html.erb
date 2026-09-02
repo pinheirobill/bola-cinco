@@ -99,14 +99,53 @@
                 <% athlete_rows.each_with_index do |row, athlete_index| %>
                   <% athlete = row[:athlete] %>
                   <% participation_badge = row[:participation_badge] %>
+                  <% participation_id = row[:participation]&.id %>
+                  <% current_status = row[:participation]&.status.to_s.presence || "pendente" %>
                   <tr>
                     <td class="font-semibold"><%= athlete.shirt_number.presence || "-" %></td>
                     <td>
                       <div class="font-medium"><%= athlete.name %></div>
                       <div class="text-xs text-base-content/50"><%= athlete.position.presence || athlete.quick_label.presence || "-" %></div>
                     </td>
-                    <td>
-                      <span class="badge <%= participation_badge[:badge] %> badge-sm"><%= participation_badge[:label] %></span>
+                    <td class="align-top">
+                      <div
+                        class="space-y-2"
+                        data-match-participation-status-wrapper="true"
+                        data-match-participation-status-create-url-value="<%= match_match_participations_path(match) %>"
+                        data-match-participation-status-update-url-value="<%= participation_id.present? ? match_participation_path(participation_id) : "" %>"
+                        data-match-participation-status-record-id-value="<%= participation_id.to_s %>"
+                        data-match-participation-status-team-id-value="<%= side[:team]&.id.to_s %>"
+                        data-match-participation-status-athlete-id-value="<%= athlete.id.to_s %>"
+                        data-match-participation-status-current-value="<%= current_status %>"
+                      >
+                        <div class="flex items-center gap-2">
+                          <%= tag.select(
+                            options_for_select(match_participation_status_options, current_status),
+                            id: match_participation_status_field_id(side[:key], athlete.id),
+                            class: "select select-bordered select-xs h-9 min-h-9 w-full max-w-[11rem] bg-base-100",
+                            onchange: "window.BolaCinco.updateMatchParticipationStatus(this)"
+                          ) %>
+                          <% if participation_id.present? %>
+                            <%= button_tag(
+                              type: "button",
+                              class: "btn btn-ghost btn-error btn-xs h-9 min-h-9 w-9 px-0",
+                              aria: { label: "Remover participação" },
+                              title: "Remover participação",
+                              onclick: "window.BolaCinco.removeMatchParticipation('#{match_participation_path(participation_id)}')"
+                            ) do %>
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
+                                <path d="M3 6h18" />
+                                <path d="M8 6V4h8v2" />
+                                <path d="M6 6l1 14h10l1-14" />
+                                <path d="M10 10v6" />
+                                <path d="M14 10v6" />
+                              </svg>
+                              <span class="sr-only">Remover participação</span>
+                            <% end %>
+                          <% end %>
+                        </div>
+                        <p class="hidden text-xs text-base-content/60" data-match-participation-status-message></p>
+                      </div>
                     </td>
                     <td class="align-top">
                       <div class="space-y-2 rounded-2xl border border-base-300 bg-base-200 p-2 shadow-sm">

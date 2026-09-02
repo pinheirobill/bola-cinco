@@ -48,13 +48,16 @@ class MatchParticipationsController < ApplicationController
   end
 
   def scoped_athlete(record)
-    team = scoped_teams.detect { |candidate| candidate.id == record.team_id.to_i }
+    team = scoped_teams(record).detect { |candidate| candidate.id == record.team_id.to_i }
     return if team.blank? || record.athlete_id.blank?
 
     team.athletes.find_by(id: record.athlete_id)
   end
 
-  def scoped_teams
+  def scoped_teams(record = nil)
+    match_record = record&.match
+    return [match_record.team_a, match_record.team_b].compact if match_record.present?
+
     [match.team_a, match.team_b].compact
   end
 
@@ -125,18 +128,42 @@ class MatchParticipationsController < ApplicationController
   end
 
   def save_match_participation(record, notice:)
+    autosave = autosave_request?
+    was_new_record = record.new_record?
+
     record.source_id = default_source_id("match-participation") if record.source_id.blank?
     record.assign_attributes(match_participation_params)
-    record.team ||= scoped_teams.detect { |candidate| candidate.id == record.team_id.to_i }
+    record.team ||= scoped_teams(record).detect { |candidate| candidate.id == record.team_id.to_i }
     record.athlete = scoped_athlete(record) if record.athlete_id.present?
 
     if record.save
-      redirect_to return_path(record.match), notice: notice
+      if autosave
+        render json: match_participation_payload(record), status: was_new_record ? :created : :ok
+      else
+        redirect_to return_path(record.match), notice: notice
+      end
     else
-      load_match_participation_context(match)
-      @match_participation = record
-      render "matches/edit", status: :unprocessable_entity
+      if autosave
+        render json: { errors: record.errors.full_messages }, status: :unprocessable_entity
+      else
+        load_match_participation_context(match)
+        @match_participation = record
+        render "matches/edit", status: :unprocessable_entity
+      end
     end
+  end
+
+  def match_participation_payload(record)
+    status = record.status.to_s
+    badge = helpers.match_participation_status_badge(status)
+
+    {
+      id: record.id,
+      status: status,
+      label: badge[:label],
+      badge: badge[:badge],
+      update_url: match_participation_path(record)
+    }
   end
 
   def load_match_participation_context(match_record)

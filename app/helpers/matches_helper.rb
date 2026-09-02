@@ -72,6 +72,10 @@ module MatchesHelper
     MATCH_PARTICIPATION_STATUSES.map { |value, data| [data[:label], value] }
   end
 
+  def match_participation_status_field_id(side, athlete_id)
+    "match_participation_status_#{side}_#{athlete_id}"
+  end
+
   def match_participation_status_badge(status)
     MATCH_PARTICIPATION_STATUSES.fetch(status.to_s, { label: status.to_s.humanize, badge: "badge-outline" })
   end

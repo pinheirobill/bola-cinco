@@ -26,6 +26,106 @@
 
       dialog.setAttribute("open", "")
     }
+
+    window.BolaCinco.updateMatchParticipationStatus = async function(select) {
+      if (!select) return
+
+      const wrapper = select.closest("[data-match-participation-status-wrapper]")
+      if (!wrapper) return
+
+      const message = wrapper.querySelector("[data-match-participation-status-message]")
+      const previousStatus = wrapper.dataset.matchParticipationStatusCurrentValue || "pendente"
+      const previousRecordId = wrapper.dataset.matchParticipationStatusRecordIdValue || ""
+      const nextStatus = select.value
+
+      if (!nextStatus || nextStatus === previousStatus) return
+
+      const payload = {
+        autosave: "1",
+        match_participation: {
+          status: nextStatus,
+          team_id: wrapper.dataset.matchParticipationStatusTeamIdValue,
+          athlete_id: wrapper.dataset.matchParticipationStatusAthleteIdValue
+        }
+      }
+
+      const applyStatus = (status) => {
+        wrapper.dataset.matchParticipationStatusCurrentValue = status
+        select.value = status
+      }
+
+      const showMessage = (text) => {
+        if (!message) return
+        message.textContent = text
+        message.classList.remove("hidden")
+      }
+
+      const hideMessage = () => {
+        if (!message) return
+        message.textContent = ""
+        message.classList.add("hidden")
+      }
+
+      hideMessage()
+
+      try {
+        const response = await fetch(previousRecordId ? wrapper.dataset.matchParticipationStatusUpdateUrlValue : wrapper.dataset.matchParticipationStatusCreateUrlValue, {
+          method: previousRecordId ? "PATCH" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || ""
+          },
+          body: JSON.stringify(payload)
+        })
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => null)
+          throw new Error(Array.isArray(data?.errors) ? data.errors.join(" · ") : "Não foi possível salvar o status.")
+        }
+
+        const data = await response.json().catch(() => null)
+        const appliedStatus = data?.status || nextStatus
+
+        if (data?.id) {
+          wrapper.dataset.matchParticipationStatusRecordIdValue = String(data.id)
+        }
+
+        if (data?.update_url) {
+          wrapper.dataset.matchParticipationStatusUpdateUrlValue = data.update_url
+        }
+
+        applyStatus(appliedStatus)
+        hideMessage()
+      } catch (error) {
+        wrapper.dataset.matchParticipationStatusRecordIdValue = previousRecordId
+        applyStatus(previousStatus)
+        showMessage(error.message || "Erro ao salvar o status.")
+      }
+    }
+
+    window.BolaCinco.removeMatchParticipation = async function(url) {
+      if (!url) return
+      if (!window.confirm("Remover participação?")) return
+
+      try {
+        const response = await fetch(url, {
+          method: "DELETE",
+          headers: {
+            Accept: "text/html",
+            "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || ""
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error("Não foi possível remover a participação.")
+        }
+
+        window.location.reload()
+      } catch (error) {
+        window.alert(error.message || "Não foi possível remover a participação.")
+      }
+    }
   </script>
 <% end %>
 
