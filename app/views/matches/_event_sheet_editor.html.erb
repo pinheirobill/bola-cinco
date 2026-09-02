@@ -123,16 +123,15 @@
                             options_for_select(match_participation_status_options, current_status),
                             id: match_participation_status_field_id(side[:key], athlete.id),
                             class: "select select-bordered select-xs h-9 min-h-9 w-full max-w-[11rem] bg-base-100",
-                            onchange: "window.BolaCinco.updateMatchParticipationStatus(this)"
+                            onchange: "event.stopPropagation(); window.BolaCinco.updateMatchParticipationStatus(this)",
+                            onfocusout: "event.stopPropagation()"
                           ) %>
                           <% if participation_id.present? %>
-                            <%= button_tag(
-                              type: "button",
+                            <%= link_to match_participation_path(participation_id),
+                              data: { turbo_method: :delete, turbo_confirm: "Remover participação?" },
                               class: "btn btn-ghost btn-error btn-xs h-9 min-h-9 w-9 px-0",
                               aria: { label: "Remover participação" },
-                              title: "Remover participação",
-                              onclick: "window.BolaCinco.removeMatchParticipation('#{match_participation_path(participation_id)}')"
-                            ) do %>
+                              title: "Remover participação" do %>
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true">
                                 <path d="M3 6h18" />
                                 <path d="M8 6V4h8v2" />

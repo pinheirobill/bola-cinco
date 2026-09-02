@@ -104,28 +104,6 @@
       }
     }
 
-    window.BolaCinco.removeMatchParticipation = async function(url) {
-      if (!url) return
-      if (!window.confirm("Remover participação?")) return
-
-      try {
-        const response = await fetch(url, {
-          method: "DELETE",
-          headers: {
-            Accept: "text/html",
-            "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || ""
-          }
-        })
-
-        if (!response.ok) {
-          throw new Error("Não foi possível remover a participação.")
-        }
-
-        window.location.reload()
-      } catch (error) {
-        window.alert(error.message || "Não foi possível remover a participação.")
-      }
-    }
   </script>
 <% end %>
 

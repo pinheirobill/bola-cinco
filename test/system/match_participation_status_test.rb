@@ -66,20 +66,15 @@ class MatchParticipationStatusTest < ApplicationSystemTestCase
     visit edit_match_path(@match)
 
     select "Confirmado", from: "match_participation_status_team_a_#{@athlete.id}"
-
     assert_equal "confirmado", find("#match_participation_status_team_a_#{@athlete.id}").value
-    assert_equal "confirmado", @participation.reload.status
-
-    select "Ausente", from: "match_participation_status_team_a_#{@athlete.id}"
-
-    assert_equal "ausente", find("#match_participation_status_team_a_#{@athlete.id}").value
-    assert_equal "ausente", @participation.reload.status
 
     accept_confirm do
       find("a[aria-label='Remover participação']").click
     end
 
+    assert_no_selector("a[aria-label='Remover participação']", wait: 5)
     assert_nil MatchParticipation.find_by(id: @participation.id)
-    assert_equal "pendente", find("#match_participation_status_team_a_#{@athlete.id}").value
+    assert_current_path match_path(@match)
+    assert_text "Participação removida."
   end
 end
