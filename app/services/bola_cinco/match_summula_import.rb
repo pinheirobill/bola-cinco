@@ -21,8 +21,9 @@ module BolaCinco
       header = extract_header(header_lines)
       header[:left_team_name] ||= match.team_a&.name
       header[:right_team_name] ||= match.team_b&.name
-      header[:score_left] ||= match.score_a
-      header[:score_right] ||= match.score_b
+      extracted_score = extract_period_score(sections[:score].presence || lines)
+      header[:score_left] ||= extracted_score[:left] || match.score_a
+      header[:score_right] ||= extracted_score[:right] || match.score_b
       header[:date] ||= match.scheduled_on&.to_s
       sides = if sections[:left].any? || sections[:right].any?
         {
@@ -239,13 +240,16 @@ module BolaCinco
     end
 
     def split_ocr_sections(lines)
-      sections = { header: [], left: [], right: [] }
+      sections = { header: [], score: [], left: [], right: [] }
       current = :header
 
       lines.each do |line|
         case line
         when /\A\[\[HEADER\]\]\z/i
           current = :header
+          next
+        when /\A\[\[SCORE\]\]\z/i
+          current = :score
           next
         when /\A\[\[TEAM_A\]\]\z/i
           current = :left
@@ -308,6 +312,59 @@ module BolaCinco
 
     def find_date(lines)
       lines.find { |line| line.match?(/\b\d{2}[\/\-]\d{2}[\/\-]\d{4}\b/) }
+    end
+
+    def extract_period_score(lines)
+      left_total = 0
+      right_total = 0
+
+      lines.each do |line|
+        tokens = line.scan(/[A-Za-z0-9'°\.]+|[xX]/)
+        next if tokens.blank?
+
+        index = 0
+        while index < tokens.length
+          unless period_label_token?(tokens[index])
+            index += 1
+            next
+          end
+
+          index += 1
+          left_score = nil
+          right_score = nil
+
+          while index < tokens.length && !period_label_token?(tokens[index]) && !tokens[index].match?(/\A[xX]\z/)
+            left_score ||= score_token_value(tokens[index])
+            index += 1
+          end
+
+          index += 1 if index < tokens.length && tokens[index].match?(/\A[xX]\z/)
+
+          while index < tokens.length && !period_label_token?(tokens[index]) && !tokens[index].match?(/\A[xX]\z/)
+            right_score ||= score_token_value(tokens[index])
+            index += 1
+          end
+
+          left_total += left_score.to_i if left_score.present?
+          right_total += right_score.to_i if right_score.present?
+        end
+      end
+
+      {
+        left: left_total.positive? ? left_total : nil,
+        right: right_total.positive? ? right_total : 0
+      }
+    end
+
+    def score_token_value(token)
+      normalized = token.to_s.strip.upcase
+      return 1 if %w[TO T0 IO 1O O1 01].include?(normalized)
+      return 0 if normalized == "00"
+      return normalized.to_i if normalized.match?(/\A\d{1,2}\z/)
+    end
+
+    def period_label_token?(token)
+      normalize_text(token).match?(/\A[123][a-z]*per\z/)
     end
 
     def warnings_for(text, header, sides)
