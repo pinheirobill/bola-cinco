@@ -172,11 +172,13 @@ class Match < ApplicationRecord
     tranca_winner = Tranca::Dupla.find_by(source_id: winner&.source_id)
 
     tranca_rodada = Tranca::Rodada.find_or_initialize_by(
-      source_id: "tranca-round-#{championship.source_id}-#{phase}-#{round_number}"
+      source_id: "tranca-round-#{championship.id}-#{phase}-#{round_number}"
     )
     tranca_rodada.assign_attributes(
       championship: championship,
-      source_id: "tranca-round-#{championship.source_id}-#{phase}-#{round_number}",
+      source_id: "tranca-round-#{championship.id}-#{phase}-#{round_number}",
+      phase: phase,
+      round_number: round_number,
       label: tranca_round_label,
       status: tranca_round_status_for,
       starts_on: scheduled_on,
@@ -189,6 +191,7 @@ class Match < ApplicationRecord
       championship: championship,
       tranca_rodada: tranca_rodada,
       source_id: "tranca-mesa-#{source_id}",
+      code: [ group_key.presence || "G", code ].compact.join("-"),
       name: venue_name.presence || "Mesa #{code}",
       location: venue_name,
       status: tranca_mesa_status_for
