@@ -2,9 +2,9 @@
 import { application } from "controllers/application"
 import { eagerLoadControllersFrom } from "@hotwired/stimulus-loading"
 
-import DialogController from "./dialog_controller"
-import ClipboardController from "./clipboard_controller"
-import FlashMessageController from "./flash_message_controller"
+import DialogController from "controllers/dialog_controller"
+import ClipboardController from "controllers/clipboard_controller"
+import FlashMessageController from "controllers/flash_message_controller"
 
 application.register("dialog", DialogController)
 application.register("clipboard", ClipboardController)
