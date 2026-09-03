@@ -47,6 +47,7 @@ class PublicTeamSignupTest < ActionDispatch::IntegrationTest
       season: 2026,
       status: :em_andamento,
       modality: :tranca,
+      slug: "15-tranca-2026",
       start_date: Date.new(2026, 9, 20),
       end_date: Date.new(2026, 11, 15),
       registration_start: Date.new(2026, 9, 1),
@@ -164,6 +165,14 @@ class PublicTeamSignupTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "20/09/2026"
     assert_includes response.body, "15/11/2026"
     assert_includes response.body, "Inscrição exclusiva para duplas da Tranca"
+  end
+
+  test "resolves a tranca signup route by slug when it starts with a number" do
+    get new_championship_team_signup_path(@tranca_championship)
+
+    assert_response :success
+    assert_includes response.body, "Inscrição de duplas"
+    assert_includes response.body, "Dupla Pública"
   end
 
   test "selects an existing tranca duo without creating new records" do

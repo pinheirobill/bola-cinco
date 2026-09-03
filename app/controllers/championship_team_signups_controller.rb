@@ -89,7 +89,12 @@ class ChampionshipTeamSignupsController < ApplicationController
   private
 
   def load_championship
-    @championship = Championship.find_by(id: params[:championship_id]) || Championship.find_by(slug: params[:championship_id]) || raise(ActiveRecord::RecordNotFound)
+    identifier = params[:championship_id].to_s
+    @championship = if identifier.match?(/\A\d+\z/)
+      Championship.find_by(id: identifier)
+                    else
+      Championship.find_by(slug: identifier)
+    end || raise(ActiveRecord::RecordNotFound)
   end
 
   def team_signup_params
@@ -143,7 +148,7 @@ class ChampionshipTeamSignupsController < ApplicationController
   end
 
   def signup_categories
-    return [@category].compact if @championship.tranca? && @category.present?
+    return [ @category ].compact if @championship.tranca? && @category.present?
 
     @championship.categories.order(:name)
   end
