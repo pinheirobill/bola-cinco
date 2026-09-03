@@ -173,7 +173,7 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
     get championship_path(@championship)
 
     assert_response :success
-    assert_includes response.body, "Dashboard da Tranca"
+    assert_includes response.body, "Gestão da Tranca"
     assert_includes response.body, "Portal da Tranca"
     assert_includes response.body, "Duplas"
     assert_includes response.body, "Rodadas"
@@ -255,8 +255,9 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
     assert_includes response.body, @recent_match.code
     assert_includes response.body, @upcoming_match.code
 
+    live_partida = Tranca::Partida.find_by!(source_id: @live_match.source_id)
     document = Nokogiri::HTML(response.body)
-    link = document.at_xpath(%(.//a[@href="#{import_tranca_summula_championship_path(@championship, partida_id: @live_match.id)}"]))
+    link = document.at_xpath(%(.//a[@href="#{import_tranca_summula_championship_path(@championship, partida_id: live_partida.id)}"]))
     assert link.present?
   end
 
