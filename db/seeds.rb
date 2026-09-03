@@ -1,17 +1,5 @@
 require "json"
 
-def clear_seed_data!
-  tables = ActiveRecord::Base.connection.tables - %w[users schema_migrations ar_internal_metadata]
-
-  ActiveRecord::Base.connection.disable_referential_integrity do
-    tables.each do |table_name|
-      ActiveRecord::Base.connection.execute("DELETE FROM #{ActiveRecord::Base.connection.quote_table_name(table_name)}")
-    end
-  end
-end
-
-clear_seed_data!
-
 users = [
   { email: "admin@bola-cinco.local", role: :adm_master },
   { email: "quadra@bola-cinco.local", role: :dono_da_quadra },
@@ -52,11 +40,11 @@ def apply_bootstrap_competition_format!(championship)
   knockout_matches = championship.matches.where(phase: "mata_mata")
   return if classification_matches.blank? || knockout_matches.blank?
 
-  group_keys = classification_matches.where.not(group_key: [nil, ""]).distinct.pluck(:group_key).sort
+  group_keys = classification_matches.where.not(group_key: [ nil, "" ]).distinct.pluck(:group_key).sort
   group_count = group_keys.size
   knockout_round_1_count = knockout_matches.where(round_number: 1).count
   qualified_per_group = if group_count.positive? && knockout_round_1_count.positive?
-    [knockout_round_1_count / group_count, 1].max
+    [ knockout_round_1_count / group_count, 1 ].max
   else
     championship.default_format.fetch("qualifiedPerGroup", 2)
   end
@@ -123,7 +111,7 @@ def bootstrap_tranca_domain!(championship)
     mesa.update!(
       championship: championship,
       tranca_rodada: rodada,
-      code: [match.group_key.presence || "G", match.code].compact.join("-"),
+      code: [ match.group_key.presence || "G", match.code ].compact.join("-"),
       name: match.venue.presence || "Mesa #{match.code}",
       location: match.venue,
       status: tranca_mesa_status_for(match.status)
