@@ -1,26 +1,102 @@
-<%= form_with url: championship_team_signup_path(championship), scope: :team_signup, class: "space-y-6" do %>
-  <div class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+<% signup_mode = local_assigns[:signup_mode].presence || (teams.any? ? "existing" : "new") %>
+<% tranca_mode = championship.tranca? %>
+<% existing_label = tranca_mode ? "Selecionar dupla cadastrada" : "Selecionar equipe cadastrada" %>
+<% new_label = tranca_mode ? "Cadastrar nova dupla" : "Cadastrar nova equipe" %>
+<% existing_help = tranca_mode ? "Escolha uma dupla já criada no campeonato." : "Escolha uma equipe já criada no sistema." %>
+<% new_help = tranca_mode ? "Informe o nome da dupla e os participantes. A entidade será criada automaticamente com o nome da dupla." : "Informe a entidade e o nome da equipe." %>
+<% existing_field_label = tranca_mode ? "Dupla cadastrada" : "Time cadastrado" %>
+<% new_title = tranca_mode ? "Nova dupla" : "Nova equipe" %>
+
+<%= form_with url: championship_team_signup_path(championship), scope: :team_signup, class: "space-y-6", data: { controller: "team-signup-mode" } do %>
+  <div class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
     <div class="space-y-4">
       <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Seleção</p>
+        <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Como continuar</p>
         <p class="mt-2 text-sm text-base-content/70">
-          Escolha um time já cadastrado e vincule à categoria do campeonato. Nenhum cadastro novo é criado aqui.
+          <%= tranca_mode ? "Se sua dupla já existe, selecione-a. Se ainda não existe, cadastre a dupla aqui mesmo e siga com a inscrição." : "Se sua equipe já existe, selecione-a. Se ainda não existe, cadastre a equipe aqui mesmo e siga com a inscrição." %>
         </p>
 
-        <div class="mt-4 grid gap-4 md:grid-cols-2">
-          <div class="form-control gap-2 md:col-span-2">
-            <%= label_tag "team_signup_team_id", "Time cadastrado", class: "label-text font-medium" %>
-            <%= select_tag "team_signup[team_id]",
-              options_from_collection_for_select(teams, :id, :signup_picker_label, team&.id),
-              include_blank: "Selecione um time já criado",
-              class: "select select-bordered w-full" %>
-          </div>
-          <div class="form-control gap-2 md:col-span-2">
-            <%= label_tag "team_signup_category_id", "Categoria do campeonato", class: "label-text font-medium" %>
+        <div class="mt-4 grid gap-3 md:grid-cols-2">
+          <label class="flex items-start gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 transition cursor-pointer">
+            <%= radio_button_tag "team_signup[signup_mode]", "existing", signup_mode == "existing",
+              class: "radio radio-primary mt-1",
+              disabled: teams.blank?,
+              data: { team_signup_mode_target: "modeOption", action: "change->team-signup-mode#update", team_signup_mode_value: "existing" } %>
+            <span>
+              <span class="block font-semibold"><%= existing_label %></span>
+              <span class="block text-sm text-base-content/60"><%= existing_help %></span>
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 transition cursor-pointer">
+            <%= radio_button_tag "team_signup[signup_mode]", "new", signup_mode == "new",
+              class: "radio radio-primary mt-1",
+              data: { team_signup_mode_target: "modeOption", action: "change->team-signup-mode#update", team_signup_mode_value: "new" } %>
+            <span>
+              <span class="block font-semibold"><%= new_label %></span>
+              <span class="block text-sm text-base-content/60"><%= new_help %></span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <% if local_assigns[:selected_category].present? && !tranca_mode %>
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Categoria do campeonato</p>
+          <div class="mt-4 form-control gap-2">
+            <%= label_tag "team_signup_category_id", "Categoria", class: "label-text font-medium" %>
             <%= select_tag "team_signup[category_id]",
               options_from_collection_for_select(categories, :id, :name, local_assigns[:selected_category]&.id || team&.category_id),
               include_blank: "Selecione",
               class: "select select-bordered w-full" %>
+          </div>
+        </div>
+      <% elsif !tranca_mode %>
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Categoria do campeonato</p>
+          <div class="mt-4 form-control gap-2">
+            <%= label_tag "team_signup_category_id", "Categoria", class: "label-text font-medium" %>
+            <%= select_tag "team_signup[category_id]",
+              options_from_collection_for_select(categories, :id, :name, team&.category_id),
+              include_blank: "Selecione",
+              class: "select select-bordered w-full" %>
+          </div>
+        </div>
+      <% else %>
+        <%= hidden_field_tag "team_signup[category_id]", local_assigns[:selected_category]&.id || categories.first&.id %>
+      <% end %>
+
+      <div data-team-signup-mode-target="existingSection" id="team-signup-existing-section" class="<%= signup_mode == "existing" ? "" : "hidden" %> rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.3em] text-base-content/50"><%= tranca_mode ? "Dupla cadastrada" : "Equipe cadastrada" %></p>
+        <p class="mt-2 text-sm text-base-content/70">
+          <%= existing_help %>
+        </p>
+
+        <div class="mt-4 form-control gap-2">
+          <%= label_tag "team_signup_team_id", existing_field_label, class: "label-text font-medium" %>
+          <%= select_tag "team_signup[team_id]",
+            options_from_collection_for_select(teams, :id, tranca_mode ? :name : :signup_picker_label, team&.id),
+            include_blank: teams.any? ? (tranca_mode ? "Selecione uma dupla já criada" : "Selecione um time já criado") : (tranca_mode ? "Nenhuma dupla cadastrada" : "Nenhuma equipe cadastrada"),
+            class: "select select-bordered w-full",
+            disabled: teams.blank? %>
+        </div>
+      </div>
+
+      <div data-team-signup-mode-target="newSection" id="team-signup-new-section" class="<%= signup_mode == "new" ? "" : "hidden" %> rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.3em] text-base-content/50"><%= new_title %></p>
+        <p class="mt-2 text-sm text-base-content/70">
+          <%= new_help %>
+        </p>
+
+        <div class="mt-4 grid gap-4 md:grid-cols-2">
+          <div class="form-control gap-2">
+            <%= label_tag "team_signup_team_name", tranca_mode ? "Nome da dupla" : "Nome da equipe", class: "label-text font-medium" %>
+            <%= text_field_tag "team_signup[team_name]", nil, id: "team_signup_team_name", class: "input input-bordered w-full", placeholder: tranca_mode ? "Ex.: João / Maria" : "Ex.: Time Azul" %>
+          </div>
+
+          <div class="form-control gap-2 md:col-span-2">
+            <%= label_tag "team_signup_short_name", "Nome curto", class: "label-text font-medium" %>
+            <%= text_field_tag "team_signup[short_name]", nil, id: "team_signup_short_name", class: "input input-bordered w-full", placeholder: "Opcional" %>
           </div>
         </div>
       </div>
@@ -34,9 +110,15 @@
             <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Campeonato</p>
             <p class="mt-2 font-semibold"><%= championship.name %></p>
           </div>
+          <% unless tranca_mode %>
+            <div class="rounded-2xl bg-base-100 p-4">
+              <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Categoria</p>
+              <p class="mt-2 font-semibold"><%= local_assigns[:selected_category]&.name || team&.category&.name || "Selecione acima" %></p>
+            </div>
+          <% end %>
           <div class="rounded-2xl bg-base-100 p-4">
-            <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Time selecionado</p>
-            <p class="mt-2 font-semibold"><%= team&.signup_picker_label.presence || "Selecione um time" %></p>
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Modo</p>
+            <p class="mt-2 font-semibold"><%= signup_mode == "existing" ? (tranca_mode ? "Selecionar dupla" : "Selecionar equipe") : (tranca_mode ? "Cadastrar dupla nova" : "Cadastrar equipe nova") %></p>
           </div>
           <div class="rounded-2xl bg-base-100 p-4">
             <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Situação</p>
@@ -48,9 +130,9 @@
       <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
         <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Como funciona</p>
         <ol class="mt-3 space-y-3 text-sm leading-6 text-base-content/70">
-          <li>1. Selecione um time já criado no sistema.</li>
-          <li>2. Escolha a categoria do campeonato que vai receber a inscrição.</li>
-          <li>3. A organização valida a participação sem criar novos cadastros aqui.</li>
+          <li>1. Escolha se a dupla já existe ou se vai ser criada agora.</li>
+          <li>2. Selecione a categoria do campeonato.</li>
+          <li>3. Envie a inscrição e aguarde a validação da organização.</li>
         </ol>
       </div>
     </div>
@@ -66,3 +148,41 @@
     <% end %>
   </div>
 <% end %>
+
+<script>
+  (() => {
+    const form = document.querySelector('[data-controller~="team-signup-mode"]')
+    if (!form || form.dataset.signupToggleBound === "1") return
+
+    form.dataset.signupToggleBound = "1"
+
+    const existingSection = form.querySelector("#team-signup-existing-section")
+    const newSection = form.querySelector("#team-signup-new-section")
+    const modeOptions = Array.from(form.querySelectorAll('input[name="team_signup[signup_mode]"]'))
+
+    const toggleSection = (section, enabled) => {
+      if (!section) return
+
+      section.classList.toggle("hidden", !enabled)
+      section.querySelectorAll("input, select, textarea, button").forEach((element) => {
+        if ("disabled" in element) {
+          element.disabled = !enabled
+        }
+      })
+    }
+
+    const update = () => {
+      const checkedMode = modeOptions.find((option) => option.checked)?.value || "existing"
+      const showExisting = checkedMode === "existing"
+
+      toggleSection(existingSection, showExisting)
+      toggleSection(newSection, !showExisting)
+    }
+
+    modeOptions.forEach((option) => {
+      option.addEventListener("change", update)
+    })
+
+    update()
+  })()
+</script>

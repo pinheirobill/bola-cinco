@@ -10,7 +10,9 @@
 
     <div class="flex flex-wrap gap-2">
       <%= status_badge(team.registration_status) %>
-      <%= status_badge(team.finance_status) %>
+      <% unless compact %>
+        <%= status_badge(team.finance_status) %>
+      <% end %>
     </div>
   </div>
 </div>

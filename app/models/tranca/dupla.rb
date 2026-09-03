@@ -12,6 +12,11 @@ module Tranca
     has_many :partidas_as_b, class_name: "Tranca::Partida", foreign_key: :dupla_b_id, dependent: :nullify, inverse_of: :dupla_b
     has_many :winning_partidas, class_name: "Tranca::Partida", foreign_key: :winner_id, dependent: :nullify, inverse_of: :winner
 
+    enum :status, {
+      ativo: "ativo",
+      inativo: "inativo"
+    }, prefix: true
+
     validates :source_id, presence: true, uniqueness: true
     validates :name, presence: true
 

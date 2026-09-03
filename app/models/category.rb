@@ -25,6 +25,73 @@ class Category < ApplicationRecord
     championship&.name || championships.first&.name
   end
 
+  def duplicate_as_available!(name:)
+    raise ArgumentError, "name required" if name.blank?
+
+    self.class.transaction do
+      duplicated_category = dup
+      duplicated_category.source_id = "category-dup-#{source_id}-#{SecureRandom.hex(4)}"
+      duplicated_category.name = name
+      duplicated_category.championship = nil
+      duplicated_category.save!
+
+      teams.includes(:athletes).find_each do |team|
+        duplicated_team = team.dup
+        duplicated_team.source_id = "team-dup-#{team.source_id}-#{SecureRandom.hex(4)}"
+        duplicated_team.category = duplicated_category
+        duplicated_team.registration_status = :pendente
+        duplicated_team.finance_status = :pendente
+        duplicated_team.save!
+
+        team.athletes.find_each do |athlete|
+          duplicated_athlete = athlete.dup
+          duplicated_athlete.source_id = "athlete-dup-#{athlete.source_id}-#{SecureRandom.hex(4)}"
+          duplicated_athlete.team = duplicated_team
+          duplicated_athlete.category = duplicated_category
+          duplicated_athlete.user = nil
+          duplicated_athlete.status = :pendente
+          duplicated_athlete.registration_submitted_at = nil
+          duplicated_athlete.save!
+        end
+      end
+
+      duplicated_category
+    end
+  end
+
+  def duplicate_to!(championship)
+    raise ArgumentError, "championship required" if championship.blank?
+
+    self.class.transaction do
+      duplicated_category = dup
+      duplicated_category.source_id = "category-dup-#{source_id}-#{SecureRandom.hex(4)}"
+      duplicated_category.championship = championship
+      duplicated_category.save!
+
+      teams.includes(:athletes).find_each do |team|
+        duplicated_team = team.dup
+        duplicated_team.source_id = "team-dup-#{team.source_id}-#{SecureRandom.hex(4)}"
+        duplicated_team.category = duplicated_category
+        duplicated_team.registration_status = :pendente
+        duplicated_team.finance_status = :pendente
+        duplicated_team.save!
+
+        team.athletes.find_each do |athlete|
+          duplicated_athlete = athlete.dup
+          duplicated_athlete.source_id = "athlete-dup-#{athlete.source_id}-#{SecureRandom.hex(4)}"
+          duplicated_athlete.team = duplicated_team
+          duplicated_athlete.category = duplicated_category
+          duplicated_athlete.user = nil
+          duplicated_athlete.status = :pendente
+          duplicated_athlete.registration_submitted_at = nil
+          duplicated_athlete.save!
+        end
+      end
+
+      duplicated_category
+    end
+  end
+
   private
 
   def sync_primary_championship_link

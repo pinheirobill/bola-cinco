@@ -19,46 +19,7 @@
   { label: "Duplas", value: @tranca_total_duplas, value_class: "text-2xl" }
 ]) %>
 
-<% if user_signed_in? && @championship.manageable_by?(current_user) %>
-  <%= surface_card(
-    title: "Classificação",
-    subtitle: "A tabela é recalculada automaticamente a partir dos resultados lançados.",
-    actions: [button_to("Recalcular agora", rebuild_tranca_classificacao_championship_path(@championship), method: :patch, class: "btn btn-outline btn-sm")]
-  ) do %>
-    <div class="mb-6 rounded-3xl border border-base-300 bg-base-200 p-4">
-      <h3 class="text-lg font-semibold">Ajuste manual</h3>
-      <p class="mt-1 text-sm text-base-content/70">Se necessário, ainda é possível corrigir linhas manualmente.</p>
-    </div>
-    <%= form_with url: standing_rows_path, method: :post, class: "grid gap-4 lg:grid-cols-6" do %>
-      <%= hidden_field_tag "standing_row[championship_id]", @championship.id %>
-      <div>
-        <%= label_tag "standing_row[category_id]", "Categoria", class: "label-text font-medium" %>
-        <%= select_tag "standing_row[category_id]", options_from_collection_for_select(@tranca_categories, :id, :name), include_blank: "Selecione", class: "select select-bordered w-full" %>
-      </div>
-      <div>
-        <%= label_tag "standing_row[team_id]", "Dupla", class: "label-text font-medium" %>
-        <%= select_tag "standing_row[team_id]", options_from_collection_for_select(@tranca_duplas, :legacy_team_id, :name), include_blank: "Selecione", class: "select select-bordered w-full" %>
-      </div>
-      <div>
-        <%= label_tag "standing_row[group_key]", "Chave", class: "label-text font-medium" %>
-        <%= text_field_tag "standing_row[group_key]", "", class: "input input-bordered w-full", placeholder: "A" %>
-      </div>
-      <div>
-        <%= label_tag "standing_row[position]", "Posição", class: "label-text font-medium" %>
-        <%= number_field_tag "standing_row[position]", 1, class: "input input-bordered w-full" %>
-      </div>
-      <div>
-        <%= label_tag "standing_row[points]", "Pontos", class: "label-text font-medium" %>
-        <%= number_field_tag "standing_row[points]", 0, class: "input input-bordered w-full" %>
-      </div>
-      <div class="flex items-end">
-        <%= submit_tag "Criar linha", class: "btn btn-primary w-full" %>
-      </div>
-    <% end %>
-  <% end %>
-<% end %>
-
-<%= surface_card(title: "Tabela da Tranca", subtitle: "As linhas usam a mesma base de classificação do resto do sistema.") do %>
+<%= surface_card(title: "Tabela da Tranca", subtitle: "Classificação consolidada por categoria.") do %>
   <div class="space-y-6">
     <% if @tranca_standing_groups.any? %>
       <% @tranca_standing_groups.each do |group| %>
@@ -73,73 +34,8 @@
             <span class="badge badge-outline"><%= group.rows.size %> linhas</span>
           </div>
 
-          <div class="max-h-[34rem] space-y-3 overflow-y-auto pr-2 lg:max-h-[40rem]">
-            <% group.rows.each do |row| %>
-              <div class="rounded-3xl bg-base-200 p-4">
-                <% if user_signed_in? && @championship.manageable_by?(current_user) %>
-                  <%= form_with model: row, url: standing_row_path(row), method: :patch, class: "grid gap-3 lg:grid-cols-8" do %>
-                    <div class="lg:col-span-2">
-                      <%= label_tag nil, "Dupla", class: "label-text font-medium" %>
-                      <%= select_tag "standing_row[team_id]", options_from_collection_for_select(@tranca_duplas, :legacy_team_id, :name, row.team_id), class: "select select-bordered w-full" %>
-                    </div>
-                    <div>
-                      <%= label_tag nil, "Pos", class: "label-text font-medium" %>
-                      <%= number_field_tag "standing_row[position]", row.position, class: "input input-bordered w-full" %>
-                    </div>
-                    <div>
-                      <%= label_tag nil, "PJ", class: "label-text font-medium" %>
-                      <%= number_field_tag "standing_row[played]", row.played, class: "input input-bordered w-full" %>
-                    </div>
-                    <div>
-                      <%= label_tag nil, "Pts", class: "label-text font-medium" %>
-                      <%= number_field_tag "standing_row[points]", row.points, class: "input input-bordered w-full" %>
-                    </div>
-                    <div>
-                      <%= label_tag nil, "SG", class: "label-text font-medium" %>
-                      <%= number_field_tag "standing_row[goal_diff]", row.goal_diff, class: "input input-bordered w-full" %>
-                    </div>
-                    <div class="flex items-end gap-2 lg:col-span-2">
-                      <%= submit_tag "Salvar", class: "btn btn-primary w-full" %>
-                      <%= link_to "Excluir", standing_row_path(row), class: "btn btn-ghost w-full", data: { turbo_method: :delete, turbo_confirm: "Excluir esta linha?" } %>
-                    </div>
-                    <div class="lg:col-span-2">
-                      <%= label_tag nil, "Categoria", class: "label-text font-medium" %>
-                      <%= select_tag "standing_row[category_id]", options_from_collection_for_select(@tranca_categories, :id, :name, row.category_id), class: "select select-bordered w-full" %>
-                    </div>
-                    <div>
-                      <%= label_tag nil, "Chave", class: "label-text font-medium" %>
-                      <%= text_field_tag "standing_row[group_key]", row.group_key, class: "input input-bordered w-full" %>
-                    </div>
-                    <div>
-                      <%= label_tag nil, "Vitórias", class: "label-text font-medium" %>
-                      <%= number_field_tag "standing_row[wins]", row.wins, class: "input input-bordered w-full" %>
-                    </div>
-                    <div>
-                      <%= label_tag nil, "Empates", class: "label-text font-medium" %>
-                      <%= number_field_tag "standing_row[draws]", row.draws, class: "input input-bordered w-full" %>
-                    </div>
-                    <div>
-                      <%= label_tag nil, "Derrotas", class: "label-text font-medium" %>
-                      <%= number_field_tag "standing_row[losses]", row.losses, class: "input input-bordered w-full" %>
-                    </div>
-                    <div>
-                      <%= label_tag nil, "GP", class: "label-text font-medium" %>
-                      <%= number_field_tag "standing_row[goals_for]", row.goals_for, class: "input input-bordered w-full" %>
-                    </div>
-                    <div>
-                      <%= label_tag nil, "GC", class: "label-text font-medium" %>
-                      <%= number_field_tag "standing_row[goals_against]", row.goals_against, class: "input input-bordered w-full" %>
-                    </div>
-                    <div class="flex items-center gap-2 lg:col-span-2">
-                      <%= check_box_tag "standing_row[qualified]", "1", row.qualified?, class: "checkbox checkbox-primary" %>
-                      <%= label_tag nil, "Classificado", class: "label-text font-medium" %>
-                    </div>
-                  <% end %>
-                <% else %>
-                  <%= standing_table(group.category, [row], group_key: group.group_key) %>
-                <% end %>
-              </div>
-            <% end %>
+          <div class="overflow-x-auto">
+            <%= standing_table(group.category, group.rows, group_key: group.group_key) %>
           </div>
         </div>
       <% end %>
@@ -150,4 +46,8 @@
       ) %>
     <% end %>
   </div>
+<% end %>
+
+<% if @tranca_knockout_rounds.any? %>
+  <%= render "components/tranca_knockout_bracket", rounds: @tranca_knockout_rounds %>
 <% end %>

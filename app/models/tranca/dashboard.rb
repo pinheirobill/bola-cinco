@@ -46,6 +46,20 @@ module Tranca
       rodadas.select(&:mata_mata?)
     end
 
+    def championship_winners
+      return [] unless knockout_rounds.any?
+
+      knockout_rounds
+        .group_by { |round| round.partidas.first&.category_id }
+        .values
+        .filter_map do |rounds|
+          final = rounds.max_by(&:round_number)
+          final.partidas.one? && final.partidas.first.finished? ? final.partidas.first.winner : nil
+        end
+        .compact
+        .uniq
+    end
+
     def classificacao_rows
       @classificacao_rows ||= championship.tranca_classificacao_rows.includes(:tranca_dupla, :category).order(
         position: :asc,
@@ -55,9 +69,9 @@ module Tranca
     end
 
     def standings_groups
-      classificacao_rows.group_by { |row| [row.category, row.group_key.to_s] }.map do |(category, group_key), rows|
+      classificacao_rows.group_by { |row| [ row.category, row.group_key.to_s ] }.map do |(category, group_key), rows|
         StandingGroup.new(category: category, group_key: group_key, rows: rows)
-      end.sort_by { |group| [group.category.name.to_s.downcase, group.group_key.to_s.downcase] }
+      end.sort_by { |group| [ group.category.name.to_s.downcase, group.group_key.to_s.downcase ] }
     end
 
     def live_partidas

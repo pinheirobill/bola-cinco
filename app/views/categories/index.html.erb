@@ -29,7 +29,14 @@
               <td class="font-medium"><%= category.name %></td>
               <td><%= category.championships.map(&:name).presence&.join(" · ") || category.championship_name || "-" %></td>
               <td><%= category.teams.size %></td>
-              <td><%= link_to "Ver", category_path(category), class: "link link-primary" %></td>
+              <td>
+                <div class="flex items-center justify-end gap-2">
+                  <%= link_to "Ver", category_path(category), class: "link link-primary" %>
+                  <% if current_user&.admin? && current_championship.present? %>
+                    <%= button_to "Duplicar como nova", duplicate_category_path(category), method: :post, class: "btn btn-outline btn-xs", data: { turbo_confirm: "Criar uma cópia disponível para vinculação?" } %>
+                  <% end %>
+                </div>
+              </td>
             </tr>
           <% end %>
         </tbody>

@@ -46,9 +46,17 @@ export default class extends Controller {
     if (this.hasPointsFieldsTarget) this.applySectionState(this.pointsFieldsTarget, showScoringFields)
     if (this.hasTiebreakersFieldTarget) this.applySectionState(this.tiebreakersFieldTarget, showTiebreakersField)
 
-    this.pointsSummaryTarget.classList.toggle("hidden", isKnockoutOnly)
-    this.knockoutSummaryTarget.classList.toggle("hidden", !isKnockoutOnly)
-    this.groupKnockoutSummaryTarget.classList.toggle("hidden", !isGroupAndKnockout)
+    if (this.hasPointsSummaryTarget) {
+      this.pointsSummaryTarget.classList.toggle("hidden", isKnockoutOnly)
+    }
+
+    if (this.hasKnockoutSummaryTarget) {
+      this.knockoutSummaryTarget.classList.toggle("hidden", !isKnockoutOnly)
+    }
+
+    if (this.hasGroupKnockoutSummaryTarget) {
+      this.groupKnockoutSummaryTarget.classList.toggle("hidden", !isGroupAndKnockout)
+    }
 
     this.optionCardTargets.forEach((card) => {
       const active = card.dataset.modeKey === mode

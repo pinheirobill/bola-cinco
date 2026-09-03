@@ -20,25 +20,29 @@
 ]) %>
 
 <% if user_signed_in? && @championship.manageable_by?(current_user) %>
+  <% ultima_rodada_classificatoria = @tranca_rodadas.select(&:classificatoria?).max_by(&:round_number) %>
+  <% todos_jogos_agendados = ultima_rodada_classificatoria&.partidas&.any? && ultima_rodada_classificatoria.partidas.all?(&:status_agendado?) %>
+  <% classificatoria_esgotada = @tranca_classificatoria_esgotada %>
+  <% mata_mata_encerrado = @tranca_mata_mata_encerrado %>
   <%= surface_card(title: "Gerar rodada", subtitle: "Cria a rodada e as partidas da Tranca a partir das duplas cadastradas.") do %>
     <div class="grid gap-4 lg:grid-cols-2">
       <%= form_with url: generate_tranca_round_championship_path(@championship), method: :post, class: "rounded-3xl border border-base-300 bg-base-100 p-4 text-left hover:border-primary/40" do %>
         <%= hidden_field_tag :phase, "classificatoria" %>
         <%= hidden_field_tag :round_number, @tranca_next_round_number %>
-        <%= button_tag type: :submit, class: "block w-full text-left" do %>
+        <%= button_tag type: :submit, disabled: classificatoria_esgotada, class: "block w-full text-left disabled:cursor-not-allowed disabled:opacity-60" do %>
           <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Classificatória</p>
-          <p class="mt-2 text-lg font-semibold">Gerar próxima rodada</p>
-          <p class="mt-1 text-sm text-base-content/70">Usa a próxima numeração disponível na fase classificatória.</p>
+          <p class="mt-2 text-lg font-semibold"><%= classificatoria_esgotada ? "Sorteio encerrado" : (todos_jogos_agendados ? "Sortear novos jogos" : "Gerar próxima rodada") %></p>
+          <p class="mt-1 text-sm text-base-content/70"><%= classificatoria_esgotada ? "Não há mais confrontos diferentes: todas as duplas já jogaram entre si." : (todos_jogos_agendados ? "Todos os jogos da última rodada estão agendados. Sorteie os próximos confrontos." : "Usa a próxima numeração disponível na fase classificatória.") %></p>
         <% end %>
       <% end %>
 
       <%= form_with url: generate_tranca_round_championship_path(@championship), method: :post, class: "rounded-3xl border border-base-300 bg-base-100 p-4 text-left hover:border-primary/40" do %>
         <%= hidden_field_tag :phase, "mata_mata" %>
         <%= hidden_field_tag :round_number, @tranca_next_knockout_round_number %>
-        <%= button_tag type: :submit, class: "block w-full text-left" do %>
+        <%= button_tag type: :submit, disabled: mata_mata_encerrado, class: "block w-full text-left disabled:cursor-not-allowed disabled:opacity-60" do %>
           <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Mata-mata</p>
-          <p class="mt-2 text-lg font-semibold">Gerar chave eliminatória</p>
-          <p class="mt-1 text-sm text-base-content/70">Abre a próxima rodada do chaveamento com os vencedores anteriores.</p>
+          <p class="mt-2 text-lg font-semibold"><%= mata_mata_encerrado ? "Mata-mata encerrado" : "Gerar chave eliminatória" %></p>
+          <p class="mt-1 text-sm text-base-content/70"><%= mata_mata_encerrado ? "A final já foi concluída." : "Abre a próxima rodada do chaveamento com os vencedores anteriores." %></p>
         <% end %>
       <% end %>
     </div>
@@ -65,7 +69,10 @@
 
           <div class="mt-4 space-y-3">
             <% round.partidas.each do |match| %>
-              <%= match_card(match, compact: true) %>
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <%= match_card(match, compact: true) %>
+                <%= link_to "Abrir súmula", import_tranca_summula_championship_path(@championship, partida_id: match.id), class: "btn btn-outline btn-xs" %>
+              </div>
             <% end %>
           </div>
         </div>

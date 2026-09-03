@@ -17,13 +17,39 @@ class TeamsController < ApplicationController
   end
 
   def create
-    category = Category.find(team_params[:category_id])
+    params_data = team_params
+    category = Category.find(params_data[:category_id])
     championship = current_championship || category.championship || category.championships.first
     return forbidden! if championship.blank?
     return forbidden! unless current_user.admin? || championship.team_signup_open?
 
-    record = Team.new(team_params)
+    record = Team.new(
+      params_data.except(:entity_id, :participant_one_name, :participant_two_name)
+    )
+
+    participant_names = [params_data[:participant_one_name], params_data[:participant_two_name]].map { _1.to_s.strip }.reject(&:blank?)
+    record_name = record.name.to_s.strip
+    record_name = participant_names.join(" / ") if record_name.blank? && participant_names.any?
+    if record_name.blank?
+      record.errors.add(:name, "obrigatório")
+    else
+      record.name = record_name
+    end
+
+    entity = if params_data[:entity_id].present?
+      Entity.find_by(id: params_data[:entity_id]).tap do |found_entity|
+        record.errors.add(:entity, "inválida") if found_entity.blank?
+      end
+    else
+      Entity.create!(
+        source_id: default_source_id("entity"),
+        name: record_name
+      ) if record_name.present?
+    end
+
+    record.entity = entity
     record.source_id = default_source_id("team") if record.source_id.blank?
+    record.registration_status = :pendente if championship.tranca?
 
     if record.save
       sync_tranca_dupla_from_team(record) if championship.tranca?
@@ -105,6 +131,8 @@ class TeamsController < ApplicationController
       :entity_id,
       :category_id,
       :name,
+      :participant_one_name,
+      :participant_two_name,
       :short_name,
       :registration_status,
       :finance_status,

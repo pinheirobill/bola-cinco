@@ -29,3 +29,4 @@ bin/dev
 - Authentication uses Devise with a `User` model.
 - Model changes are recorded through Audited.
 - The home page is served from `HomeController#index`.
+- AI workflow and Graphify usage live in [docs/ai-workflow.md](docs/ai-workflow.md).

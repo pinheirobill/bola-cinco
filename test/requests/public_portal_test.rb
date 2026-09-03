@@ -102,6 +102,8 @@ class PublicPortalTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Inscrição de equipes"
     assert_includes response.body, "championship-team-signup-modal"
     assert_includes response.body, "Inscrições de equipes"
+    assert_includes response.body, "Selecionar equipe cadastrada"
+    assert_includes response.body, "Cadastrar nova equipe"
     assert_includes response.body, "Quantidade de chaves"
     assert_includes response.body, "Classificados por chave"
     assert_includes response.body, @team.name

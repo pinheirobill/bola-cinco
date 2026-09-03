@@ -1,10 +1,11 @@
 module UiHelper
-  def page_header(title:, subtitle: nil, badge: nil, actions: [])
+  def page_header(title:, subtitle: nil, badge: nil, actions: [], title_editor: nil)
     render partial: "components/page_header", locals: {
       title: title,
       subtitle: subtitle,
       badge: badge,
-      actions: Array(actions)
+      actions: Array(actions),
+      title_editor: title_editor
     }
   end
 
@@ -35,11 +36,12 @@ module UiHelper
     }
   end
 
-  def championship_stepper(championship, current_step, step_labels)
+  def championship_stepper(championship, current_step, step_labels, path_helper: :championship_path)
     render partial: "components/championship_stepper", locals: {
       championship: championship,
       current_step: current_step,
-      step_labels: step_labels
+      step_labels: step_labels,
+      path_helper: path_helper
     }
   end
 

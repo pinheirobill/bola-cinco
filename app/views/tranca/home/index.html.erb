@@ -23,7 +23,7 @@
   <%= surface_card(
     title: @championship&.name || "CAMPEONATO DE TRANCA 2026",
     subtitle: "Rodada 07 de 15",
-    badge: "Ao vivo",
+    badge: @championship&.status.to_s.tr("_", " ").humanize.presence || "Em andamento",
     classes: "border-base-300/80 bg-white/5 text-white shadow-2xl"
   ) do %>
     <div class="grid gap-4 md:grid-cols-3">
@@ -54,6 +54,17 @@
     </div>
   <% end %>
 </section>
+
+<% if @championship_winners.any? %>
+  <%= surface_card(
+    title: "Campeão",
+    subtitle: "Vencedor do mata-mata",
+    classes: "border-amber-300/30 bg-amber-300/10 text-white"
+  ) do %>
+    <p class="text-2xl font-black text-[#D6B25E]"><%= @championship_winners.map(&:name).to_sentence %></p>
+    <p class="mt-2 text-sm text-white/65">O campeonato foi encerrado após a final.</p>
+  <% end %>
+<% end %>
 
 <section id="partidas" class="grid gap-6 xl:grid-cols-2">
   <%= surface_card(title: "Ao vivo", subtitle: "Mesas em andamento", classes: "border-base-300/80 bg-white/5 text-white") do %>

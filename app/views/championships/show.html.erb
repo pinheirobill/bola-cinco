@@ -247,9 +247,9 @@
 <% if @championship.team_signup_open? %>
   <dialog id="championship-team-signup-modal" class="modal">
     <div class="modal-box max-w-5xl">
-      <h3 class="text-2xl font-bold">Inscrição de equipes</h3>
+      <h3 class="text-2xl font-bold"><%= @championship.tranca? ? "Inscrição de duplas" : "Inscrição de equipes" %></h3>
       <p class="mt-2 text-sm text-base-content/70">
-        Selecione um time já cadastrado e vincule-o à categoria do campeonato.
+        <%= @championship.tranca? ? "Selecione uma dupla já cadastrada ou crie uma nova para vinculá-la ao campeonato." : "Selecione um time já cadastrado e vincule-o à categoria do campeonato." %>
       </p>
 
       <% if @team&.errors&.any? %>
@@ -265,6 +265,7 @@
           categories: @championship.categories.order(:name),
           team: @team || Team.new,
           selected_category: @category,
+          signup_mode: (@available_teams.any? ? "existing" : "new"),
           close_on_submit: true %>
       </div>
     </div>

@@ -23,9 +23,10 @@
 
     <ul class="steps steps-horizontal w-full">
       <% step_labels.each do |key, label| %>
-        <li class="step <%= 'step-primary' if current_step == key %>">
-          <%= link_to label, championship_path(championship, step: key), class: "text-sm font-medium #{'text-primary' if current_step == key}" %>
-        </li>
+        <% active = current_step == key %>
+        <%= link_to label, public_send(path_helper, championship, step: key),
+          class: "step #{'step-primary' if active} text-sm font-medium #{'text-primary' if active}",
+          aria: { current: (active ? "step" : nil) } %>
       <% end %>
     </ul>
   </div>

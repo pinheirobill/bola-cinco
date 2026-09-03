@@ -40,6 +40,30 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
       name: "Pedro / Maria"
     )
 
+    @invited_entity = Entity.create!(
+      source_id: "entity-tranca-invited",
+      name: "Dupla Convidada"
+    )
+
+    @invited_team = Team.create!(
+      source_id: "tranca-invite-#{SecureRandom.hex(4)}",
+      entity: @invited_entity,
+      category: @category,
+      name: "Convidada / Tranca"
+    )
+
+    @public_signup_entity = Entity.create!(
+      source_id: "entity-tranca-public-signup",
+      name: "Dupla Auto"
+    )
+
+    @public_signup_team = Team.create!(
+      source_id: "team-tranca-public-signup",
+      entity: @public_signup_entity,
+      category: @category,
+      name: "Auto / Cadastro"
+    )
+
     @athlete_a = Athlete.create!(
       source_id: "athlete-tranca-a",
       team: @team_a,
@@ -177,6 +201,11 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Portal da Tranca"
     assert_includes response.body, "Duplas"
     assert_includes response.body, "Rodadas"
+    assert_includes response.body, "Administração das duplas"
+    assert_includes response.body, "Convidada"
+    assert_includes response.body, "Auto cadastro"
+    assert_includes response.body, @invited_team.name
+    assert_includes response.body, @public_signup_team.name
   end
 
   test "shows the mata-mata bracket when knockout rounds exist" do
@@ -235,6 +264,13 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
 
   test "shows the tranca duplas page" do
     sign_in users(:one)
+    approved_team = Team.create!(
+      source_id: "team-tranca-approved",
+      entity: @entity_a,
+      category: @category,
+      name: "Confirmada / Exemplo",
+      registration_status: :aprovada
+    )
 
     get duplas_championship_path(@championship)
 
@@ -242,6 +278,9 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Duplas por categoria"
     assert_includes response.body, @team_a.name
     assert_includes response.body, @athlete_a.name
+    assert_includes response.body, "Confirmado"
+    assert_includes response.body, "Pendente"
+    assert_includes response.body, approved_team.name
   end
 
   test "shows the tranca partidas page" do
@@ -339,7 +378,34 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to duplas_championship_path(@championship)
-    assert_equal "Nova Dupla", Team.order(:created_at).last.name
+    team = Team.order(:created_at).last
+    assert_equal "Nova Dupla", team.name
+    assert team.registration_status_pendente?
+  end
+
+  test "creates a tranca duo with a new entity and suggested name" do
+    sign_in users(:one)
+    suffix = SecureRandom.hex(3)
+
+    assert_difference -> { Entity.count }, 1 do
+      assert_difference -> { Team.where(category: @category).count }, 1 do
+        post teams_path, params: {
+          team: {
+            category_id: @category.id,
+            participant_one_name: "Carlos #{suffix}",
+            participant_two_name: "Ana #{suffix}"
+          }
+        }, headers: {
+          "HTTP_REFERER" => duplas_championship_path(@championship)
+        }
+      end
+    end
+
+    assert_redirected_to duplas_championship_path(@championship)
+    team = Team.order(:created_at).last
+    assert_equal "Carlos #{suffix} / Ana #{suffix}", team.name
+    assert_equal team.name, team.entity.name
+    assert team.registration_status_pendente?
   end
 
   test "creates a tranca match from the management page" do

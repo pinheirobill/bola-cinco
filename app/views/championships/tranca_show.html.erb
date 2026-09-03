@@ -24,6 +24,134 @@
   { label: "Classificação", value: @tranca_total_classificados, description: "Linhas exibidas" }
 ]) %>
 
+<% if @tranca_championship_winners.any? %>
+  <%= surface_card(
+    title: "Campeão",
+    subtitle: "Vencedor do mata-mata",
+    classes: "border-warning/30 bg-warning/10"
+  ) do %>
+    <p class="text-2xl font-black"><%= @tranca_championship_winners.map(&:name).to_sentence %></p>
+    <p class="mt-2 text-sm text-base-content/70">O campeonato foi encerrado após a final.</p>
+  <% end %>
+<% end %>
+
+<% if @tranca_signed_up_dupla.present? %>
+  <%= surface_card(
+    title: "Sua dupla foi cadastrada",
+    subtitle: "Ela já entrou no portal público da Tranca e aparece destacada abaixo.",
+    classes: "border-primary/30 bg-primary/5"
+  ) do %>
+    <div class="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
+      <div>
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Dupla</p>
+        <p class="mt-2 text-2xl font-black"><%= @tranca_signed_up_dupla.name %></p>
+        <p class="mt-1 text-sm text-base-content/60"><%= @tranca_signed_up_dupla.entity.name %></p>
+      </div>
+      <span class="badge badge-primary badge-lg">Cadastrada</span>
+    </div>
+  <% end %>
+<% end %>
+
+<% if user_signed_in? && @championship.manageable_by?(current_user) %>
+  <%= surface_card(
+    title: "Administração das duplas",
+    subtitle: "Veja quem veio por convite e quem se cadastrou sozinho. O status pode ser alterado direto aqui.",
+    classes: "border-base-300/80"
+  ) do %>
+    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Total</p>
+        <p class="mt-2 text-2xl font-black"><%= @tranca_admin_teams.size %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Convites</p>
+        <p class="mt-2 text-2xl font-black"><%= @tranca_admin_teams.count { |team| team.tranca_signup_origin == :invited } %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Auto cadastro</p>
+        <p class="mt-2 text-2xl font-black"><%= @tranca_admin_teams.count { |team| team.tranca_signup_origin == :public_signup } %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Pendentes</p>
+        <p class="mt-2 text-2xl font-black"><%= @tranca_admin_teams.count(&:registration_status_pendente?) %></p>
+      </div>
+    </div>
+
+    <div class="mt-6 grid gap-3">
+      <% @tranca_admin_teams.each do |team| %>
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <p class="truncate text-lg font-semibold"><%= team.name %></p>
+                <% if team.tranca_signup_origin_label.present? %>
+                  <span class="badge <%= team.tranca_signup_origin_badge_class %>"><%= team.tranca_signup_origin_label %></span>
+                <% end %>
+              </div>
+              <p class="mt-1 text-sm text-base-content/60"><%= team.entity.name %></p>
+              <p class="mt-1 text-xs text-base-content/50"><%= team.tranca_signup_origin_detail %></p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="badge <%= status_badge_class(team.registration_status) %>"><%= team.registration_status.to_s.humanize %></span>
+              <%= link_to "Abrir", team_path(team), class: "btn btn-outline btn-xs" %>
+            </div>
+          </div>
+
+          <div class="mt-4 grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div class="grid gap-2 sm:grid-cols-2">
+              <div class="rounded-2xl bg-base-100 p-3">
+                <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Categoria</p>
+                <p class="mt-2 text-sm font-semibold"><%= team.category.name %></p>
+              </div>
+              <div class="rounded-2xl bg-base-100 p-3">
+                <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Origem</p>
+                <p class="mt-2 text-sm font-semibold"><%= team.tranca_signup_origin_detail %></p>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border px-2 py-1 <%= status_surface_class(team.registration_status) %>">
+              <%= form_with model: team, url: team_path(team), method: :patch, local: true, class: "flex items-center gap-2", data: { controller: "autosave-form", action: "change->autosave-form#queue turbo:submit-end->autosave-form#complete" } do |f| %>
+                <%= f.select :registration_status,
+                  options_for_select(Team.registration_statuses.keys.map { |status| [status.titleize, status] }, team.registration_status),
+                  {},
+                  class: ["select select-bordered select-sm h-8 min-h-8 w-40 bg-base-100", status_select_class(team.registration_status)] %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<section id="duplas" class="space-y-6">
+  <%= surface_card(title: "Últimas duplas cadastradas", subtitle: "As três mais recentes ficam em destaque para dar confiança ao participante.") do %>
+    <% if @tranca_recent_duplas.any? %>
+      <div class="grid gap-3 md:grid-cols-3">
+        <% @tranca_recent_duplas.each do |dupla| %>
+          <% highlighted = @tranca_signed_up_dupla.present? && dupla.id == @tranca_signed_up_dupla.id %>
+          <div class="rounded-3xl border <%= highlighted ? 'border-primary bg-primary/10' : 'border-base-300 bg-base-200' %> p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="font-semibold"><%= dupla.name %></p>
+                <p class="mt-1 text-xs text-base-content/60"><%= dupla.entity.name %></p>
+              </div>
+              <span class="badge <%= highlighted ? 'badge-primary' : 'badge-outline' %>"><%= dupla.registration_status.to_s.humanize %></span>
+            </div>
+            <p class="mt-3 text-sm text-base-content/70"><%= dupla.category.name %></p>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <%= empty_state(
+        title: "Nenhuma dupla cadastrada",
+        description: "As duplas aparecerão aqui quando os times forem vinculados às categorias do campeonato."
+      ) %>
+    <% end %>
+  <% end %>
+</section>
+
 <section id="partidas" class="grid gap-6 xl:grid-cols-2">
   <%= surface_card(title: "Ao vivo", subtitle: "Mesas em andamento", classes: "self-start") do %>
     <div class="space-y-4">
@@ -117,7 +245,7 @@
   <% end %>
 </section>
 
-<section class="grid gap-6 xl:grid-cols-2">
+<section id="composicao-duplas" class="grid gap-6 xl:grid-cols-2">
   <%= surface_card(title: "Próximos jogos", subtitle: "Mesas agendadas", classes: "self-start") do %>
     <div class="space-y-3">
       <% if @tranca_upcoming_matches.any? %>

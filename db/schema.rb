@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_02_123000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_03_150000) do
   create_table "athletes", force: :cascade do |t|
     t.string "birth_certificate"
     t.date "birth_date"
@@ -116,6 +116,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_02_123000) do
     t.string "modality", default: "football", null: false
     t.string "name", null: false
     t.text "notes"
+    t.integer "public_signup_visits_count", default: 0, null: false
     t.date "registration_end"
     t.date "registration_start"
     t.json "rules", default: {}, null: false
@@ -477,12 +478,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_02_123000) do
     t.string "registration_status", default: "aprovada", null: false
     t.string "short_name"
     t.string "source_id", null: false
+    t.string "status", default: "ativo", null: false
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_tranca_duplas_on_category_id"
     t.index ["championship_id", "category_id", "name"], name: "index_tranca_duplas_on_scope_and_name", unique: true
     t.index ["championship_id"], name: "index_tranca_duplas_on_championship_id"
     t.index ["entity_id"], name: "index_tranca_duplas_on_entity_id"
     t.index ["source_id"], name: "index_tranca_duplas_on_source_id", unique: true
+    t.index ["status"], name: "index_tranca_duplas_on_status"
   end
 
   create_table "tranca_mesas", force: :cascade do |t|

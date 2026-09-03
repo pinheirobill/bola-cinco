@@ -24,26 +24,101 @@
   subtitle: "A Tranca reaproveita o cadastro de times como composição das duplas."
 ) do %>
   <% if user_signed_in? && @championship.manageable_by?(current_user) %>
-    <div class="mb-6 rounded-3xl border border-base-300 bg-base-200 p-4">
-      <h3 class="text-lg font-semibold">Nova dupla</h3>
-      <p class="mt-1 text-sm text-base-content/70">Cria um time vinculado a uma categoria da Tranca.</p>
+    <div class="mb-6 rounded-3xl border border-base-300 bg-gradient-to-br from-base-200 via-base-200 to-base-300/40 p-5 shadow-sm">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="max-w-3xl">
+          <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Cadastro rápido</p>
+          <h3 class="mt-2 text-2xl font-semibold">Nova dupla</h3>
+          <p class="mt-2 text-sm leading-6 text-base-content/70">
+            Escolha uma entidade existente se quiser reaproveitar o cadastro.
+            Se deixar em branco, criamos uma entidade nova com o nome final da dupla.
+          </p>
+        </div>
 
-      <%= form_with url: teams_path, method: :post, class: "mt-4 grid gap-4 lg:grid-cols-5" do |f| %>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-2xl bg-base-100 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Categoria padrão</p>
+            <p class="mt-2 font-semibold"><%= @tranca_default_category&.name || "Selecione" %></p>
+          </div>
+          <div class="rounded-2xl bg-base-100 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Entidade</p>
+            <p class="mt-2 font-semibold">Automática ou existente</p>
+          </div>
+        </div>
+      </div>
+
+      <%= form_with url: teams_path, method: :post, class: "mt-5 space-y-5", data: { controller: "tranca-dupla-form" } do |f| %>
         <%= hidden_field_tag "team[source_id]", "" %>
-        <div>
-          <%= label_tag "team[entity_id]", "Entidade", class: "label-text font-medium" %>
-          <%= select_tag "team[entity_id]", options_from_collection_for_select(@tranca_entities, :id, :name), include_blank: "Selecione", class: "select select-bordered w-full" %>
+        <%= hidden_field_tag "team[category_id]", @tranca_default_category&.id %>
+
+        <div class="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="form-control gap-2">
+              <%= label_tag "team[name]", "Nome da dupla", class: "label-text font-medium" %>
+              <%= text_field_tag "team[name]", nil, class: "input input-bordered w-full", placeholder: "Carlos / Ana", data: { tranca_dupla_form_target: "teamName", action: "input->tranca-dupla-form#sync" } %>
+              <p class="text-xs text-base-content/50">Você pode deixar em branco e usar os participantes como sugestão.</p>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2 md:col-span-2">
+              <div class="form-control gap-2">
+                <%= label_tag "team[participant_one_name]", "Participante 1", class: "label-text font-medium" %>
+                <%= text_field_tag "team[participant_one_name]", nil, class: "input input-bordered w-full", placeholder: "Nome 1", data: { tranca_dupla_form_target: "participantOne", action: "input->tranca-dupla-form#sync" } %>
+              </div>
+
+              <div class="form-control gap-2">
+                <%= label_tag "team[participant_two_name]", "Participante 2", class: "label-text font-medium" %>
+                <%= text_field_tag "team[participant_two_name]", nil, class: "input input-bordered w-full", placeholder: "Nome 2", data: { tranca_dupla_form_target: "participantTwo", action: "input->tranca-dupla-form#sync" } %>
+              </div>
+            </div>
+
+            <div class="form-control gap-2 md:col-span-2 md:max-w-sm">
+              <%= label_tag "team[entity_id]", "Entidade existente", class: "label-text text-sm font-medium" %>
+              <%= select_tag "team[entity_id]",
+                options_from_collection_for_select(@tranca_entities, :id, :name),
+                include_blank: "Criar automaticamente",
+                class: "select select-bordered select-sm w-full",
+                data: { tranca_dupla_form_target: "entitySelect", action: "change->tranca-dupla-form#sync" } %>
+              <p class="text-xs text-base-content/50">Se não escolher uma entidade, criamos uma nova com o nome da dupla.</p>
+            </div>
+          </div>
+
+          <div class="rounded-3xl border border-base-300 bg-base-100 p-4">
+            <p class="text-xs uppercase tracking-[0.3em] text-base-content/50">Prévia</p>
+            <div class="mt-4 space-y-3">
+              <div class="rounded-2xl bg-base-200/70 p-4">
+                <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Nome da dupla</p>
+                <p class="mt-2 text-lg font-semibold" data-tranca-dupla-form-target="previewName">Carlos / Ana</p>
+              </div>
+
+              <div class="grid gap-3 sm:grid-cols-2">
+                <div class="rounded-2xl bg-base-200/70 p-4">
+                  <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Participantes</p>
+                  <p class="mt-2 text-sm font-semibold text-base-content/80" data-tranca-dupla-form-target="previewParticipants">Nome 1 · Nome 2</p>
+                </div>
+
+                <div class="rounded-2xl bg-base-200/70 p-4">
+                  <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Categoria</p>
+                  <p class="mt-2 text-sm font-semibold text-base-content/80"><%= @tranca_default_category&.name || "Selecione" %></p>
+                </div>
+
+                <div class="rounded-2xl bg-base-200/70 p-4 sm:col-span-2">
+                  <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Entidade</p>
+                  <p class="mt-2 text-sm font-semibold text-base-content/80" data-tranca-dupla-form-target="previewEntity">Automática</p>
+                </div>
+              </div>
+
+              <div class="rounded-2xl border border-dashed border-base-300 bg-base-200/40 p-4">
+                <p class="text-sm text-base-content/70">
+                  O cadastro salva a dupla como um time da Tranca, mas a escrita fica mais clara para quem está lançando agora.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <%= label_tag "team[category_id]", "Categoria", class: "label-text font-medium" %>
-          <%= select_tag "team[category_id]", options_from_collection_for_select(@tranca_categories, :id, :name), include_blank: "Selecione", class: "select select-bordered w-full" %>
-        </div>
-        <div class="lg:col-span-2">
-          <%= label_tag "team[name]", "Nome da dupla", class: "label-text font-medium" %>
-          <%= text_field_tag "team[name]", nil, class: "input input-bordered w-full", placeholder: "Carlos / Ana" %>
-        </div>
-        <div class="flex items-end">
-          <%= submit_tag "Criar dupla", class: "btn btn-primary w-full" %>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <%= submit_tag "Criar dupla", class: "btn btn-primary" %>
+          <%= link_to "Ver entidades", entities_path, class: "btn btn-outline" %>
         </div>
       <% end %>
     </div>
@@ -70,7 +145,10 @@
                     <p class="font-semibold"><%= link_to team.name, team_path(team), class: "link link-primary" %></p>
                     <p class="mt-1 text-xs text-base-content/60"><%= team.entity.name %></p>
                   </div>
-                  <span class="badge badge-outline"><%= team.registration_status.to_s.humanize %></span>
+                  <% confirmed = team.registration_status.to_s == "aprovada" %>
+                  <span class="badge <%= confirmed ? "badge-success" : "badge-warning" %>">
+                    <%= confirmed ? "Confirmado" : "Pendente" %>
+                  </span>
                 </div>
 
                 <div class="mt-4 space-y-2 text-sm text-base-content/70">

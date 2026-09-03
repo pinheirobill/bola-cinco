@@ -97,6 +97,41 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla: @dupla_a).points
   end
 
+  test "avoids repeating classificatoria matchups in the next round" do
+    extra_duplas = %w[Bruna Felipe Gabriela].map do |name|
+      Tranca::Dupla.create!(
+        source_id: "dupla-tranca-flow-#{name.downcase}",
+        championship: @championship,
+        category: @category,
+        entity: @entity,
+        name: "#{name} / Dupla"
+      )
+    end
+
+    flow = Tranca::CompetitionFlow.new(@championship)
+    first_round = flow.generate_round!(phase: "classificatoria", round_number: 1)
+    second_round = flow.generate_round!(phase: "classificatoria", round_number: 2)
+
+    first_matchups = first_round.partidas.map { |partida| [ partida.dupla_a_id, partida.dupla_b_id ].sort }
+    second_matchups = second_round.partidas.map { |partida| [ partida.dupla_a_id, partida.dupla_b_id ].sort }
+
+    assert_equal 3, extra_duplas.size
+    assert_equal 2, first_matchups.size
+    assert_equal 2, second_matchups.size
+    assert_empty first_matchups & second_matchups
+  end
+
+  test "stops classificatoria when every matchup has already happened" do
+    flow = Tranca::CompetitionFlow.new(@championship)
+    flow.generate_round!(phase: "classificatoria", round_number: 1)
+    first_match = @championship.tranca_partidas.first
+    flow.record_result!(partida: first_match, score_a: 2, score_b: 1, status: :finalizado)
+
+    assert_raises(Tranca::CompetitionFlow::NoAvailableMatchupsError) do
+      flow.generate_round!(phase: "classificatoria", round_number: 2)
+    end
+  end
+
   test "generates knockout bracket and advances winners to the next round" do
     championship = Championship.create!(
       source_id: "champ-tranca-knockout",
@@ -130,7 +165,7 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     rodada = flow.generate_round!(phase: "mata_mata", round_number: 1)
 
     assert_equal 2, rodada.partidas.count
-    assert_equal [duplas[0].name, duplas[3].name], rodada.partidas.order(:id).first.then { |partida| [partida.dupla_a, partida.dupla_b] }
+    assert_equal [ duplas[0].name, duplas[3].name ], rodada.partidas.order(:id).first.then { |partida| [ partida.dupla_a, partida.dupla_b ] }
 
     primeira, segunda = rodada.partidas.order(:id).to_a
 
@@ -139,7 +174,13 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
 
     round_two = championship.tranca_rodadas.find_by!(phase: "mata_mata", round_number: 2)
     assert_equal 1, round_two.partidas.count
-    assert_equal [duplas[0].name, duplas[1].name], round_two.partidas.first.then { |partida| [partida.dupla_a, partida.dupla_b] }
+    assert_equal [ duplas[0].name, duplas[1].name ], round_two.partidas.first.then { |partida| [ partida.dupla_a, partida.dupla_b ] }
+
+    assert_not flow.knockout_finished?
+
+    flow.record_result!(partida: round_two.partidas.first, score_a: 8, score_b: 6, status: :finalizado)
+
+    assert flow.knockout_finished?
   end
 
   test "fills an already created next knockout round after the previous one is finalized" do
@@ -184,6 +225,6 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
 
     round_two = championship.tranca_rodadas.find_by!(phase: "mata_mata", round_number: 2)
     assert_equal 1, round_two.partidas.count
-    assert_equal [duplas[0].name, duplas[1].name], round_two.partidas.first.then { |partida| [partida.dupla_a, partida.dupla_b] }
+    assert_equal [ duplas[0].name, duplas[1].name ], round_two.partidas.first.then { |partida| [ partida.dupla_a, partida.dupla_b ] }
   end
 end

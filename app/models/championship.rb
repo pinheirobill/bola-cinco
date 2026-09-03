@@ -207,6 +207,51 @@ class Championship < ApplicationRecord
     team_signup_enabled?
   end
 
+  def record_public_signup_visit!
+    self.class.increment_counter(:public_signup_visits_count, id)
+  end
+
+  def public_signup_visits_total
+    public_signup_visits_count.to_i
+  end
+
+  def tranca_onboarding_category_source_id
+    "category-tranca-#{source_id}"
+  end
+
+  def ensure_tranca_onboarding_category!
+    return unless tranca?
+
+    category = categories.find_by(source_id: tranca_onboarding_category_source_id) || Category.find_or_initialize_by(source_id: tranca_onboarding_category_source_id)
+    category.assign_attributes(
+      championship: self,
+      name: name
+    )
+    category.save!
+    category
+  end
+
+  def recent_tranca_championships(limit: 3)
+    Championship.tranca.where.not(id: id).order(season: :desc, created_at: :desc).limit(limit).includes(categories: { teams: :athletes })
+  end
+
+  def invite_selected_tranca_duplas!(teams)
+    return 0 unless tranca?
+
+    category = ensure_tranca_onboarding_category!
+    invited = 0
+
+    Array(teams).each do |team|
+      next if team.blank?
+      next if tranca_dupla_already_invited?(category, team)
+
+      duplicate_team_into_category!(team, category)
+      invited += 1
+    end
+
+    invited
+  end
+
   def athlete_registration_open?
     athlete_action_enabled?("allow_register")
   end
@@ -924,6 +969,40 @@ class Championship < ApplicationRecord
         qualified: row.qualified
       )
     end
+  end
+
+  private
+
+  def duplicate_team_into_category!(team, category)
+    duplicated_team = Team.find_or_initialize_by(source_id: invite_team_source_id(team, category))
+    duplicated_team.category = category
+    duplicated_team.entity = team.entity
+    duplicated_team.name = team.name
+    duplicated_team.short_name = team.short_name
+    duplicated_team.registration_status = :pendente
+    duplicated_team.finance_status = :pendente
+    duplicated_team.save!
+
+    team.athletes.find_each do |athlete|
+      duplicated_athlete = duplicated_team.team_athletes.find_or_initialize_by(source_id: invite_team_athlete_source_id(team, athlete))
+      duplicated_athlete.athlete = athlete
+      duplicated_athlete.save!
+    end
+
+    duplicated_team
+  end
+
+  def tranca_dupla_already_invited?(category, team)
+    category.teams.exists?(source_id: invite_team_source_id(team, category)) ||
+      category.teams.exists?(name: team.name, entity_id: team.entity_id)
+  end
+
+  def invite_team_source_id(team, category)
+    "tranca-invite-#{id}-#{category.id}-#{team.id}"
+  end
+
+  def invite_team_athlete_source_id(team, athlete)
+    "tranca-invite-member-#{id}-#{team.id}-#{athlete.id}"
   end
 
 end

@@ -40,7 +40,7 @@ class ChampionshipsController < ApplicationController
 
     load_championship_overview
     load_tranca_overview if @championship.tranca?
-    return render("championships/tranca_show") if @championship.tranca?
+    render("championships/tranca_show") if @championship.tranca?
   end
 
   def duplas
@@ -96,6 +96,8 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Categoria inválida."
   rescue ActiveRecord::RecordInvalid => e
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: e.record.errors.full_messages.join(" · ")
+  rescue Tranca::CompetitionFlow::NoAvailableMatchupsError
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Não há mais confrontos diferentes disponíveis: todas as duplas já jogaram entre si."
   end
 
   def generate_tranca_mesas
@@ -226,7 +228,7 @@ class ChampionshipsController < ApplicationController
 
     Rails.logger.info(
       "[championships#update] id=#{@championship.id} autosave=#{autosave_request?} " \
-      "step=#{params[:step].presence || 'data'} format=#{(params.dig(:championship, :format)&.to_unsafe_h || {}).inspect} " \
+      "step=#{params[:step].presence || params[:current_step].presence || 'data'} format=#{(params.dig(:championship, :format)&.to_unsafe_h || {}).inspect} " \
       "scoring=#{(params.dig(:championship, :scoring)&.to_unsafe_h || {}).inspect}"
     )
 
@@ -238,7 +240,7 @@ class ChampionshipsController < ApplicationController
 
       return head :no_content if autosave_request?
 
-      redirect_to setup_championship_path(@championship, step: params[:step].presence || "data"), notice: "Campeonato atualizado."
+      redirect_to setup_championship_path(@championship, step: params[:step].presence || params[:current_step].presence || "data"), notice: "Campeonato atualizado."
     else
       Rails.logger.warn(
         "[championships#update] failed id=#{@championship.id} errors=#{@championship.errors.full_messages.join(' | ')} " \
@@ -246,7 +248,7 @@ class ChampionshipsController < ApplicationController
       )
 
       load_championship_setup
-      @step = params[:step].presence_in(%w[data format registrations teams]) || "data"
+      @step = params[:step].presence_in(%w[data format registrations teams publish]) || params[:current_step].presence_in(%w[data format registrations teams publish]) || "data"
       return head :unprocessable_entity if autosave_request?
 
       render :setup, status: :unprocessable_entity
@@ -257,10 +259,11 @@ class ChampionshipsController < ApplicationController
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
 
+    @championship.ensure_tranca_onboarding_category! if @championship.tranca?
     @championship.update!(status: :em_andamento)
-    redirect_to championship_path(@championship), notice: "Onboarding concluído."
+    redirect_back fallback_location: championship_path(@championship), notice: "Onboarding concluído."
   rescue ActiveRecord::RecordInvalid => e
-    redirect_to setup_championship_path(@championship, step: "teams"), alert: e.record.errors.full_messages.join(" · ")
+    redirect_to setup_championship_path(@championship, step: "publish"), alert: e.record.errors.full_messages.join(" · ")
   end
 
   def finalize_registrations
@@ -324,12 +327,43 @@ class ChampionshipsController < ApplicationController
     raise ActiveRecord::RecordNotFound, "Equipe inválida" if teams.size != team_ids.size
 
     Team.transaction do
-      teams.each { |team| team.update!(category: category) }
+      teams.each do |team|
+        team.update!(
+          category: category,
+          registration_status: (@championship.tranca? ? :pendente : team.registration_status)
+        )
+      end
     end
 
     redirect_to setup_championship_path(@championship, step: "teams"), notice: "#{teams.size} equipes vinculadas à categoria #{category.name}."
   rescue ActiveRecord::RecordNotFound
     redirect_to setup_championship_path(@championship, step: "teams"), alert: "Equipe ou categoria inválida."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to setup_championship_path(@championship, step: "teams"), alert: e.record.errors.full_messages.join(" · ")
+  end
+
+  def invite_recent_tranca_duplas
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_to setup_championship_path(@championship, step: "teams"), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    team_ids = Array(params[:team_ids]).compact_blank.map(&:to_s)
+    return redirect_to setup_championship_path(@championship, step: "teams"), alert: "Selecione ao menos uma dupla para convidar." if team_ids.blank?
+
+    recent_teams = recent_tranca_source_teams
+    teams_to_invite = recent_teams.select { |team| team_ids.include?(team.id.to_s) }
+    return redirect_to setup_championship_path(@championship, step: "teams"), alert: "As duplas selecionadas não estão disponíveis para convite." if teams_to_invite.blank?
+
+    invited_count = @championship.invite_selected_tranca_duplas!(teams_to_invite)
+    category = @championship.ensure_tranca_onboarding_category!
+
+    notice = if invited_count.positive?
+      "#{invited_count} duplas convidadas para a categoria #{category.name}."
+    else
+      "Nenhuma dupla recente encontrada para convidar."
+    end
+
+    redirect_to setup_championship_path(@championship, step: "teams"), notice: notice
   rescue ActiveRecord::RecordInvalid => e
     redirect_to setup_championship_path(@championship, step: "teams"), alert: e.record.errors.full_messages.join(" · ")
   end
@@ -383,7 +417,11 @@ class ChampionshipsController < ApplicationController
       standing_rows: :team,
       partners: :category
     ).find(@championship.id)
-    @available_teams = Team.includes(:entity, :category).order(:name)
+    @available_teams = if @championship.tranca?
+      Team.for_championship(@championship).includes(:entity, :category).order(:name)
+    else
+      Team.includes(:entity, :category).order(:name)
+    end
     @recent_matches = @championship.recent_matches(8)
     @top_scorers = @championship.top_scorers(5)
     @best_defense_row = @championship.best_defense_row
@@ -399,15 +437,27 @@ class ChampionshipsController < ApplicationController
   def load_tranca_overview
     load_tranca_management
     @tranca_round_label = @tranca_rodadas.first&.label || "Rodada inicial"
+    @tranca_recent_duplas = @championship.tranca_duplas.includes(:entity, :category).order(created_at: :desc).limit(3)
+    @tranca_signed_up_dupla = params[:signup_team].present? ? @championship.tranca_duplas.includes(:entity, :category).find_by(source_id: params[:signup_team]) : nil
   end
 
   def load_championship_setup
     @championship = Championship.includes(categories: %i[teams championships]).find(@championship.id)
-    @step = params[:step].presence_in(%w[data format registrations teams]) || "data"
+    @step = params[:step].presence_in(%w[data format registrations teams publish]) || "data"
+    if @championship.tranca? && @step == "teams"
+      @tranca_onboarding_category = @championship.ensure_tranca_onboarding_category!
+      @recent_tranca_championships = @championship.recent_tranca_championships
+      @recent_tranca_source_teams = recent_tranca_source_teams
+      @championship = @championship.reload
+    end
     @available_teams_by_category = Team.includes(:entity, :category).where(category: @championship.categories).order(:name).group_by(&:category_id)
     @available_teams_to_link = Team.includes(:entity, :category).where.not(category_id: @championship.categories.select(:id)).order(:name)
     @championship_categories = @championship.categories.includes(:championships, :teams).order(:name)
     @available_categories_to_link = Category.includes(:championships, :teams).where.not(id: @championship.categories.select(:id)).order(:name)
+    @highlight_category_id = params[:highlight_category_id].presence&.to_i
+    if @highlight_category_id.present?
+      @available_categories_to_link = @available_categories_to_link.sort_by { |category| [ category.id == @highlight_category_id ? 0 : 1, category.name.to_s.downcase ] }
+    end
     @venues = @championship.venues.order(:name)
     @referees = @championship.referees.order(:name)
     @available_venues = Venue.available.order(:name)
@@ -428,6 +478,7 @@ class ChampionshipsController < ApplicationController
     @championship = dashboard.championship
     @tranca_dashboard = dashboard
     @tranca_categories = dashboard.categories
+    @tranca_default_category = @tranca_categories.first
     @tranca_entities = dashboard.entities
     @tranca_duplas = dashboard.duplas
     @tranca_duplas_by_category = dashboard.duplas_by_category
@@ -439,14 +490,35 @@ class ChampionshipsController < ApplicationController
     @tranca_standing_groups = dashboard.standings_groups
     @tranca_standings = dashboard.classificacao_rows
     @tranca_total_duplas = dashboard.total_duplas
+    @tranca_admin_teams = Team.for_championship(@championship).includes(:entity, :category).order(created_at: :desc)
     @tranca_total_partidas = dashboard.total_partidas
     @tranca_total_rodadas = dashboard.total_rodadas
     @tranca_total_classificados = dashboard.total_classificados
     @tranca_next_round_number = @tranca_rodadas.select(&:classificatoria?).map(&:round_number).max.to_i + 1
     @tranca_next_knockout_round_number = @tranca_rodadas.select(&:mata_mata?).map(&:round_number).max.to_i + 1
+    @tranca_classificatoria_esgotada = !Tranca::CompetitionFlow.new(@championship).classificatoria_pairings_available?(round_number: @tranca_next_round_number)
     @tranca_knockout_rounds = dashboard.knockout_rounds
+    @tranca_mata_mata_encerrado = Tranca::CompetitionFlow.new(@championship).knockout_finished?
+    @tranca_championship_winners = dashboard.championship_winners
     @tranca_knockout_partidas = dashboard.knockout_partidas
     @tranca_stats = dashboard.stats
+    @tranca_recent_duplas = @championship.tranca_duplas.includes(:entity, :category).order(created_at: :desc).limit(3)
+  end
+
+  def recent_tranca_source_teams
+    @recent_tranca_source_teams ||= @championship.recent_tranca_championships.flat_map do |source_championship|
+      source_championship.categories.includes(:championships, teams: :athletes).order(:name).flat_map do |category|
+        category.teams.includes(:entity, :athletes).order(:name).map do |team|
+          tranca_dupla = Tranca::Dupla.find_by(source_id: team.source_id)
+          next if tranca_dupla.blank? || !tranca_dupla.status_ativo? || @championship.tranca_duplas.exists?(source_id: tranca_dupla.source_id)
+
+          team.define_singleton_method(:source_championship) { source_championship }
+          team.define_singleton_method(:source_category) { category }
+          team.define_singleton_method(:tranca_dupla) { tranca_dupla }
+          team
+        end
+      end
+    end.compact
   end
 
   def next_tranca_round_number(phase)

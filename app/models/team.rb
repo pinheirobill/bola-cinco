@@ -65,6 +65,41 @@ class Team < ApplicationRecord
     category&.championship || category&.championships&.first
   end
 
+  def tranca_signup_origin
+    return nil unless championship&.tranca?
+
+    source_id.to_s.start_with?("tranca-invite-") ? :invited : :public_signup
+  end
+
+  def tranca_signup_origin_label
+    case tranca_signup_origin
+    when :invited
+      "Convidada"
+    when :public_signup
+      "Auto cadastro"
+    end
+  end
+
+  def tranca_signup_origin_detail
+    case tranca_signup_origin
+    when :invited
+      "Veio de um convite do campeonato"
+    when :public_signup
+      "Veio do formulário público"
+    end
+  end
+
+  def tranca_signup_origin_badge_class
+    case tranca_signup_origin
+    when :invited
+      "badge-info"
+    when :public_signup
+      "badge-neutral"
+    else
+      "badge-outline"
+    end
+  end
+
   private
 
   def sync_tranca_mirror!
@@ -82,6 +117,7 @@ class Team < ApplicationRecord
       entity: entity,
       name: name,
       short_name: short_name,
+      status: :ativo,
       registration_status: registration_status
     )
     tranca_dupla.save!

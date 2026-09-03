@@ -15,7 +15,10 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :categories, only: %i[index show]
+  resources :categories, only: %i[index show update]
+  resources :categories, only: [] do
+    post :duplicate, on: :member, path: "duplicar"
+  end
   resources :entities, only: %i[index show]
   resources :teams, only: %i[index show create update destroy] do
     resources :team_memberships, only: %i[index create]
@@ -47,6 +50,7 @@ Rails.application.routes.draw do
     patch :attach_category, on: :member, path: "vincular-categoria"
     patch :detach_category, on: :member, path: "remover-categoria"
     post :draw_knockout_round, on: :member, path: "sortear-primeira-rodada"
+    post :invite_recent_tranca_duplas, on: :member, path: "tranca/convidar-duplas"
     patch :attach_team, on: :member, path: "vincular-time"
     patch :confirm_all_team_registrations, on: :member, path: "confirmar-todas-inscricoes"
     patch :attach_partner, on: :member, path: "vincular-parceiro"

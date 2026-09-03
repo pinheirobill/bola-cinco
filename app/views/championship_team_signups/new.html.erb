@@ -1,10 +1,24 @@
-<% content_for :title, "Inscrição de equipes | Bola Cinco" %>
+<% content_for :title, "#{@championship.name} | #{@signup_title} | Bola Cinco" %>
 
-<%= page_header(
-  title: "Inscrição de equipes",
-  subtitle: @championship.name,
-  badge: "Público"
-) %>
+<script>
+  if (!window.__championshipSignupVisitPinged) {
+    window.__championshipSignupVisitPinged = true;
+    const token = document.querySelector('meta[name="csrf-token"]')?.content;
+
+    if (token) {
+      fetch("<%= championship_team_signup_path(@championship) %>", {
+        method: "POST",
+        headers: {
+          "X-CSRF-Token": token,
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+        },
+        body: "visit_only=1",
+        credentials: "same-origin",
+        keepalive: true
+      }).catch(() => {});
+    }
+  }
+</script>
 
 <% if @team&.errors&.any? %>
   <div class="alert alert-error shadow-sm">
@@ -12,15 +26,195 @@
   </div>
 <% end %>
 
-<section class="grid gap-6">
-  <%= surface_card(title: "Ficha de inscrição", subtitle: "Selecione um time já cadastrado para vincular ao campeonato.") do %>
-    <%= render "form",
-      championship: @championship,
-      teams: @teams,
-      categories: @categories,
-      team: @team,
-      selected_category: @category,
-      back_link_path: championship_path(@championship),
-      back_link_label: "Voltar" %>
+<% registration_start = @championship.registration_start&.strftime("%d/%m/%Y") || "A definir" %>
+<% registration_end = @championship.registration_end&.strftime("%d/%m/%Y") || "A definir" %>
+<% championship_start = @championship.start_date&.strftime("%d/%m/%Y") || "A definir" %>
+<% championship_end = @championship.end_date&.strftime("%d/%m/%Y") || "A definir" %>
+
+<div class="space-y-8">
+  <section class="relative overflow-hidden rounded-[2rem] border border-base-300 bg-base-100 shadow-sm">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.16),transparent_25%),radial-gradient(circle_at_bottom_right,rgba(234,179,8,0.10),transparent_28%)]"></div>
+    <div class="relative grid gap-8 p-6 md:p-10 xl:grid-cols-[1.15fr_0.85fr]">
+      <div class="space-y-6">
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="badge badge-outline">Público</span>
+          <span class="badge badge-ghost"><%= @championship.modality_label %></span>
+          <span class="badge badge-ghost"><%= @championship.status.to_s.tr("_", " ").humanize %></span>
+        </div>
+
+        <div class="space-y-4">
+          <p class="text-xs uppercase tracking-[0.35em] text-base-content/50">Campeonato</p>
+          <h1 class="max-w-3xl text-4xl font-black tracking-tight md:text-6xl">
+            <%= @signup_title %>
+          </h1>
+          <p class="max-w-3xl text-base leading-7 text-base-content/70 md:text-lg">
+            <%= @signup_intro %>
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <a href="#formulario" class="btn btn-primary">Quero participar</a>
+          <a href="#informacoes" class="btn btn-outline">Ver informações</a>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4 backdrop-blur">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Categoria(s)</p>
+            <p class="mt-2 text-2xl font-black"><%= @categories.size %></p>
+            <p class="text-xs text-base-content/60">Abre espaço para novos confrontos</p>
+          </div>
+          <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4 backdrop-blur">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/40"><%= @signup_subject.titleize %></p>
+            <p class="mt-2 text-2xl font-black"><%= @teams.size %></p>
+            <p class="text-xs text-base-content/60">Já cadastradas no campeonato</p>
+          </div>
+          <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4 backdrop-blur">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Formato</p>
+            <p class="mt-2 text-2xl font-black"><%= @championship.competition_mode_label %></p>
+            <p class="text-xs text-base-content/60"><%= @championship.matches_per_opponent_label %></p>
+          </div>
+          <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4 backdrop-blur">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Desempate</p>
+            <p class="mt-2 text-lg font-bold"><%= @championship.tiebreaker_labels.first || "A definir" %></p>
+            <p class="text-xs text-base-content/60"><%= @championship.tiebreaker_labels.drop(1).join(" · ").presence || "Sem regras adicionais" %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="rounded-[1.75rem] border border-base-300 bg-base-100/90 p-5 shadow-sm backdrop-blur">
+          <p class="text-xs uppercase tracking-[0.35em] text-base-content/50">Calendário</p>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <div class="rounded-2xl bg-base-200 p-4">
+              <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Inscrições abrem</p>
+              <p class="mt-2 text-lg font-semibold"><%= registration_start %></p>
+            </div>
+            <div class="rounded-2xl bg-base-200 p-4">
+              <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Inscrições fecham</p>
+              <p class="mt-2 text-lg font-semibold"><%= registration_end %></p>
+            </div>
+            <div class="rounded-2xl bg-base-200 p-4">
+              <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Início previsto</p>
+              <p class="mt-2 text-lg font-semibold"><%= championship_start %></p>
+            </div>
+            <div class="rounded-2xl bg-base-200 p-4">
+              <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Fim previsto</p>
+              <p class="mt-2 text-lg font-semibold"><%= championship_end %></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-[1.75rem] border border-base-300 bg-base-100/90 p-5 shadow-sm backdrop-blur">
+          <p class="text-xs uppercase tracking-[0.35em] text-base-content/50">Regulamento</p>
+          <div class="mt-4 space-y-3">
+            <div class="rounded-2xl bg-base-200 p-4">
+              <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Regras principais</p>
+              <p class="mt-2 text-sm leading-6 text-base-content/70">
+                <%= @championship.tiebreaker_labels.join(" · ") %>
+              </p>
+            </div>
+            <% if @championship.notes.present? %>
+              <div class="rounded-2xl bg-base-200 p-4">
+                <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Observações</p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-6 text-base-content/70"><%= @championship.notes %></p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="informacoes" class="grid gap-6 xl:grid-cols-3">
+    <%= surface_card(title: "Como funciona", subtitle: "Entenda o fluxo antes de enviar a inscrição.") do %>
+      <ol class="space-y-4 text-sm leading-6 text-base-content/70">
+        <li class="rounded-2xl bg-base-200 p-4">
+          <span class="block text-xs uppercase tracking-[0.25em] text-base-content/40">1. Escolha</span>
+          <span class="mt-2 block font-medium"><%= @championship.tranca? ? "Selecione uma dupla já existente ou crie uma nova." : "Selecione uma equipe já existente ou crie uma nova." %></span>
+        </li>
+        <li class="rounded-2xl bg-base-200 p-4">
+          <span class="block text-xs uppercase tracking-[0.25em] text-base-content/40">2. Complete</span>
+          <span class="mt-2 block font-medium"><%= @championship.tranca? ? "Informe os participantes e, se quiser, deixe a entidade ser criada automaticamente." : "Informe a entidade e o nome da equipe." %></span>
+        </li>
+        <li class="rounded-2xl bg-base-200 p-4">
+          <span class="block text-xs uppercase tracking-[0.25em] text-base-content/40">3. Envie</span>
+          <span class="mt-2 block font-medium">A organização valida a inscrição e a liberação passa a valer no campeonato.</span>
+        </li>
+      </ol>
+    <% end %>
+
+    <%= surface_card(title: "O que o campeonato entrega", subtitle: "O que a pessoa ganha ao se inscrever.") do %>
+      <div class="space-y-3 text-sm leading-6 text-base-content/70">
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="font-medium">Categoria vinculada ao campeonato</p>
+          <p class="mt-1 text-sm text-base-content/60">A inscrição entra no fluxo certo desde o começo.</p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="font-medium"><%= @championship.competition_mode_label %></p>
+          <p class="mt-1 text-sm text-base-content/60">Formato e desempate já ficam claros antes do envio.</p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="font-medium"><%= @championship.modality_label %></p>
+          <p class="mt-1 text-sm text-base-content/60">Tudo alinhado ao tipo de competição do evento.</p>
+        </div>
+      </div>
+    <% end %>
+
+    <%= surface_card(title: "Calendario resumido", subtitle: "Os marcos que importam para participar.") do %>
+      <div class="space-y-3 text-sm leading-6 text-base-content/70">
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Período de inscrição</p>
+          <p class="mt-2 font-medium"><%= registration_start %> até <%= registration_end %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Início</p>
+          <p class="mt-2 font-medium"><%= championship_start %></p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Encerramento</p>
+          <p class="mt-2 font-medium"><%= championship_end %></p>
+        </div>
+      </div>
+    <% end %>
+  </section>
+
+  <% if @featured_teams.any? %>
+    <%= surface_card(
+      title: @championship.tranca? ? "Duplas já inscritas" : "Equipes já inscritas",
+      subtitle: @championship.tranca? ? "Referência visual para quem quer entrar agora." : "Referência visual para quem quer entrar agora."
+    ) do %>
+      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <% @featured_teams.each do |team| %>
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="font-semibold"><%= team.name %></p>
+                <p class="mt-1 text-xs text-base-content/60"><%= team.entity.name %></p>
+              </div>
+              <span class="badge badge-outline"><%= team.registration_status.to_s.humanize %></span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
   <% end %>
-</section>
+
+  <div id="formulario">
+    <%= surface_card(
+      title: "Ficha de inscrição",
+      subtitle: @signup_intro,
+      actions: [link_to("Voltar ao topo", "#", class: "link link-primary")]
+    ) do %>
+      <%= render "form",
+        championship: @championship,
+        teams: @teams,
+        categories: @categories,
+        team: @team,
+        selected_category: @category,
+        signup_mode: @signup_mode,
+        back_link_path: championship_path(@championship),
+        back_link_label: "Voltar",
+        close_on_submit: true %>
+    <% end %>
+  </div>
+</div>

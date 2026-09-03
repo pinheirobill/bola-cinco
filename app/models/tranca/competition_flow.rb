@@ -1,13 +1,43 @@
 module Tranca
   class CompetitionFlow
+    class NoAvailableMatchupsError < StandardError; end
+
     attr_reader :championship
 
     def initialize(championship)
       @championship = championship
     end
 
+    def classificatoria_pairings_available?(round_number:)
+      championship.categories.includes(:teams).any? do |category|
+        pairings_for(category, phase: "classificatoria", round_number: round_number).any?
+      end
+    end
+
+    def knockout_finished?
+      categories_with_knockout_matches = championship.categories.select do |category|
+        championship.tranca_partidas.where(category_id: category.id, phase: "mata_mata").exists?
+      end
+      return false if categories_with_knockout_matches.empty?
+
+      categories_with_knockout_matches.all? do |category|
+        final_round = championship.tranca_rodadas
+          .joins(:partidas)
+          .where(phase: "mata_mata", tranca_partidas: { category_id: category.id })
+          .order(round_number: :desc)
+          .first
+
+        final_round.present? && final_round.partidas.one? && final_round.partidas.all? { |partida| partida.finished? && partida.winner.present? }
+      end
+    end
+
     def generate_round!(phase:, round_number:)
       return generate_knockout_round!(round_number: round_number) if phase.to_s == "mata_mata"
+
+      pairings_by_category = championship.categories.includes(:teams).order(:name).to_h do |category|
+        [ category, pairings_for(category, phase: phase, round_number: round_number) ]
+      end
+      raise NoAvailableMatchupsError if pairings_by_category.values.none?(&:any?)
 
       rodada = championship.tranca_rodadas.find_or_initialize_by(
         phase: phase.to_s,
@@ -21,8 +51,8 @@ module Tranca
       )
       rodada.save!
 
-      championship.categories.includes(:teams).order(:name).each do |category|
-        pairings_for(category).each_with_index do |(dupla_a, dupla_b), index|
+      pairings_by_category.each do |category, pairings|
+        pairings.each_with_index do |(dupla_a, dupla_b), index|
           next if dupla_a.blank? || dupla_b.blank?
 
           partida = championship.tranca_partidas.find_or_initialize_by(
@@ -125,6 +155,7 @@ module Tranca
       partida.update!(attrs)
       rebuild_classificacao!
       advance_knockout_from!(partida) if partida.knockout_phase?
+      championship.update!(status: :finalizado) if knockout_finished?
       partida
     end
 
@@ -311,8 +342,50 @@ module Tranca
       championship.group_stage_and_knockout_mode? ? index < championship.qualified_per_group : nil
     end
 
-    def pairings_for(category)
-      championship.tranca_duplas.where(category_id: category.id).order(:name).to_a.each_slice(2).to_a
+    def pairings_for(category, phase:, round_number:)
+      duplas = championship.tranca_duplas.where(category_id: category.id).order(:name).to_a
+      used_matchups = championship.tranca_partidas
+        .where(category_id: category.id, phase: phase.to_s)
+        .where("round_number < ?", round_number.to_i)
+        .pluck(:dupla_a_id, :dupla_b_id)
+        .each_with_object({}) do |(dupla_a_id, dupla_b_id), matchups|
+          next if dupla_a_id.blank? || dupla_b_id.blank?
+
+          matchups[matchup_key(dupla_a_id, dupla_b_id)] = true
+        end
+
+      pairings = best_pairings(duplas, used_matchups)
+      pairings unless repeated_matchups(pairings, used_matchups).positive?
+    end
+
+    def best_pairings(duplas, used_matchups)
+      return [] if duplas.empty?
+
+      first_dupla = duplas.first
+      opponents = duplas.drop(1)
+      best = best_pairings(opponents, used_matchups)
+
+      opponents.each_with_index do |opponent, index|
+        remaining = opponents[0...index] + opponents[(index + 1)..]
+        candidate = [ [ first_dupla, opponent ] ] + best_pairings(remaining, used_matchups)
+        best = preferred_pairings(candidate, best, used_matchups)
+      end
+
+      best
+    end
+
+    def preferred_pairings(candidate, current, used_matchups)
+      candidate_score = [ repeated_matchups(candidate, used_matchups), -candidate.size ]
+      current_score = [ repeated_matchups(current, used_matchups), -current.size ]
+      (candidate_score <=> current_score) == -1 ? candidate : current
+    end
+
+    def repeated_matchups(pairings, used_matchups)
+      pairings.count { |dupla_a, dupla_b| used_matchups[matchup_key(dupla_a.id, dupla_b.id)] }
+    end
+
+    def matchup_key(dupla_a_id, dupla_b_id)
+      [ dupla_a_id, dupla_b_id ].sort
     end
 
     def round_source_id(phase, round_number)
@@ -445,9 +518,9 @@ module Tranca
     end
 
     def scores_for_partida(partida)
-      return [partida.score_a, partida.score_b] if partida.maos.blank?
+      return [ partida.score_a, partida.score_b ] if partida.maos.blank?
 
-      [partida.maos.sum(:pontos_a).to_i, partida.maos.sum(:pontos_b).to_i]
+      [ partida.maos.sum(:pontos_a).to_i, partida.maos.sum(:pontos_b).to_i ]
     end
 
     def normalize_maos_attributes(maos_attributes)

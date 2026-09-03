@@ -6,75 +6,39 @@
   badge: "Onboarding",
   actions: [
     link_to("Visão geral", championship_path(@championship), class: "btn btn-outline"),
-    link_to("Classificação", standing_rows_path, class: "btn btn-primary"),
-    (user_signed_in? && @championship.rascunho? && @championship.manageable_by?(current_user) ? button_to("Ativar campeonato", finalize_onboarding_championship_path(@championship), method: :patch, class: "btn btn-primary", data: { turbo_confirm: "Ativar este campeonato agora?" }) : nil)
+    link_to("Classificação", standing_rows_path, class: "btn btn-primary")
   ]
 ) %>
-
-<% if @championship.tranca? %>
-  <%= surface_card(
-    title: "Base da Tranca",
-    subtitle: "Esta modalidade já entra com navegação e dashboard próprios; o onboarding detalhado virá nas próximas etapas."
-  ) do %>
-    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Jogadores</p>
-        <p class="mt-2 text-sm text-base-content/70">Estrutura reservada para cadastro individual.</p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Duplas</p>
-        <p class="mt-2 text-sm text-base-content/70">Composição e vínculo das duplas da modalidade.</p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Mesas</p>
-        <p class="mt-2 text-sm text-base-content/70">Mesa, rodada e partidas ficam separadas do futebol.</p>
-      </div>
-    </div>
-  <% end %>
-<% end %>
 
 <% step_labels = if @championship.tranca?
   {
     "data" => "Dados",
     "format" => "Base da Tranca",
-    "registrations" => "Jogadores",
-    "teams" => "Duplas"
+    "registrations" => "Categorias e equipes",
+    "teams" => "Duplas",
+    "publish" => "Ativação"
   }
 else
   {
     "data" => "Dados",
     "format" => "Formato e regras",
     "registrations" => "Inscrições",
-    "teams" => "Equipes"
+    "teams" => "Equipes",
+    "publish" => "Ativação"
   }
 end %>
 
-<%= championship_stepper(@championship, @step, step_labels) %>
+<%= championship_stepper(@championship, @step, step_labels, path_helper: :setup_championship_path) %>
 
 <% if @step == "data" %>
   <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
-    <%= surface_card(title: "Etapa 1. Dados", subtitle: "Atualize nome, temporada, datas e status do campeonato.") do %>
+    <%= surface_card(title: "Etapa 1. Dados", subtitle: "Atualize as datas do campeonato.") do %>
       <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-5", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
-        <%= hidden_field_tag :step, "data" %>
+        <%= hidden_field_tag :current_step, "data" %>
         <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
         <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
 
         <div class="grid gap-4 md:grid-cols-2">
-          <div class="form-control gap-2">
-            <%= label_tag "championship_name", "Nome", class: "label-text font-medium" %>
-            <%= text_field_tag "championship[name]", @championship.name, id: "championship_name", class: "input input-bordered w-full" %>
-          </div>
-
-          <div class="form-control gap-2">
-            <%= label_tag "championship_season", "Temporada", class: "label-text font-medium" %>
-            <%= number_field_tag "championship[season]", @championship.season, id: "championship_season", class: "input input-bordered w-full" %>
-          </div>
-
-          <div class="form-control gap-2">
-            <%= label_tag "championship_status", "Status", class: "label-text font-medium" %>
-            <%= select_tag "championship[status]", options_for_select(Championship.statuses.keys.map { |value| [value.tr("_", " ").humanize, value] }, @championship.status), id: "championship_status", class: "select select-bordered w-full" %>
-          </div>
-
           <div class="form-control gap-2">
             <%= label_tag "championship_registration_start", "Início das inscrições", class: "label-text font-medium" %>
             <%= date_field_tag "championship[registration_start]", @championship.registration_start, id: "championship_registration_start", class: "input input-bordered w-full" %>
@@ -102,7 +66,7 @@ end %>
         </div>
 
         <div class="flex flex-wrap gap-3">
-          <%= link_to "Próxima etapa", setup_championship_path(@championship, step: "format"), class: "btn btn-outline" %>
+          <%= button_tag "Próxima etapa", type: "submit", name: "step", value: "format", class: "btn btn-outline" %>
         </div>
       <% end %>
     <% end %>
@@ -132,21 +96,24 @@ end %>
   else
     "A classificação é feita por pontos dentro de cada chave, com desempates na ordem configurada abaixo."
   end %>
-  <section class="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+  <section class="grid gap-6">
     <%= surface_card(title: "Etapa 2. Formato e regras", subtitle: "Configure o modo de disputa, pontuação e critérios de desempate.") do %>
       <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-6", data: { current_mode: @championship.format_data["mode"], controller: "autosave-form competition-mode", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
-        <%= hidden_field_tag :step, "format" %>
+        <%= hidden_field_tag :current_step, "format" %>
         <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
         <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-          <div class="form-control gap-2 md:col-span-2">
-            <%= label_tag "championship_format_mode", "Modo de disputa", class: "label-text font-medium" %>
+        <div class="space-y-6">
+          <section class="space-y-4 rounded-3xl border border-base-300 bg-base-200/70 p-5">
+            <div>
+              <h3 class="text-lg font-semibold">Modo de disputa</h3>
+              <p class="mt-1 text-sm text-base-content/70">Escolha a estrutura que define como o campeonato será jogado.</p>
+            </div>
             <div class="grid gap-3 lg:grid-cols-3">
               <% [
-                ["pontuacao", "Pontuação por chaves", "Cada chave tem tabela de pontos e desempates. É o formato de fase classificatória tradicional.", "border-amber-500/20 bg-amber-500/10 text-amber-400", "M4 5H20M4 12H20M4 19H20M8 5V19M16 5V19"],
-                ["mata_mata", "Mata-mata eliminatório", "Não usa pontos. Quem perde sai; quem vence avança.", "border-rose-500/20 bg-rose-500/10 text-rose-400", "M6 4V20M6 4H12M6 20H12M18 4V20"],
-                ["grupos_mata_mata", "Fase de grupos + mata-mata", "Os grupos pontuam normalmente e o sistema monta o mata-mata automaticamente ao fim da fase.", "border-emerald-500/20 bg-emerald-500/10 text-emerald-400", "M4 6H20M4 12H20M4 18H20M8 6V18M16 6V18"]
+                ["pontuacao", "Pontuação por chaves", "Cada chave tem tabela de pontos e desempates.", "border-amber-500/20 bg-amber-500/10 text-amber-400", "M4 5H20M4 12H20M4 19H20M8 5V19M16 5V19"],
+                ["mata_mata", "Mata-mata eliminatório", "Não usa pontos. Quem perde sai.", "border-rose-500/20 bg-rose-500/10 text-rose-400", "M6 4V20M6 4H12M6 20H12M18 4V20"],
+                ["grupos_mata_mata", "Fase de grupos + mata-mata", "Os grupos pontuam normalmente e depois viram mata-mata.", "border-emerald-500/20 bg-emerald-500/10 text-emerald-400", "M4 6H20M4 12H20M4 18H20M8 6V18M16 6V18"]
               ].each do |mode_key, title, description, accent_classes, icon_path| %>
                 <button
                   type="submit"
@@ -156,7 +123,7 @@ end %>
                   data-competition-mode-target="optionCard"
                   data-action="click->competition-mode#chooseMode"
                   aria-pressed="<%= @championship.format_data["mode"].to_s == mode_key ? "true" : "false" %>"
-                  class="relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-4 text-left transition hover:border-primary hover:bg-primary/10">
+                  class="flex h-full min-h-[11rem] flex-col justify-between rounded-2xl border border-base-300 bg-base-100 p-4 text-left transition hover:border-primary hover:bg-primary/10">
                     <div class="flex items-start gap-3">
                       <div class="relative shrink-0 rounded-2xl border <%= accent_classes %> p-3">
                         <span data-selected-mark class="<%= @championship.format_data["mode"].to_s == mode_key ? "" : "hidden" %> absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-content">✓</span>
@@ -165,146 +132,121 @@ end %>
                         </svg>
                       </div>
                       <div class="min-w-0 flex-1">
-                        <p class="min-w-0 font-semibold leading-tight"><%= title %></p>
-                        <p class="mt-1 text-sm text-base-content/70"><%= description %></p>
+                        <p class="font-semibold leading-tight"><%= title %></p>
+                        <p class="mt-1 text-sm leading-snug text-base-content/70"><%= description %></p>
                       </div>
                     </div>
                 </button>
               <% end %>
             </div>
             <p class="text-xs text-base-content/60">Escolha o formato clicando em um card. O sistema ajusta a pontuação e a classificação de acordo com o modo.</p>
-          </div>
+          </section>
 
-          <div class="form-control gap-2">
-            <%= label_tag "championship_format_team_count", "Quantidade de equipes", class: "label-text font-medium" %>
-            <%= number_field_tag "championship[format][teamCount]", @championship.format_data["teamCount"], id: "championship_format_team_count", class: "input input-bordered w-full" %>
-          </div>
+          <section class="space-y-4 rounded-3xl border border-base-300 bg-base-200/70 p-5">
+            <div>
+              <h3 class="text-lg font-semibold">Configuração básica</h3>
+              <p class="mt-1 text-sm text-base-content/70">Campos essenciais do formato, organizados para leitura rápida.</p>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <div class="form-control gap-2">
+                <%= label_tag "championship_format_team_count", "Quantidade de equipes", class: "label-text font-medium" %>
+                <%= number_field_tag "championship[format][teamCount]", @championship.format_data["teamCount"], id: "championship_format_team_count", class: "input input-bordered w-full" %>
+              </div>
 
-          <div data-competition-mode-target="groupCountField" class="<%= selected_mode == "mata_mata" ? "hidden" : "" %> form-control gap-2">
-            <%= label_tag "championship_format_group_count", "Quantidade de chaves", class: "label-text font-medium" %>
-            <%= number_field_tag "championship[format][groupCount]", @championship.format_data["groupCount"], id: "championship_format_group_count", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
-          </div>
+              <div data-competition-mode-target="groupCountField" class="<%= selected_mode == "mata_mata" ? "hidden" : "" %> form-control gap-2">
+                <%= label_tag "championship_format_group_count", "Quantidade de chaves", class: "label-text font-medium" %>
+                <%= number_field_tag "championship[format][groupCount]", @championship.format_data["groupCount"], id: "championship_format_group_count", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
+              </div>
 
-          <div data-competition-mode-target="matchesPerOpponentField" class="<%= selected_mode == "mata_mata" ? "hidden" : "" %> form-control gap-2">
-            <%= label_tag "championship_format_matches_per_opponent", "Quantas vezes cada time joga contra o outro", class: "label-text font-medium" %>
-            <%= number_field_tag "championship[format][matchesPerOpponent]", @championship.format_data["matchesPerOpponent"], id: "championship_format_matches_per_opponent", min: 1, step: 1, class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
-            <p class="text-xs text-base-content/60">Ex.: 1 vez na fase classificatória; 2 vezes em ida e volta.</p>
-          </div>
+              <div data-competition-mode-target="matchesPerOpponentField" class="<%= selected_mode == "mata_mata" ? "hidden" : "" %> form-control gap-2">
+                <%= label_tag "championship_format_matches_per_opponent", "Jogos por confronto", class: "label-text font-medium" %>
+                <%= number_field_tag "championship[format][matchesPerOpponent]", @championship.format_data["matchesPerOpponent"], id: "championship_format_matches_per_opponent", min: 1, step: 1, class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
+                <p class="text-xs text-base-content/60">Ex.: 1 vez na fase classificatória; 2 vezes em ida e volta.</p>
+              </div>
 
-          <div data-competition-mode-target="qualifiedField" class="<%= selected_mode == "grupos_mata_mata" ? "" : "hidden" %> form-control gap-2">
-            <%= label_tag "championship_scoring_qualified_per_group", "Classificados por chave", class: "label-text font-medium" %>
-            <%= number_field_tag "championship[scoring][qualifiedPerGroup]", @championship.scoring_data["qualifiedPerGroup"], id: "championship_scoring_qualified_per_group", class: "input input-bordered w-full", disabled: selected_mode != "grupos_mata_mata" %>
-            <p class="text-xs text-base-content/60">Usado somente em fase de grupos + mata-mata. Ex.: 2 faz os dois melhores de cada chave avançarem.</p>
-          </div>
+              <div data-competition-mode-target="qualifiedField" class="<%= selected_mode == "grupos_mata_mata" ? "" : "hidden" %> form-control gap-2">
+                <%= label_tag "championship_scoring_qualified_per_group", "Classificados por chave", class: "label-text font-medium" %>
+                <%= number_field_tag "championship[scoring][qualifiedPerGroup]", @championship.scoring_data["qualifiedPerGroup"], id: "championship_scoring_qualified_per_group", class: "input input-bordered w-full", disabled: selected_mode != "grupos_mata_mata" %>
+                <p class="text-xs text-base-content/60">Usado somente em fase de grupos + mata-mata. Ex.: 2 faz os dois melhores de cada chave avançarem.</p>
+              </div>
+            </div>
+          </section>
 
-          <div data-competition-mode-target="pointsFields" class="<%= selected_mode == "mata_mata" ? "hidden " : "" %>grid gap-4 md:col-span-2 md:grid-cols-2">
-            <div class="form-control gap-2">
-              <%= label_tag "championship_scoring_win", "Vitória", class: "label-text font-medium" %>
-              <%= number_field_tag "championship[scoring][win]", @championship.scoring_data["win"], id: "championship_scoring_win", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
+          <section class="space-y-4 rounded-3xl border border-base-300 bg-base-200/70 p-5">
+            <div>
+              <h3 class="text-lg font-semibold">Regras de pontuação</h3>
+              <p class="mt-1 text-sm text-base-content/70">A pontuação pode aparecer ou não conforme o modo. Os critérios de desempate ficam compactos abaixo.</p>
             </div>
 
-            <div class="form-control gap-2">
-              <%= label_tag "championship_scoring_draw", "Empate", class: "label-text font-medium" %>
-              <%= number_field_tag "championship[scoring][draw]", @championship.scoring_data["draw"], id: "championship_scoring_draw", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
+            <div data-competition-mode-target="pointsFields" class="<%= selected_mode == "mata_mata" ? "hidden" : "" %> grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <div class="form-control gap-2">
+                <%= label_tag "championship_scoring_win", "Vitória", class: "label-text font-medium" %>
+                <%= number_field_tag "championship[scoring][win]", @championship.scoring_data["win"], id: "championship_scoring_win", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
+              </div>
+
+              <div class="form-control gap-2">
+                <%= label_tag "championship_scoring_draw", "Empate", class: "label-text font-medium" %>
+                <%= number_field_tag "championship[scoring][draw]", @championship.scoring_data["draw"], id: "championship_scoring_draw", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
+              </div>
+
+              <div class="form-control gap-2">
+                <%= label_tag "championship_scoring_loss", "Derrota", class: "label-text font-medium" %>
+                <%= number_field_tag "championship[scoring][loss]", @championship.scoring_data["loss"], id: "championship_scoring_loss", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
+              </div>
+
+              <div class="form-control gap-2">
+                <%= label_tag "championship_scoring_wo", "W.O. da equipe ausente", class: "label-text font-medium" %>
+                <%= number_field_tag "championship[scoring][wo]", @championship.scoring_data["wo"], id: "championship_scoring_wo", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
+              </div>
+
+              <div class="form-control gap-2 xl:col-span-1">
+                <%= label_tag "championship_scoring_woScore", "Placar do W.O.", class: "label-text font-medium" %>
+                <%= number_field_tag "championship[scoring][woScore]", @championship.scoring_data["woScore"], id: "championship_scoring_woScore", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
+              </div>
             </div>
 
-            <div class="form-control gap-2">
-              <%= label_tag "championship_scoring_loss", "Derrota", class: "label-text font-medium" %>
-              <%= number_field_tag "championship[scoring][loss]", @championship.scoring_data["loss"], id: "championship_scoring_loss", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
-            </div>
-
-            <div class="form-control gap-2">
-              <%= label_tag "championship_scoring_wo", "W.O. da equipe ausente", class: "label-text font-medium" %>
-              <%= number_field_tag "championship[scoring][wo]", @championship.scoring_data["wo"], id: "championship_scoring_wo", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
-            </div>
-
-            <div class="form-control gap-2">
-              <%= label_tag "championship_scoring_woScore", "Placar do W.O.", class: "label-text font-medium" %>
-              <%= number_field_tag "championship[scoring][woScore]", @championship.scoring_data["woScore"], id: "championship_scoring_woScore", class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
-            </div>
-          </div>
-
-          <div data-competition-mode-target="tiebreakersField" class="<%= selected_mode == "mata_mata" ? "hidden " : "" %> md:col-span-2">
-          <div class="mb-3 flex items-center justify-between">
-            <h3 class="font-semibold">Critérios de desempate</h3>
-            <span class="text-sm text-base-content/60">Ordem configurável por campeonato</span>
-          </div>
-          <div class="grid gap-3 md:grid-cols-2">
-            <% @championship.tiebreakers.each do |key| %>
-              <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
-                <%= check_box_tag "championship[scoring][tiebreakers][]", key, true, class: "checkbox checkbox-primary" %>
-                <span><%= Championship::TIEBREAKER_OPTIONS[key] || key.humanize %></span>
-              </label>
+            <% unless @championship.tranca? %>
+              <div data-competition-mode-target="tiebreakersField" class="<%= selected_mode == "mata_mata" ? "hidden" : "" %>">
+                <div class="mb-3 flex items-center justify-between gap-4">
+                  <h4 class="font-semibold">Critérios de desempate</h4>
+                  <span class="text-sm text-base-content/60">Ordem configurável por campeonato</span>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  <% @championship.tiebreakers.each do |key| %>
+                    <label class="flex min-h-[3.25rem] items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
+                      <%= check_box_tag "championship[scoring][tiebreakers][]", key, true, class: "checkbox checkbox-primary" %>
+                      <span class="text-sm leading-snug"><%= Championship::TIEBREAKER_OPTIONS[key] || key.humanize %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </div>
             <% end %>
-          </div>
-        </div>
+          </section>
 
-        <div class="flex flex-wrap gap-3">
-          <%= link_to "Voltar", setup_championship_path(@championship, step: "data"), class: "btn btn-outline" %>
-          <%= link_to "Próxima etapa", setup_championship_path(@championship, step: "teams"), class: "btn btn-outline" %>
+          <div class="flex flex-wrap justify-end gap-3">
+            <%= button_tag "Voltar", type: "submit", name: "step", value: "data", class: "btn btn-outline" %>
+            <%= button_tag "Próxima etapa", type: "submit", name: "step", value: "registrations", class: "btn btn-outline" %>
+          </div>
         </div>
       <% end %>
     <% end %>
 
-    <div class="space-y-4">
-      <%= surface_card(title: "Regra aplicada") do %>
-        <div class="space-y-3 text-sm text-base-content/70">
-          <p><%= mode_explanation %></p>
-          <div class="rounded-2xl bg-base-200 p-4">
-            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Modo atual</p>
-            <p class="mt-2 text-lg font-semibold text-base-content"><%= @championship.competition_mode_label %></p>
-          </div>
-
-          <div class="rounded-2xl bg-base-200 p-4">
-            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Confrontos por adversário</p>
-            <p class="mt-2 text-lg font-semibold text-base-content"><%= @championship.matches_per_opponent_label %></p>
-          </div>
-
-          <div data-competition-mode-target="knockoutSummary" class="<%= @championship.knockout_only_mode? ? "" : "hidden" %> rounded-2xl border border-base-300 bg-base-200 p-4">
-            <p class="font-semibold text-base-content">Mata-mata sem pontuação</p>
-            <p class="mt-1">Não existe tabela de classificação aqui. O vencedor da partida avança diretamente.</p>
-          </div>
-
-          <div class="<%= @championship.knockout_only_mode? ? "hidden" : "" %> space-y-3">
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-              <p class="font-semibold text-base-content">Pontuação por chaves</p>
-              <p class="mt-1">Os pontos desta configuração alimentam a classificação e os critérios de desempate.</p>
-            </div>
-
-            <div data-competition-mode-target="groupKnockoutSummary" class="<%= @championship.group_stage_and_knockout_mode? ? "" : "hidden" %> rounded-2xl border border-success/30 bg-success/10 p-4 text-success-content">
-              <p class="font-semibold">Fase de grupos + mata-mata ativada</p>
-              <p class="mt-1">Com <strong><%= @championship.qualified_per_group %> classificados por chave</strong>, o sistema monta automaticamente os cruzamentos do mata-mata depois que a fase de grupos termina.</p>
-            </div>
-          </div>
-        </div>
-      <% end %>
-
-      <%= surface_card(title: "Pontuação e desempate") do %>
-        <div data-competition-mode-target="pointsSummary" class="<%= @championship.knockout_only_mode? ? "hidden" : "" %> space-y-2 text-sm text-base-content/70">
-          <p>Vitória: <strong><%= @championship.scoring_data["win"] %></strong></p>
-          <p>Empate: <strong><%= @championship.scoring_data["draw"] %></strong></p>
-          <p>Derrota: <strong><%= @championship.scoring_data["loss"] %></strong></p>
-          <p>W.O.: <strong><%= @championship.scoring_data["wo"] %></strong> e placar <strong><%= @championship.scoring_data["woScore"] %>x0</strong></p>
-          <p>Desempates: <strong><%= @championship.tiebreaker_labels.join(" → ") %></strong></p>
-        </div>
-        <div data-competition-mode-target="knockoutSummary" class="<%= @championship.knockout_only_mode? ? "" : "hidden" %> space-y-2 text-sm text-base-content/70">
-          <p>Esse modo não usa pontuação nem tabela classificatória.</p>
-          <p>O resultado da partida decide quem continua no campeonato.</p>
-        </div>
-      <% end %>
-    </div>
   </section>
 <% elsif @step == "registrations" %>
+  <% tranca_setup = @championship.tranca? %>
   <section class="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
-    <%= surface_card(title: "Configurar inscrições", subtitle: "Defina os limites e o que os técnicos podem fazer no painel do time.") do %>
+    <%= surface_card(
+      title: tranca_setup ? "Configurar duplas" : "Configurar inscrições",
+      subtitle: tranca_setup ? "Defina os limites e o que os técnicos podem fazer no painel da dupla." : "Defina os limites e o que os técnicos podem fazer no painel do time."
+    ) do %>
       <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-6", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
-        <%= hidden_field_tag :step, "registrations" %>
+        <%= hidden_field_tag :current_step, "registrations" %>
         <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
         <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
 
         <div class="grid gap-4 md:grid-cols-2">
           <div class="form-control gap-2">
-            <%= label_tag "championship_rules_registration_max_athletes_per_team", "Máximo de atletas por time", class: "label-text font-medium" %>
+            <%= label_tag "championship_rules_registration_max_athletes_per_team", tranca_setup ? "Máximo de integrantes por dupla" : "Máximo de atletas por time", class: "label-text font-medium" %>
             <%= number_field_tag "championship[rules][registration][max_athletes_per_team]", @championship.max_athletes_per_team, id: "championship_rules_registration_max_athletes_per_team", class: "input input-bordered w-full" %>
           </div>
 
@@ -314,28 +256,30 @@ end %>
           </div>
         </div>
 
-        <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
-          <h3 class="text-lg font-bold">Inscrições de atletas pelos técnicos</h3>
-          <p class="mt-1 text-sm text-base-content/70">Habilite o que os técnicos podem fazer pelo painel do time dele.</p>
+        <% unless tranca_setup %>
+          <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
+            <h3 class="text-lg font-bold">Inscrições de atletas pelos técnicos</h3>
+            <p class="mt-1 text-sm text-base-content/70">Habilite o que os técnicos podem fazer pelo painel do time dele.</p>
 
-          <div class="mt-4 grid gap-3 md:grid-cols-3">
-            <% [
-              ["allow_register", "Permitir inscrição de atletas"],
-              ["allow_edit", "Permitir edição de atletas"],
-              ["allow_remove", "Permitir remoção de atletas"]
-            ].each do |key, label| %>
-              <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
-                <%= hidden_field_tag "championship[rules][registration][athlete_actions][#{key}]", "0" %>
-                <%= check_box_tag "championship[rules][registration][athlete_actions][#{key}]", "1", @championship.athlete_action_enabled?(key), class: "checkbox checkbox-primary" %>
-                <span><%= label %></span>
-              </label>
-            <% end %>
+            <div class="mt-4 grid gap-3 md:grid-cols-3">
+              <% [
+                ["allow_register", "Permitir inscrição de atletas"],
+                ["allow_edit", "Permitir edição de atletas"],
+                ["allow_remove", "Permitir remoção de atletas"]
+              ].each do |key, label| %>
+                <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
+                  <%= hidden_field_tag "championship[rules][registration][athlete_actions][#{key}]", "0" %>
+                  <%= check_box_tag "championship[rules][registration][athlete_actions][#{key}]", "1", @championship.athlete_action_enabled?(key), class: "checkbox checkbox-primary" %>
+                  <span><%= label %></span>
+                </label>
+              <% end %>
+            </div>
           </div>
-        </div>
+        <% end %>
 
         <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
-          <h3 class="text-lg font-bold">Inscrições de times pelo site do campeonato</h3>
-          <p class="mt-1 text-sm text-base-content/70">Quer receber a inscrição de novos times no seu campeonato?</p>
+          <h3 class="text-lg font-bold"><%= tranca_setup ? "Inscrições de duplas pelo site do campeonato" : "Inscrições de times pelo site do campeonato" %></h3>
+          <p class="mt-1 text-sm text-base-content/70"><%= tranca_setup ? "Quer receber a inscrição de novas duplas no seu campeonato?" : "Quer receber a inscrição de novos times no seu campeonato?" %></p>
           <div class="mt-4">
             <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
               <%= hidden_field_tag "championship[rules][registration][team_signups][enabled]", "0" %>
@@ -345,44 +289,46 @@ end %>
           </div>
         </div>
 
-        <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
-          <h3 class="text-lg font-bold">Ficha de inscrição de atletas</h3>
-          <p class="mt-1 text-sm text-base-content/70">Selecione quais itens devem ser exigidos nas inscrições de atletas.</p>
+        <% unless tranca_setup %>
+          <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
+            <h3 class="text-lg font-bold">Ficha de inscrição de atletas</h3>
+            <p class="mt-1 text-sm text-base-content/70">Selecione quais itens devem ser exigidos nas inscrições de atletas.</p>
 
-          <div class="mt-4 overflow-x-auto">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Informação</th>
-                  <th>Configuração</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% Championship::REGISTRATION_FORM_FIELDS.each do |field_key, field_label| %>
+            <div class="mt-4 overflow-x-auto">
+              <table class="table">
+                <thead>
                   <tr>
-                    <td><%= field_label %></td>
-                    <td>
-                      <%= select_tag "championship[rules][registration][athlete_form][#{field_key}]", options_for_select(Championship::REGISTRATION_REQUIREMENT_OPTIONS.map { |value, label| [label, value] }, @championship.athlete_form_requirement(field_key)), class: "select select-bordered w-full max-w-xs" %>
-                    </td>
+                    <th>Informação</th>
+                    <th>Configuração</th>
                   </tr>
-                <% end %>
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  <% Championship::REGISTRATION_FORM_FIELDS.each do |field_key, field_label| %>
+                    <tr>
+                      <td><%= field_label %></td>
+                      <td>
+                        <%= select_tag "championship[rules][registration][athlete_form][#{field_key}]", options_for_select(Championship::REGISTRATION_REQUIREMENT_OPTIONS.map { |value, label| [label, value] }, @championship.athlete_form_requirement(field_key)), class: "select select-bordered w-full max-w-xs" %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+            <p class="mt-3 text-xs text-base-content/50">Obs: a posição interfere no ranking de atletas.</p>
           </div>
-          <p class="mt-3 text-xs text-base-content/50">Obs: a posição interfere no ranking de atletas.</p>
-        </div>
 
-        <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
-          <h3 class="text-lg font-bold">Súmula impressa</h3>
-          <p class="mt-1 text-sm text-base-content/70">Escolha qual informação do atleta deve aparecer na súmula impressa.</p>
-          <div class="mt-4">
-            <%= select_tag "championship[rules][registration][printed_summary_field]", options_for_select(Championship::PRINTED_SUMMARY_FIELDS.map { |value, label| [label, value] }, @championship.printed_summary_field), class: "select select-bordered w-full max-w-xs" %>
+          <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
+            <h3 class="text-lg font-bold">Súmula impressa</h3>
+            <p class="mt-1 text-sm text-base-content/70">Escolha qual informação do atleta deve aparecer na súmula impressa.</p>
+            <div class="mt-4">
+              <%= select_tag "championship[rules][registration][printed_summary_field]", options_for_select(Championship::PRINTED_SUMMARY_FIELDS.map { |value, label| [label, value] }, @championship.printed_summary_field), class: "select select-bordered w-full max-w-xs" %>
+            </div>
           </div>
-        </div>
+        <% end %>
 
         <div class="flex flex-wrap gap-3">
-          <%= link_to "Voltar", setup_championship_path(@championship, step: "format"), class: "btn btn-outline" %>
-          <%= link_to "Próxima etapa", setup_championship_path(@championship, step: "teams"), class: "btn btn-outline" %>
+          <%= button_tag "Voltar", type: "submit", name: "step", value: "format", class: "btn btn-outline" %>
+          <%= button_tag "Próxima etapa", type: "submit", name: "step", value: "teams", class: "btn btn-outline" %>
         </div>
       <% end %>
     <% end %>
@@ -390,212 +336,297 @@ end %>
     <div class="space-y-4">
       <%= surface_card(title: "Resumo rápido") do %>
         <div class="space-y-2 text-sm text-base-content/70">
-          <p>Atletas por time: <strong><%= @championship.max_athletes_per_team %></strong></p>
+          <p><%= tranca_setup ? "Integrantes por dupla" : "Atletas por time" %>: <strong><%= @championship.max_athletes_per_team %></strong></p>
           <p>Comissão técnica: <strong><%= @championship.max_staff_members_per_team %></strong></p>
-          <p>Time pode se inscrever: <strong><%= @championship.team_signup_enabled? ? "Sim" : "Não" %></strong></p>
-          <p>Súmula impressa: <strong><%= Championship::PRINTED_SUMMARY_FIELDS[@championship.printed_summary_field] || @championship.printed_summary_field.humanize %></strong></p>
+          <p><%= tranca_setup ? "Dupla pode se inscrever" : "Time pode se inscrever" %>: <strong><%= @championship.team_signup_enabled? ? "Sim" : "Não" %></strong></p>
+          <% unless tranca_setup %>
+            <p>Súmula impressa: <strong><%= Championship::PRINTED_SUMMARY_FIELDS[@championship.printed_summary_field] || @championship.printed_summary_field.humanize %></strong></p>
+          <% end %>
         </div>
       <% end %>
 
-      <%= surface_card(title: "Permissões do técnico") do %>
-        <div class="space-y-2 text-sm text-base-content/70">
-          <p>Inscrever atletas: <strong><%= @championship.athlete_action_enabled?("allow_register") ? "Sim" : "Não" %></strong></p>
-          <p>Editar atletas: <strong><%= @championship.athlete_action_enabled?("allow_edit") ? "Sim" : "Não" %></strong></p>
-          <p>Remover atletas: <strong><%= @championship.athlete_action_enabled?("allow_remove") ? "Sim" : "Não" %></strong></p>
-        </div>
+      <% unless tranca_setup %>
+        <%= surface_card(title: "Permissões do técnico") do %>
+          <div class="space-y-2 text-sm text-base-content/70">
+            <p>Inscrever atletas: <strong><%= @championship.athlete_action_enabled?("allow_register") ? "Sim" : "Não" %></strong></p>
+            <p>Editar atletas: <strong><%= @championship.athlete_action_enabled?("allow_edit") ? "Sim" : "Não" %></strong></p>
+            <p>Remover atletas: <strong><%= @championship.athlete_action_enabled?("allow_remove") ? "Sim" : "Não" %></strong></p>
+          </div>
+        <% end %>
       <% end %>
     </div>
   </section>
-<% else %>
-  <% team_signup_public_url = "#{request.base_url}#{new_championship_team_signup_path(@championship)}" %>
-  <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
-    <%= surface_card(
-      title: "Etapa 3. Categorias e equipes",
-      subtitle: "Primeiro vincule categorias reutilizáveis ao campeonato. Depois, se quiser, associe equipes a elas.",
-      actions: [
-        button_tag("Configurar categorias", type: "button", class: "btn btn-outline btn-sm", onclick: "document.getElementById('categories-modal').showModal()"),
-        button_tag("Vincular equipes", type: "button", class: "btn btn-outline btn-sm", onclick: "document.getElementById('teams-modal').showModal()")
-      ]
-    ) do %>
-      <div class="space-y-4">
-        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
-          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Categorias vinculadas</p>
-          <p class="mt-2 text-2xl font-bold"><%= @championship.categories.size %></p>
-          <p class="mt-1 text-sm text-base-content/70">Uma categoria pode aparecer em vários campeonatos. Aqui você só conecta as já existentes.</p>
-        </div>
-
-        <% @championship_categories.each do |category| %>
+<% elsif @step == "teams" %>
+  <section class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+    <% if @championship.tranca? %>
+      <%= surface_card(
+        title: "Etapa 4. Duplas",
+        subtitle: "Deixe esta tela focada só no que ajuda a montar a base da Tranca.",
+        actions: [
+          (@recent_tranca_source_teams.present? ? button_tag(
+            "Selecionar duplas",
+            type: "button",
+            class: "btn btn-primary btn-sm",
+            onclick: "document.getElementById('invite-tranca-duplas-modal').showModal()"
+          ) : nil),
+          link_to("Próxima etapa", setup_championship_path(@championship, step: "publish"), class: "btn btn-outline btn-sm")
+        ].compact
+      ) do %>
+        <% tranca_category = @tranca_onboarding_category || @championship.ensure_tranca_onboarding_category! %>
+        <div class="grid gap-4 md:grid-cols-2">
           <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
-            <div class="flex items-center justify-between gap-4">
-              <div>
-                <h3 class="text-lg font-bold"><%= category.name %></h3>
-                <p class="text-sm text-base-content/70"><%= category.teams.size %> equipes cadastradas · <%= category.championships.size %> campeonatos</p>
-              </div>
-              <%= link_to "Ver categoria", category_path(category), class: "btn btn-ghost btn-sm" %>
-            </div>
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Categoria padrão</p>
+            <p class="mt-2 text-2xl font-bold"><%= tranca_category.name %></p>
+            <p class="mt-1 text-sm text-base-content/70"><%= tranca_category.teams.size %> duplas vinculadas</p>
+          </div>
 
+          <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Histórico recente</p>
+            <% if @recent_tranca_championships.present? %>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <% @recent_tranca_championships.each do |championship| %>
+                  <span class="badge badge-outline"><%= championship.name %> · <%= championship.season %></span>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="mt-2 text-sm text-base-content/70">Nenhum campeonato anterior de Tranca foi encontrado.</p>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%= surface_card(
+        title: "Duplas vinculadas",
+        subtitle: "A lista abaixo mostra o que já está pronto para a categoria padrão."
+      ) do %>
+        <% if @championship_categories.any? %>
+          <div class="space-y-3">
+            <% @championship_categories.each do |category| %>
+              <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 class="text-lg font-bold"><%= category.name %></h3>
+                    <p class="text-sm text-base-content/70"><%= category.teams.size %> duplas · <%= category.championships.size %> campeonato<%= "s" if category.championships.size != 1 %></p>
+                  </div>
+                  <%= link_to "Ver categoria", category_path(category), class: "btn btn-ghost btn-sm" %>
+                </div>
+
+                <% if category.teams.any? %>
+                  <div class="mt-4 space-y-2">
+                    <% category.teams.each do |team| %>
+                      <%= team_card(team, compact: true) %>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <p class="mt-4 text-sm text-base-content/60">Nenhuma dupla vinculada ainda.</p>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <%= empty_state(
+            title: "Nenhuma categoria vinculada",
+            description: "Abra o modal para conectar categorias e depois vincular as duplas."
+          ) %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <%= surface_card(
+        title: "Etapa 4. Equipes",
+        subtitle: "Vincule as categorias e equipes já existentes sem abrir outros blocos desnecessários.",
+        actions: [
+          button_tag("Configurar categorias", type: "button", class: "btn btn-outline btn-sm", onclick: "document.getElementById('categories-modal').showModal()"),
+          button_tag("Vincular equipes", type: "button", class: "btn btn-outline btn-sm", onclick: "document.getElementById('teams-modal').showModal()"),
+          link_to("Próxima etapa", setup_championship_path(@championship, step: "publish"), class: "btn btn-primary btn-sm")
+        ]
+      ) do %>
+        <div class="space-y-4">
+          <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Categorias vinculadas</p>
+            <p class="mt-2 text-2xl font-bold"><%= @championship.categories.size %></p>
+            <p class="mt-1 text-sm text-base-content/70">Uma categoria pode aparecer em vários campeonatos.</p>
+          </div>
+
+          <% @championship_categories.each do |category| %>
+            <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <h3 class="text-lg font-bold"><%= category.name %></h3>
+                  <p class="text-sm text-base-content/70"><%= category.teams.size %> equipes · <%= category.championships.size %> campeonato<%= "s" if category.championships.size != 1 %></p>
+                </div>
+                <%= link_to "Ver categoria", category_path(category), class: "btn btn-ghost btn-sm" %>
+              </div>
+
+              <div class="mt-4 space-y-3">
+                <% category.teams.each do |team| %>
+                  <%= team_card(team, compact: true) %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%= surface_card(title: "Sorteio inicial", subtitle: "Use essa etapa só se o campeonato for mata-mata.") do %>
+        <% if @championship.format_data["mode"].to_s == "mata_mata" %>
+          <% initial_knockout_matches = Array(@initial_knockout_matches) %>
+          <% if initial_knockout_matches.any? %>
+            <p class="text-sm text-base-content/70">A primeira rodada já foi gerada.</p>
             <div class="mt-4 space-y-3">
-              <% category.teams.each do |team| %>
-                <%= team_card(team, compact: true) %>
+              <% initial_knockout_matches.group_by(&:category).each do |category, matches| %>
+                <div class="rounded-2xl bg-base-200 p-4">
+                  <div class="flex items-center justify-between gap-3">
+                    <div>
+                      <p class="font-semibold"><%= category.name %></p>
+                      <p class="text-xs text-base-content/60"><%= matches.size %> jogos</p>
+                    </div>
+                    <span class="badge badge-neutral">Rodada 1</span>
+                  </div>
+                </div>
               <% end %>
             </div>
+          <% else %>
+            <p class="text-sm text-base-content/70">Gere a primeira rodada para fechar o fluxo de setup.</p>
+            <%= button_to "Sortear 1ª rodada", draw_knockout_round_championship_path(@championship), method: :post, class: "btn btn-primary mt-4" %>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-base-content/70">Esse bloco fica desativado em formatos que usam pontuação.</p>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <dialog id="invite-tranca-duplas-modal" class="modal">
+      <div class="modal-box max-w-4xl">
+        <h3 class="text-lg font-bold">Selecionar duplas para convidar</h3>
+        <p class="mt-1 text-sm text-base-content/70">
+          Marque as duplas ativas dos campeonatos recentes que você quer copiar para a categoria padrão deste campeonato.
+        </p>
+
+        <%= form_with url: invite_recent_tranca_duplas_championship_path(@championship), method: :post, class: "mt-6 space-y-4", data: { controller: "invite-tranca-duplas" } do %>
+          <% if @recent_tranca_championships.present? %>
+            <div class="space-y-4">
+              <% @recent_tranca_championships.each do |source_championship| %>
+                <% championship_teams = @recent_tranca_source_teams.select { |team| team.source_championship == source_championship } %>
+                <% next if championship_teams.empty? %>
+                <div class="rounded-3xl border border-base-300 bg-base-200 p-4" data-tranca-duplas-group>
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h4 class="text-base font-semibold"><%= source_championship.name %></h4>
+                      <p class="text-xs text-base-content/60"><%= source_championship.season %> · <%= championship_teams.size %> duplas</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <% if championship_teams.any? %>
+                        <button type="button" class="btn btn-outline btn-xs" data-action="click->invite-tranca-duplas#toggleAll">Selecionar todas</button>
+                      <% end %>
+                      <span class="badge badge-outline"><%= championship_teams.size %></span>
+                    </div>
+                  </div>
+
+                  <div class="mt-4 grid gap-3 md:grid-cols-2">
+                    <% championship_teams.each do |team| %>
+                      <label class="flex items-start gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
+                        <%= check_box_tag "team_ids[]", team.id, false, class: "checkbox checkbox-primary mt-1", data: { invite_tranca_duplas_target: "checkbox" } %>
+                        <div class="min-w-0">
+                          <p class="font-medium"><%= team.name %></p>
+                          <p class="text-xs text-base-content/60"><%= team.source_category.name %> · <%= team.entity&.name || "Sem entidade" %></p>
+                        </div>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="rounded-3xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/70">
+              Nenhuma dupla recente disponível para seleção.
+            </div>
+          <% end %>
+
+          <div class="flex flex-wrap justify-end gap-3 pt-2">
+            <button type="button" class="btn btn-ghost" onclick="document.getElementById('invite-tranca-duplas-modal').close()">Cancelar</button>
+            <%= submit_tag "Convidar selecionadas", class: "btn btn-primary" %>
           </div>
         <% end %>
       </div>
-    <% end %>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
 
-    <div class="space-y-4">
+  </section>
+
+<% elsif @step == "publish" %>
+  <% team_signup_public_url = "#{request.base_url}#{new_championship_team_signup_path(@championship)}" %>
+  <section class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+    <%= surface_card(
+      title: "Etapa 5. Ativação e link público",
+      subtitle: "Conclua o onboarding, copie o link público e acompanhe quantas entradas ele recebeu."
+    ) do %>
+      <div class="grid gap-4 md:grid-cols-3">
+        <div class="rounded-3xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status</p>
+          <p class="mt-2 text-lg font-semibold"><%= @championship.status.titleize %></p>
+        </div>
+        <div class="rounded-3xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Entradas no link</p>
+          <p class="mt-2 text-3xl font-black"><%= @championship.public_signup_visits_total %></p>
+        </div>
+        <div class="rounded-3xl bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Inscrições</p>
+          <p class="mt-2 text-lg font-semibold"><%= @championship.team_signup_open? ? "Abertas" : "Fechadas" %></p>
+        </div>
+      </div>
+
+      <div class="mt-5 flex flex-wrap gap-3">
+        <% if @championship.rascunho? && @championship.manageable_by?(current_user) %>
+          <%= button_to "Ativar campeonato",
+            finalize_onboarding_championship_path(@championship),
+            method: :patch,
+            class: "btn btn-primary",
+            data: { turbo_confirm: "Ativar este campeonato agora?" } %>
+        <% end %>
+        <%= link_to "Ver campeonato", championship_path(@championship), class: "btn btn-outline" %>
+      </div>
+
       <% if @championship.team_signup_open? %>
-        <%= surface_card(title: "Convite público", subtitle: "O perfil técnico vai usar uma URL pública para enviar a inscrição.") do %>
-          <div class="rounded-2xl bg-base-200 p-4 font-mono text-xs break-all">
+        <div class="mt-6 rounded-3xl border border-base-300 bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Link público</p>
+          <div class="mt-2 rounded-2xl bg-base-100 p-4 font-mono text-xs break-all">
             <%= team_signup_public_url %>
           </div>
-          <button
-            class="btn btn-primary btn-sm mt-4"
-            type="button"
-            data-controller="clipboard"
-            data-action="click->clipboard#copy"
-            data-clipboard-value="<%= team_signup_public_url %>">
-            Copiar link
-          </button>
-        <% end %>
-      <% else %>
-        <%= surface_card(title: "Convite público", subtitle: "A inscrição de equipes está fechada.") do %>
-          <div class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/70">
-            Quando as inscrições estiverem abertas, o link público aparecerá aqui.
+          <div class="mt-4 flex flex-wrap gap-3">
+            <button
+              class="btn btn-primary btn-sm"
+              type="button"
+              data-controller="clipboard"
+              data-action="click->clipboard#copy"
+              data-clipboard-value="<%= team_signup_public_url %>">
+              Copiar link
+            </button>
+            <%= link_to "Abrir link", new_championship_team_signup_path(@championship), target: "_blank", rel: "noreferrer", class: "btn btn-outline btn-sm" %>
           </div>
-        <% end %>
-      <% end %>
-
-      <%= surface_card(title: "Sorteio da primeira rodada") do %>
-        <% if @championship.format_data["mode"].to_s == "mata_mata" %>
-          <% initial_knockout_matches = Array(@initial_knockout_matches) %>
-          <% initial_knockout_matches_by_category = Array(@initial_knockout_matches_by_category).presence || initial_knockout_matches.group_by(&:category) %>
-          <% if initial_knockout_matches.any? %>
-            <div class="space-y-4">
-              <div class="rounded-2xl border border-success/30 bg-success/10 p-4">
-                <p class="text-sm font-semibold text-success">Sorteio realizado</p>
-                <p class="mt-1 text-sm text-base-content/70">
-                  A primeira rodada já foi gerada e a chave abaixo reflete os confrontos cadastrados.
-                </p>
-              </div>
-
-              <div class="space-y-4">
-                <% initial_knockout_matches_by_category.each do |category, matches| %>
-                  <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-                    <div class="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Chave</p>
-                        <h4 class="mt-1 text-lg font-bold"><%= category.name %></h4>
-                      </div>
-                      <span class="badge badge-outline"><%= matches.size %> jogos</span>
-                    </div>
-
-                    <div class="mt-4 space-y-3">
-                      <% matches.each do |match| %>
-                        <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-base-100 px-4 py-3">
-                          <div>
-                            <p class="font-semibold"><%= match.code %></p>
-                            <p class="text-sm text-base-content/70">
-                              <%= match.team_a&.name || "-" %> x <%= match.team_b&.name || "-" %>
-                            </p>
-                          </div>
-                          <span class="badge badge-neutral">Rodada 1</span>
-                        </div>
-                      <% end %>
-                    </div>
-                  </div>
-                <% end %>
-              </div>
-
-              <div class="flex flex-wrap gap-3 pt-2">
-                <%= button_to "Finalizar onboarding",
-                  finalize_onboarding_championship_path(@championship),
-                  method: :patch,
-                  class: "btn btn-primary",
-                  data: { turbo_confirm: "Concluir o onboarding deste campeonato?" } %>
-                <%= link_to "Voltar para a visão geral", championship_path(@championship), class: "btn btn-outline" %>
-              </div>
-            </div>
-          <% else %>
-            <div class="space-y-4">
-              <p class="text-sm text-base-content/70">
-                Gere os confrontos iniciais do mata-mata com base nos times já vinculados às categorias.
-              </p>
-              <%= button_to "Sortear 1ª rodada", draw_knockout_round_championship_path(@championship), method: :post, class: "btn btn-primary" %>
-              <p class="text-xs text-base-content/50">
-                O sistema embaralha os times de cada categoria e cria os jogos da primeira fase.
-              </p>
-            </div>
-          <% end %>
-        <% else %>
-          <ul class="space-y-2 text-sm text-base-content/70">
-            <li>Adicionar equipe cadastrada</li>
-            <li>Gerar sorteio automático</li>
-            <li>Bloquear geração até a fase de grupos encerrar</li>
-          </ul>
-        <% end %>
-      <% end %>
-    </div>
-  </section>
-
-  <section class="mt-6 grid gap-6 xl:grid-cols-2">
-    <%= surface_card(
-      title: "Campos",
-      subtitle: "Escolha quais campos fazem parte deste campeonato.",
-      actions: [button_tag("Gerenciar", type: "button", class: "btn btn-outline btn-sm", onclick: "console.debug('[dialog] open venues-modal'); document.getElementById('venues-modal')?.showModal()")]
-    ) do %>
-      <% if @venues.any? %>
-        <div class="space-y-2">
-          <% @venues.each do |venue| %>
-            <div class="flex items-center justify-between rounded-2xl bg-base-200 px-4 py-3">
-              <div>
-                <p class="font-medium"><%= venue.name %></p>
-                <p class="text-xs text-base-content/60"><%= venue.city.presence || "Sem cidade" %></p>
-              </div>
-              <div class="flex items-center gap-3">
-                <%= status_badge(venue.status) %>
-                <%= link_to "Abrir", venue_path(venue), class: "link link-primary" %>
-              </div>
-            </div>
-          <% end %>
         </div>
       <% else %>
-        <%= empty_state(
-          title: "Nenhum campo vinculado",
-          description: "Abra o modal para vincular campos existentes ou criar um novo."
-        ) %>
+        <div class="mt-6 rounded-3xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/70">
+          Abra as inscrições para exibir o link público.
+        </div>
       <% end %>
     <% end %>
 
     <%= surface_card(
-      title: "Árbitros",
-      subtitle: "Escolha quais árbitros fazem parte deste campeonato.",
-      actions: [button_tag("Gerenciar", type: "button", class: "btn btn-outline btn-sm", onclick: "console.debug('[dialog] open referees-modal'); document.getElementById('referees-modal')?.showModal()")]
+      title: "Resumo da publicação",
+      subtitle: "Sinais rápidos para saber se o campeonato já pode ser divulgado."
     ) do %>
-      <% if @referees.any? %>
-        <div class="space-y-2">
-          <% @referees.each do |referee| %>
-            <div class="flex items-center justify-between rounded-2xl bg-base-200 px-4 py-3">
-              <div>
-                <p class="font-medium"><%= referee.name %></p>
-                <p class="text-xs text-base-content/60"><%= referee.email.presence || "Sem contato" %></p>
-              </div>
-              <div class="flex items-center gap-3">
-                <%= status_badge(referee.status) %>
-                <%= link_to "Abrir", referee_path(referee), class: "link link-primary" %>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      <% else %>
-        <%= empty_state(
-          title: "Nenhum árbitro vinculado",
-          description: "Abra o modal para vincular árbitros existentes ou criar um novo."
-        ) %>
-      <% end %>
+      <div class="space-y-3 text-sm text-base-content/70">
+        <p>Status atual: <strong><%= @championship.status.titleize %></strong></p>
+        <p>Link público: <strong><%= @championship.team_signup_open? ? "Disponível" : "Não exibido" %></strong></p>
+        <p>Entradas registradas: <strong><%= @championship.public_signup_visits_total %></strong></p>
+        <p>Campeonato ativo no sistema: <strong><%= @championship.publicly_visible? ? "Sim" : "Não" %></strong></p>
+      </div>
     <% end %>
   </section>
+
+<% end %>
 
   <dialog id="categories-modal" class="modal">
     <div class="modal-box max-w-6xl">
@@ -613,7 +644,10 @@ end %>
                     <p class="font-medium"><%= category.name %></p>
                     <p class="text-xs text-base-content/60"><%= category.gender.present? ? category.gender.titleize : "Sem gênero definido" %> · <%= category.teams.size %> equipes · <%= category.championships.size %> campeonatos</p>
                   </div>
-                  <%= button_to "Remover", detach_category_championship_path(@championship, category_id: category.id), method: :patch, class: "btn btn-outline btn-sm btn-error" %>
+                  <div class="flex flex-col gap-2 sm:flex-row">
+                    <%= button_tag "Duplicar", type: "button", class: "btn btn-outline btn-sm", data: { duplicate_url: duplicate_category_path(category), category_name: category.name }, onclick: "window.BolaCinco.openCategoryDuplicateModal(this.dataset.duplicateUrl, this.dataset.categoryName)" %>
+                    <%= button_to "Remover", detach_category_championship_path(@championship, category_id: category.id), method: :patch, class: "btn btn-outline btn-sm btn-error" %>
+                  </div>
                 </div>
               </div>
             <% end %>
@@ -626,13 +660,22 @@ end %>
           <h4 class="font-semibold">Disponíveis</h4>
           <% if @available_categories_to_link.any? %>
             <% @available_categories_to_link.each do |category| %>
-              <div class="rounded-2xl bg-base-200 p-4">
+              <% highlighted = @highlight_category_id.present? && category.id == @highlight_category_id %>
+              <div class="<%= highlighted ? 'border border-accent/40 bg-accent/10' : 'bg-base-200' %> rounded-2xl p-4">
                 <div class="flex items-start justify-between gap-4">
                   <div>
-                    <p class="font-medium"><%= category.name %></p>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <p class="font-medium"><%= category.name %></p>
+                      <% if highlighted %>
+                        <span class="badge badge-accent badge-outline badge-sm gap-1"><span aria-hidden="true">✦</span>Novo</span>
+                      <% end %>
+                    </div>
                     <p class="text-xs text-base-content/60"><%= category.gender.present? ? category.gender.titleize : "Sem gênero definido" %> · <%= category.teams.size %> equipes · <%= category.championships.size %> campeonatos</p>
                   </div>
-                  <%= button_to "Vincular", attach_category_championship_path(@championship), method: :patch, params: { category_id: category.id }, class: "btn btn-primary btn-sm" %>
+                  <div class="flex flex-col gap-2 sm:flex-row">
+                    <%= button_tag "Duplicar", type: "button", class: "btn btn-outline btn-sm", data: { duplicate_url: duplicate_category_path(category), category_name: category.name }, onclick: "window.BolaCinco.openCategoryDuplicateModal(this.dataset.duplicateUrl, this.dataset.categoryName)" %>
+                    <%= button_to "Vincular", attach_category_championship_path(@championship), method: :patch, params: { category_id: category.id }, class: "btn btn-primary btn-sm" %>
+                  </div>
                 </div>
               </div>
             <% end %>
@@ -645,6 +688,32 @@ end %>
       <div class="mt-6 flex justify-end">
         <button type="button" class="btn btn-ghost" onclick="document.getElementById('categories-modal').close()">Fechar</button>
       </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <dialog id="duplicate-category-modal" class="modal">
+    <div class="modal-box max-w-xl">
+      <h3 class="text-lg font-bold">Duplicar categoria</h3>
+      <p class="mt-1 text-sm text-base-content/70">
+        Defina o novo nome para a cópia de <span id="duplicate-category-source" class="font-semibold">categoria</span>. A duplicata ficará disponível para vinculação, sem entrar automaticamente no campeonato.
+      </p>
+
+      <%= form_with url: "#", method: :post, html: { id: "duplicate-category-form", class: "mt-6 space-y-4" } do %>
+        <%= hidden_field_tag :from_modal, "categories" %>
+
+        <div class="form-control gap-2">
+          <%= label_tag :name, "Novo nome", class: "label-text font-medium" %>
+          <%= text_field_tag :name, nil, id: "duplicate-category-name", class: "input input-bordered w-full", placeholder: "Ex.: 11º TORNEIO DE TRACA E.C. PINHEIROS 2026 - cópia" %>
+        </div>
+
+        <div class="flex flex-wrap justify-end gap-3">
+          <button type="button" class="btn btn-ghost" onclick="document.getElementById('duplicate-category-modal').close()">Cancelar</button>
+          <%= submit_tag "Criar duplicata", class: "btn btn-primary" %>
+        </div>
+      <% end %>
     </div>
     <form method="dialog" class="modal-backdrop">
       <button>close</button>
@@ -849,4 +918,3 @@ end %>
       <button>close</button>
     </form>
   </dialog>
-<% end %>

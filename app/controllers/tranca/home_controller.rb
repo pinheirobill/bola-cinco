@@ -25,6 +25,7 @@ class Tranca::HomeController < ApplicationController
     @upcoming_matches = dashboard.upcoming_partidas
     @knockout_rounds = dashboard.knockout_rounds
     @knockout_partidas = dashboard.knockout_partidas
+    @championship_winners = dashboard.championship_winners
     @stats = dashboard.stats
   end
 end
