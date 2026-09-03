@@ -63,7 +63,7 @@ class Match < ApplicationRecord
   end
 
   def teams_label
-    [team_a_label, team_b_label].compact.join(" x ").presence || "Confronto a definir"
+    [ team_a_label, team_b_label ].compact.join(" x ").presence || "Confronto a definir"
   end
 
   def knockout_team_a
@@ -109,7 +109,7 @@ class Match < ApplicationRecord
 
   def roster_athletes
     roster_athlete_entries.map(&:last).uniq(&:id).sort_by do |athlete|
-      [athlete.team&.name.to_s.downcase, athlete.shirt_number_sort_key, athlete.quick_label.downcase, athlete.name.downcase]
+      [ athlete.team&.name.to_s.downcase, athlete.shirt_number_sort_key, athlete.quick_label.downcase, athlete.name.downcase ]
     end
   end
 
@@ -164,6 +164,8 @@ class Match < ApplicationRecord
       Tranca::Partida.find_by(source_id: source_id)&.destroy!
       return
     end
+
+    return if phase.blank? || round_number.blank?
 
     tranca_dupla_a = Tranca::Dupla.find_by(source_id: team_a&.source_id)
     tranca_dupla_b = Tranca::Dupla.find_by(source_id: team_b&.source_id)
@@ -232,8 +234,8 @@ class Match < ApplicationRecord
   end
 
   def roster_athlete_entries
-    [team_a, team_b].compact.flat_map do |team|
-      team.athletes.includes(:team).map { |athlete| [team, athlete] }
+    [ team_a, team_b ].compact.flat_map do |team|
+      team.athletes.includes(:team).map { |athlete| [ team, athlete ] }
     end
   end
 
@@ -313,7 +315,7 @@ class Match < ApplicationRecord
   def event_sheet_events_for(team, athlete, kind)
     match_events
       .select { |event| event.team_id == team.id && event.athlete_id == athlete.id && event.kind == kind.to_s }
-      .sort_by { |event| [event.minute.to_i, event.created_at || Time.zone.at(0), event.id.to_i] }
+      .sort_by { |event| [ event.minute.to_i, event.created_at || Time.zone.at(0), event.id.to_i ] }
   end
 
   def event_sheet_source_id(team, athlete, kind, index)
@@ -382,7 +384,7 @@ class Match < ApplicationRecord
   end
 
   def truthy_param?(value)
-    [true, "true", 1, "1", "on", "yes"].include?(value)
+    [ true, "true", 1, "1", "on", "yes" ].include?(value)
   end
 
   def destroy_event_sheet_records_not_in(source_ids)
@@ -419,7 +421,7 @@ class Match < ApplicationRecord
 
     return if label.blank?
 
-    [label, canonical_knockout_source_label(label)].compact.each do |candidate_label|
+    [ label, canonical_knockout_source_label(label) ].compact.each do |candidate_label|
       team = championship&.teams&.find do |candidate|
         candidate.name.to_s.strip.casecmp?(candidate_label.to_s.strip)
       end

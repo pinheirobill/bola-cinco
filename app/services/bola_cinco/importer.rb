@@ -32,6 +32,7 @@ module BolaCinco
           season: attrs.fetch("season"),
           status: attrs.fetch("status")
         )
+        record.update!(modality: attrs["modality"]) if attrs["modality"].present?
       end
     end
 

@@ -33,7 +33,7 @@ class BolaCincoImporterTest < ActiveSupport::TestCase
       ]
     }
 
-    Tempfile.create(["bola-cinco-import", ".json"]) do |file|
+    Tempfile.create([ "bola-cinco-import", ".json" ]) do |file|
       file.write(JSON.pretty_generate(payload))
       file.flush
 
@@ -44,11 +44,11 @@ class BolaCincoImporterTest < ActiveSupport::TestCase
 
       assert_equal championship, category_a.championship
       assert_equal championship, category_b.championship
-      assert_equal [championship.id], category_a.championships.pluck(:id)
-      assert_equal [championship.id], category_b.championships.pluck(:id)
+      assert_equal [ championship.id ], category_a.championships.pluck(:id)
+      assert_equal [ championship.id ], category_b.championships.pluck(:id)
 
-      assert_equal [1, 2], StandingRow.where(championship: championship, category: category_a).order(:position).pluck(:position)
-      assert_equal [1, 2], StandingRow.where(championship: championship, category: category_b).order(:position).pluck(:position)
+      assert_equal [ 1, 2 ], StandingRow.where(championship: championship, category: category_a).order(:position).pluck(:position)
+      assert_equal [ 1, 2 ], StandingRow.where(championship: championship, category: category_b).order(:position).pluck(:position)
     end
   end
 
@@ -78,7 +78,7 @@ class BolaCincoImporterTest < ActiveSupport::TestCase
       ]
     }
 
-    Tempfile.create(["bola-cinco-import-replay", ".json"]) do |file|
+    Tempfile.create([ "bola-cinco-import-replay", ".json" ]) do |file|
       file.write(JSON.pretty_generate(payload))
       file.flush
 
@@ -87,7 +87,53 @@ class BolaCincoImporterTest < ActiveSupport::TestCase
 
       assert_nothing_raised { importer.call }
       assert_equal 2, StandingRow.where(championship: championship).count
-      assert_equal [1, 2], StandingRow.where(championship: championship).order(:position).pluck(:position)
+      assert_equal [ 1, 2 ], StandingRow.where(championship: championship).order(:position).pluck(:position)
+    end
+  end
+
+  test "does not mirror tranca matches without a round" do
+    payload = {
+      "championship" => {
+        "id" => "championship-tranca-without-round",
+        "name" => "Tranca sem rodada",
+        "season" => 2026,
+        "status" => "em_andamento",
+        "modality" => "tranca"
+      },
+      "categories" => [
+        { "id" => "category-tranca-without-round", "name" => "Duplas" }
+      ],
+      "entities" => [
+        { "id" => "entity-tranca-without-round", "name" => "Entidade" }
+      ],
+      "teams" => [
+        {
+          "id" => "team-tranca-without-round",
+          "entityId" => "entity-tranca-without-round",
+          "categoryId" => "category-tranca-without-round",
+          "name" => "Dupla"
+        }
+      ],
+      "athletes" => [],
+      "matches" => [
+        {
+          "id" => "match-tranca-without-round",
+          "categoryId" => "category-tranca-without-round",
+          "code" => "JG001",
+          "phase" => "classificatoria",
+          "round" => nil,
+          "status" => "agendado"
+        }
+      ],
+      "standingsSnapshot" => []
+    }
+
+    Tempfile.create([ "bola-cinco-tranca-without-round", ".json" ]) do |file|
+      file.write(JSON.pretty_generate(payload))
+      file.flush
+
+      assert_nothing_raised { BolaCinco::Importer.new(path: file.path).call }
+      assert_equal 0, Tranca::Partida.count
     end
   end
 end
