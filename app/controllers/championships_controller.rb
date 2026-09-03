@@ -407,7 +407,13 @@ class ChampionshipsController < ApplicationController
   private
 
   def championship_lookup
-    Championship.find_by(slug: params[:id]) || Championship.find(params[:id])
+    identifier = params[:id].to_s
+    legacy_id = identifier[/\A(\d+)-/, 1]
+
+    Championship.find_by(slug: identifier) ||
+      Championship.find_by(id: identifier) ||
+      Championship.find_by(id: legacy_id) ||
+      Championship.find(identifier)
   end
 
   def load_championship_overview

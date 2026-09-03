@@ -57,6 +57,21 @@ class ChampionshipsCreationTest < ActionDispatch::IntegrationTest
     assert_equal "tranca", championship.modality
   end
 
+  test "admin can reach setup through a legacy prefixed championship identifier" do
+    sign_in @admin
+    championship = Championship.create!(
+      source_id: "championship-legacy-identifier",
+      name: "Campeonato Legado",
+      season: 2026
+    )
+    championship.update_column(:slug, nil)
+
+    get setup_championship_path("#{championship.id}-campeonato-legado-2026", step: "data")
+
+    assert_response :success
+    assert_includes response.body, "Configuração do campeonato"
+  end
+
   test "non-admin cannot open or create championships" do
     sign_in @editor
 
