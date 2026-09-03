@@ -16,7 +16,7 @@ WORKDIR /rails
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips poppler-utils python3 python3-venv sqlite3 && \
+    apt-get install --no-install-recommends -y curl libjemalloc2 libpq5 libvips poppler-utils python3 python3-venv sqlite3 && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
@@ -32,7 +32,7 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libvips libyaml-dev pkg-config python3 python3-pip python3-venv poppler-utils && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev libvips libyaml-dev pkg-config python3 python3-pip python3-venv poppler-utils && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems

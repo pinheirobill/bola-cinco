@@ -20,8 +20,8 @@ test:
   <<: *default
   database: storage/test.sqlite3
 
-# Vercel test deployment: keep production on a single SQLite database for now.
-# Revisit this before customer-facing prod.
 production:
   <<: *default
-  database: storage/production.sqlite3
+  adapter: postgresql
+  url: <%= ENV["DATABASE_URL"].inspect %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
