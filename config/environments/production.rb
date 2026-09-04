@@ -56,10 +56,8 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Vercel test deployment: keep cache and jobs process-local until this app
-  # moves to a real production host. Revisit this before customer-facing prod.
   config.cache_store = :memory_store
-  config.active_job.queue_adapter = :async
+  config.active_job.queue_adapter = :solid_queue
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
