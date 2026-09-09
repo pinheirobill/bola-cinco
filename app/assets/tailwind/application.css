@@ -1,5 +1,7 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: corporate --default;
+}
 
 @layer base {
   [data-theme="flamengo"] {
@@ -218,7 +220,8 @@
     --color-error-content: oklch(98% 0 0);
   }
 
-  [data-theme="botafogo"] {
+  [data-theme="botafogo"],
+  [data-theme="atletico_mg"] {
     color-scheme: dark;
     --color-base-100: oklch(14% 0 0);
     --color-base-200: oklch(18% 0 0);
@@ -312,5 +315,13 @@
     --color-warning-content: #0B1713;
     --color-error: #C94343;
     --color-error-content: #F8F8F5;
+  }
+}
+
+@layer components {
+  .theme-background {
+    background-image:
+      radial-gradient(circle at top, color-mix(in oklab, var(--color-primary) 12%, transparent), transparent 25%),
+      radial-gradient(circle at bottom right, color-mix(in oklab, var(--color-accent) 10%, transparent), transparent 35%);
   }
 }

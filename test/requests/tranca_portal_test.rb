@@ -170,6 +170,22 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "CAMPEONATO DE TRANCA 2026"
   end
 
+  test "uses the signed in user's theme instead of forcing the tranca palette" do
+    user = users(:one)
+    sign_in user
+
+    %w[corporate flamengo atletico_mg].each do |theme|
+      patch theme_preference_path, params: { theme_preference: { theme: theme } }
+      assert_response :see_other
+
+      get tranca_root_path
+
+      assert_response :success
+      assert_select "body[data-theme=?]", theme
+      assert_select "form[action=?]", theme_preference_path, count: User::THEMES.size
+    end
+  end
+
   test "shows the tranca login page" do
     get tranca_login_path
 

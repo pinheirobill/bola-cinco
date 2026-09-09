@@ -1,7 +1,7 @@
 class ThemePreferencesController < ApplicationController
   def update
     current_user.update!(preferred_theme: safe_theme_key)
-    redirect_back fallback_location: root_path, notice: "Tema atualizado."
+    redirect_back fallback_location: root_path, notice: "Tema atualizado.", status: :see_other
   end
 
   private

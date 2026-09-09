@@ -17,31 +17,32 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-theme="tranca" class="min-h-screen text-base-content">
-    <div class="min-h-screen bg-[radial-gradient(circle_at_top,rgba(214,178,94,0.14),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(201,67,67,0.10),transparent_28%),linear-gradient(180deg,#122A22,#0B1713)]">
-      <header class="border-b border-white/10 bg-black/20 backdrop-blur">
+  <body data-theme="<%= user_signed_in? ? current_theme_name : "tranca" %>" class="min-h-screen bg-base-200 text-base-content">
+    <div class="min-h-screen theme-background">
+      <header class="relative z-50 border-b border-base-300 bg-base-100/85 backdrop-blur">
         <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-white/55">Portal Tranca</p>
-            <%= link_to "Bola Cinco", tranca_root_path, class: "text-2xl font-black tracking-tight text-white" %>
+            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-base-content/55">Portal Tranca</p>
+            <%= link_to "Bola Cinco", tranca_root_path, class: "text-2xl font-black tracking-tight text-base-content" %>
           </div>
 
           <nav class="hidden items-center gap-2 lg:flex" aria-label="Navegação da Tranca">
-            <%= link_to "Início", tranca_root_path, class: "btn btn-ghost btn-sm text-white hover:bg-white/10" %>
-            <%= link_to "Campeonato", tranca_root_path(anchor: "campeonato"), class: "btn btn-ghost btn-sm text-white hover:bg-white/10" %>
-            <%= link_to "Partidas", tranca_root_path(anchor: "partidas"), class: "btn btn-ghost btn-sm text-white hover:bg-white/10" %>
-            <%= link_to "Duplas", tranca_root_path(anchor: "duplas"), class: "btn btn-ghost btn-sm text-white hover:bg-white/10" %>
-            <%= link_to "Estatísticas", tranca_root_path(anchor: "estatisticas"), class: "btn btn-ghost btn-sm text-white hover:bg-white/10" %>
-            <%= link_to "Regulamento", tranca_root_path(anchor: "regulamento"), class: "btn btn-ghost btn-sm text-white hover:bg-white/10" %>
+            <%= link_to "Início", tranca_root_path, class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
+            <%= link_to "Campeonato", tranca_root_path(anchor: "campeonato"), class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
+            <%= link_to "Partidas", tranca_root_path(anchor: "partidas"), class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
+            <%= link_to "Duplas", tranca_root_path(anchor: "duplas"), class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
+            <%= link_to "Estatísticas", tranca_root_path(anchor: "estatisticas"), class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
+            <%= link_to "Regulamento", tranca_root_path(anchor: "regulamento"), class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
           </nav>
 
           <div class="flex items-center gap-2">
             <% if user_signed_in? %>
-              <%= link_to "Admin", root_path, class: "btn btn-outline btn-sm border-white/20 text-white hover:bg-white/10" %>
+              <%= render "shared/theme_selector" %>
+              <%= link_to "Admin", root_path, class: "btn btn-outline btn-sm border-base-300 text-base-content hover:bg-base-300" %>
               <%= button_to "Sair", destroy_user_session_path, method: :delete, form: { class: "inline" }, class: "btn btn-primary btn-sm" %>
             <% else %>
               <%= link_to "Entrar", tranca_login_path, class: "btn btn-primary btn-sm" %>
-              <%= link_to "Admin", new_user_session_path, class: "btn btn-outline btn-sm border-white/20 text-white hover:bg-white/10" %>
+              <%= link_to "Admin", new_user_session_path, class: "btn btn-outline btn-sm border-base-300 text-base-content hover:bg-base-300" %>
             <% end %>
           </div>
         </div>
@@ -52,13 +53,13 @@
         <%= yield %>
       </main>
 
-      <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/65 px-3 py-2 backdrop-blur lg:hidden" aria-label="Navegação móvel da Tranca">
-        <div class="mx-auto grid max-w-3xl grid-cols-5 gap-2 text-center text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white/70">
-          <%= link_to "Início", tranca_root_path, class: "rounded-2xl px-2 py-3 hover:bg-white/10 hover:text-white" %>
-          <%= link_to "Jogos", tranca_root_path(anchor: "partidas"), class: "rounded-2xl px-2 py-3 hover:bg-white/10 hover:text-white" %>
-          <%= link_to "Ranking", tranca_root_path(anchor: "estatisticas"), class: "rounded-2xl px-2 py-3 hover:bg-white/10 hover:text-white" %>
-          <%= link_to "Duplas", tranca_root_path(anchor: "duplas"), class: "rounded-2xl px-2 py-3 hover:bg-white/10 hover:text-white" %>
-          <%= link_to "Mais", tranca_root_path(anchor: "regulamento"), class: "rounded-2xl px-2 py-3 hover:bg-white/10 hover:text-white" %>
+      <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-base-300 bg-base-100/95 px-3 py-2 backdrop-blur lg:hidden" aria-label="Navegação móvel da Tranca">
+        <div class="mx-auto grid max-w-3xl grid-cols-5 gap-2 text-center text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-base-content/70">
+          <%= link_to "Início", tranca_root_path, class: "rounded-2xl px-2 py-3 hover:bg-base-300 hover:text-base-content" %>
+          <%= link_to "Jogos", tranca_root_path(anchor: "partidas"), class: "rounded-2xl px-2 py-3 hover:bg-base-300 hover:text-base-content" %>
+          <%= link_to "Ranking", tranca_root_path(anchor: "estatisticas"), class: "rounded-2xl px-2 py-3 hover:bg-base-300 hover:text-base-content" %>
+          <%= link_to "Duplas", tranca_root_path(anchor: "duplas"), class: "rounded-2xl px-2 py-3 hover:bg-base-300 hover:text-base-content" %>
+          <%= link_to "Mais", tranca_root_path(anchor: "regulamento"), class: "rounded-2xl px-2 py-3 hover:bg-base-300 hover:text-base-content" %>
         </div>
       </nav>
     </div>
