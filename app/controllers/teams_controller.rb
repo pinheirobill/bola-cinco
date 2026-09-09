@@ -103,9 +103,19 @@ class TeamsController < ApplicationController
   def destroy
     return forbidden! unless team.manageable_by?(current_user)
 
-    destroy_tranca_dupla_from_team(team) if team.championship&.tranca?
-    team.destroy!
+    if Athlete.exists?(team_id: team.id)
+      return redirect_back fallback_location: team_path(team), status: :see_other,
+        alert: "Esta dupla/time é o cadastro principal de atletas. Transfira o cadastro principal deles antes de excluir."
+    end
+
+    Team.transaction do
+      destroy_tranca_dupla_from_team(team) if team.championship&.tranca?
+      team.destroy!
+    end
     head :no_content
+  rescue ActiveRecord::InvalidForeignKey, ActiveRecord::RecordNotDestroyed
+    redirect_back fallback_location: team_path(team), status: :see_other,
+      alert: "Não foi possível excluir: existem registros vinculados. Nenhum cadastro foi removido nesta tentativa."
   end
 
   private
