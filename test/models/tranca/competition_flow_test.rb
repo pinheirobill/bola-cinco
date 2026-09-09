@@ -37,6 +37,25 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     )
   end
 
+  test "checking availability with 43 duplas does not generate pairings" do
+    41.times do |index|
+      Tranca::Dupla.create!(source_id: "availability-#{index}", championship: @championship,
+        category: @category, entity: @entity, name: "Dupla #{index}")
+    end
+    flow = Tranca::CompetitionFlow.new(@championship)
+    flow.define_singleton_method(:pairings_for) { |*args, **kwargs| raise "Page rendering must not generate rounds" }
+
+    assert flow.classificatoria_pairings_available?(round_number: 1)
+  end
+
+  test "availability excludes past matchups but not the round being checked" do
+    flow = Tranca::CompetitionFlow.new(@championship)
+    flow.generate_round!(phase: "classificatoria", round_number: 1)
+
+    assert flow.classificatoria_pairings_available?(round_number: 1)
+    assert_not flow.classificatoria_pairings_available?(round_number: 2)
+  end
+
   test "generates round, mesa, result and classification" do
     flow = Tranca::CompetitionFlow.new(@championship)
 

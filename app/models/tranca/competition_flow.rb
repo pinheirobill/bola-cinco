@@ -10,7 +10,20 @@ module Tranca
 
     def classificatoria_pairings_available?(round_number:)
       championship.categories.includes(:teams).any? do |category|
-        pairings_for(category, phase: "classificatoria", round_number: round_number).any?
+        dupla_ids = championship.tranca_duplas.where(category_id: category.id).pluck(:id)
+        used_matchups = championship.tranca_partidas
+          .where(category_id: category.id, phase: "classificatoria")
+          .where("round_number < ?", round_number.to_i)
+          .pluck(:dupla_a_id, :dupla_b_id)
+          .each_with_object({}) do |(first_id, second_id), matchups|
+            next if first_id.blank? || second_id.blank?
+
+            matchups[matchup_key(first_id, second_id)] = true
+          end
+
+        # Page rendering only needs to know whether one unused matchup exists.
+        # Do not generate all possible rounds just to enable the button.
+        dupla_ids.combination(2).any? { |first_id, second_id| !used_matchups[matchup_key(first_id, second_id)] }
       end
     end
 
