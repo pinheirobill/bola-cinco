@@ -54,6 +54,18 @@ class TrancaDuplaImportsTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "GET preview redirects to the upload form without writing" do
+    assert_no_difference ["Team.count", "Athlete.count"] do
+      get preview_championship_dupla_import_path(@championship)
+      assert_redirected_to new_championship_dupla_import_path(@championship)
+      follow_redirect!
+      assert_response :success
+    end
+    sign_in users(:two)
+    get preview_championship_dupla_import_path(@championship)
+    assert_response :forbidden
+  end
+
   test "serves the Excel template and reports invalid uploads" do
     get template_championship_dupla_import_path(@championship)
     assert_response :success

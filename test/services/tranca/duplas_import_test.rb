@@ -100,6 +100,40 @@ class Tranca::DuplasImportTest < ActiveSupport::TestCase
     end
   end
 
+  test "reimport does not rewrite existing membership records" do
+    service([row("Ana", "Bruno")]).call
+    statements = []
+    subscriber = ->(_name, _start, _finish, _id, payload) { statements << payload[:sql] }
+    ActiveSupport::Notifications.subscribed(subscriber, "sql.active_record") do
+      service([row("Bruno", "Ana")]).call
+    end
+    writes = statements.select { |sql| sql.match?(/\A\s*(INSERT|UPDATE|DELETE).*?(team_athletes|tranca_dupla_memberships)/i) }
+    assert_empty writes
+  end
+
+  test "repairs a missing mirror membership on reimport" do
+    service([row("Ana", "Bruno")]).call
+    dupla = @championship.tranca_duplas.last
+    dupla.memberships.first.delete
+    assert_difference "Tranca::DuplaMembership.count", 1 do
+      assert_no_difference ["Team.count", "Athlete.count", "TeamAthlete.count"] do
+        service([row("Ana", "Bruno")]).call
+      end
+    end
+    assert_equal dupla.legacy_team.athletes.pluck(:id).sort, dupla.athletes.pluck(:id).sort
+  end
+
+  test "regular edits still synchronize imported teams and athletes" do
+    service([row("Ana", "Bruno")]).call
+    team = @category.teams.last
+    team.update!(name: "Dupla renomeada")
+    assert_equal "Dupla renomeada", Tranca::Dupla.find_by!(source_id: team.source_id).name
+    athlete = team.athletes.first
+    other = Team.create!(source_id: SecureRandom.uuid, name: "Outra dupla", entity: team.entity, category: @category)
+    athlete.update!(team: other)
+    assert TeamAthlete.exists?(team: other, athlete: athlete)
+  end
+
   test "rejects football and foreign categories" do
     football = Championship.create!(source_id: SecureRandom.uuid, name: "Futebol", season: 2026, modality: :football)
     assert_raises(Tranca::DuplasImport::InvalidImport) do

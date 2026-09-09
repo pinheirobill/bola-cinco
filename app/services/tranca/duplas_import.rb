@@ -116,35 +116,46 @@ module Tranca
       source = entry[:team]
       if %w[existing approve].include?(entry[:action])
         team = source
-        team.approve! unless team.registration_status_aprovada?
+        unless team.registration_status_aprovada?
+          team.tranca_import_synchronized = true
+          team.approve!
+        end
       else
         digest = Digest::SHA256.hexdigest(pair_key(entry[:names]))
         team = Team.find_or_initialize_by(source_id: "tranca-import-#{championship.id}-#{digest}")
         team.assign_attributes(category: category, entity: source&.entity || Entity.create!(
           source_id: "tranca-import-entity-#{championship.id}-#{digest}", name: entry[:name]
         ), name: entry[:name], short_name: source&.short_name, registration_status: :aprovada, finance_status: :pendente)
+        team.tranca_import_synchronized = true
         team.save!
       end
 
-      # Mirror inside this transaction as well: memberships must never depend on callback ordering.
+      # The importer owns synchronization here; instance flags prevent callbacks
+      # from repeating these same reads and writes after commit.
       dupla = Tranca::Dupla.find_or_initialize_by(source_id: team.source_id)
+      new_dupla = dupla.new_record?
       dupla.update!(championship: championship, category: category, entity: team.entity,
         name: team.name, short_name: team.short_name, registration_status: :aprovada, status: :ativo)
       members = source&.athletes&.to_a || []
-      members = team.athletes.to_a if members.empty?
+      members = team.athletes.to_a if members.empty? && !team.previously_new_record?
       if members.empty?
         members = entry[:names].map do |name|
           Athlete.create!(source_id: "tranca-import-athlete-#{SecureRandom.uuid}", name: name,
-            team: team, category: category, status: :pendente)
+            team: team, category: category, status: :pendente, primary_team_link_imported: true)
         end
       end
+      links = team.previously_new_record? ? {} : team.team_athletes.index_by(&:athlete_id)
+      memberships = new_dupla ? {} : dupla.memberships.index_by(&:athlete_id)
       members.each do |athlete|
-        link = TeamAthlete.find_or_initialize_by(team: team, athlete: athlete)
-        link.source_id ||= "team-athlete-#{team.id}-#{athlete.id}"
-        link.save!
-        membership = Tranca::DuplaMembership.find_or_initialize_by(tranca_dupla: dupla, athlete: athlete)
-        membership.source_id ||= link.source_id
-        membership.save!
+        link = links[athlete.id] || TeamAthlete.new(team: team, athlete: athlete)
+        if link.new_record?
+          link.source_id = "team-athlete-#{team.id}-#{athlete.id}"
+          link.tranca_import_synchronized = true
+          link.save!
+        end
+        next if memberships.key?(athlete.id)
+
+        Tranca::DuplaMembership.create!(tranca_dupla: dupla, athlete: athlete, source_id: link.source_id)
       end
     end
   end

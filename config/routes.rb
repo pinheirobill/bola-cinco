@@ -36,6 +36,7 @@ Rails.application.routes.draw do
     get :duplas, on: :member, path: "duplas"
     resource :dupla_import, only: %i[new create], controller: "tranca/dupla_imports", path: "duplas/importar" do
       post :preview
+      get "preview", action: :restart_preview, as: :restart_preview
       get :template
     end
     get :partidas, on: :member, path: "partidas"

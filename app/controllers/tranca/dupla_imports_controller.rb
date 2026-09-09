@@ -9,6 +9,11 @@ class Tranca::DuplaImportsController < ApplicationController
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", disposition: "attachment"
   end
 
+  def restart_preview
+    redirect_to new_championship_dupla_import_path(@championship),
+      notice: "Envie a planilha novamente para gerar uma nova prévia."
+  end
+
   def preview
     @category = import_categories.find(params[:category_id])
     rows = Tranca::DuplasSpreadsheet.read(params[:file])

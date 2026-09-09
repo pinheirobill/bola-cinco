@@ -1,4 +1,6 @@
 class Athlete < ApplicationRecord
+  attr_accessor :primary_team_link_imported
+
   belongs_to :team
   belongs_to :category
   belongs_to :user, optional: true
@@ -169,6 +171,13 @@ class Athlete < ApplicationRecord
   private
 
   def sync_primary_team_link
+    # The importer has already synchronized this record in its transaction.
+    # Consume the flag so future edits on the same instance still synchronize.
+    if primary_team_link_imported
+      self.primary_team_link_imported = false
+      return
+    end
+
     return if team_id.blank?
 
     TeamAthlete.find_or_create_by!(team_id: team_id, athlete_id: id) do |link|

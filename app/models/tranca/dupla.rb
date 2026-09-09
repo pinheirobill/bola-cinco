@@ -7,7 +7,7 @@ module Tranca
     belongs_to :entity, optional: true
     has_many :memberships, class_name: "Tranca::DuplaMembership", dependent: :destroy, inverse_of: :tranca_dupla
     has_many :athletes, through: :memberships
-    has_many :classificacao_rows, class_name: "Tranca::ClassificacaoRow", dependent: :destroy
+    has_many :classificacao_rows, class_name: "Tranca::ClassificacaoRow", foreign_key: :tranca_dupla_id, dependent: :destroy
     has_many :partidas_as_a, class_name: "Tranca::Partida", foreign_key: :dupla_a_id, dependent: :nullify, inverse_of: :dupla_a
     has_many :partidas_as_b, class_name: "Tranca::Partida", foreign_key: :dupla_b_id, dependent: :nullify, inverse_of: :dupla_b
     has_many :winning_partidas, class_name: "Tranca::Partida", foreign_key: :winner_id, dependent: :nullify, inverse_of: :winner

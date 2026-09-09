@@ -1,4 +1,6 @@
 class Team < ApplicationRecord
+  attr_accessor :tranca_import_synchronized
+
   belongs_to :entity
   belongs_to :category
   has_many :team_athletes, dependent: :delete_all
@@ -111,6 +113,13 @@ class Team < ApplicationRecord
   private
 
   def sync_tranca_mirror!
+    # The importer has already synchronized this record in its transaction.
+    # Consume the flag so future edits on the same instance still synchronize.
+    if tranca_import_synchronized
+      self.tranca_import_synchronized = false
+      return
+    end
+
     return unless championship&.tranca?
 
     if destroyed?
