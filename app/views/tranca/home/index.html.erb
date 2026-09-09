@@ -24,20 +24,20 @@
     title: @championship&.name || "CAMPEONATO DE TRANCA 2026",
     subtitle: "Rodada 07 de 15",
     badge: @championship&.status.to_s.tr("_", " ").humanize.presence || "Em andamento",
-    classes: "border-base-300/80 bg-white/5 text-white shadow-2xl"
+    classes: "border-base-300/80 bg-base-100 text-base-content shadow-2xl"
   ) do %>
     <div class="grid gap-4 md:grid-cols-3">
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-white/50">Modalidade</p>
-        <p class="mt-2 text-lg font-semibold text-white">Tranca</p>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Modalidade</p>
+        <p class="mt-2 text-lg font-semibold text-base-content">Tranca</p>
       </div>
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-white/50">Formato</p>
-        <p class="mt-2 text-lg font-semibold text-white">Duplas e mesas</p>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Formato</p>
+        <p class="mt-2 text-lg font-semibold text-base-content">Duplas e mesas</p>
       </div>
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-white/50">Status</p>
-        <p class="mt-2 text-lg font-semibold text-white"><%= @championship&.status&.titleize || "Em andamento" %></p>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status</p>
+        <p class="mt-2 text-lg font-semibold text-base-content"><%= @championship&.status&.titleize || "Em andamento" %></p>
       </div>
     </div>
   <% end %>
@@ -45,9 +45,9 @@
   <%= surface_card(
     title: "Regulamento",
     subtitle: "Espaço preparado para regras, critérios de desempate e observações.",
-    classes: "border-base-300/80 bg-white/5 text-white"
+    classes: "border-base-300/80 bg-base-100 text-base-content"
   ) do %>
-    <div class="space-y-3 text-sm text-white/75">
+    <div class="space-y-3 text-sm text-base-content/75">
       <p>• Jogadores, duplas, rodadas e mesas entram aqui nas próximas etapas.</p>
       <p>• A autenticação continua compartilhada com o resto da plataforma.</p>
       <p>• O visual do portal permanece isolado do futebol.</p>
@@ -59,35 +59,35 @@
   <%= surface_card(
     title: "Campeão",
     subtitle: "Vencedor do mata-mata",
-    classes: "border-amber-300/30 bg-amber-300/10 text-white"
+    classes: "border-primary/30 bg-primary/10 text-base-content"
   ) do %>
-    <p class="text-2xl font-black text-[#D6B25E]"><%= @championship_winners.map(&:name).to_sentence %></p>
-    <p class="mt-2 text-sm text-white/65">O campeonato foi encerrado após a final.</p>
+    <p class="text-2xl font-black text-primary"><%= @championship_winners.map(&:name).to_sentence %></p>
+    <p class="mt-2 text-sm text-base-content/65">O campeonato foi encerrado após a final.</p>
   <% end %>
 <% end %>
 
 <section id="partidas" class="grid gap-6 xl:grid-cols-2">
-  <%= surface_card(title: "Ao vivo", subtitle: "Mesas em andamento", classes: "border-base-300/80 bg-white/5 text-white") do %>
+  <%= surface_card(title: "Ao vivo", subtitle: "Mesas em andamento", classes: "border-base-300/80 bg-base-100 text-base-content") do %>
     <div class="space-y-4">
       <% @live_matches.each do |match| %>
-        <div class="rounded-3xl border border-white/10 bg-base-100/10 p-4">
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p class="text-xs uppercase tracking-[0.25em] text-white/50"><%= match.mesa %></p>
-              <p class="mt-1 text-sm font-semibold text-white/85"><%= match.status %></p>
+              <p class="text-xs uppercase tracking-[0.25em] text-base-content/50"><%= match.mesa %></p>
+              <p class="mt-1 text-sm font-semibold text-base-content/85"><%= match.status %></p>
             </div>
-            <span class="badge badge-outline border-white/15 text-white/75"><%= match.status %></span>
+            <span class="badge badge-outline border-base-300 text-base-content/75"><%= match.status %></span>
           </div>
 
           <div class="mt-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4 text-center">
             <div>
-              <p class="truncate text-lg font-semibold text-white"><%= match.dupla_a %></p>
-              <p class="mt-2 text-4xl font-black text-[#D6B25E]"><%= match.pontos_a %></p>
+              <p class="truncate text-lg font-semibold text-base-content"><%= match.dupla_a %></p>
+              <p class="mt-2 text-4xl font-black text-primary"><%= match.pontos_a %></p>
             </div>
-            <div class="text-2xl font-black text-white/50">x</div>
+            <div class="text-2xl font-black text-base-content/50">x</div>
             <div>
-              <p class="truncate text-lg font-semibold text-white"><%= match.dupla_b %></p>
-              <p class="mt-2 text-4xl font-black text-[#D6B25E]"><%= match.pontos_b %></p>
+              <p class="truncate text-lg font-semibold text-base-content"><%= match.dupla_b %></p>
+              <p class="mt-2 text-4xl font-black text-primary"><%= match.pontos_b %></p>
             </div>
           </div>
         </div>
@@ -95,15 +95,15 @@
     </div>
   <% end %>
 
-  <%= surface_card(title: "Resultados recentes", subtitle: "Últimas mesas concluídas", classes: "border-base-300/80 bg-white/5 text-white") do %>
+  <%= surface_card(title: "Resultados recentes", subtitle: "Últimas mesas concluídas", classes: "border-base-300/80 bg-base-100 text-base-content") do %>
     <div class="space-y-4">
       <% @recent_results.each do |match| %>
-        <div class="rounded-3xl border border-white/10 bg-base-100/10 p-4">
-          <p class="text-xs uppercase tracking-[0.25em] text-white/50"><%= match.mesa %></p>
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50"><%= match.mesa %></p>
           <div class="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-            <div class="text-sm font-semibold text-white"><%= match.dupla_a %></div>
-            <div class="text-sm text-white/60"><%= match.pontos_a %> x <%= match.pontos_b %></div>
-            <div class="text-right text-sm font-semibold text-white"><%= match.dupla_b %></div>
+            <div class="text-sm font-semibold text-base-content"><%= match.dupla_a %></div>
+            <div class="text-sm text-base-content/60"><%= match.pontos_a %> x <%= match.pontos_b %></div>
+            <div class="text-right text-sm font-semibold text-base-content"><%= match.dupla_b %></div>
           </div>
         </div>
       <% end %>
@@ -112,34 +112,34 @@
 </section>
 
 <section id="estatisticas" class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-  <%= surface_card(title: "Classificação", subtitle: "Ranking atual", classes: "border-base-300/80 bg-white/5 text-white") do %>
+  <%= surface_card(title: "Classificação", subtitle: "Ranking atual", classes: "border-base-300/80 bg-base-100 text-base-content") do %>
     <div class="space-y-3">
       <% @standings.each do |row| %>
-        <div class="flex items-center justify-between gap-4 rounded-3xl border border-white/10 bg-base-100/10 px-4 py-3">
+        <div class="flex items-center justify-between gap-4 rounded-3xl border border-base-300 bg-base-200 px-4 py-3">
           <div class="flex items-center gap-3">
-            <span class="badge badge-primary badge-outline text-white"><%= row.posicao %></span>
+            <span class="badge badge-primary badge-outline text-base-content"><%= row.posicao %></span>
             <div>
-              <p class="font-semibold text-white"><%= row.dupla %></p>
-              <p class="text-xs text-white/55"><%= row.pontos %> pts</p>
+              <p class="font-semibold text-base-content"><%= row.dupla %></p>
+              <p class="text-xs text-base-content/55"><%= row.pontos %> pts</p>
             </div>
           </div>
-          <p class="text-lg font-black text-[#D6B25E]"><%= row.pontos %></p>
+          <p class="text-lg font-black text-primary"><%= row.pontos %></p>
         </div>
       <% end %>
     </div>
   <% end %>
 
-  <%= surface_card(title: "Próximos jogos", subtitle: "Mesas agendadas", classes: "border-base-300/80 bg-white/5 text-white") do %>
+  <%= surface_card(title: "Próximos jogos", subtitle: "Mesas agendadas", classes: "border-base-300/80 bg-base-100 text-base-content") do %>
     <div class="space-y-3">
       <% @upcoming_matches.each do |match| %>
-        <div class="rounded-3xl border border-white/10 bg-base-100/10 p-4">
+        <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <p class="text-xs uppercase tracking-[0.25em] text-white/50"><%= match.mesa %></p>
-            <span class="badge badge-outline border-white/15 text-white/75"><%= match.status %></span>
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50"><%= match.mesa %></p>
+            <span class="badge badge-outline border-base-300 text-base-content/75"><%= match.status %></span>
           </div>
-          <p class="mt-3 text-sm font-semibold text-white"><%= match.dupla_a %></p>
-          <p class="text-sm text-white/55">x</p>
-          <p class="text-sm font-semibold text-white"><%= match.dupla_b %></p>
+          <p class="mt-3 text-sm font-semibold text-base-content"><%= match.dupla_a %></p>
+          <p class="text-sm text-base-content/55">x</p>
+          <p class="text-sm font-semibold text-base-content"><%= match.dupla_b %></p>
         </div>
       <% end %>
     </div>
@@ -147,17 +147,17 @@
 </section>
 
 <section class="grid gap-6 xl:grid-cols-2">
-  <%= surface_card(title: "Chaveamento", subtitle: "Rodadas eliminatórias", classes: "border-base-300/80 bg-white/5 text-white") do %>
+  <%= surface_card(title: "Chaveamento", subtitle: "Rodadas eliminatórias", classes: "border-base-300/80 bg-base-100 text-base-content") do %>
     <% if @knockout_rounds.any? %>
       <div class="space-y-4">
         <% @knockout_rounds.each do |round| %>
-          <div class="rounded-3xl border border-white/10 bg-base-100/10 p-4">
+          <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p class="text-xs uppercase tracking-[0.25em] text-white/50"><%= round.phase_label %></p>
-                <p class="mt-1 text-lg font-semibold text-white"><%= round.label %></p>
+                <p class="text-xs uppercase tracking-[0.25em] text-base-content/50"><%= round.phase_label %></p>
+                <p class="mt-1 text-lg font-semibold text-base-content"><%= round.label %></p>
               </div>
-              <span class="badge badge-outline border-white/15 text-white/75"><%= round.partidas.size %> partidas</span>
+              <span class="badge badge-outline border-base-300 text-base-content/75"><%= round.partidas.size %> partidas</span>
             </div>
           </div>
         <% end %>
@@ -170,48 +170,48 @@
     <% end %>
   <% end %>
 
-  <%= surface_card(title: "Resumo", subtitle: "Indicadores rápidos da modalidade", classes: "border-base-300/80 bg-white/5 text-white") do %>
+  <%= surface_card(title: "Resumo", subtitle: "Indicadores rápidos da modalidade", classes: "border-base-300/80 bg-base-100 text-base-content") do %>
     <div class="grid gap-3 sm:grid-cols-2">
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-white/50">Finalizadas</p>
-        <p class="mt-2 text-2xl font-black text-white"><%= @stats[:total_finalizadas] %></p>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Finalizadas</p>
+        <p class="mt-2 text-2xl font-black text-base-content"><%= @stats[:total_finalizadas] %></p>
       </div>
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-white/50">Rodadas mata-mata</p>
-        <p class="mt-2 text-2xl font-black text-white"><%= @stats[:total_rodadas_mata_mata] %></p>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Rodadas mata-mata</p>
+        <p class="mt-2 text-2xl font-black text-base-content"><%= @stats[:total_rodadas_mata_mata] %></p>
       </div>
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:col-span-2">
-        <p class="text-xs uppercase tracking-[0.25em] text-white/50">Líder atual</p>
-        <p class="mt-2 text-lg font-semibold text-white"><%= @stats[:top_dupla]&.name || "Sem dados suficientes" %></p>
-        <p class="text-sm text-white/60"><%= @stats[:top_points] %> pontos</p>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4 sm:col-span-2">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Líder atual</p>
+        <p class="mt-2 text-lg font-semibold text-base-content"><%= @stats[:top_dupla]&.name || "Sem dados suficientes" %></p>
+        <p class="text-sm text-base-content/60"><%= @stats[:top_points] %> pontos</p>
       </div>
     </div>
   <% end %>
 </section>
 
 <section id="duplas" class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-  <%= surface_card(title: "Duplas", subtitle: "Espaço para cadastro e composição das duplas", classes: "border-base-300/80 bg-white/5 text-white") do %>
+  <%= surface_card(title: "Duplas", subtitle: "Espaço para cadastro e composição das duplas", classes: "border-base-300/80 bg-base-100 text-base-content") do %>
     <div class="grid gap-3 sm:grid-cols-2">
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-        <p class="text-sm font-semibold text-white">Cadastro de jogadores</p>
-        <p class="mt-2 text-sm text-white/65">Estrutura preparada para vincular jogadores e montar duplas.</p>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <p class="text-sm font-semibold text-base-content">Cadastro de jogadores</p>
+        <p class="mt-2 text-sm text-base-content/65">Estrutura preparada para vincular jogadores e montar duplas.</p>
       </div>
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-        <p class="text-sm font-semibold text-white">Duplas confirmadas</p>
-        <p class="mt-2 text-sm text-white/65">Listagem futura com status, mesa e rodada atual.</p>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <p class="text-sm font-semibold text-base-content">Duplas confirmadas</p>
+        <p class="mt-2 text-sm text-base-content/65">Listagem futura com status, mesa e rodada atual.</p>
       </div>
     </div>
   <% end %>
 
-  <%= surface_card(title: "Mais", subtitle: "Próximas áreas da Tranca", classes: "border-base-300/80 bg-white/5 text-white") do %>
+  <%= surface_card(title: "Mais", subtitle: "Próximas áreas da Tranca", classes: "border-base-300/80 bg-base-100 text-base-content") do %>
     <div class="grid gap-3 sm:grid-cols-2">
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-        <p class="font-semibold text-white">Estatísticas</p>
-        <p class="mt-2 text-sm text-white/65">Vitórias, aproveitamento e sequências.</p>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <p class="font-semibold text-base-content">Estatísticas</p>
+        <p class="mt-2 text-sm text-base-content/65">Vitórias, aproveitamento e sequências.</p>
       </div>
-      <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-        <p class="font-semibold text-white">Regulamento</p>
-        <p class="mt-2 text-sm text-white/65">Regras e critérios de desempate da modalidade.</p>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <p class="font-semibold text-base-content">Regulamento</p>
+        <p class="mt-2 text-sm text-base-content/65">Regras e critérios de desempate da modalidade.</p>
       </div>
     </div>
   <% end %>
