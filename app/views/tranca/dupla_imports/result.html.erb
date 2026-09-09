@@ -1,0 +1,13 @@
+<% content_for :title, "Resultado da importação | #{@championship.name}" %>
+<%= page_header(title: "Importação concluída", subtitle: "#{@championship.name} · #{@category.name}",
+  actions: [link_to("Ver duplas", duplas_championship_path(@championship), class: "btn btn-primary"),
+    link_to("Importar outra planilha", new_championship_dupla_import_path(@championship), class: "btn btn-outline")]) %>
+<%= stats_grid([
+  { label: "Novas duplas", value: @entries.count { |entry| entry[:action] == "create" } },
+  { label: "Cadastros reaproveitados", value: @entries.count { |entry| entry[:action] == "reuse" } },
+  { label: "Inscrições aprovadas", value: @entries.count { |entry| entry[:action] == "approve" } },
+  { label: "Já aprovadas", value: @entries.count { |entry| entry[:action] == "existing" } },
+  { label: "Não importadas", value: @entries.count { |entry| entry[:action] == "error" } }
+]) %>
+<p class="text-sm text-base-content/70">Todas as duplas importadas estão aprovadas. Corrija as linhas não importadas e envie novamente, se necessário.</p>
+<%= render "entries", completed: true %>

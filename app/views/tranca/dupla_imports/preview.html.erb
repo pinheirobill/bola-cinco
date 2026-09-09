@@ -1,0 +1,14 @@
+<% content_for :title, "Conferir duplas | #{@championship.name}" %>
+<%= page_header(title: "Conferir importação", subtitle: "#{@championship.name} · #{@category.name}",
+  actions: [link_to("Trocar planilha", new_championship_dupla_import_path(@championship), class: "btn btn-outline")]) %>
+<% valid_count = @entries.count { |entry| entry[:action] != "error" } %>
+<p><strong><%= valid_count %></strong> dupla(s) apta(s). <strong><%= @entries.size - valid_count %></strong> linha(s) não serão importadas.</p>
+<p class="text-sm text-base-content/70">Duplas já aprovadas não serão duplicadas. Nomes iguais com a ordem invertida, diferenças de acentos ou espaços são reconhecidos como a mesma dupla. Confira os avisos de participantes repetidos.</p>
+<%= render "entries" %>
+<% if valid_count.positive? %>
+  <%= form_with url: championship_dupla_import_path(@championship), data: { turbo: false }, class: "space-y-3" do |form| %>
+    <%= hidden_field_tag :token, @token %>
+    <p class="text-sm text-base-content/70">Ao confirmar, as duplas aptas entram como aprovadas. A situação financeira e as inscrições de outros campeonatos não são alteradas.</p>
+    <%= form.submit "Confirmar importação de #{valid_count} dupla(s)", class: "btn btn-primary" %>
+  <% end %>
+<% end %>

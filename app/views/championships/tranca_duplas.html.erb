@@ -19,6 +19,16 @@
   { label: "Partidas", value: @tranca_total_partidas, value_class: "text-2xl" }
 ]) %>
 
+<% if @championship.manageable_by?(current_user) %>
+  <div class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-base-300 bg-base-100 p-5">
+    <div>
+      <h2 class="font-semibold">Importar duplas do Excel</h2>
+      <p class="mt-1 text-sm text-base-content/70">Confira a prévia, reaproveite cadastros e inscreva as duplas como aprovadas.</p>
+    </div>
+    <%= link_to "Importar duplas", new_championship_dupla_import_path(@championship), class: "btn btn-primary" %>
+  </div>
+<% end %>
+
 <%= surface_card(
   title: "Duplas por categoria",
   subtitle: "A Tranca reaproveita o cadastro de times como composição das duplas."
