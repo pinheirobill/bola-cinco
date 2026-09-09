@@ -68,11 +68,15 @@ class Team < ApplicationRecord
   def tranca_signup_origin
     return nil unless championship&.tranca?
 
+    return :imported if source_id.to_s.start_with?("tranca-import-")
+
     source_id.to_s.start_with?("tranca-invite-") ? :invited : :public_signup
   end
 
   def tranca_signup_origin_label
     case tranca_signup_origin
+    when :imported
+      "Importada do Excel"
     when :invited
       "Convidada"
     when :public_signup
@@ -82,6 +86,8 @@ class Team < ApplicationRecord
 
   def tranca_signup_origin_detail
     case tranca_signup_origin
+    when :imported
+      "Inscrição aprovada pela importação de duplas"
     when :invited
       "Veio de um convite do campeonato"
     when :public_signup
@@ -91,6 +97,8 @@ class Team < ApplicationRecord
 
   def tranca_signup_origin_badge_class
     case tranca_signup_origin
+    when :imported
+      "badge-success"
     when :invited
       "badge-info"
     when :public_signup

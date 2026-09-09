@@ -34,6 +34,10 @@ Rails.application.routes.draw do
   resources :championships, only: %i[index new create show update] do
     get :setup, on: :member, path: "configuracao"
     get :duplas, on: :member, path: "duplas"
+    resource :dupla_import, only: %i[new create], controller: "tranca/dupla_imports", path: "duplas/importar" do
+      post :preview
+      get :template
+    end
     get :partidas, on: :member, path: "partidas"
     get :rodadas, on: :member, path: "rodadas"
     get :classificacao, on: :member, path: "classificacao"

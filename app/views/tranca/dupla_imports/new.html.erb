@@ -1,0 +1,28 @@
+<% content_for :title, "Importar duplas | #{@championship.name}" %>
+<%= page_header(title: "Importar duplas", subtitle: @championship.name,
+  actions: [link_to("Voltar às duplas", duplas_championship_path(@championship), class: "btn btn-outline")]) %>
+
+<%= surface_card(title: "1. Preencha o modelo Excel") do %>
+  <p class="text-base-content/70">Uma dupla por linha, com os dois participantes. O nome da dupla é opcional. Mantenha os cabeçalhos e a aba Duplas.</p>
+  <%= link_to "Baixar modelo Excel", template_championship_dupla_import_path(@championship), class: "btn btn-outline mt-4", data: { turbo: false } %>
+<% end %>
+
+<%= surface_card(title: "2. Confira antes de importar") do %>
+  <% if @categories.any? %>
+    <%= form_with url: preview_championship_dupla_import_path(@championship), multipart: true, data: { turbo: false }, class: "space-y-5" do |form| %>
+      <div class="form-control max-w-lg gap-2">
+        <%= form.label :category_id, "Categoria do campeonato", class: "label-text font-medium" %>
+        <%= form.select :category_id, options_from_collection_for_select(@categories, :id, :name, @category&.id), {}, class: "select select-bordered w-full", required: true %>
+      </div>
+      <div class="form-control gap-2">
+        <%= form.label :file, "Planilha de duplas (.xlsx)", class: "label-text font-medium" %>
+        <%= form.file_field :file, accept: ".xlsx", required: true, class: "file-input file-input-bordered w-full max-w-lg" %>
+        <p class="text-sm text-base-content/60">Até 500 duplas e 2 MB. A prévia não altera nenhum cadastro.</p>
+      </div>
+      <%= form.submit "Conferir planilha", class: "btn btn-primary" %>
+    <% end %>
+  <% else %>
+    <p>Cadastre uma categoria exclusiva deste campeonato antes de importar.</p>
+    <%= link_to "Configurar campeonato", setup_championship_path(@championship), class: "btn btn-outline mt-4" %>
+  <% end %>
+<% end %>

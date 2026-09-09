@@ -1,0 +1,23 @@
+<% labels = { "create" => "Nova dupla", "reuse" => "Reaproveitar cadastro", "approve" => "Aprovar inscrição existente", "existing" => "Já aprovada", "error" => "Não importar" } %>
+<% if local_assigns[:completed] %>
+  <% labels = labels.merge("create" => "Criada e aprovada", "reuse" => "Reaproveitada e aprovada", "approve" => "Inscrição aprovada", "error" => "Não importada") %>
+<% end %>
+<div class="overflow-x-auto rounded-2xl border border-base-300 bg-base-100">
+  <table class="table">
+    <thead><tr><th>Linha</th><th>Participantes</th><th>Dupla</th><th><%= local_assigns[:completed] ? "Resultado" : "Ação prevista" %></th><th>Conferência</th></tr></thead>
+    <tbody>
+      <% @entries.each do |entry| %>
+        <tr>
+          <td><%= entry[:line] %></td>
+          <td><%= entry[:names].join(" / ") %></td>
+          <td><%= entry[:name] %></td>
+          <td><span class="badge <%= entry[:error] ? "badge-error" : "badge-outline" %>"><%= labels.fetch(entry[:action]) %></span></td>
+          <td class="max-w-md whitespace-normal">
+            <% if entry[:error] %><p class="text-error"><%= entry[:error] %></p><% end %>
+            <% entry[:warnings].each do |warning| %><p class="text-warning"><%= warning %></p><% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
