@@ -174,23 +174,23 @@ class ShowPagesSmokeTest < ActionDispatch::IntegrationTest
 
   test "renders the main show pages" do
     pages = [
-      [root_path, "Bola Cinco"],
-      [football_root_path, "Portal de Futebol"],
-      [tranca_root_path, "Portal da Tranca"],
-      [championship_path(@championship), @championship.name],
-      [championship_path(@tranca_championship), @tranca_championship.name],
-      [category_path(@category), @category.name],
-      [entity_path(@entity), @entity.name],
-      [team_path(@team_a), @team_a.name],
-      [athlete_path(@athlete), @athlete.name],
-      [venue_path(@venue), @venue.name],
-      [referee_path(@referee), @referee.name],
-      [partner_path(@partner), @partner.name],
-      [match_path(@match), "Onboarding do jogo"],
-      [match_report_path(@match_report), @match.code],
-      [match_event_path(@match_event), @match_event.kind.humanize],
-      [suspension_path(@suspension), @suspension.reason],
-      [invoice_path(@invoice), @invoice.entity.name]
+      [ root_path, "Arena" ],
+      [ football_root_path, "Portal de Futebol" ],
+      [ tranca_root_path, "Portal da Tranca" ],
+      [ championship_path(@championship), @championship.name ],
+      [ championship_path(@tranca_championship), @tranca_championship.name ],
+      [ category_path(@category), @category.name ],
+      [ entity_path(@entity), @entity.name ],
+      [ team_path(@team_a), @team_a.name ],
+      [ athlete_path(@athlete), @athlete.name ],
+      [ venue_path(@venue), @venue.name ],
+      [ referee_path(@referee), @referee.name ],
+      [ partner_path(@partner), @partner.name ],
+      [ match_path(@match), "Onboarding do jogo" ],
+      [ match_report_path(@match_report), @match.code ],
+      [ match_event_path(@match_event), @match_event.kind.humanize ],
+      [ suspension_path(@suspension), @suspension.reason ],
+      [ invoice_path(@invoice), @invoice.entity.name ]
     ]
 
     pages.each do |path, expected|

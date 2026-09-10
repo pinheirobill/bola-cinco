@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 150" role="img" aria-labelledby="title desc">
+  <title id="title">Arena</title>
+  <desc id="desc">Marca Arena com simbolo B5 grafite e amarelo</desc>
+  <g transform="translate(0 8)">
+    <path fill="#3b393b" d="M20 7h82c31 0 54 12 64 34 7 15 7 31-1 45-11 19-32 28-63 28H75v26H20V91h55c18 0 28-5 28-16 0-10-10-16-28-16H47L20 31V7Zm55 91h25c15 0 23 5 23 15s-8 15-23 15H75v-30Z"/>
+    <path fill="#ffe500" d="M174 7h53c39 0 72 31 72 69v64h-55v-24h-70V85h70V63h-43L174 7Zm0 109h70v24h-70v-24Z"/>
+  </g>
+  <text x="326" y="78" fill="#3b393b" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="800" letter-spacing="5">ARENA</text>
+  <text x="328" y="112" fill="#777477" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="5">SPORTS MANAGEMENT</text>
+</svg>

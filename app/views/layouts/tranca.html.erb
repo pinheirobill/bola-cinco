@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
-    <title><%= content_for(:title) || "Bola Cinco - Tranca" %></title>
+    <title><%= content_for(:title) || "Arena - Tranca" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Bola Cinco">
+    <meta name="application-name" content="Arena">
     <meta name="mobile-web-app-capable" content="yes">
     <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="icon" href="/arena-favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/arena-favicon.svg">
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
@@ -23,7 +22,7 @@
         <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.35em] text-base-content/55">Portal Tranca</p>
-            <%= link_to "Bola Cinco", tranca_root_path, class: "text-2xl font-black tracking-tight text-base-content" %>
+            <%= render "shared/brand", href: tranca_root_path %>
           </div>
 
           <nav class="hidden items-center gap-2 lg:flex" aria-label="Navegação da Tranca">

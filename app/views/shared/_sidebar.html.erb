@@ -1,6 +1,6 @@
 <div class="flex h-full flex-col gap-6">
   <div>
-    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50">Bola Cinco</p>
+    <%= image_tag "/arena-logo.svg", alt: "Arena", class: "h-9 w-auto" %>
     <h2 class="mt-2 text-2xl font-black tracking-tight">
       <%= current_championship&.tranca? ? "Gestão da Tranca" : "Gestão de campeonatos" %>
     </h2>
