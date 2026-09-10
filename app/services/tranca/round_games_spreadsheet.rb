@@ -3,7 +3,7 @@ require "cgi"
 
 module Tranca
   class RoundGamesSpreadsheet
-    HEADERS = ["Campeonato", "Rodada", "Fase", "Categoria", "Jogo", "Mesa", "Data", "Horário", "Dupla A", "Dupla B", "Pontos A", "Pontos B", "Status"].freeze
+    HEADERS = [ "Campeonato", "Rodada", "Fase", "Chave", "Categoria", "Jogo", "Mesa", "Data", "Horário", "Dupla A", "Dupla B", "Pontos A", "Pontos B", "Status" ].freeze
     XMLNS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main".freeze
 
     def initialize(round, matches)
@@ -11,14 +11,14 @@ module Tranca
     end
 
     def render
-      rows = [HEADERS] + @matches.map do |match|
+      rows = [ HEADERS ] + @matches.map do |match|
         hands = match.maos.to_a
         score_a = hands.empty? ? match[:score_a] : hands.sum { |hand| hand.pontos_a.to_i }
         score_b = hands.empty? ? match[:score_b] : hands.sum { |hand| hand.pontos_b.to_i }
-        [match.championship.name, @round.round_number, @round.phase_label, match.category.name,
-          match.code, match.tranca_mesa&.name, match.scheduled_on&.strftime("%d/%m/%Y"),
+        [ match.championship.name, @round&.round_number || match.round_number, @round&.phase_label || match.phase_label, match.group_key,
+          match.category.name, match.code, match.tranca_mesa&.name, match.scheduled_on&.strftime("%d/%m/%Y"),
           match.scheduled_time, match.dupla_a_nome, match.dupla_b_nome,
-          score_a, score_b, match.status.humanize]
+          score_a, score_b, match.status.humanize ]
       end
       Zip::OutputStream.write_buffer do |zip|
         package_parts(rows).each do |name, content|
@@ -48,7 +48,7 @@ module Tranca
         end.join
         %(<row r="#{row_index + 1}">#{cells}</row>)
       end.join
-      %(<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="#{XMLNS}"><dimension ref="A1:M#{rows.size}"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="1" width="28" customWidth="1"/><col min="2" max="8" width="20" customWidth="1"/><col min="9" max="10" width="55" customWidth="1"/><col min="11" max="13" width="16" customWidth="1"/></cols><sheetData>#{body}</sheetData><autoFilter ref="A1:M#{rows.size}"/></worksheet>)
+      %(<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="#{XMLNS}"><dimension ref="A1:N#{rows.size}"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="1" width="28" customWidth="1"/><col min="2" max="9" width="20" customWidth="1"/><col min="10" max="11" width="55" customWidth="1"/><col min="12" max="14" width="16" customWidth="1"/></cols><sheetData>#{body}</sheetData><autoFilter ref="A1:N#{rows.size}"/></worksheet>)
     end
 
     def package_parts(rows)

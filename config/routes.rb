@@ -43,6 +43,7 @@ Rails.application.routes.draw do
     get :rodadas, on: :member, path: "rodadas"
     get "rodadas/:rodada_id/sumulas", to: "tranca/round_exports#summulas", as: :round_summulas
     get "rodadas/:rodada_id/jogos.xlsx", to: "tranca/round_exports#games", as: :round_games
+    get "jogos.xlsx", to: "tranca/round_exports#all_games", as: :tranca_games
     get :classificacao, on: :member, path: "classificacao"
     post :generate_tranca_round, on: :member, path: "tranca/gerar-rodada"
     post :select_tranca_knockout_duplas, on: :member, path: "tranca/selecionar-mata-mata"

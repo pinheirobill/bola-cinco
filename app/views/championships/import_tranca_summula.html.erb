@@ -79,7 +79,7 @@
       title: "Conferência",
       subtitle: "Revise os campos detectados, ajuste se necessário e confirme o salvamento."
     ) do %>
-      <%= form_with url: import_tranca_summula_championship_path(@championship, partida_id: @partida.id), method: :post, class: "space-y-4" do %>
+      <%= form_with url: import_tranca_summula_championship_path(@championship, partida_id: @partida.id), method: :post, class: "space-y-4", data: { turbo: false } do %>
         <%= hidden_field_tag "tranca_summula_import[confirm]", "1" %>
         <%= hidden_field_tag "tranca_summula_import[token]", @import_token %>
 
@@ -163,7 +163,7 @@
       title: "Enviar arquivo",
       subtitle: "Escolha um PDF ou foto da súmula para gerar a prévia e confirmar depois."
     ) do %>
-      <%= form_with url: import_tranca_summula_championship_path(@championship, partida_id: @partida.id), method: :post, multipart: true, class: "space-y-4" do %>
+      <%= form_with url: import_tranca_summula_championship_path(@championship, partida_id: @partida.id), method: :post, multipart: true, class: "space-y-4", data: { turbo: false } do %>
         <div class="form-control gap-2">
           <label class="label-text font-medium" for="tranca_summula_import_file">PDF ou foto da súmula</label>
           <input id="tranca_summula_import_file" type="file" name="tranca_summula_import[file]" accept="application/pdf,image/*,.pdf,.jpg,.jpeg,.png" class="file-input file-input-bordered w-full" required>

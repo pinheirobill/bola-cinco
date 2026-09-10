@@ -8,7 +8,8 @@
     link_to("Início", championship_path(@championship), class: "btn btn-outline"),
     link_to("Duplas", duplas_championship_path(@championship), class: "btn btn-outline"),
     link_to("Partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
-    link_to("Rodadas", rodadas_championship_path(@championship), class: "btn btn-primary")
+    link_to("Rodadas", rodadas_championship_path(@championship), class: "btn btn-primary"),
+    link_to("Baixar jogos (Excel)", tranca_games_championship_path(@championship), class: "btn btn-outline", data: { turbo: false })
   ]
 ) %>
 
