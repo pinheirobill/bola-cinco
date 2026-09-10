@@ -1,4 +1,5 @@
 <% content_for :title, "#{@championship.name} | Duplas | Bola Cinco" %>
+<% can_manage = @championship.manageable_by?(current_user) %>
 
 <%= page_header(
   title: "#{@championship.name} · Duplas",
@@ -19,7 +20,7 @@
   { label: "Partidas", value: @tranca_total_partidas, value_class: "text-2xl" }
 ]) %>
 
-<% if @championship.manageable_by?(current_user) %>
+<% if can_manage %>
   <div class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-base-300 bg-base-100 p-5">
     <div>
       <h2 class="font-semibold">Importar duplas do Excel</h2>
@@ -33,7 +34,7 @@
   title: "Duplas por categoria",
   subtitle: "A Tranca reaproveita o cadastro de times como composição das duplas."
 ) do %>
-  <% if user_signed_in? && @championship.manageable_by?(current_user) %>
+  <% if user_signed_in? && can_manage %>
     <div class="mb-6 rounded-3xl border border-base-300 bg-gradient-to-br from-base-200 via-base-200 to-base-300/40 p-5 shadow-sm">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="max-w-3xl">
@@ -149,11 +150,12 @@
 
           <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <% teams.each do |team| %>
+              <% legacy_team = @tranca_legacy_teams[team.source_id] %>
               <div class="rounded-2xl bg-base-100 p-4">
                 <div class="flex items-start justify-between gap-3">
                   <div>
-                    <p class="font-semibold"><%= link_to team.name, team_path(team), class: "link link-primary" %></p>
-                    <p class="mt-1 text-xs text-base-content/60"><%= team.entity.name %></p>
+                    <p class="font-semibold"><% if legacy_team %><%= link_to team.name, team_path(legacy_team), class: "link link-primary" %><% else %><%= team.name %><% end %></p>
+                    <p class="mt-1 text-xs text-base-content/60"><%= team.entity&.name || "Sem entidade" %></p>
                   </div>
                   <% confirmed = team.registration_status.to_s == "aprovada" %>
                   <span class="badge <%= confirmed ? "badge-success" : "badge-warning" %>">
@@ -170,9 +172,8 @@
                     <p>Sem atletas vinculados ainda.</p>
                   <% end %>
                 </div>
-                <% if user_signed_in? && @championship.manageable_by?(current_user) %>
+                <% if user_signed_in? && can_manage %>
                   <div class="mt-4 flex flex-wrap gap-2">
-                    <% legacy_team = team.legacy_team %>
                     <% if legacy_team.present? %>
                       <%= link_to "Abrir", team_path(legacy_team), class: "btn btn-outline btn-xs" %>
                       <%= button_to "Remover", team_path(legacy_team), method: :delete, class: "btn btn-ghost btn-xs", data: { turbo_confirm: "Remover esta dupla?" } %>

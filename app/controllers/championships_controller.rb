@@ -48,7 +48,7 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
     return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
 
-    load_tranca_management
+    load_tranca_duplas
     render "championships/tranca_duplas"
   end
 
@@ -477,6 +477,17 @@ class ChampionshipsController < ApplicationController
     @standing_groups = @championship.standing_groups
     @initial_knockout_matches = @championship.matches.includes(:category, :team_a, :team_b).where(phase: "mata_mata", round_number: 1).order(:category_id, :id)
     @initial_knockout_matches_by_category = @initial_knockout_matches.group_by(&:category)
+  end
+
+  def load_tranca_duplas
+    @tranca_categories = @championship.categories.order(:name).to_a
+    @tranca_default_category = @tranca_categories.first
+    @tranca_entities = Entity.order(:name)
+    @tranca_duplas = @championship.tranca_duplas.includes(:entity, :athletes).order(:name).to_a
+    @tranca_duplas_by_category = @tranca_duplas.group_by(&:category_id)
+    @tranca_total_duplas = @tranca_duplas.size
+    @tranca_total_partidas = @championship.tranca_partidas.count
+    @tranca_legacy_teams = Team.where(source_id: @tranca_duplas.map(&:source_id)).index_by(&:source_id)
   end
 
   def load_tranca_management
