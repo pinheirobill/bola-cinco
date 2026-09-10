@@ -3,7 +3,7 @@
     <div>
       <h3 class="text-xl font-bold"><%= category.name %></h3>
       <% if group_key.present? %>
-        <p class="mt-1 text-xs uppercase tracking-[0.25em] text-base-content/50">Chave <%= group_key %></p>
+        <p class="mt-1 text-xs uppercase tracking-[0.25em] text-base-content/50"><%= group_key %></p>
       <% end %>
     </div>
     <span class="badge badge-outline"><%= rows.size %> equipes</span>
@@ -19,16 +19,18 @@
           <th>V</th>
           <th>E</th>
           <th>D</th>
-          <th>GP</th>
-          <th>GC</th>
-          <th>SG</th>
+          <% unless tranca %>
+            <th>GP</th>
+            <th>GC</th>
+            <th>SG</th>
+          <% end %>
           <th>Pts</th>
         </tr>
       </thead>
       <tbody>
-        <% rows.each do |row| %>
+        <% rows.each_with_index do |row, index| %>
           <tr>
-            <td><%= row.position %></td>
+            <td><%= position_offset + index + 1 %></td>
             <td class="font-medium">
               <% team = row.display_team %>
               <% legacy_team = team.is_a?(Team) ? team : team&.legacy_team %>
@@ -42,9 +44,11 @@
             <td><%= row.wins %></td>
             <td><%= row.draws %></td>
             <td><%= row.losses %></td>
-            <td><%= row.goals_for %></td>
-            <td><%= row.goals_against %></td>
-            <td><%= row.goal_diff %></td>
+            <% unless tranca %>
+              <td><%= row.goals_for %></td>
+              <td><%= row.goals_against %></td>
+              <td><%= row.goal_diff %></td>
+            <% end %>
             <td class="font-semibold"><%= row.points %></td>
           </tr>
         <% end %>

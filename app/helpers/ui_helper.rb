@@ -66,11 +66,13 @@ module UiHelper
     }
   end
 
-  def standing_table(category, rows, group_key: nil)
+  def standing_table(category, rows, group_key: nil, position_offset: 0, tranca: false)
     render partial: "components/standing_table", locals: {
       category: category,
       rows: rows,
-      group_key: group_key
+      group_key: group_key,
+      position_offset: position_offset,
+      tranca: tranca
     }
   end
 

@@ -97,4 +97,21 @@ class Tranca::DashboardTest < ActiveSupport::TestCase
     assert_equal "Rodada 2 · Classificatória", dashboard.rodadas.first.label
     assert_equal "Carlos / Ana", dashboard.classificacao_rows.first.dupla
   end
+
+  test "orders classification groups by their numeric key" do
+    [ 1, 11, 10 ].each do |number|
+      Tranca::ClassificacaoRow.create!(
+        source_id: "tranca-standing-row-dashboard-#{number}",
+        championship: @championship,
+        category: @category,
+        tranca_dupla: @dupla_b,
+        group_key: "Chave #{number}",
+        position: 1
+      )
+    end
+
+    groups = Tranca::Dashboard.new(@championship).standings_groups
+
+    assert_equal [ "", "Chave 1", "Chave 10", "Chave 11" ], groups.map(&:group_key)
+  end
 end
