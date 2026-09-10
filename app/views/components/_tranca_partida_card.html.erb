@@ -22,7 +22,7 @@
       <%= link_to "Baixar súmula completa", download_complete_tranca_summula_championship_path(championship, partida_id: partida.id), class: "btn btn-primary btn-sm" %>
     <% else %>
       <%= link_to "Baixar súmula", download_tranca_summula_championship_path(championship, partida_id: partida.id), class: "btn btn-outline btn-sm" %>
-      <%= form_with url: import_tranca_summula_championship_path(championship, partida_id: partida.id), method: :post, multipart: true, class: "flex flex-wrap items-end gap-2" do %>
+      <%= form_with url: import_tranca_summula_championship_path(championship, partida_id: partida.id), method: :post, multipart: true, class: "flex flex-wrap items-end gap-2", data: { turbo: false } do %>
         <div class="form-control gap-1">
           <label class="label-text text-xs font-medium" for="tranca_summula_import_file_<%= partida.id %>">PDF ou foto</label>
           <%= file_field_tag "tranca_summula_import[file]", id: "tranca_summula_import_file_#{partida.id}", accept: "application/pdf,image/*,.pdf,.jpg,.jpeg,.png", class: "file-input file-input-bordered file-input-sm w-56", required: true %>
