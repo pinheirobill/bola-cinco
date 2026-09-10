@@ -20,7 +20,7 @@ Rails.application.routes.draw do
     post :duplicate, on: :member, path: "duplicar"
   end
   resources :entities, only: %i[index show]
-  resources :teams, only: %i[index show create update destroy] do
+  resources :teams, only: %i[index show edit create update destroy] do
     resources :team_memberships, only: %i[index create]
     resources :team_athletes, only: %i[create destroy]
     patch :confirm_registration, on: :member, path: "confirmar-inscricao"

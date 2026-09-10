@@ -73,7 +73,7 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
 
     row = @championship.tranca_classificacao_rows.order(position: :asc).first
 
-    assert_equal @dupla_a, row.tranca_dupla
+    assert_equal partida.dupla_a, row.tranca_dupla
     assert_equal 3, row.points
     assert_equal 1, row.wins
     assert_equal 1, row.played
@@ -113,7 +113,7 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     assert_equal 17, partida.score_a
     assert_equal 15, partida.score_b
     assert_equal 2, partida.maos.count
-    assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla: @dupla_a).points
+    assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla: partida.dupla_a).points
   end
 
   test "avoids repeating classificatoria matchups in the next round" do

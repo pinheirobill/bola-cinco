@@ -68,6 +68,12 @@ class TeamsController < ApplicationController
     end
   end
 
+  def edit
+    return forbidden! unless team.manageable_by?(current_user)
+
+    @team = team
+  end
+
   def update
     return forbidden! unless team.manageable_by?(current_user)
 
@@ -75,12 +81,25 @@ class TeamsController < ApplicationController
       sync_tranca_dupla_from_team(team) if team.championship&.tranca?
 
       respond_to do |format|
-        format.html { redirect_back fallback_location: team_path(team), notice: "Equipe atualizada." }
+        format.html do
+          if params[:edit_team] == "1"
+            redirect_to team_path(team), notice: "Equipe atualizada.", status: :see_other
+          else
+            redirect_back fallback_location: team_path(team), notice: "Equipe atualizada."
+          end
+        end
         format.json { render json: team }
       end
     else
       respond_to do |format|
-        format.html { redirect_back fallback_location: team_path(team), alert: team.errors.full_messages.to_sentence }
+        format.html do
+          if params[:edit_team] == "1"
+            @team = team
+            render :edit, status: :unprocessable_entity
+          else
+            redirect_back fallback_location: team_path(team), alert: team.errors.full_messages.to_sentence
+          end
+        end
         format.json { render json: { errors: team.errors.full_messages }, status: :unprocessable_entity }
       end
     end

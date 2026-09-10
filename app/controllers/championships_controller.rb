@@ -96,6 +96,8 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Categoria inválida."
   rescue ActiveRecord::RecordInvalid => e
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: e.record.errors.full_messages.join(" · ")
+  rescue Tranca::CompetitionFlow::InvalidScheduleError => error
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: error.message, status: :see_other
   rescue Tranca::CompetitionFlow::NoAvailableMatchupsError
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Não há mais confrontos diferentes disponíveis: todas as duplas já jogaram entre si."
   end

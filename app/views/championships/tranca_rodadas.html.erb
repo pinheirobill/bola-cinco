@@ -52,11 +52,16 @@
 <%= surface_card(title: "Rodadas", subtitle: "As partidas podem ser organizadas por fase e número.") do %>
   <% if @tranca_rodadas.any? %>
     <div class="space-y-6">
+      <% dupla_names = @tranca_duplas.index_by(&:id) %>
       <% @tranca_rodadas.each do |round| %>
         <div class="rounded-3xl bg-base-200 p-4">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 class="text-xl font-bold"><%= round.label %></h3>
+              <% bye_ids = round.partidas.flat_map { |match| Array(match.source_data["bye_ids"]) }.uniq %>
+              <% if bye_ids.any? %>
+                <p class="mt-2 text-sm font-medium">Folga nesta rodada: <%= bye_ids.map { |id| dupla_names[id]&.name || "Dupla ##{id}" }.join(" · ") %></p>
+              <% end %>
               <p class="mt-1 text-sm text-base-content/60"><%= round.partidas.size %> partida(s) · <%= round.mesas.size %> mesa(s)</p>
             </div>
             <div class="flex flex-wrap gap-2">

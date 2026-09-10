@@ -1,6 +1,7 @@
 module Tranca
   class CompetitionFlow
     class NoAvailableMatchupsError < StandardError; end
+    class InvalidScheduleError < StandardError; end
 
     attr_reader :championship
 
@@ -47,7 +48,25 @@ module Tranca
     def generate_round!(phase:, round_number:)
       return generate_knockout_round!(round_number: round_number) if phase.to_s == "mata_mata"
 
-      pairings_by_category = championship.categories.includes(:teams).order(:name).to_h do |category|
+      number = round_number.to_i
+      raise InvalidScheduleError, "Número de rodada inválido." unless number.positive?
+
+      championship.with_lock do
+        existing = championship.tranca_rodadas.find_by(phase: phase.to_s, round_number: number)
+        # A repeated submission must not reset scores, status or opponents.
+        return existing if existing && existing.partidas.exists?
+
+        previous = championship.tranca_rodadas.where(phase: phase.to_s).where.not(id: existing&.id).maximum(:round_number).to_i
+        unless number == previous + 1
+          raise InvalidScheduleError, "Gere as rodadas em sequência. A próxima é #{previous + 1}."
+        end
+        @round_robin_orders = {}
+        generate_classificatoria_round!(phase: phase, round_number: number)
+      end
+    end
+
+    def generate_classificatoria_round!(phase:, round_number:)
+      pairings_by_category = championship.categories.order(:name).to_h do |category|
         [ category, pairings_for(category, phase: phase, round_number: round_number) ]
       end
       raise NoAvailableMatchupsError if pairings_by_category.values.none?(&:any?)
@@ -65,6 +84,9 @@ module Tranca
       rodada.save!
 
       pairings_by_category.each do |category, pairings|
+        next if pairings.empty?
+
+        bye_ids = @round_robin_orders.fetch(category.id) - pairings.flatten.map(&:id)
         pairings.each_with_index do |(dupla_a, dupla_b), index|
           next if dupla_a.blank? || dupla_b.blank?
 
@@ -82,7 +104,10 @@ module Tranca
             dupla_a: dupla_a,
             dupla_b: dupla_b,
             source_data: {
-              "generated_by" => "tranca_competition_flow"
+              "generated_by" => "tranca_competition_flow",
+              "pairing_method" => "berger_v1",
+              "round_robin_order" => @round_robin_orders.fetch(category.id),
+              "bye_ids" => bye_ids
             }
           )
           partida.save!
@@ -91,6 +116,8 @@ module Tranca
 
       rodada
     end
+
+    private :generate_classificatoria_round!
 
     def generate_knockout_round!(round_number:)
       rodada = championship.tranca_rodadas.find_or_initialize_by(
@@ -356,45 +383,30 @@ module Tranca
     end
 
     def pairings_for(category, phase:, round_number:)
-      duplas = championship.tranca_duplas.where(category_id: category.id).order(:name).to_a
-      used_matchups = championship.tranca_partidas
-        .where(category_id: category.id, phase: phase.to_s)
-        .where("round_number < ?", round_number.to_i)
-        .pluck(:dupla_a_id, :dupla_b_id)
-        .each_with_object({}) do |(dupla_a_id, dupla_b_id), matchups|
-          next if dupla_a_id.blank? || dupla_b_id.blank?
+      duplas = championship.tranca_duplas.where(category_id: category.id).order(:id).to_a
+      return [] if duplas.size < 2
 
-          matchups[matchup_key(dupla_a_id, dupla_b_id)] = true
+      history = championship.tranca_partidas.where(category_id: category.id, phase: phase.to_s)
+      first_match = history.order(:round_number, :id).first
+      if first_match
+        order = first_match.source_data["round_robin_order"]
+        unless first_match.source_data["pairing_method"] == "berger_v1" && order.is_a?(Array)
+          raise InvalidScheduleError, "#{category.name}: há partidas do sorteio anterior. Revise a tabela existente antes de iniciar o método Berger."
         end
-
-      pairings = best_pairings(duplas, used_matchups)
-      pairings unless repeated_matchups(pairings, used_matchups).positive?
-    end
-
-    def best_pairings(duplas, used_matchups)
-      return [] if duplas.empty?
-
-      first_dupla = duplas.first
-      opponents = duplas.drop(1)
-      best = best_pairings(opponents, used_matchups)
-
-      opponents.each_with_index do |opponent, index|
-        remaining = opponents[0...index] + opponents[(index + 1)..]
-        candidate = [ [ first_dupla, opponent ] ] + best_pairings(remaining, used_matchups)
-        best = preferred_pairings(candidate, best, used_matchups)
+        unless order.sort == duplas.map(&:id).sort
+          raise InvalidScheduleError, "#{category.name}: as duplas mudaram após o sorteio. Revise a tabela antes de gerar outra rodada."
+        end
+      else
+        order = duplas.map(&:id).shuffle
       end
-
-      best
-    end
-
-    def preferred_pairings(candidate, current, used_matchups)
-      candidate_score = [ repeated_matchups(candidate, used_matchups), -candidate.size ]
-      current_score = [ repeated_matchups(current, used_matchups), -current.size ]
-      (candidate_score <=> current_score) == -1 ? candidate : current
-    end
-
-    def repeated_matchups(pairings, used_matchups)
-      pairings.count { |dupla_a, dupla_b| used_matchups[matchup_key(dupla_a.id, dupla_b.id)] }
+      @round_robin_orders[category.id] = order
+      pairs = RoundRobinPairings.new(order).round(round_number.to_i)
+      used = history.pluck(:dupla_a_id, :dupla_b_id).map { |ids| ids.compact.sort }
+      if pairs.any? { |ids| used.include?(ids.sort) }
+        raise InvalidScheduleError, "#{category.name}: a tabela foi alterada e há confronto repetido. Revise as partidas existentes."
+      end
+      by_id = duplas.index_by(&:id)
+      pairs.map { |ids| ids.map { |id| by_id.fetch(id) } }
     end
 
     def matchup_key(dupla_a_id, dupla_b_id)

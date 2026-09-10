@@ -1,0 +1,21 @@
+<% content_for :title, "Editar equipe | Bola Cinco" %>
+
+<%= page_header(title: "Editar equipe", subtitle: @team.name,
+  actions: [link_to("Voltar", team_path(@team), class: "btn btn-outline")]) %>
+
+<%= surface_card(title: "Nome da equipe") do %>
+  <%= form_with model: @team, data: { turbo: false }, class: "space-y-5" do |form| %>
+    <%= hidden_field_tag :edit_team, "1" %>
+    <% if @team.errors.any? %>
+      <div class="alert alert-error" role="alert"><%= @team.errors.full_messages.to_sentence %></div>
+    <% end %>
+    <div class="form-control gap-2">
+      <%= form.label :name, "Nome da equipe / dupla", class: "label-text font-medium" %>
+      <%= form.text_field :name, required: true, autofocus: true, class: "input input-bordered w-full" %>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <%= form.submit "Salvar alterações", class: "btn btn-primary" %>
+      <%= link_to "Cancelar", team_path(@team), class: "btn btn-outline" %>
+    </div>
+  <% end %>
+<% end %>
