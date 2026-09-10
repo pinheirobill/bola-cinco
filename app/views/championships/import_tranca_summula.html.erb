@@ -36,7 +36,7 @@
             <p class="mt-2 text-2xl font-black"><%= extracted_lines_count %></p>
           </div>
           <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Mãos detectadas</p>
+            <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Batidas detectadas</p>
             <p class="mt-2 text-2xl font-black"><%= hands.size %></p>
           </div>
           <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
@@ -109,17 +109,9 @@
           <table class="table table-zebra table-sm">
             <thead class="bg-base-200">
               <tr>
-                <th>Mão</th>
+                <th>Batida</th>
                 <th>Pts A</th>
                 <th>Pts B</th>
-                <th>CL A</th>
-                <th>CL B</th>
-                <th>CS A</th>
-                <th>CS B</th>
-                <th>B A</th>
-                <th>B B</th>
-                <th>3V A</th>
-                <th>3V B</th>
                 <th>Desc. A</th>
                 <th>Desc. B</th>
               </tr>
@@ -134,14 +126,6 @@
                   </td>
                   <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][pontos_a]", hand[:pontos_a], class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
                   <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][pontos_b]", hand[:pontos_b], class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
-                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][canastra_limpa_a]", "1", hand[:canastra_limpa_a], class: "checkbox checkbox-primary checkbox-sm" %></td>
-                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][canastra_limpa_b]", "1", hand[:canastra_limpa_b], class: "checkbox checkbox-primary checkbox-sm" %></td>
-                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][canastra_suja_a]", "1", hand[:canastra_suja_a], class: "checkbox checkbox-primary checkbox-sm" %></td>
-                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][canastra_suja_b]", "1", hand[:canastra_suja_b], class: "checkbox checkbox-primary checkbox-sm" %></td>
-                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][batida_a]", "1", hand[:batida_a], class: "checkbox checkbox-primary checkbox-sm" %></td>
-                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][batida_b]", "1", hand[:batida_b], class: "checkbox checkbox-primary checkbox-sm" %></td>
-                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][tres_vermelho_a]", "1", hand[:tres_vermelho_a], class: "checkbox checkbox-primary checkbox-sm" %></td>
-                  <td class="text-center"><%= check_box_tag "tranca_summula_import[maos_attributes][#{index}][tres_vermelho_b]", "1", hand[:tres_vermelho_b], class: "checkbox checkbox-primary checkbox-sm" %></td>
                   <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][desconto_a]", hand[:desconto_a] || 0, class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
                   <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][desconto_b]", hand[:desconto_b] || 0, class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
                 </tr>
