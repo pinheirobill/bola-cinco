@@ -107,6 +107,13 @@
         <% matches.each do |match| %>
           <%= match_card(match, compact: true) %>
         <% end %>
+        <% @tranca_matches.each do |partida| %>
+          <%= render "components/tranca_partida_card", championship: partida.championship, partida: partida %>
+        <% end %>
+      <% elsif @tranca_matches.any? %>
+        <% @tranca_matches.each do |partida| %>
+          <%= render "components/tranca_partida_card", championship: partida.championship, partida: partida %>
+        <% end %>
       <% else %>
         <%= empty_state(
           title: "Nenhum jogo encontrado",

@@ -10,10 +10,21 @@ class TeamsController < ApplicationController
     @team_athletes = @team.team_athletes.includes(athlete: :linked_teams).order(created_at: :desc)
     @team_athlete_ids = @team.athletes.map(&:id)
     @available_athletes = available_athletes_for(@team).sort_by do |athlete|
-      [athlete.team.name.to_s.downcase, athlete.shirt_number_sort_key, athlete.quick_label.downcase, athlete.name.downcase]
+      [ athlete.team.name.to_s.downcase, athlete.shirt_number_sort_key, athlete.quick_label.downcase, athlete.name.downcase ]
     end
     @available_teams = Team.includes(:category).order(:name)
     @team_championships = @team.category.championships.order(season: :desc, created_at: :desc)
+    tranca_championship_ids = @team_championships.where(modality: :tranca).select(:id)
+    tranca_dupla_ids = Tranca::Dupla.where(championship_id: tranca_championship_ids, source_id: @team.source_id).select(:id)
+    @tranca_matches = Tranca::Partida.includes(:category, :dupla_a, :dupla_b, :winner, :tranca_mesa)
+      .where(championship_id: tranca_championship_ids)
+      .where(dupla_a_id: tranca_dupla_ids)
+      .or(
+        Tranca::Partida.includes(:category, :dupla_a, :dupla_b, :winner, :tranca_mesa)
+          .where(championship_id: tranca_championship_ids)
+          .where(dupla_b_id: tranca_dupla_ids)
+      )
+      .order(scheduled_on: :asc, scheduled_time: :asc, id: :asc)
   end
 
   def create
@@ -27,7 +38,7 @@ class TeamsController < ApplicationController
       params_data.except(:entity_id, :participant_one_name, :participant_two_name)
     )
 
-    participant_names = [params_data[:participant_one_name], params_data[:participant_two_name]].map { _1.to_s.strip }.reject(&:blank?)
+    participant_names = [ params_data[:participant_one_name], params_data[:participant_two_name] ].map { _1.to_s.strip }.reject(&:blank?)
     record_name = record.name.to_s.strip
     record_name = participant_names.join(" / ") if record_name.blank? && participant_names.any?
     if record_name.blank?
