@@ -100,6 +100,25 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: error.message, status: :see_other
   rescue Tranca::CompetitionFlow::NoAvailableMatchupsError
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Não há mais confrontos diferentes disponíveis: todas as duplas já jogaram entre si."
+  rescue Tranca::CompetitionFlow::InvalidKnockoutSelectionError => error
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: error.message, status: :see_other
+  end
+
+  def select_tranca_knockout_duplas
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    Tranca::CompetitionFlow.new(@championship).generate_knockout_round!(
+      round_number: 1,
+      selected_dupla_ids: params[:dupla_ids]
+    )
+
+    redirect_to rodadas_championship_path(@championship), notice: "Chave eliminatória gerada com 16 duplas."
+  rescue Tranca::CompetitionFlow::InvalidKnockoutSelectionError => error
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: error.message, status: :see_other
+  rescue ActiveRecord::RecordInvalid => error
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: error.record.errors.full_messages.join(" · ")
   end
 
   def generate_tranca_mesas
@@ -113,6 +132,28 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: rodadas_championship_path(@championship), notice: "Mesas da #{rodada.label} definidas."
   rescue ActiveRecord::RecordNotFound
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Rodada inválida."
+  end
+
+  def destroy_tranca_round
+    fallback_location = rodadas_championship_path(params[:id])
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    rodada = @championship.tranca_rodadas.find(params[:rodada_id])
+    round_label = rodada.label
+    redirect_back(fallback_location: fallback_location, alert: "Não é possível excluir uma rodada com jogo finalizado.") and return unless rodada.deletable?
+
+    Tranca::Rodada.transaction do
+      rodada.partidas.destroy_all
+      rodada.mesas.destroy_all
+      rodada.destroy!
+      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if rodada.classificatoria?
+    end
+
+    redirect_back fallback_location: fallback_location, notice: "#{round_label} excluída."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: fallback_location, alert: "Rodada inválida."
   end
 
   def update_tranca_partida
@@ -493,6 +534,9 @@ class ChampionshipsController < ApplicationController
   end
 
   def load_tranca_management
+    if @championship.tranca_classificacao_rows.none? && @championship.tranca_partidas.where(phase: "classificatoria").exists?
+      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao!
+    end
     dashboard = Tranca::Dashboard.new(@championship)
     @championship = dashboard.championship
     @tranca_dashboard = dashboard
@@ -522,6 +566,11 @@ class ChampionshipsController < ApplicationController
     @tranca_knockout_partidas = dashboard.knockout_partidas
     @tranca_stats = dashboard.stats
     @tranca_recent_duplas = @championship.tranca_duplas.includes(:entity, :category).order(created_at: :desc).limit(3)
+    qualified_ids = @tranca_standings.select(&:qualified?).map(&:tranca_dupla_id)
+    @tranca_knockout_qualified_rows = @tranca_standings.select(&:qualified?).sort_by { |row| [ row.group_key.to_s, row.position ] }
+    @tranca_knockout_candidate_rows = @tranca_standings.reject { |row| qualified_ids.include?(row.tranca_dupla_id) }
+      .sort_by { |row| [ -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.position.to_i ] }
+    @tranca_knockout_selection_done = @championship.tranca_partidas.where(phase: "mata_mata", round_number: 1).exists?
   end
 
   def recent_tranca_source_teams

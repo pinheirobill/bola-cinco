@@ -2,6 +2,7 @@ module Tranca
   class CompetitionFlow
     class NoAvailableMatchupsError < StandardError; end
     class InvalidScheduleError < StandardError; end
+    class InvalidKnockoutSelectionError < StandardError; end
 
     attr_reader :championship
 
@@ -12,19 +13,19 @@ module Tranca
     def classificatoria_pairings_available?(round_number:)
       championship.categories.includes(:teams).any? do |category|
         dupla_ids = championship.tranca_duplas.where(category_id: category.id).pluck(:id)
-        used_matchups = championship.tranca_partidas
+        history = championship.tranca_partidas
           .where(category_id: category.id, phase: "classificatoria")
           .where("round_number < ?", round_number.to_i)
-          .pluck(:dupla_a_id, :dupla_b_id)
-          .each_with_object({}) do |(first_id, second_id), matchups|
-            next if first_id.blank? || second_id.blank?
+        first_match = history.order(:round_number, :id).first
+        order = first_match&.source_data&.[]("round_robin_order")
+        order = dupla_ids if !order.is_a?(Array) || order.sort != dupla_ids.sort
+        used_matchups = history.pluck(:dupla_a_id, :dupla_b_id).to_set { |ids| matchup_key(*ids) }
 
-            matchups[matchup_key(first_id, second_id)] = true
+        grouped_dupla_ids(order).any? do |group_ids|
+          RoundRobinPairings.new(group_ids).round(round_number.to_i).any? do |first_id, second_id|
+            !used_matchups.include?(matchup_key(first_id, second_id))
           end
-
-        # Page rendering only needs to know whether one unused matchup exists.
-        # Do not generate all possible rounds just to enable the button.
-        dupla_ids.combination(2).any? { |first_id, second_id| !used_matchups[matchup_key(first_id, second_id)] }
+        end
       end
     end
 
@@ -101,6 +102,7 @@ module Tranca
             phase: phase.to_s,
             round_number: round_number.to_i,
             status: :agendado,
+            group_key: classification_group_key_for(category, dupla_a),
             dupla_a: dupla_a,
             dupla_b: dupla_b,
             source_data: {
@@ -114,12 +116,18 @@ module Tranca
         end
       end
 
+      rebuild_classificacao!
       rodada
     end
 
     private :generate_classificatoria_round!
 
-    def generate_knockout_round!(round_number:)
+    def generate_knockout_round!(round_number:, selected_dupla_ids: nil)
+      selected_dupla_ids = normalize_dupla_ids(selected_dupla_ids)
+      if round_number.to_i <= 1 && selected_dupla_ids.empty? && championship.group_stage_and_knockout_mode? && championship.tranca_classificacao_rows.where(qualified: true).exists?
+        raise InvalidKnockoutSelectionError, "Selecione 5 duplas não classificadas para completar as 16 vagas."
+      end
+      validate_knockout_selection!(selected_dupla_ids) if round_number.to_i <= 1 && selected_dupla_ids.any?
       rodada = championship.tranca_rodadas.find_or_initialize_by(
         phase: "mata_mata",
         round_number: round_number.to_i
@@ -133,7 +141,7 @@ module Tranca
       rodada.save!
 
       championship.categories.includes(:teams).order(:name).each do |category|
-        pairings_for_knockout(category, round_number).each_with_index do |(dupla_a, dupla_b), index|
+        pairings_for_knockout(category, round_number, selected_dupla_ids: selected_dupla_ids).each_with_index do |(dupla_a, dupla_b), index|
           next if dupla_a.blank? || dupla_b.blank?
 
           partida = championship.tranca_partidas.find_or_initialize_by(
@@ -151,7 +159,10 @@ module Tranca
             dupla_b: dupla_b,
             source_data: {
               "generated_by" => "tranca_competition_flow",
-              "kind" => "knockout"
+              "kind" => "knockout",
+              "qualified_dupla_ids" => qualified_dupla_ids_for(category),
+              "selected_dupla_ids" => selected_dupla_ids,
+              "selection_ranks" => selection_ranks_for(category, selected_dupla_ids)
             }
           )
           partida.save!
@@ -255,11 +266,15 @@ module Tranca
     private
 
     def rebuild_category_classificacao!(category, duplas)
-      groups = championship.tranca_partidas.where(category_id: category.id).group_by { |partida| partida.group_key.to_s }
+      groups = championship.tranca_partidas.where(category_id: category.id, phase: "classificatoria").group_by do |partida|
+        partida.group_key.presence || inferred_group_key_for(partida)
+      end
       groups = { "" => [] } if groups.empty?
 
       groups.each do |group_key, partidas|
-        stats_by_dupla = duplas.index_by(&:id).transform_values { |dupla| standing_stats_for(dupla, group_key) }
+        participant_ids = partidas.flat_map { |partida| [ partida.dupla_a_id, partida.dupla_b_id ] }.compact.uniq
+        group_duplas = duplas.select { |dupla| participant_ids.include?(dupla.id) }
+        stats_by_dupla = group_duplas.index_by(&:id).transform_values { |dupla| standing_stats_for(dupla, group_key) }
 
         partidas.select(&:finished?).each do |partida|
           apply_partida_to_stats!(stats_by_dupla, partida)
@@ -378,6 +393,15 @@ module Tranca
       }
     end
 
+    def inferred_group_key_for(partida)
+      order = Array(partida.source_data["round_robin_order"]).map(&:to_i)
+      return "" if order.empty? || partida.dupla_a_id.blank?
+
+      group_count = [ championship.group_count, 1 ].max
+      group_index = order.index(partida.dupla_a_id).to_i % [ group_count, order.size ].min
+      "Chave #{group_index + 1}"
+    end
+
     def qualified_for_group?(index)
       championship.group_stage_and_knockout_mode? ? index < championship.qualified_per_group : nil
     end
@@ -400,13 +424,29 @@ module Tranca
         order = duplas.map(&:id).shuffle
       end
       @round_robin_orders[category.id] = order
-      pairs = RoundRobinPairings.new(order).round(round_number.to_i)
+      pairs = grouped_dupla_ids(order).flat_map do |group_ids|
+        RoundRobinPairings.new(group_ids).round(round_number.to_i)
+      end
       used = history.pluck(:dupla_a_id, :dupla_b_id).map { |ids| ids.compact.sort }
       if pairs.any? { |ids| used.include?(ids.sort) }
         raise InvalidScheduleError, "#{category.name}: a tabela foi alterada e há confronto repetido. Revise as partidas existentes."
       end
       by_id = duplas.index_by(&:id)
       pairs.map { |ids| ids.map { |id| by_id.fetch(id) } }
+    end
+
+    def grouped_dupla_ids(order)
+      group_count = [ championship.group_count, 1 ].max
+      groups = Array.new([ group_count, order.size ].min) { [] }
+      order.each_with_index { |dupla_id, index| groups[index % groups.size] << dupla_id }
+      groups
+    end
+
+    def classification_group_key_for(category, dupla)
+      order = @round_robin_orders.fetch(category.id)
+      group_count = [ championship.group_count, 1 ].max
+      group_index = order.index(dupla.id).to_i % [ group_count, order.size ].min
+      "Chave #{group_index + 1}"
     end
 
     def matchup_key(dupla_a_id, dupla_b_id)
@@ -487,8 +527,8 @@ module Tranca
       generate_knockout_round!(round_number: current_round + 1)
     end
 
-    def pairings_for_knockout(category, round_number)
-      participants = knockout_participants_for(category, round_number)
+    def pairings_for_knockout(category, round_number, selected_dupla_ids: [])
+      participants = knockout_participants_for(category, round_number, selected_dupla_ids: selected_dupla_ids)
       half = participants.size / 2
       left_side = participants.first(half)
       right_side = participants.last(half).reverse
@@ -496,23 +536,64 @@ module Tranca
       left_side.zip(right_side)
     end
 
-    def knockout_participants_for(category, round_number)
+    def knockout_participants_for(category, round_number, selected_dupla_ids: [])
       round_number = round_number.to_i
-      return qualified_knockout_participants_for(category) if round_number <= 1
+      return qualified_knockout_participants_for(category, selected_dupla_ids: selected_dupla_ids) if round_number <= 1
 
       return [] unless knockout_round_complete?(category, round_number - 1)
 
       knockout_winners_for(category, round_number - 1)
     end
 
-    def qualified_knockout_participants_for(category)
+    def qualified_knockout_participants_for(category, selected_dupla_ids: [])
       rows = championship.tranca_classificacao_rows.where(category_id: category.id)
-      rows = rows.where(qualified: true) if rows.where(qualified: true).exists?
+      qualified_rows = rows.where(qualified: true).order(:group_key, :position)
+      if selected_dupla_ids.any?
+        selected_rows = rows.where(tranca_dupla_id: selected_dupla_ids)
+        return (qualified_rows.to_a + selected_rows.to_a).map(&:tranca_dupla).compact.uniq
+      end
+
+      rows = qualified_rows if qualified_rows.exists?
       rows = rows.order(position: :asc, points: :desc, goal_diff: :desc, goals_for: :desc)
 
       duplas = rows.map(&:tranca_dupla).compact
       duplas = championship.tranca_duplas.where(category_id: category.id).order(:name).to_a if duplas.blank?
       duplas
+    end
+
+    def validate_knockout_selection!(selected_dupla_ids)
+      raise InvalidKnockoutSelectionError, "Selecione exatamente 5 duplas." unless selected_dupla_ids.size == 5
+
+      qualified_rows = championship.tranca_classificacao_rows.where(qualified: true)
+      qualified_ids = qualified_rows.pluck(:tranca_dupla_id)
+      candidate_rows = championship.tranca_classificacao_rows.where.not(tranca_dupla_id: qualified_ids)
+      candidate_ids = candidate_rows.pluck(:tranca_dupla_id)
+
+      unless qualified_rows.count == championship.group_count && qualified_rows.distinct.count(:group_key) == championship.group_count && qualified_ids.uniq.size == championship.group_count
+        raise InvalidKnockoutSelectionError, "A classificação precisa ter exatamente um classificado por chave antes do mata-mata."
+      end
+
+      unless selected_dupla_ids.all? { |id| candidate_ids.include?(id) }
+        raise InvalidKnockoutSelectionError, "Escolha somente duplas não classificadas."
+      end
+
+      unless selected_dupla_ids.all? { |id| championship.tranca_duplas.exists?(id: id) }
+        raise InvalidKnockoutSelectionError, "Há uma dupla inválida na seleção."
+      end
+    end
+
+    def normalize_dupla_ids(ids)
+      Array(ids).filter_map { |id| Integer(id, exception: false) }.uniq
+    end
+
+    def qualified_dupla_ids_for(category)
+      championship.tranca_classificacao_rows.where(category_id: category.id, qualified: true).order(:group_key).pluck(:tranca_dupla_id)
+    end
+
+    def selection_ranks_for(category, selected_dupla_ids)
+      championship.tranca_classificacao_rows.where(category_id: category.id, tranca_dupla_id: selected_dupla_ids)
+        .order(points: :desc, goal_diff: :desc, goals_for: :desc, position: :asc)
+        .pluck(:tranca_dupla_id, :position).to_h
     end
 
     def knockout_round_complete?(category, round_number)

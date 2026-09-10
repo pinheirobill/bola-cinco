@@ -48,6 +48,85 @@
   </div>
 <% end %>
 
+<% if user_signed_in? && @championship.manageable_by?(current_user) && @tranca_knockout_qualified_rows.any? && !@tranca_knockout_selection_done %>
+  <%= surface_card(title: "Montar oitavas", subtitle: "Os 11 classificados avançam. Escolha exatamente 5 duplas entre as demais para completar as 16 vagas.") do %>
+    <button type="button" class="btn btn-primary" onclick="document.getElementById('tranca-knockout-selection-modal').showModal()">
+      Selecionar 5 duplas
+    </button>
+  <% end %>
+
+  <dialog id="tranca-knockout-selection-modal" class="modal">
+    <div class="modal-box max-w-5xl">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-bold">Selecionar duplas para as oitavas</h2>
+          <p class="mt-1 text-sm text-base-content/70">Os classificados por chave já estão definidos. Marque 5 duplas não classificadas.</p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tranca-knockout-selection-modal').close()">Fechar</button>
+      </div>
+
+      <%= form_with url: select_tranca_knockout_duplas_championship_path(@championship), method: :post, class: "mt-6 space-y-6", data: { knockout_selection: true } do %>
+        <section>
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <h3 class="text-lg font-semibold">Classificados</h3>
+            <span class="badge badge-outline"><%= @tranca_knockout_qualified_rows.size %> duplas</span>
+          </div>
+          <div class="grid gap-2 md:grid-cols-2">
+            <% @tranca_knockout_qualified_rows.each do |row| %>
+              <div class="rounded-xl border border-success/30 bg-success/10 p-3">
+                <p class="text-xs uppercase tracking-[0.2em] text-base-content/50"><%= row.group_key.presence || "Classificação geral" %> · <%= row.position %>º</p>
+                <p class="mt-1 font-semibold"><%= row.tranca_dupla.name %></p>
+                <p class="text-xs text-base-content/60"><%= row.points %> pts · <%= row.played %> jogo(s)</p>
+              </div>
+            <% end %>
+          </div>
+        </section>
+
+        <section>
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <h3 class="text-lg font-semibold">Melhores duplas restantes</h3>
+            <span class="badge badge-primary" data-selection-count>0 de 5</span>
+          </div>
+          <div class="grid gap-2 md:grid-cols-2">
+            <% @tranca_knockout_candidate_rows.each do |row| %>
+              <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-base-300 bg-base-100 p-3 transition hover:border-primary/50">
+                <%= check_box_tag "dupla_ids[]", row.tranca_dupla_id, false, class: "checkbox checkbox-primary", data: { selection_checkbox: true } %>
+                <span class="min-w-0 flex-1">
+                  <span class="block font-semibold"><%= row.tranca_dupla.name %></span>
+                  <span class="text-xs text-base-content/60"><%= row.group_key.presence || "Classificação geral" %> · <%= row.position %>º · <%= row.points %> pts</span>
+                </span>
+              </label>
+            <% end %>
+          </div>
+        </section>
+
+        <div class="modal-action">
+          <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-knockout-selection-modal').close()">Cancelar</button>
+          <%= submit_tag "Gerar chave com 16 duplas", class: "btn btn-primary", disabled: true, data: { selection_submit: true } %>
+        </div>
+      <% end %>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>Fechar</button></form>
+  </dialog>
+
+  <script>
+    (() => {
+      const modal = document.getElementById("tranca-knockout-selection-modal")
+      if (!modal) return
+      const checkboxes = [...modal.querySelectorAll("[data-selection-checkbox]")]
+      const counter = modal.querySelector("[data-selection-count]")
+      const submit = modal.querySelector("[data-selection-submit]")
+      const update = () => {
+        const selected = checkboxes.filter((checkbox) => checkbox.checked)
+        counter.textContent = `${selected.length} de 5`
+        submit.disabled = selected.length !== 5
+        checkboxes.forEach((checkbox) => { checkbox.disabled = !checkbox.checked && selected.length >= 5 })
+      }
+      checkboxes.forEach((checkbox) => checkbox.addEventListener("change", update))
+    })()
+  </script>
+<% end %>
+
 <% if @tranca_knockout_rounds.any? %>
   <%= render "components/tranca_knockout_bracket", rounds: @tranca_knockout_rounds %>
 <% end %>

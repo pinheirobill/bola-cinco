@@ -75,6 +75,39 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla: @dupla_a).points
   end
 
+  test "deletes a round and its games while no game is finalized" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    partida_id = rodada.partidas.first.id
+
+    delete destroy_tranca_round_championship_path(@championship, rodada_id: rodada.id)
+
+    assert_redirected_to rodadas_championship_path(@championship)
+    assert_not Tranca::Rodada.exists?(rodada.id)
+    assert_not Tranca::Partida.exists?(partida_id)
+  end
+
+  test "does not delete a round with a finalized game" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    partida = rodada.partidas.first
+    patch update_tranca_partida_championship_path(@championship, partida_id: partida.id), params: {
+      tranca_partida: { score_a: 2, score_b: 1, status: "finalizado" }
+    }
+
+    delete destroy_tranca_round_championship_path(@championship, rodada_id: rodada.id)
+
+    assert_redirected_to rodadas_championship_path(@championship)
+    assert Tranca::Rodada.exists?(rodada.id)
+    assert_equal "finalizado", partida.reload.status
+  end
+
   test "launches detailed hand scoring through the same result endpoint" do
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",
@@ -164,6 +197,6 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert Tranca::Rodada.exists?(championship: @championship, phase: "mata_mata", round_number: 2)
     round_two = @championship.tranca_rodadas.find_by!(phase: "mata_mata", round_number: 2)
     assert_equal 1, round_two.partidas.count
-    assert_equal [additional_duplas.first.name, @dupla_a.name], [round_two.partidas.first.dupla_a, round_two.partidas.first.dupla_b]
+    assert_equal [ additional_duplas.first.name, @dupla_a.name ], [ round_two.partidas.first.dupla_a, round_two.partidas.first.dupla_b ]
   end
 end

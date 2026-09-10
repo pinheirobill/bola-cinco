@@ -72,6 +72,9 @@
               <% end %>
               <% if user_signed_in? && @championship.manageable_by?(current_user) %>
                 <%= button_to "Definir mesas", generate_tranca_mesas_championship_path(@championship, rodada_id: round.id), method: :post, class: "btn btn-outline btn-xs" %>
+                <% if round.deletable? %>
+                  <%= button_to "Excluir rodada", destroy_tranca_round_championship_path(@championship, rodada_id: round.id), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir #{round.label} e todos os seus jogos?" } } %>
+                <% end %>
               <% end %>
             </div>
           </div>

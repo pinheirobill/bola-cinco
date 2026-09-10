@@ -45,7 +45,9 @@ Rails.application.routes.draw do
     get "rodadas/:rodada_id/jogos.xlsx", to: "tranca/round_exports#games", as: :round_games
     get :classificacao, on: :member, path: "classificacao"
     post :generate_tranca_round, on: :member, path: "tranca/gerar-rodada"
+    post :select_tranca_knockout_duplas, on: :member, path: "tranca/selecionar-mata-mata"
     post :generate_tranca_mesas, on: :member, path: "tranca/gerar-mesas"
+    delete :destroy_tranca_round, on: :member, path: "rodadas/:rodada_id"
     patch :update_tranca_partida, on: :member, path: "tranca/partidas/:partida_id"
     get :download_tranca_summula, on: :member, path: "tranca/partidas/:partida_id/sumula"
     get :download_complete_tranca_summula, on: :member, path: "tranca/partidas/:partida_id/sumula-completa"
@@ -100,5 +102,4 @@ Rails.application.routes.draw do
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
 end

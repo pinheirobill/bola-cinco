@@ -24,5 +24,9 @@ module Tranca
       else phase.to_s.tr("_", " ").humanize
       end
     end
+
+    def deletable?
+      !partidas.where(status: %w[finalizado wo]).exists?
+    end
   end
 end

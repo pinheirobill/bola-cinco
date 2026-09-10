@@ -73,7 +73,7 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
 
     row = @championship.tranca_classificacao_rows.order(position: :asc).first
 
-    assert_equal partida.dupla_a, row.tranca_dupla
+    assert_equal partida.team_a, row.tranca_dupla
     assert_equal 3, row.points
     assert_equal 1, row.wins
     assert_equal 1, row.played
@@ -113,7 +113,7 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     assert_equal 17, partida.score_a
     assert_equal 15, partida.score_b
     assert_equal 2, partida.maos.count
-    assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla: partida.dupla_a).points
+    assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla: partida.team_a).points
   end
 
   test "avoids repeating classificatoria matchups in the next round" do
@@ -137,6 +137,25 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     assert_equal 3, extra_duplas.size
     assert_equal 2, first_matchups.size
     assert_equal 2, second_matchups.size
+    assert_empty first_matchups & second_matchups
+  end
+
+  test "keeps new classificatoria matchups inside their groups" do
+    6.times do |index|
+      Tranca::Dupla.create!(source_id: "grouped-round-#{index}", championship: @championship,
+        category: @category, entity: @entity, name: "Grouped #{index}")
+    end
+    @championship.update!(format: { "groupCount" => 2 })
+
+    flow = Tranca::CompetitionFlow.new(@championship)
+    first_round = flow.generate_round!(phase: "classificatoria", round_number: 1)
+    second_round = flow.generate_round!(phase: "classificatoria", round_number: 2)
+
+    first_matchups = first_round.partidas.map { |partida| [ partida.dupla_a_id, partida.dupla_b_id ].sort }
+    second_matchups = second_round.partidas.map { |partida| [ partida.dupla_a_id, partida.dupla_b_id ].sort }
+
+    assert_equal [ "Chave 1", "Chave 2" ], first_round.partidas.map(&:group_key).uniq.sort
+    assert_equal [ "Chave 1", "Chave 2" ], second_round.partidas.map(&:group_key).uniq.sort
     assert_empty first_matchups & second_matchups
   end
 
