@@ -21,6 +21,15 @@ class VenuesPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "id=\"novo-local\""
   end
 
+  test "redirects when there is no championship to scope venues" do
+    @championship.destroy!
+
+    get venues_path
+
+    assert_redirected_to championships_path
+    assert_equal "Crie ou selecione um campeonato antes de cadastrar locais.", flash[:alert]
+  end
+
   test "shows the venue dashboard with schedule and charts" do
     category = Category.create!(
       source_id: "cat-venues-pages",

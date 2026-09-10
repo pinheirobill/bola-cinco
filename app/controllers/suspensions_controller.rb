@@ -1,5 +1,7 @@
 class SuspensionsController < ApplicationController
   def index
+    return redirect_to championships_path, alert: "Crie ou selecione um campeonato antes de consultar suspensões." unless current_championship
+
     Discipline::SuspensionLifecycle.new(championship: scoped_championship).sweep_expired!
     @suspensions = scoped_suspensions.order(created_at: :desc)
     @suspension = scoped_championship.suspensions.new(status: :ativa, automatic: false, matches_count: 1)

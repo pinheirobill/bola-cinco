@@ -1,5 +1,7 @@
 class RefereesController < ApplicationController
   def index
+    return redirect_to championships_path, alert: "Crie ou selecione um campeonato antes de cadastrar árbitros." unless current_championship
+
     @referees = scoped_referees.order(:name)
     @referee = scoped_championship.referees.new(status: :ativo)
     respond_to do |format|

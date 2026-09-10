@@ -1,5 +1,10 @@
 class VenuesController < ApplicationController
   def index
+    unless current_championship
+      redirect_to championships_path, alert: "Crie ou selecione um campeonato antes de cadastrar locais."
+      return
+    end
+
     @venues = scoped_venues.order(:name)
     @venue = scoped_championship.venues.new(status: :ativo)
     respond_to do |format|
@@ -121,13 +126,13 @@ class VenuesController < ApplicationController
     @venue_schedule_groups = @venue_matches.group_by { |match| match.scheduled_on || Date.new(9999, 12, 31) }.sort_by(&:first).map do |scheduled_on, matches|
       {
         scheduled_on: scheduled_on == Date.new(9999, 12, 31) ? nil : scheduled_on,
-        matches: matches.sort_by { |match| [match.scheduled_time.to_s, match.code.to_s, match.id] }
+        matches: matches.sort_by { |match| [ match.scheduled_time.to_s, match.code.to_s, match.id ] }
       }
     end
     @venue_goal_chart = @venue_completed_matches.last(6).map do |match|
       {
         label: match.code,
-        subtitle: [match.scheduled_on&.strftime("%d/%m"), match.team_a&.name, match.team_b&.name].compact.join(" · "),
+        subtitle: [ match.scheduled_on&.strftime("%d/%m"), match.team_a&.name, match.team_b&.name ].compact.join(" · "),
         value: match.score_a.to_i + match.score_b.to_i
       }
     end

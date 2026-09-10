@@ -2,6 +2,8 @@ class PartnersController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
   def index
+    return redirect_to championships_path, alert: "Crie ou selecione um campeonato antes de cadastrar parceiros." unless current_championship
+
     @partners = scoped_partners.order(highlight: :desc, created_at: :desc)
     @partner = scoped_championship.partners.new(status: :ativo, tier: :parceiro)
     @categories = scoped_championship.categories.order(:name)
