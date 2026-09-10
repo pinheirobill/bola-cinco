@@ -9,14 +9,27 @@ module BolaCinco
       @filled = filled
     end
 
+    def self.render_all(partidas)
+      Prawn::Document.new(page_size: PAGE_SIZE, margin: 24, page_layout: :landscape) do |pdf|
+        partidas.each_with_index do |partida, index|
+          pdf.start_new_page if index.positive?
+          new(partida).render_page(pdf)
+        end
+      end.render
+    end
+
     def render
       Prawn::Document.new(page_size: PAGE_SIZE, margin: 24, page_layout: :landscape) do |pdf|
-        draw_background(pdf)
-        draw_header(pdf)
-        draw_match_info(pdf)
-        draw_score_board(pdf)
-        draw_footer(pdf)
+        render_page(pdf)
       end.render
+    end
+
+    def render_page(pdf)
+      draw_background(pdf)
+      draw_header(pdf)
+      draw_match_info(pdf)
+      draw_score_board(pdf)
+      draw_footer(pdf)
     end
 
     private
@@ -149,8 +162,9 @@ module BolaCinco
     end
 
     def hand_value(index, side)
-      hand = partida.maos.order(:numero, :id).to_a[index]
       return nil unless filled
+
+      hand = (@hands ||= partida.maos.to_a.sort_by { |mao| [mao.numero, mao.id] })[index]
       return nil if hand.blank?
 
       side == :a ? hand.pontos_a : hand.pontos_b
