@@ -22,17 +22,16 @@
   subtitle: "A tela usa a mesma estrutura visual do PDF de referência."
 ) do %>
   <div class="overflow-hidden rounded-3xl border border-slate-300 bg-white text-slate-950 shadow-sm">
-    <div class="flex items-center justify-between px-6 py-4 text-[11px] uppercase tracking-[0.18em] text-slate-700">
-      <span>ESPORTE CLUBE PINHEIROS</span>
-      <span><%= @tranca_programacao.issued_at.strftime("%d/%m/%Y %H:%M") %></span>
+    <div class="flex items-start justify-between gap-4 px-6 py-4">
+      <div class="min-w-0">
+        <p class="text-[11px] uppercase tracking-[0.18em] text-slate-700">ESPORTE CLUBE PINHEIROS</p>
+        <p class="mt-2 text-2xl font-black leading-tight text-slate-950 sm:text-[2rem]"><%= @tranca_programacao.title %></p>
+        <p class="mt-1 text-xs font-bold uppercase tracking-[0.28em] text-slate-700"><%= @tranca_programacao.subtitle %></p>
+      </div>
+      <span class="shrink-0 pt-1 text-[11px] uppercase tracking-[0.18em] text-slate-700"><%= @tranca_programacao.issued_at.strftime("%d/%m/%Y %H:%M") %></span>
     </div>
 
-    <div class="border-y-8 border-[#102A66] bg-white px-6 py-5">
-      <div class="flex flex-col items-center gap-2 text-center">
-        <p class="text-3xl font-black tracking-tight text-slate-950"><%= @tranca_programacao.title %></p>
-        <p class="text-sm font-bold uppercase tracking-[0.28em] text-slate-700"><%= @tranca_programacao.subtitle %></p>
-      </div>
-    </div>
+    <div class="border-y-8 border-[#102A66] bg-white px-6 py-2"></div>
 
     <div class="space-y-0">
       <% @tranca_programacao.sections.each do |section| %>

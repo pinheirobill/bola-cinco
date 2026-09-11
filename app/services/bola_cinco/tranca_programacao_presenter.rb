@@ -28,11 +28,15 @@ module BolaCinco
     end
 
     def sections
+      counter = 0
       grouped_matches.map do |group_key, group_matches|
         {
           key: group_key,
           label: group_label(group_key),
-          rows: group_matches.sort_by { |match| row_sort_key(match) }.map { |match| row_for(match) }
+          rows: group_matches.sort_by { |match| row_sort_key(match) }.map do |match|
+            counter += 1
+            row_for(match, counter)
+          end
         }
       end
     end
@@ -43,11 +47,12 @@ module BolaCinco
         .sort_by { |group_key, _| group_sort_key(group_key) }
     end
 
-    def row_for(match)
+    def row_for(match, jg_number)
       {
         match: match,
-        jg: match.game_number_label,
-        jg_sort: match.game_number_label.to_s.scan(/\d+/).first.to_i,
+        jg: jg_number,
+        code_jg: match.game_number_label,
+        jg_sort: jg_number.to_i,
         mesa: mesa_label(match),
         team_a: match.dupla_a_nome.to_s.presence || "-",
         team_b: match.dupla_b_nome.to_s.presence || "-",

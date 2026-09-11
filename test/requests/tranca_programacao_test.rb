@@ -99,6 +99,8 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Logo do campeonato"
     assert_includes response.body, "CHAVE A"
     assert_includes response.body, "CHAVE B"
+    assert_includes response.body, "JG 1"
+    assert_includes response.body, "JG 2"
     assert_includes response.body, "Rosa / Claudia"
     assert_includes response.body, "Mario / Renata"
   end
@@ -120,6 +122,8 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
       assert_includes extracted, "Programação Tranca"
       assert_includes extracted, "CHAVE A"
       assert_includes extracted, "CHAVE B"
+      assert_includes extracted, "JG 1"
+      assert_includes extracted, "JG 2"
       assert_includes extracted, "Rosa / Claudia"
       assert_includes extracted, "Mario / Renata"
     end

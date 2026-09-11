@@ -42,11 +42,10 @@ module BolaCinco
       @section_started = true
       @pdf.fill_color "111827"
       draw_header_logo
-      @pdf.text_box presenter.title, at: [ 0, @pdf.bounds.top - 8 ], width: @pdf.bounds.width - 120, size: 15, style: :bold, align: :left
-      @pdf.move_down 2
-      @pdf.text_box presenter.subtitle, at: [ 0, @pdf.bounds.top - 27 ], width: @pdf.bounds.width - 120, size: 11, style: :bold, align: :left
+      @pdf.text_box presenter.title, at: [ 0, @pdf.bounds.top - 6 ], width: @pdf.bounds.width - 120, size: 16, style: :bold, align: :left, overflow: :shrink_to_fit, min_font_size: 12
+      @pdf.text_box presenter.subtitle, at: [ 0, @pdf.bounds.top - 26 ], width: @pdf.bounds.width - 120, size: 10, style: :bold, align: :left
       @pdf.text_box presenter.issued_at.strftime("%d/%m/%Y %H:%M"), at: [ @pdf.bounds.width - 110, @pdf.bounds.top - 8 ], width: 110, size: 8, align: :right
-      @pdf.move_down 14
+      @pdf.move_down 22
     end
 
     def draw_header_logo
