@@ -77,18 +77,18 @@ end %>
               <h3 class="text-lg font-semibold">Logo do campeonato</h3>
               <p class="mt-1 text-sm text-base-content/70">Essa imagem aparece nas telas públicas da Tranca e nos PDFs baixados.</p>
             </div>
-            <% if @championship.logo.attached? %>
+            <% if championship_logo_attached?(@championship) %>
               <span class="badge badge-success">Enviada</span>
             <% else %>
               <span class="badge badge-outline">Não enviada</span>
             <% end %>
           </div>
 
-          <% if @championship.logo.attached? %>
+          <% if championship_logo_attached?(@championship) %>
             <div class="mt-4 flex items-center gap-4 rounded-2xl bg-base-100 p-4">
               <%= championship_logo_tag(@championship, class: "h-20 w-20 rounded-2xl border border-base-300 bg-white object-contain p-2") %>
               <div class="min-w-0">
-                <p class="font-semibold"><%= @championship.logo.filename.to_s %></p>
+                <p class="font-semibold"><%= championship_logo_filename(@championship) %></p>
                 <p class="mt-1 text-xs text-base-content/50">Troque a imagem abaixo para atualizar a identidade visual.</p>
               </div>
             </div>

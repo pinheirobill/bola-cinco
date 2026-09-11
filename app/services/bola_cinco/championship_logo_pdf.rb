@@ -5,11 +5,13 @@ module BolaCinco
     private
 
     def with_championship_logo(championship)
-      return unless championship&.logo&.attached?
-      return unless championship.logo.blob.content_type.to_s.start_with?("image/")
+      attachment = championship&.logo&.attachment
+      blob = attachment&.blob
+      return unless blob.present?
+      return unless blob.content_type.to_s.start_with?("image/")
 
-      file = Tempfile.new(["championship-logo", File.extname(championship.logo.filename.to_s).presence || ".png"], binmode: true)
-      file.write(championship.logo.download)
+      file = Tempfile.new(["championship-logo", File.extname(blob.filename.to_s).presence || ".png"], binmode: true)
+      file.write(blob.download)
       file.rewind
       yield file.path
     ensure

@@ -39,7 +39,7 @@ module ApplicationHelper
   end
 
   def championship_logo_url(championship)
-    return unless championship&.logo&.attached?
+    return unless championship_logo_attached?(championship)
 
     url_for(championship.logo)
   end
@@ -54,6 +54,14 @@ module ApplicationHelper
         class: "h-16 w-16 object-contain"
       }.merge(options)
     )
+  end
+
+  def championship_logo_attached?(championship)
+    championship&.logo&.attachment&.blob.present?
+  end
+
+  def championship_logo_filename(championship)
+    championship&.logo&.attachment&.blob&.filename&.to_s
   end
 
   def status_badge(status)
