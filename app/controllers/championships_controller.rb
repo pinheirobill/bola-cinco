@@ -75,7 +75,7 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
     return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
 
-    load_tranca_management
+    load_tranca_programacao
     @tranca_programacao = BolaCinco::TrancaProgramacaoPresenter.new(@championship, @tranca_partidas)
 
     respond_to do |format|
@@ -599,6 +599,17 @@ class ChampionshipsController < ApplicationController
     @tranca_knockout_candidate_rows = @tranca_standings.reject { |row| qualified_ids.include?(row.tranca_dupla_id) }
       .sort_by { |row| [ -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.position.to_i ] }
     @tranca_knockout_selection_done = @championship.tranca_partidas.where(phase: "mata_mata", round_number: 1).exists?
+  end
+
+  def load_tranca_programacao
+    @championship = @championship.class.includes(
+      tranca_partidas: [
+        :tranca_mesa,
+        :dupla_a,
+        :dupla_b
+      ]
+    ).find(@championship.id)
+    @tranca_partidas = @championship.tranca_partidas.order(:group_key, :round_number, :id)
   end
 
   def recent_tranca_source_teams
