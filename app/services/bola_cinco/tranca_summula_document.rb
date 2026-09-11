@@ -56,7 +56,7 @@ module BolaCinco
       pdf.fill_color "111827"
       pdf.text_box("Data: #{formatted_date}   Chave: #{partida.group_key.presence || '-'}", at: [left + 6, top - 18], width: 208, size: 13, style: :bold)
       pdf.text_box("Jogo nº: #{partida.code}", at: [left + 6, top - 36], width: 102, size: 11, style: :bold)
-      pdf.text_box("Mesa nº: #{partida.tranca_mesa&.code.presence || partida.code}", at: [left + 114, top - 36], width: 102, size: 11, style: :bold)
+      pdf.text_box("Mesa nº:", at: [left + 110, top - 36], width: 102, size: 11, style: :bold)
 
       box(pdf, [left + 228, top], 485, 52, fill: "FBBF24", stroke: "D97706")
       pdf.fill_color "111827"

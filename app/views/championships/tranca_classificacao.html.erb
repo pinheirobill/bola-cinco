@@ -9,6 +9,7 @@
     link_to("Duplas", duplas_championship_path(@championship), class: "btn btn-outline"),
     link_to("Partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
     link_to("Rodadas", rodadas_championship_path(@championship), class: "btn btn-primary"),
+    link_to("Baixar classificação (PDF)", classificacao_championship_path(@championship, format: :pdf), class: "btn btn-outline", data: { turbo: false }),
     link_to("Baixar jogos (Excel)", championship_tranca_games_path(@championship), class: "btn btn-outline", data: { turbo: false })
   ]
 ) %>

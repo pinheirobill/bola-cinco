@@ -76,7 +76,17 @@ class ChampionshipsController < ApplicationController
     return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
 
     load_tranca_management
-    render "championships/tranca_classificacao"
+    respond_to do |format|
+      format.html { render "championships/tranca_classificacao" }
+      format.pdf do
+        duplas = @championship.tranca_duplas.includes(:category, :athletes).order(:name)
+        pdf = BolaCinco::TrancaStandingsDocument.new(
+          @championship, groups: @tranca_standing_groups, duplas: duplas
+        ).render
+        send_data pdf, filename: "#{@championship.name.parameterize}-classificacao-participantes.pdf",
+          type: "application/pdf", disposition: "attachment"
+      end
+    end
   end
 
   def generate_tranca_round
