@@ -338,7 +338,7 @@ module BolaCinco
         "wo" => -1,
         "woScore" => 2,
         "qualifiedPerGroup" => 2,
-        "tiebreakers" => %w[vitorias saldo_gols gols_pro confronto_direto menos_gols_sofridos sorteio]
+        "tiebreakers" => %w[vitorias saldo_gols gols_pro menos_gols_sofridos sorteio]
       }
     end
 
@@ -347,7 +347,7 @@ module BolaCinco
         Regulamento e chaves importados do Excel.
         Fase 1 com 9 grupos (A-I), 2 classificados por chave.
         Fase 2 com 4 grupos (1-4), seguida de quartas, semifinais, final e disputa de 3º/4º.
-        Critérios de desempate: vitórias, pontuação e saldo de pontos.
+        Critérios de desempate: maior número de vitórias, saldo de gols, melhor ataque, melhor defesa e sorteio.
       TEXT
     end
 

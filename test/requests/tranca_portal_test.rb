@@ -396,6 +396,9 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Tabela da Tranca"
     assert_includes response.body, @team_a.name
+    assert_includes response.body, "PTS PRÓ"
+    assert_includes response.body, "PTS CONTRA"
+    assert_includes response.body, "SALDO"
   end
 
   test "creates a tranca duo from the management page" do

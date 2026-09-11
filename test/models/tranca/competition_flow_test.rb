@@ -79,6 +79,47 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     assert_equal 1, row.played
   end
 
+  test "sorts classificacao by victories, goal diff, goals for and goals against" do
+    flow = Tranca::CompetitionFlow.new(@championship)
+
+    stats = [
+      {
+        dupla: @dupla_a,
+        points: 6,
+        wins: 1,
+        goal_diff: 4,
+        goals_for: 10,
+        goals_against: 6
+      },
+      {
+        dupla: @dupla_b,
+        points: 6,
+        wins: 2,
+        goal_diff: 1,
+        goals_for: 7,
+        goals_against: 6
+      },
+      {
+        dupla: Tranca::Dupla.create!(
+          source_id: "dupla-tranca-flow-c",
+          championship: @championship,
+          category: @category,
+          entity: @entity,
+          name: "Zeca / Marta"
+        ),
+        points: 6,
+        wins: 1,
+        goal_diff: 4,
+        goals_for: 10,
+        goals_against: 5
+      }
+    ]
+
+    sorted = stats.sort_by { |stat| flow.send(:classification_sort_key_for, stat) }
+
+    assert_equal [ @dupla_b.name, "Zeca / Marta", @dupla_a.name ], sorted.map { |stat| stat[:dupla].name }
+  end
+
   test "recalculates score from detailed hands" do
     flow = Tranca::CompetitionFlow.new(@championship)
     rodada = flow.generate_round!(phase: "classificatoria", round_number: 1)

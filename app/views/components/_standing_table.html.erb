@@ -17,9 +17,13 @@
           <th>Equipe</th>
           <th>J</th>
           <th>V</th>
-          <th>E</th>
-          <th>D</th>
-          <% unless tranca %>
+          <% if tranca %>
+            <th>PTS PRÓ</th>
+            <th>PTS CONTRA</th>
+            <th>SALDO</th>
+          <% else %>
+            <th>E</th>
+            <th>D</th>
             <th>GP</th>
             <th>GC</th>
             <th>SG</th>
@@ -42,9 +46,13 @@
             </td>
             <td><%= row.played %></td>
             <td><%= row.wins %></td>
-            <td><%= row.draws %></td>
-            <td><%= row.losses %></td>
-            <% unless tranca %>
+            <% if tranca %>
+              <td><%= row.goals_for %></td>
+              <td><%= row.goals_against %></td>
+              <td><%= row.goal_diff %></td>
+            <% else %>
+              <td><%= row.draws %></td>
+              <td><%= row.losses %></td>
               <td><%= row.goals_for %></td>
               <td><%= row.goals_against %></td>
               <td><%= row.goal_diff %></td>

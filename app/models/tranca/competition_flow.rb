@@ -281,13 +281,7 @@ module Tranca
         end
 
         sorted_stats = stats_by_dupla.values.sort_by do |stats|
-          [
-            -stats[:points],
-            -stats[:goal_diff],
-            -stats[:goals_for],
-            -stats[:wins],
-            stats[:dupla].name.to_s.downcase
-          ]
+          classification_sort_key_for(stats)
         end
 
         sorted_stats.each_with_index do |stats, index|
@@ -376,6 +370,17 @@ module Tranca
 
     def finalize_stats!(stats)
       stats[:goal_diff] = stats[:goals_for] - stats[:goals_against]
+    end
+
+    def classification_sort_key_for(stats)
+      [
+        -stats[:points],
+        -stats[:wins],
+        -stats[:goal_diff],
+        -stats[:goals_for],
+        stats[:goals_against],
+        stats[:dupla].name.to_s.downcase
+      ]
     end
 
     def standing_stats_for(dupla, group_key)

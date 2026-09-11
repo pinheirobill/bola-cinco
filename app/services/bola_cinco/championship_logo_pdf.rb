@@ -14,6 +14,9 @@ module BolaCinco
       file.write(blob.download)
       file.rewind
       yield file.path
+    rescue ActiveStorage::FileNotFoundError, Errno::ENOENT, ActiveStorage::IntegrityError => e
+      Rails.logger.warn("[championship_logo_pdf] skipping missing championship logo: #{e.class}: #{e.message}") if defined?(Rails)
+      nil
     ensure
       file&.close!
       file&.unlink if file && !file.closed?

@@ -24,10 +24,19 @@ module BolaCinco
         title = [ group.category.name, group.group_key.presence ].compact.join(" · ")
         rows = group.rows.map do |row|
           position += 1
-          [ position, row.tranca_dupla.name, row.played, row.wins, row.draws, row.losses, row.points ]
+          [
+            position,
+            row.tranca_dupla.name,
+            row.played,
+            row.wins,
+            row.goals_for,
+            row.goals_against,
+            row.goal_diff,
+            row.points
+          ]
         end
-        draw_table(title, [ "#", "Dupla", "J", "V", "E", "D", "Pts" ],
-          [ 28, @pdf.bounds.width - 188, 32, 32, 32, 32, 32 ], rows)
+        draw_table(title, [ "#", "Dupla", "J", "V", "PTS PRÓ", "PTS CONTRA", "SALDO", "PTS" ],
+          tranca_standings_widths, rows)
       end
 
       @pdf.start_new_page
@@ -67,6 +76,19 @@ module BolaCinco
       with_championship_logo(@championship) do |logo_path|
         @pdf.image logo_path, at: [ @pdf.bounds.width - 88, @pdf.bounds.top - 2 ], fit: [ 80, 36 ]
       end
+    end
+
+    def tranca_standings_widths
+      [
+        28,
+        @pdf.bounds.width - 290,
+        32,
+        32,
+        62,
+        62,
+        42,
+        32
+      ]
     end
 
     def draw_table(title, headers, widths, rows)
