@@ -7,6 +7,12 @@ class Tranca::PartidaTest < ActiveSupport::TestCase
     assert_equal "12", partida.game_number_label
   end
 
+  test "returns the trailing game number when the code has a prefix" do
+    partida = Tranca::Partida.new(code: "12-1")
+
+    assert_equal "1", partida.game_number_label
+  end
+
   test "falls back to the original code when no number exists" do
     partida = Tranca::Partida.new(code: "Final")
 

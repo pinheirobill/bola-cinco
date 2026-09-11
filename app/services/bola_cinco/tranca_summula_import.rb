@@ -197,7 +197,8 @@ module BolaCinco
       text = value.to_s.squish
       return nil if text.blank?
 
-      text.match(/\b\d+\b/)&.[](0).presence || text
+      numeric_parts = text.scan(/\d+/)
+      numeric_parts.last.presence || text
     end
   end
 end

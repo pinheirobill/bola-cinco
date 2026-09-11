@@ -80,7 +80,8 @@ module Tranca
       normalized_code = code.to_s.squish
       return normalized_code if normalized_code.blank?
 
-      normalized_code.match(/\b\d+\b/)&.[](0).presence || normalized_code
+      numeric_parts = normalized_code.scan(/\d+/)
+      numeric_parts.last.presence || normalized_code
     end
 
     def legacy_match
