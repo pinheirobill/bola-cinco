@@ -70,6 +70,24 @@ class ChampionshipsController < ApplicationController
     render "championships/tranca_rodadas"
   end
 
+  def programacao
+    @championship = championship_lookup
+    return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+    return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
+
+    load_tranca_management
+    @tranca_programacao = BolaCinco::TrancaProgramacaoPresenter.new(@championship, @tranca_partidas)
+
+    respond_to do |format|
+      format.html { render "championships/tranca_programacao" }
+      format.pdf do
+        pdf = BolaCinco::TrancaProgramacaoDocument.new(@tranca_programacao).render
+        send_data pdf, filename: "#{@championship.name.parameterize}-programacao.pdf",
+          type: "application/pdf", disposition: "attachment"
+      end
+    end
+  end
+
   def classificacao
     @championship = championship_lookup
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
@@ -765,6 +783,7 @@ class ChampionshipsController < ApplicationController
       :registration_start,
       :registration_end,
       :notes,
+      :logo,
       { rules: {},
         scoring: [
           :win,

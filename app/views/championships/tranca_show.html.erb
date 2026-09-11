@@ -9,11 +9,17 @@
     link_to("Duplas", duplas_championship_path(@championship), class: "btn btn-outline"),
     link_to("Partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
     link_to("Rodadas", rodadas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Programação", programacao_championship_path(@championship), class: "btn btn-outline"),
     link_to("Classificação", classificacao_championship_path(@championship), class: "btn btn-primary"),
     (user_signed_in? && @championship.manageable_by?(current_user) ? link_to("Configurar campeonato", setup_championship_path(@championship), class: "btn btn-primary") : nil),
     link_to("Voltar aos campeonatos", championships_path, class: "btn btn-outline")
   ].compact
 ) %>
+
+<%= render "championships/championship_logo_banner",
+  championship: @championship,
+  label: "Logo do campeonato",
+  subtitle: "A identidade visual do torneio fica visível também no portal da Tranca." %>
 
 <%= stats_grid([
   { label: "Duplas", value: @tranca_total_duplas, description: "Times vinculados ao campeonato" },

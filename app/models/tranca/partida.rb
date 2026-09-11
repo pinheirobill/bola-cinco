@@ -76,6 +76,13 @@ module Tranca
       tranca_mesa&.name.presence || "Mesa #{code}"
     end
 
+    def game_number_label
+      normalized_code = code.to_s.squish
+      return normalized_code if normalized_code.blank?
+
+      normalized_code.match(/\b\d+\b/)&.[](0).presence || normalized_code
+    end
+
     def legacy_match
       Match.find_by(source_id: source_id)
     end

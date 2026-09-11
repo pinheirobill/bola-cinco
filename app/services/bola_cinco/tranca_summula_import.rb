@@ -118,7 +118,7 @@ module BolaCinco
 
     def extract_header(lines)
       {
-        code: find_value_after_label(lines, "jogo"),
+        code: normalize_game_number_label(find_value_after_label(lines, "jogo")),
         mesa: find_value_after_label(lines, "mesa"),
         date: find_value_after_label(lines, "data"),
         team_a_name: partida.dupla_a_nome,
@@ -191,6 +191,13 @@ module BolaCinco
 
     def normalize_text(value)
       I18n.transliterate(value.to_s).downcase.gsub(/[^a-z0-9]+/, " ").squish
+    end
+
+    def normalize_game_number_label(value)
+      text = value.to_s.squish
+      return nil if text.blank?
+
+      text.match(/\b\d+\b/)&.[](0).presence || text
     end
   end
 end

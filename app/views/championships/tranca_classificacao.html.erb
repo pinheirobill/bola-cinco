@@ -9,10 +9,18 @@
     link_to("Duplas", duplas_championship_path(@championship), class: "btn btn-outline"),
     link_to("Partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
     link_to("Rodadas", rodadas_championship_path(@championship), class: "btn btn-primary"),
+    link_to("Programação", programacao_championship_path(@championship), class: "btn btn-outline"),
     link_to("Baixar classificação (PDF)", classificacao_championship_path(@championship, format: :pdf), class: "btn btn-outline", data: { turbo: false }),
-    link_to("Baixar jogos (Excel)", championship_tranca_games_path(@championship), class: "btn btn-outline", data: { turbo: false })
+    link_to("Programação (PDF)", programacao_championship_path(@championship, format: :pdf), class: "btn btn-outline", data: { turbo: false }),
+    link_to("Jogos por mesa (Excel)", championship_tranca_games_path(@championship, order: :mesa), class: "btn btn-outline", data: { turbo: false }),
+    link_to("Jogos por nome (Excel)", championship_tranca_games_path(@championship, order: :name), class: "btn btn-outline", data: { turbo: false })
   ]
 ) %>
+
+<%= render "championships/championship_logo_banner",
+  championship: @championship,
+  label: "Logo do campeonato",
+  subtitle: "Essa arte também aparece nos PDFs baixados e nas telas públicas da Tranca." %>
 
 <%= stats_grid([
   { label: "Grupos", value: @tranca_standing_groups.size, value_class: "text-2xl" },

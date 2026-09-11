@@ -224,6 +224,26 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
     assert_includes response.body, @public_signup_team.name
   end
 
+  test "shows the championship logo on tranca public pages" do
+    @championship.logo.attach(
+      fixture_file_upload("championship-logo.png", "image/png")
+    )
+
+    sign_in users(:one)
+
+    get championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Logo do campeonato"
+    assert_includes response.body, "/rails/active_storage"
+
+    get classificacao_championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Logo do campeonato"
+    assert_includes response.body, "/rails/active_storage"
+  end
+
   test "shows the mata-mata bracket when knockout rounds exist" do
     sign_in users(:one)
 

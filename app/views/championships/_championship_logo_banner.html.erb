@@ -1,0 +1,15 @@
+<% return unless championship.logo.attached? %>
+
+<div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm">
+  <div class="flex flex-wrap items-center gap-4">
+    <%= championship_logo_tag(
+      championship,
+      class: "h-20 w-20 rounded-2xl border border-base-300 bg-white p-2"
+    ) %>
+    <div class="min-w-0">
+      <p class="text-xs uppercase tracking-[0.3em] text-base-content/50"><%= label %></p>
+      <p class="mt-1 text-2xl font-black leading-tight"><%= championship.name %></p>
+      <p class="mt-1 text-sm text-base-content/60"><%= subtitle %></p>
+    </div>
+  </div>
+</div>

@@ -58,7 +58,7 @@
         </div>
         <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
           <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Mesa / Jogo</p>
-          <p class="mt-2 text-lg font-semibold"><%= [header[:mesa], header[:code], @partida.code].compact.join(" · ") %></p>
+          <p class="mt-2 text-lg font-semibold"><%= [header[:mesa], header[:code], @partida.game_number_label].compact.join(" · ") %></p>
         </div>
         <div class="rounded-3xl border border-base-300 bg-base-200 p-4 md:col-span-2">
           <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Observações</p>

@@ -38,6 +38,24 @@ module ApplicationHelper
     end
   end
 
+  def championship_logo_url(championship)
+    return unless championship&.logo&.attached?
+
+    url_for(championship.logo)
+  end
+
+  def championship_logo_tag(championship, **options)
+    return unless (logo_url = championship_logo_url(championship))
+
+    image_tag(
+      logo_url,
+      {
+        alt: "#{championship.name} logo",
+        class: "h-16 w-16 object-contain"
+      }.merge(options)
+    )
+  end
+
   def status_badge(status)
     tag.span status.to_s.tr("_", " ").humanize, class: ["badge", status_badge_class(status)]
   end

@@ -8,6 +8,7 @@
     link_to("Início", championship_path(@championship), class: "btn btn-outline"),
     link_to("Duplas", duplas_championship_path(@championship), class: "btn btn-outline"),
     link_to("Partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Programação", programacao_championship_path(@championship), class: "btn btn-primary"),
     link_to("Classificação", classificacao_championship_path(@championship), class: "btn btn-primary")
   ]
 ) %>
@@ -68,7 +69,9 @@
               <span class="badge badge-outline"><%= round.phase_label %></span>
               <% if round.partidas.any? %>
                 <%= link_to "Baixar todas as súmulas (PDF)", championship_round_summulas_path(@championship, rodada_id: round.id), class: "btn btn-outline btn-xs", data: { turbo: false } %>
-                <%= link_to "Baixar jogos (Excel)", championship_round_games_path(@championship, rodada_id: round.id), class: "btn btn-outline btn-xs", data: { turbo: false } %>
+                <%= link_to "Por mesa (Excel)", championship_round_games_path(@championship, rodada_id: round.id, order: :mesa), class: "btn btn-outline btn-xs", data: { turbo: false } %>
+                <%= link_to "Por nome (Excel)", championship_round_games_path(@championship, rodada_id: round.id, order: :name), class: "btn btn-outline btn-xs", data: { turbo: false } %>
+                <%= link_to "Programação (PDF)", programacao_championship_path(@championship, format: :pdf), class: "btn btn-outline btn-xs", data: { turbo: false } %>
               <% end %>
               <% if user_signed_in? && @championship.manageable_by?(current_user) %>
                 <%= button_to "Definir mesas", generate_tranca_mesas_championship_path(@championship, rodada_id: round.id), method: :post, class: "btn btn-outline btn-xs" %>

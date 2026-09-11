@@ -2,6 +2,8 @@ require "prawn"
 
 module BolaCinco
   class TrancaStandingsDocument
+    include ChampionshipLogoPdf
+
     def initialize(championship, groups:, duplas:)
       @championship = championship
       @groups = groups
@@ -52,12 +54,19 @@ module BolaCinco
     def start_section(title)
       @section = title
       @pdf.fill_color "111827"
-      @pdf.text @championship.name, size: 15, style: :bold, align: :center
+      draw_header_logo
+      @pdf.text_box @championship.name, at: [ 0, @pdf.bounds.top - 8 ], width: @pdf.bounds.width - 120, size: 15, style: :bold, align: :center
       @pdf.move_down 6
-      @pdf.text title, size: 12, style: :bold, align: :center
+      @pdf.text_box title, at: [ 0, @pdf.bounds.top - 28 ], width: @pdf.bounds.width - 120, size: 12, style: :bold, align: :center
       @pdf.move_down 4
-      @pdf.text "Emitido em #{Time.current.strftime("%d/%m/%Y %H:%M")}", size: 8, align: :center
+      @pdf.text_box "Emitido em #{Time.current.strftime("%d/%m/%Y %H:%M")}", at: [ 0, @pdf.bounds.top - 44 ], width: @pdf.bounds.width - 120, size: 8, align: :center
       @pdf.move_down 18
+    end
+
+    def draw_header_logo
+      with_championship_logo(@championship) do |logo_path|
+        @pdf.image logo_path, at: [ @pdf.bounds.width - 88, @pdf.bounds.top - 2 ], fit: [ 80, 36 ]
+      end
     end
 
     def draw_table(title, headers, widths, rows)

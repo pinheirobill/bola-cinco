@@ -2,6 +2,8 @@ require "prawn"
 
 module BolaCinco
   class TrancaSummulaDocument
+    include ChampionshipLogoPdf
+
     PAGE_SIZE = "A4".freeze
 
     def initialize(partida, filled: false)
@@ -43,9 +45,12 @@ module BolaCinco
 
     def draw_header(pdf)
       pdf.fill_color "111827"
-      pdf.text_box(partida.championship.name, at: [0, pdf.bounds.top - 8], width: pdf.bounds.width, align: :center, size: 16, style: :bold)
+      with_championship_logo(partida.championship) do |logo_path|
+        pdf.image logo_path, at: [ pdf.bounds.width - 88, pdf.bounds.top - 2 ], fit: [ 80, 36 ]
+      end
+      pdf.text_box(partida.championship.name, at: [0, pdf.bounds.top - 8], width: pdf.bounds.width - 120, align: :center, size: 16, style: :bold)
       pdf.fill_color "374151"
-      pdf.text_box("Súmula da partida", at: [0, pdf.bounds.top - 28], width: pdf.bounds.width, align: :center, size: 9, style: :bold)
+      pdf.text_box("Súmula da partida", at: [0, pdf.bounds.top - 28], width: pdf.bounds.width - 120, align: :center, size: 9, style: :bold)
     end
 
     def draw_match_info(pdf)
@@ -55,7 +60,7 @@ module BolaCinco
       box(pdf, [left, top], 220, 52, fill: "FEF3C7", stroke: "D97706")
       pdf.fill_color "111827"
       pdf.text_box("Data: #{formatted_date}   Chave: #{partida.group_key.presence || '-'}", at: [left + 6, top - 18], width: 208, size: 13, style: :bold)
-      pdf.text_box("Jogo nº: #{partida.code}", at: [left + 6, top - 36], width: 102, size: 11, style: :bold)
+      pdf.text_box("Jogo nº: #{partida.game_number_label}", at: [left + 6, top - 36], width: 102, size: 11, style: :bold)
       pdf.text_box("Mesa nº:", at: [left + 110, top - 36], width: 102, size: 11, style: :bold)
 
       box(pdf, [left + 228, top], 485, 52, fill: "FBBF24", stroke: "D97706")

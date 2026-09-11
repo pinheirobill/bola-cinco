@@ -57,6 +57,26 @@ class ChampionshipsCreationTest < ActionDispatch::IntegrationTest
     assert_equal "tranca", championship.modality
   end
 
+  test "admin can upload a championship logo from setup" do
+    sign_in @admin
+
+    championship = Championship.create!(
+      source_id: "championship-logo-upload",
+      name: "Campeonato com Logo",
+      season: 2026
+    )
+
+    patch championship_path(championship), params: {
+      current_step: "data",
+      championship: {
+        logo: fixture_file_upload("championship-logo.png", "image/png")
+      }
+    }
+
+    assert_redirected_to setup_championship_path(championship, step: "data")
+    assert championship.reload.logo.attached?
+  end
+
   test "admin can reach setup through a legacy prefixed championship identifier" do
     sign_in @admin
     championship = Championship.create!(

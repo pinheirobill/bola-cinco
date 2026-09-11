@@ -1,0 +1,69 @@
+<% content_for :title, "#{@championship.name} | Programação | Arena" %>
+
+<%= page_header(
+  title: "#{@championship.name} · Programação",
+  subtitle: "Tela de programação no mesmo layout do PDF.",
+  badge: @championship.status.to_s.tr("_", " ").humanize,
+  actions: [
+    link_to("Início", championship_path(@championship), class: "btn btn-outline"),
+    link_to("Rodadas", rodadas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Classificação", classificacao_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Baixar PDF", programacao_championship_path(@championship, format: :pdf), class: "btn btn-primary", data: { turbo: false })
+  ]
+) %>
+
+<%= render "championships/championship_logo_banner",
+  championship: @championship,
+  label: "Logo do campeonato",
+  subtitle: "A programação segue o mesmo padrão visual do PDF baixado." %>
+
+<%= surface_card(
+  title: "Programação de jogos",
+  subtitle: "A tela usa a mesma estrutura visual do PDF de referência."
+) do %>
+  <div class="overflow-hidden rounded-3xl border border-slate-300 bg-white text-slate-950 shadow-sm">
+    <div class="flex items-center justify-between px-6 py-4 text-[11px] uppercase tracking-[0.18em] text-slate-700">
+      <span>ESPORTE CLUBE PINHEIROS</span>
+      <span><%= @tranca_programacao.issued_at.strftime("%d/%m/%Y %H:%M") %></span>
+    </div>
+
+    <div class="border-y-8 border-[#102A66] bg-white px-6 py-5">
+      <div class="flex flex-col items-center gap-2 text-center">
+        <p class="text-3xl font-black tracking-tight text-slate-950"><%= @tranca_programacao.title %></p>
+        <p class="text-sm font-bold uppercase tracking-[0.28em] text-slate-700"><%= @tranca_programacao.subtitle %></p>
+      </div>
+    </div>
+
+    <div class="space-y-0">
+      <% @tranca_programacao.sections.each do |section| %>
+        <section class="border-t-8 border-[#102A66]">
+          <div class="grid grid-cols-[3.75rem_4rem_minmax(0,1fr)_2rem_6rem_2rem_minmax(0,1fr)] bg-[#F4B400] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-slate-950">
+            <div>JG</div>
+            <div>mesa</div>
+            <div></div>
+            <div class="text-right">PTS</div>
+            <div class="text-center"><%= "CHAVE #{section[:label]}" %></div>
+            <div>PTS</div>
+            <div></div>
+          </div>
+
+          <% section[:rows].each_with_index do |row, index| %>
+            <div class="grid grid-cols-[3.75rem_4rem_minmax(0,1fr)_2rem_6rem_2rem_minmax(0,1fr)] items-center px-3 py-2 text-[11px] font-semibold text-slate-950 <%= index.even? ? 'bg-[#FFF7E1]' : 'bg-white' %>">
+              <div class="truncate font-black"><%= "JG #{row[:jg]}" %></div>
+              <div class="text-center"><%= row[:mesa] %></div>
+              <div class="truncate pr-2"><%= row[:team_a] %></div>
+              <div class="text-center text-[10px] font-normal text-slate-700"><%= row[:score_a] %></div>
+              <div class="text-center text-lg font-black text-[#D40000]">x</div>
+              <div class="text-center text-[10px] font-normal text-slate-700"><%= row[:score_b] %></div>
+              <div class="truncate pl-2"><%= row[:team_b] %></div>
+            </div>
+          <% end %>
+        </section>
+      <% end %>
+    </div>
+
+    <div class="flex items-center justify-center border-t border-slate-200 py-5 text-[11px] uppercase tracking-[0.18em] text-slate-600">
+      <%= @championship.name.parameterize.upcase.tr("-", " ") %>
+    </div>
+  </div>
+<% end %>

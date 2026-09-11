@@ -8,8 +8,9 @@ class Tranca::RoundExportsController < ApplicationController
   end
 
   def games
-    send_data Tranca::RoundGamesSpreadsheet.new(@round, @matches).render,
-      filename: "#{export_name}-jogos.xlsx",
+    sort = export_sort
+    send_data Tranca::RoundGamesSpreadsheet.new(@round, @matches, order: sort).render,
+      filename: "#{export_name}-jogos-por-#{sort == :name ? 'nome' : 'mesa'}.xlsx",
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", disposition: "attachment"
   end
 
@@ -19,8 +20,9 @@ class Tranca::RoundExportsController < ApplicationController
       .order(:phase, :round_number, :category_id, :id).to_a
     return redirect_to classificacao_championship_path(@championship), alert: "Este campeonato ainda não tem jogos." if matches.empty?
 
-    send_data Tranca::RoundGamesSpreadsheet.new(nil, matches).render,
-      filename: "#{@championship.name.parameterize}-jogos.xlsx",
+    sort = export_sort
+    send_data Tranca::RoundGamesSpreadsheet.new(nil, matches, order: sort).render,
+      filename: "#{@championship.name.parameterize}-jogos-por-#{sort == :name ? 'nome' : 'mesa'}.xlsx",
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", disposition: "attachment"
   end
 
@@ -45,5 +47,9 @@ class Tranca::RoundExportsController < ApplicationController
 
   def export_name
     "#{@championship.name.parameterize}-#{@round.phase.parameterize}-rodada-#{@round.round_number}"
+  end
+
+  def export_sort
+    params[:order].to_s == "name" ? :name : :mesa
   end
 end
