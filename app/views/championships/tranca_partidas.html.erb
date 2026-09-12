@@ -21,7 +21,7 @@
 
 <%= surface_card(
   title: "Lançar resultado",
-  subtitle: "O fluxo passa pela súmula impressa: baixa o PDF, preenche à mão, envia a foto/PDF e confirma."
+  subtitle: "Use o placar rápido no card quando não precisar da foto. O fluxo completo da súmula continua disponível."
 ) do %>
   <% partidas_pendentes = @tranca_partidas.reject(&:finished?) %>
   <% if partidas_pendentes.any? %>

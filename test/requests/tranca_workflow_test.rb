@@ -77,6 +77,26 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla_id: partida.winner_id).points
   end
 
+  test "shows the quick score form on tranca partida cards" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    get partidas_championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Placar rápido"
+    assert_includes response.body, "Salvar placar"
+    assert_includes response.body, "Ou use a súmula"
+  end
+
   test "updates the duplas of a scheduled tranca partida" do
     dupla_c = Tranca::Dupla.create!(
       source_id: "dupla-tranca-workflow-c",
@@ -435,6 +455,50 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal 2, partida.maos.count
     assert_includes [ @dupla_a.id, @dupla_b.id ], partida.winner_id
     assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla_id: partida.winner_id).points
+  end
+
+  test "preserves negative hand values before saving tranca results" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    partida = rodada.partidas.first
+
+    patch update_tranca_partida_championship_path(@championship, partida_id: partida.id), params: {
+      tranca_partida: {
+        status: "finalizado",
+        maos_attributes: {
+          "0" => {
+            numero: 1,
+            pontos_a: 10,
+            pontos_b: "-6",
+            desconto_b: 1
+          },
+          "1" => {
+            numero: 2,
+            pontos_a: "-7",
+            pontos_b: 9
+          }
+        }
+      }
+    }
+
+    assert_redirected_to partidas_championship_path(@championship)
+    partida.reload
+
+    assert_equal 3, partida.score_a
+    assert_equal 3, partida.score_b
+    assert_equal 2, partida.maos.count
+    hand_one, hand_two = partida.maos.order(:numero).to_a
+    assert_equal(-6, hand_one.pontos_b)
+    assert_equal(-7, hand_two.pontos_a)
+    assert_equal 1, hand_one.desconto_b
   end
 
   test "creates a knockout round and auto-generates the next bracket round" do

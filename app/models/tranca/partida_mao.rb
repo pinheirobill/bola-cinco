@@ -7,7 +7,8 @@ module Tranca
 
     validates :source_id, presence: true, uniqueness: true
     validates :numero, presence: true, numericality: { only_integer: true, greater_than: 0 }
-    validates :pontos_a, :pontos_b, :desconto_a, :desconto_b, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+    validates :pontos_a, :pontos_b, numericality: { only_integer: true }
+    validates :desconto_a, :desconto_b, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
     def score_a
       pontos_a.to_i

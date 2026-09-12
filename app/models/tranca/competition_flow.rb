@@ -227,7 +227,7 @@ module Tranca
           mao = existing_maos[source_id] || partida.maos.find_or_initialize_by(source_id: source_id)
           mao.assign_attributes(
             championship: championship,
-            numero: attributes[:numero].presence || index + 1,
+            numero: positive_integer_or_nil(attributes[:numero]).presence || index + 1,
             pontos_a: attributes[:pontos_a].presence || 0,
             pontos_b: attributes[:pontos_b].presence || 0,
             canastra_limpa_a: boolean_from(attributes[:canastra_limpa_a]),
@@ -238,8 +238,8 @@ module Tranca
             batida_b: boolean_from(attributes[:batida_b]),
             tres_vermelho_a: boolean_from(attributes[:tres_vermelho_a]),
             tres_vermelho_b: boolean_from(attributes[:tres_vermelho_b]),
-            desconto_a: attributes[:desconto_a].presence || 0,
-            desconto_b: attributes[:desconto_b].presence || 0,
+            desconto_a: non_negative_integer(attributes[:desconto_a]),
+            desconto_b: non_negative_integer(attributes[:desconto_b]),
             observacoes: attributes[:observacoes].presence,
             source_data: {
               "generated_by" => "tranca_competition_flow"
@@ -670,6 +670,16 @@ module Tranca
 
     def boolean_from(value)
       !!ActiveModel::Type::Boolean.new.cast(value)
+    end
+
+    def non_negative_integer(value)
+      integer = value.to_i
+      integer.positive? ? integer : 0
+    end
+
+    def positive_integer_or_nil(value)
+      integer = value.to_i
+      integer.positive? ? integer : nil
     end
 
     def hand_source_id(partida, index)

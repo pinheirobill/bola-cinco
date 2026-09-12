@@ -86,11 +86,11 @@
         <div class="grid gap-4 md:grid-cols-2">
           <div class="form-control gap-2">
             <label class="label-text font-medium" for="tranca_summula_import_score_a">Placar da dupla A</label>
-            <%= number_field_tag "tranca_summula_import[score_a]", header[:score_a], class: "input input-bordered w-full", id: "tranca_summula_import_score_a", min: 0 %>
+            <%= number_field_tag "tranca_summula_import[score_a]", header[:score_a], class: "input input-bordered w-full", id: "tranca_summula_import_score_a" %>
           </div>
           <div class="form-control gap-2">
             <label class="label-text font-medium" for="tranca_summula_import_score_b">Placar da dupla B</label>
-            <%= number_field_tag "tranca_summula_import[score_b]", header[:score_b], class: "input input-bordered w-full", id: "tranca_summula_import_score_b", min: 0 %>
+            <%= number_field_tag "tranca_summula_import[score_b]", header[:score_b], class: "input input-bordered w-full", id: "tranca_summula_import_score_b" %>
           </div>
           <div class="form-control gap-2 md:col-span-2">
             <label class="label-text font-medium" for="tranca_summula_import_winner_name">Dupla vencedora</label>

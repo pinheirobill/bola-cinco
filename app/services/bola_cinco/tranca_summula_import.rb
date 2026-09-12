@@ -163,7 +163,7 @@ module BolaCinco
       text = lines.find { |line| line.match?(/total de pontos/i) } || lines.find { |line| line.match?(/\bTOTAL\b/i) }
       return nil if text.blank?
 
-      numbers = text.scan(/\b\d+\b/)
+      numbers = text.scan(/-?\d+/)
       return nil if numbers.size < 2
 
       side == :left ? numbers.first.to_i : numbers.last.to_i
@@ -174,7 +174,7 @@ module BolaCinco
       return nil if index.blank?
 
       nearby = lines[(index + 1)..(index + 3)] || []
-      numbers = nearby.join(" ").scan(/\b\d+\b/)
+      numbers = nearby.join(" ").scan(/-?\d+/)
       return nil if numbers.blank?
 
       side == :left ? numbers.first.to_i : numbers.last.to_i
