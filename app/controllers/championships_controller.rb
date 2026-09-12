@@ -675,6 +675,7 @@ class ChampionshipsController < ApplicationController
     return redirect_back fallback_location: fallback_location, alert: "Só é possível excluir chaves com jogos agendados." if partidas.where.not(status: :agendado).exists?
 
     key_label = group_key.sub(/\ACHAVE\s+/i, "").presence || group_key
+    should_rebuild_classificacao = partidas.where(phase: %w[classificatoria classificatória grupos grupo fase_de_grupos fase-de-grupos]).exists?
 
     Tranca::Rodada.transaction do
       mesas = partidas.includes(:tranca_mesa).map(&:tranca_mesa).compact.uniq
@@ -685,7 +686,7 @@ class ChampionshipsController < ApplicationController
         mesa.destroy! if mesa.partidas.reload.empty?
       end
 
-      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if rodada&.classificatoria?
+      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if should_rebuild_classificacao
 
       if rodada.present? && rodada.partidas.reload.empty?
         rodada.mesas.destroy_all

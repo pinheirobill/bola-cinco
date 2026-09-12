@@ -47,6 +47,7 @@
             <div class="flex items-center gap-2">
               <span class="badge badge-outline"><%= group.rows.size %> linhas</span>
               <% if manage_classification && group.group_key.present? %>
+                <%= button_to "Excluir chave", destroy_tranca_programacao_key_championship_path(@championship, group_key: group.group_key), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir a chave #{tranca_group_key_label(group.group_key) || group.group_key} e todas as suas partidas?" } } %>
                 <button type="button" class="btn btn-outline btn-xs" onclick="document.getElementById('tranca-classificacao-group-<%= group.category.id %>-<%= group.group_key.parameterize %>').showModal()">
                   Gerenciar chave
                 </button>

@@ -216,6 +216,7 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_not Tranca::Partida.exists?(partida_delete.id)
     assert_not Tranca::Mesa.exists?(mesa_id)
     assert Tranca::Partida.exists?(partida_keep.id)
+    assert_not @championship.tranca_classificacao_rows.where(group_key: partida_delete.group_key).exists?
   end
 
   test "updates a dupla inside a classificatoria key" do
