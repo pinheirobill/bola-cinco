@@ -66,14 +66,26 @@ module UiHelper
     }
   end
 
-  def standing_table(category, rows, group_key: nil, position_offset: 0, tranca: false)
+  def standing_table(category, rows, group_key: nil, position_offset: 0, tranca: false, show_header: true)
     render partial: "components/standing_table", locals: {
       category: category,
       rows: rows,
       group_key: group_key,
       position_offset: position_offset,
-      tranca: tranca
+      tranca: tranca,
+      show_header: show_header
     }
+  end
+
+  def tranca_group_key_label(group_key)
+    text = group_key.to_s.squish
+    text = text.sub(/\ACHAVE\s+/i, "").squish
+    return if text.blank?
+
+    numeric = text.match?(/\A\d+\z/)
+    return alphabet_label(text.to_i) if numeric
+
+    text.upcase
   end
 
   def ranking_entry_card(entry)
@@ -97,5 +109,19 @@ module UiHelper
       search_param: search_param,
       action: action
     }
+  end
+
+  private
+
+  def alphabet_label(index)
+    number = index.to_i
+    return "A" if number <= 1
+
+    letters = +""
+    while number.positive?
+      number, remainder = (number - 1).divmod(26)
+      letters.prepend(("A".ord + remainder).chr)
+    end
+    letters
   end
 end

@@ -5,7 +5,7 @@
       <p class="text-sm text-base-content/70">
         <%= row.category.name %>
         <% if row.group_key.present? %>
-          · Chave <%= row.group_key %>
+          · Chave <%= tranca_group_key_label(row.group_key) || row.group_key %>
         <% end %>
       </p>
     </div>

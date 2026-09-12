@@ -76,7 +76,10 @@ module Tranca
     def group_label_for(match)
       label = match.group_key.to_s.squish
       label = label.sub(/\ACHAVE\s+/i, "").squish
-      label.presence || "-"
+      return "-" if label.blank?
+      return alphabet_label(label.to_i) if label.match?(/\A\d+\z/)
+
+      label.upcase
     end
 
     def mesa_label_for(match)
@@ -100,6 +103,18 @@ module Tranca
       return [ 0, text.to_i ] if text.match?(/\A\d+\z/)
 
       [ 1, text.downcase ]
+    end
+
+    def alphabet_label(index)
+      number = index.to_i
+      return "A" if number <= 1
+
+      letters = +""
+      while number.positive?
+        number, remainder = (number - 1).divmod(26)
+        letters.prepend(("A".ord + remainder).chr)
+      end
+      letters
     end
 
     def escape(value)

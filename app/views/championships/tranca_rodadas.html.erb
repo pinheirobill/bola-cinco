@@ -89,12 +89,12 @@
               <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-base-200 pb-3">
                   <div>
-                    <p class="text-xs uppercase tracking-[0.28em] text-base-content/50">Chave <%= section[:label] %></p>
+                    <p class="text-xs uppercase tracking-[0.28em] text-base-content/50">Chave <%= tranca_group_key_label(section[:label]) || section[:label] %></p>
                     <p class="mt-1 text-sm text-base-content/60"><%= section[:rows].size %> partida(s)</p>
                   </div>
 
                   <% if manage_round_games && section[:key].present? %>
-                    <%= button_to "Excluir chave", destroy_tranca_key_championship_path(@championship, rodada_id: round.id, group_key: section[:key]), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir a chave #{section[:label]} e todos os seus jogos?" } } %>
+                    <%= button_to "Excluir chave", destroy_tranca_key_championship_path(@championship, rodada_id: round.id, group_key: section[:key]), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir a chave #{tranca_group_key_label(section[:label]) || section[:label]} e todos os seus jogos?" } } %>
                   <% end %>
                 </div>
 

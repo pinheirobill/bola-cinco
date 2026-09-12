@@ -7,7 +7,12 @@ class StandingRow < ApplicationRecord
   validates :position, presence: true
 
   def group_label
-    group_key.present? ? "Chave #{group_key}" : "Geral"
+    return "Geral" if group_key.blank?
+
+    label = group_key.to_s.squish.sub(/\ACHAVE\s+/i, "").squish
+    return "Chave #{alphabet_label(label.to_i)}" if label.match?(/\A\d+\z/)
+
+    "Chave #{label.upcase}"
   end
 
   def display_team
@@ -53,5 +58,17 @@ class StandingRow < ApplicationRecord
 
   def tranca_source_id
     "tranca-standing-row-#{id}"
+  end
+
+  def alphabet_label(index)
+    number = index.to_i
+    return "A" if number <= 1
+
+    letters = +""
+    while number.positive?
+      number, remainder = (number - 1).divmod(26)
+      letters.prepend(("A".ord + remainder).chr)
+    end
+    letters
   end
 end

@@ -116,7 +116,13 @@ module Tranca
     private
 
     def group_key_sort_value(group_key)
-      [ group_key.to_s[/\d+/].to_i, group_key.to_s.downcase ]
+      label = group_key.to_s.squish
+      label = label.sub(/\ACHAVE\s+/i, "").squish
+      return [ 0, 0 ] if label.blank?
+      return [ 1, label.to_i ] if label.match?(/\A\d+\z/)
+      return [ 2, label.upcase ] if label.match?(/\A[A-Z]+\z/i)
+
+      [ 3, label.downcase ]
     end
 
     StandingGroup = Struct.new(:category, :group_key, :rows, keyword_init: true)

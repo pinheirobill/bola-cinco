@@ -1,13 +1,16 @@
+<% show_header = local_assigns.fetch(:show_header, true) %>
 <div>
-  <div class="mb-3 flex items-center justify-between gap-3">
-    <div>
-      <h3 class="text-xl font-bold"><%= category.name %></h3>
-      <% if group_key.present? %>
-        <p class="mt-1 text-xs uppercase tracking-[0.25em] text-base-content/50"><%= group_key %></p>
-      <% end %>
+  <% if show_header %>
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <div>
+        <h3 class="text-xl font-bold"><%= category.name %></h3>
+        <% if group_key.present? %>
+          <p class="mt-1 text-xs uppercase tracking-[0.25em] text-base-content/50"><%= tranca_group_key_label(group_key) || group_key %></p>
+        <% end %>
+      </div>
+      <span class="badge badge-outline"><%= rows.size %> equipes</span>
     </div>
-    <span class="badge badge-outline"><%= rows.size %> equipes</span>
-  </div>
+  <% end %>
 
   <div class="overflow-x-auto">
     <table class="table table-zebra">

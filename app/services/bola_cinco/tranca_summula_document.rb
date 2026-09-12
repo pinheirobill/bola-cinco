@@ -59,7 +59,7 @@ module BolaCinco
 
       box(pdf, [left, top], 220, 52, fill: "FEF3C7", stroke: "D97706")
       pdf.fill_color "111827"
-      pdf.text_box("Data: #{formatted_date}   Chave: #{partida.group_key.presence || '-'}", at: [left + 6, top - 18], width: 208, size: 13, style: :bold)
+      pdf.text_box("Data: #{formatted_date}   Chave: #{group_label(partida.group_key)}", at: [left + 6, top - 18], width: 208, size: 13, style: :bold)
       pdf.text_box("Jogo nº: #{partida.game_number_label}", at: [left + 6, top - 36], width: 102, size: 11, style: :bold)
       pdf.text_box("Mesa nº:", at: [left + 110, top - 36], width: 102, size: 11, style: :bold)
 
@@ -202,6 +202,27 @@ module BolaCinco
       pdf.fill_color "111827"
       pdf.text_box(value.to_s, at: [origin[0] + 8, origin[1] - 2], width: width - 16, height: height - 4, size: size, align: :left, valign: :center, style: :bold)
       pdf.fill_color "111827"
+    end
+
+    def group_label(value)
+      text = value.to_s.squish
+      text = text.sub(/\ACHAVE\s+/i, "").squish
+      return "-" if text.blank?
+      return alphabet_label(text.to_i) if text.match?(/\A\d+\z/)
+
+      text.upcase
+    end
+
+    def alphabet_label(index)
+      number = index.to_i
+      return "A" if number <= 1
+
+      letters = +""
+      while number.positive?
+        number, remainder = (number - 1).divmod(26)
+        letters.prepend(("A".ord + remainder).chr)
+      end
+      letters
     end
   end
 end

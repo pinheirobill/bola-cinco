@@ -85,7 +85,10 @@ module BolaCinco
     def group_label_for(value)
       text = value.to_s.squish
       text = text.sub(/\ACHAVE\s+/i, "").squish
-      text.presence || "Sem chave"
+      return "Sem chave" if text.blank?
+      return alphabet_label(text.to_i) if text.match?(/\A\d+\z/)
+
+      text.upcase
     end
 
     def group_sort_key(group_key)

@@ -195,8 +195,8 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     first_matchups = first_round.partidas.map { |partida| [ partida.dupla_a_id, partida.dupla_b_id ].sort }
     second_matchups = second_round.partidas.map { |partida| [ partida.dupla_a_id, partida.dupla_b_id ].sort }
 
-    assert_equal [ "Chave 1", "Chave 2" ], first_round.partidas.map(&:group_key).uniq.sort
-    assert_equal [ "Chave 1", "Chave 2" ], second_round.partidas.map(&:group_key).uniq.sort
+    assert_equal [ "A", "B" ], first_round.partidas.map(&:group_key).uniq.sort
+    assert_equal [ "A", "B" ], second_round.partidas.map(&:group_key).uniq.sort
     assert_empty first_matchups & second_matchups
   end
 

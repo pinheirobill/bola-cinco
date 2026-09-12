@@ -4,7 +4,7 @@
       <p class="text-sm font-semibold"><%= partida.code %> · <%= partida.category.name %></p>
       <p class="mt-1 text-sm text-base-content/70"><%= [partida.dupla_a_nome, partida.dupla_b_nome].compact.join(" x ") %></p>
       <p class="mt-1 text-xs text-base-content/50">
-        Chave: <%= partida.group_key.presence || "não definida" %> ·
+        Chave: <%= tranca_group_key_label(partida.group_key) || partida.group_key.presence || "não definida" %> ·
         Mesa: <%= partida.tranca_mesa&.name.presence || "não definida" %> ·
         Data: <%= partida.scheduled_on&.strftime("%d/%m/%Y").presence || "não definida" %>
         <% if partida.scheduled_time.present? %>

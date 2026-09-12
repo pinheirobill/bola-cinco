@@ -452,7 +452,7 @@ module Tranca
       order = @round_robin_orders.fetch(category.id)
       group_count = [ championship.group_count, 1 ].max
       group_index = order.index(dupla.id).to_i % [ group_count, order.size ].min
-      "Chave #{group_index + 1}"
+      alphabet_label(group_index + 1)
     end
 
     def matchup_key(dupla_a_id, dupla_b_id)
@@ -521,6 +521,18 @@ module Tranca
 
     def classification_source_id(category, group_key, dupla)
       "tranca-classification-#{championship.id}-#{category.id}-#{group_key.presence || 'general'}-#{dupla.id}"
+    end
+
+    def alphabet_label(index)
+      number = index.to_i
+      return "A" if number <= 1
+
+      letters = +""
+      while number.positive?
+        number, remainder = (number - 1).divmod(26)
+        letters.prepend(("A".ord + remainder).chr)
+      end
+      letters
     end
 
     def advance_knockout_from!(partida)

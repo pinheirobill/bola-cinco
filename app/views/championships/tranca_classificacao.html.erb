@@ -41,7 +41,7 @@
             <div>
               <h3 class="text-xl font-bold"><%= group.category.name %></h3>
               <% if group.group_key.present? %>
-                <p class="mt-1 text-xs uppercase tracking-[0.25em] text-base-content/50"><%= group.group_key %></p>
+                <p class="mt-1 text-xs uppercase tracking-[0.25em] text-base-content/50"><%= tranca_group_key_label(group.group_key) || group.group_key %></p>
               <% end %>
             </div>
             <div class="flex items-center gap-2">
@@ -55,7 +55,7 @@
           </div>
 
           <div class="overflow-x-auto">
-            <%= standing_table(group.category, group.rows, group_key: group.group_key, position_offset: classification_position, tranca: true) %>
+            <%= standing_table(group.category, group.rows, group_key: group.group_key, position_offset: classification_position, tranca: true, show_header: false) %>
           </div>
 
           <% if manage_classification && group.group_key.present? %>
@@ -63,7 +63,7 @@
               <div class="modal-box max-w-3xl">
                 <div class="flex items-start justify-between gap-4">
                   <div>
-                    <h2 class="text-2xl font-bold">Gerenciar chave <%= group.group_key %></h2>
+                    <h2 class="text-2xl font-bold">Gerenciar chave <%= tranca_group_key_label(group.group_key) || group.group_key %></h2>
                     <p class="mt-1 text-sm text-base-content/70"><%= group.category.name %></p>
                   </div>
                   <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tranca-classificacao-group-<%= group.category.id %>-<%= group.group_key.parameterize %>').close()">Fechar</button>
@@ -150,7 +150,7 @@
                               </div>
 
                               <div class="flex flex-wrap justify-end gap-2">
-                                <%= button_tag "Usar nesta chave", type: :submit, class: "btn btn-primary btn-xs", data: { turbo_confirm: "Convidar #{team.name} e usar como substituta da chave #{group.group_key}?" } %>
+                                <%= button_tag "Usar nesta chave", type: :submit, class: "btn btn-primary btn-xs", data: { turbo_confirm: "Convidar #{team.name} e usar como substituta da chave #{tranca_group_key_label(group.group_key) || group.group_key}?" } %>
                               </div>
                             <% end %>
                           </div>
@@ -158,6 +158,49 @@
                       </div>
                     </div>
                   <% end %>
+
+                  <div class="border-t border-base-300 pt-5">
+                    <div class="mb-3">
+                      <p class="text-sm font-semibold">Criar nova dupla</p>
+                      <p class="mt-1 text-xs text-base-content/60">Cadastre a dupla na hora e já coloque na linha selecionada da chave.</p>
+                    </div>
+
+                    <%= form_with url: create_tranca_classificacao_row_from_new_team_championship_path(@championship), method: :post, class: "space-y-4" do %>
+                      <div class="grid gap-4 md:grid-cols-2">
+                        <div class="form-control">
+                          <%= label_tag nil, "Linha da chave", class: "label-text font-medium" %>
+                          <%= select_tag :row_id, options_from_collection_for_select(group.rows, :id, :dupla_nome), class: "select select-bordered w-full", required: true %>
+                        </div>
+
+                        <div class="form-control">
+                          <%= label_tag "team[entity_name]", "Entidade", class: "label-text font-medium" %>
+                          <%= text_field_tag "team[entity_name]", nil, class: "input input-bordered w-full", placeholder: "Nome da entidade ou clube" %>
+                        </div>
+
+                        <div class="form-control md:col-span-2">
+                          <%= label_tag "team[name]", "Nome da dupla", class: "label-text font-medium" %>
+                          <%= text_field_tag "team[name]", nil, class: "input input-bordered w-full", placeholder: "Carlos / Ana" %>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2 md:col-span-2">
+                          <div class="form-control">
+                            <%= label_tag "team[participant_one_name]", "Participante 1", class: "label-text font-medium" %>
+                            <%= text_field_tag "team[participant_one_name]", nil, class: "input input-bordered w-full", placeholder: "Nome 1" %>
+                          </div>
+
+                          <div class="form-control">
+                            <%= label_tag "team[participant_two_name]", "Participante 2", class: "label-text font-medium" %>
+                            <%= text_field_tag "team[participant_two_name]", nil, class: "input input-bordered w-full", placeholder: "Nome 2" %>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="modal-action">
+                        <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-classificacao-group-<%= group.category.id %>-<%= group.group_key.parameterize %>').close()">Cancelar</button>
+                        <%= button_tag "Criar e usar na chave", type: :submit, class: "btn btn-primary" %>
+                      </div>
+                    <% end %>
+                  </div>
                 </div>
               </div>
               <form method="dialog" class="modal-backdrop"><button>Fechar</button></form>

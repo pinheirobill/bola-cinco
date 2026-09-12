@@ -250,6 +250,44 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Linha de classificação inválida."
   end
 
+  def create_tranca_classificacao_row_from_new_team
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    row = @championship.tranca_classificacao_rows.find(params[:row_id])
+    team_params = new_tranca_classificacao_team_params
+    team_name = build_tranca_classificacao_team_name(team_params)
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Informe o nome da dupla." if team_name.blank?
+
+    Team.transaction do
+      entity_name = team_params[:entity_name].to_s.strip.presence || team_name
+      entity = Entity.create!(
+        source_id: default_source_id("entity"),
+        name: entity_name
+      )
+
+      team = Team.new(
+        name: team_name,
+        short_name: team_params[:short_name].to_s.strip.presence,
+        category: row.category,
+        entity: entity,
+        source_id: default_source_id("team"),
+        registration_status: :pendente
+      )
+      team.save!
+
+      dupla = sync_tranca_dupla_from_team!(team)
+      row.update!(tranca_dupla: dupla)
+    end
+
+    redirect_back fallback_location: classificacao_championship_path(@championship), notice: "Nova dupla criada e adicionada à chave."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Linha de classificação inválida."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: e.record.errors.full_messages.join(" · ")
+  end
+
   def destroy_tranca_classificacao_row
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
@@ -809,6 +847,46 @@ class ChampionshipsController < ApplicationController
         end
       end
     end.compact
+  end
+
+  def new_tranca_classificacao_team_params
+    params.expect(team: [
+      :name,
+      :short_name,
+      :entity_name,
+      :participant_one_name,
+      :participant_two_name
+    ])
+  end
+
+  def build_tranca_classificacao_team_name(team_params)
+    explicit_name = team_params[:name].to_s.strip
+    return explicit_name if explicit_name.present?
+
+    participant_names = [
+      team_params[:participant_one_name],
+      team_params[:participant_two_name]
+    ].map { _1.to_s.strip }.reject(&:blank?)
+
+    participant_names.join(" / ") if participant_names.any?
+  end
+
+  def default_source_id(prefix)
+    "#{prefix}-#{SecureRandom.hex(4)}"
+  end
+
+  def sync_tranca_dupla_from_team!(team)
+    tranca_dupla = Tranca::Dupla.find_or_initialize_by(source_id: team.source_id)
+    tranca_dupla.assign_attributes(
+      championship: team.championship,
+      category: team.category,
+      entity: team.entity,
+      name: team.name,
+      short_name: team.short_name,
+      registration_status: team.registration_status
+    )
+    tranca_dupla.save!
+    tranca_dupla
   end
 
   def next_tranca_round_number(phase)
