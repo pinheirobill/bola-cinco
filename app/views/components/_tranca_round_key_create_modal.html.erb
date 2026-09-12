@@ -1,0 +1,40 @@
+<% modal_id = "tranca-round-key-create-#{rodada.id}-#{group_key.parameterize}" %>
+<dialog id="<%= modal_id %>" class="modal">
+  <div class="modal-box max-w-3xl">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-[0.28em] text-base-content/50">Criar jogo na chave</p>
+        <h3 class="mt-1 text-2xl font-black">Chave <%= tranca_group_key_label(group_label) || group_label %></h3>
+        <p class="mt-1 text-sm text-base-content/70"><%= rodada.label %> · <%= category.name %></p>
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('<%= modal_id %>').close()">Fechar</button>
+    </div>
+
+    <%= form_with url: create_tranca_partida_in_key_championship_path(championship, rodada_id: rodada.id, group_key: group_key), method: :post, class: "mt-6 space-y-4" do %>
+      <%= hidden_field_tag :category_id, category.id %>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="form-control">
+          <%= label_tag "tranca_partida_dupla_a_id_#{rodada.id}_#{group_key.parameterize}", "Dupla A", class: "label-text font-medium" %>
+          <%= select_tag :dupla_a_id, options_from_collection_for_select(duplas, :id, :name), include_blank: "Selecione", id: "tranca_partida_dupla_a_id_#{rodada.id}_#{group_key.parameterize}", class: "select select-bordered w-full", required: true %>
+        </div>
+        <div class="form-control">
+          <%= label_tag "tranca_partida_dupla_b_id_#{rodada.id}_#{group_key.parameterize}", "Dupla B", class: "label-text font-medium" %>
+          <%= select_tag :dupla_b_id, options_from_collection_for_select(duplas, :id, :name), include_blank: "Selecione", id: "tranca_partida_dupla_b_id_#{rodada.id}_#{group_key.parameterize}", class: "select select-bordered w-full", required: true %>
+        </div>
+      </div>
+
+      <p class="text-sm text-base-content/60">
+        Seleciona apenas duplas já cadastradas no campeonato. O jogo entra como agendado nesta chave.
+      </p>
+
+      <div class="modal-action flex-wrap">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('<%= modal_id %>').close()">Cancelar</button>
+        <%= button_tag "Criar jogo", type: :submit, class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>Fechar</button>
+  </form>
+</dialog>

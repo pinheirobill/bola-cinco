@@ -17,6 +17,9 @@ end %>
 
     <div class="text-right">
       <p class="<%= compact ? 'text-xl' : 'text-2xl' %> font-black"><%= match.score_a || "-" %> x <%= match.score_b || "-" %></p>
+      <% if match.respond_to?(:winner) && match.winner.present? %>
+        <p class="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-success">Vencedor: <%= match.winner.name %></p>
+      <% end %>
       <div class="mt-2 flex flex-wrap justify-end gap-2">
         <%= status_badge(match.status) %>
         <% if match.phase.present? %>
@@ -29,7 +32,11 @@ end %>
 
 <% if match_record.present? %>
   <% link_target = if match.respond_to?(:legacy_match)
-    import_tranca_summula_championship_path(match.championship, partida_id: match.id)
+    if match.finished?
+      edit_tranca_summula_championship_path(match.championship, partida_id: match.id)
+    else
+      import_tranca_summula_championship_path(match.championship, partida_id: match.id)
+    end
   else
     match_path(match_record)
   end %>
@@ -38,7 +45,9 @@ end %>
   <% end %>
   <% if match.respond_to?(:legacy_match) %>
     <div class="mt-3 flex justify-end">
-      <%= link_to "Abrir súmula", import_tranca_summula_championship_path(match.championship, partida_id: match.id), class: "btn btn-primary btn-xs" %>
+      <% action_label = match.finished? ? "Editar súmula" : "Abrir súmula" %>
+      <% action_path = match.finished? ? edit_tranca_summula_championship_path(match.championship, partida_id: match.id) : import_tranca_summula_championship_path(match.championship, partida_id: match.id) %>
+      <%= link_to action_label, action_path, class: "btn btn-primary btn-xs" %>
     </div>
   <% end %>
 <% else %>

@@ -97,6 +97,105 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Ou use a súmula"
   end
 
+  test "shows the winner and edit summula link after a partida is finalized" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    partida = rodada.partidas.first
+
+    patch update_tranca_partida_championship_path(@championship, partida_id: partida.id), params: {
+      tranca_partida: {
+        score_a: 4,
+        score_b: 1,
+        status: "finalizado"
+      }
+    }
+
+    get rodadas_championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Vencedor:"
+    assert_includes response.body, "Editar súmula"
+    assert_not_includes response.body, "Abrir súmula"
+  end
+
+  test "shows delete game action on scheduled rodada partidas" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    get rodadas_championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Excluir jogo"
+  end
+
+  test "creates a new game inside an existing chave using existing duplas" do
+    dupla_c = Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-c",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Joana / Bruno"
+    )
+
+    dupla_d = Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-d",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Maria / Luiz"
+    )
+    dupla_e = Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-e",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Paula / Sérgio"
+    )
+    dupla_f = Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-f",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Lara / Diego"
+    )
+
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    original_count = rodada.partidas.where(group_key: "A").count
+    used_pairs = rodada.partidas.pluck(:dupla_a_id, :dupla_b_id).map { |dupla_a_id, dupla_b_id| [ dupla_a_id, dupla_b_id ].compact.sort }.to_set
+    candidate_pair = [ @dupla_a, @dupla_b, dupla_c, dupla_d, dupla_e, dupla_f ].combination(2).find do |dupla_a, dupla_b|
+      !used_pairs.include?([ dupla_a.id, dupla_b.id ].sort)
+    end
+
+    post create_tranca_partida_in_key_championship_path(@championship, rodada_id: rodada.id, group_key: "A"), params: {
+      category_id: @category.id,
+      dupla_a_id: candidate_pair.first.id,
+      dupla_b_id: candidate_pair.last.id
+    }
+
+    assert_redirected_to rodadas_championship_path(@championship)
+    rodada.reload
+
+    created_partidas = rodada.partidas.where(group_key: "A").order(:id)
+    assert_equal original_count + 1, created_partidas.count
+    assert_equal [ candidate_pair.first.id, candidate_pair.last.id ].sort, [ created_partidas.last.dupla_a_id, created_partidas.last.dupla_b_id ].sort
+    assert_equal "agendado", created_partidas.last.status
+  end
+
   test "updates the duplas of a scheduled tranca partida" do
     dupla_c = Tranca::Dupla.create!(
       source_id: "dupla-tranca-workflow-c",

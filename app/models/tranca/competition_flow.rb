@@ -205,7 +205,9 @@ module Tranca
 
       attrs[:winner] = winner_for(partida, score_a, score_b, winner_id, status, wo)
       partida.update!(attrs)
-      rebuild_classificacao!
+      if partida.classification_phase?
+        rebuild_classificacao!(categories: [partida.category])
+      end
       advance_knockout_from!(partida) if partida.knockout_phase?
       championship.update!(status: :finalizado) if knockout_finished?
       partida
@@ -256,10 +258,14 @@ module Tranca
       end
     end
 
-    def rebuild_classificacao!
+    def rebuild_classificacao!(categories: nil)
       championship.tranca_classificacao_rows.delete_all
 
-      championship.tranca_duplas.includes(:category).group_by(&:category).each do |category, duplas|
+      duplas_by_category = championship.tranca_duplas.includes(:category).group_by(&:category)
+      selected_categories = Array(categories).compact.presence || duplas_by_category.keys
+
+      selected_categories.each do |category|
+        duplas = duplas_by_category[category] || []
         rebuild_category_classificacao!(category, duplas)
       end
     end
@@ -267,7 +273,10 @@ module Tranca
     private
 
     def rebuild_category_classificacao!(category, duplas)
-      groups = championship.tranca_partidas.where(category_id: category.id, phase: "classificatoria").group_by do |partida|
+      groups = championship.tranca_partidas
+        .includes(:dupla_a, :dupla_b, :winner, :maos)
+        .where(category_id: category.id, phase: "classificatoria")
+        .group_by do |partida|
         partida.group_key.presence || inferred_group_key_for(partida)
       end
       groups = { "" => [] } if groups.empty?

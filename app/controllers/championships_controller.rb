@@ -201,6 +201,51 @@ class ChampionshipsController < ApplicationController
     destroy_tranca_key_with_fallback(rodadas_championship_path(@championship))
   end
 
+  def create_tranca_partida_in_key
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    rodada = @championship.tranca_rodadas.find(params[:rodada_id])
+    group_key = params[:group_key].to_s.squish
+    category = @championship.categories.find(params[:category_id])
+    dupla_a = @championship.tranca_duplas.find(params[:dupla_a_id])
+    dupla_b = @championship.tranca_duplas.find(params[:dupla_b_id])
+
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "A dupla precisa ser da mesma categoria da chave." unless dupla_a.category_id == category.id && dupla_b.category_id == category.id
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "A mesma dupla não pode ocupar os dois lados do jogo." if dupla_a.id == dupla_b.id
+
+    existing_pairs = @championship.tranca_partidas
+      .where(tranca_rodada_id: rodada.id, group_key: group_key)
+      .pluck(:dupla_a_id, :dupla_b_id)
+      .map { |dupla_a_id, dupla_b_id| [ dupla_a_id, dupla_b_id ].compact.sort }
+
+    pair_key = [ dupla_a.id, dupla_b.id ].sort
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Esse confronto já existe nesta chave." if existing_pairs.include?(pair_key)
+
+    partida = Tranca::Partida.create!(
+      source_id: default_source_id("tranca-partida-manual"),
+      championship: @championship,
+      category: category,
+      tranca_rodada: rodada,
+      code: tranca_manual_partida_code(category, rodada, group_key, rodada.partidas.count + 1),
+      phase: rodada.phase,
+      round_number: rodada.round_number,
+      status: :agendado,
+      group_key: group_key,
+      dupla_a: dupla_a,
+      dupla_b: dupla_b
+    )
+
+    Tranca::CompetitionFlow.new(@championship).assign_mesas!(rodada) if rodada.mesas.exists? || rodada.partidas.where(tranca_mesa_id: nil).exists?
+
+    redirect_back fallback_location: rodadas_championship_path(@championship), notice: "Jogo criado na chave #{group_key.presence || 'sem chave'}."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Partida, dupla, categoria ou rodada inválida."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: e.record.errors.full_messages.join(" · ")
+  end
+
   def destroy_tranca_programacao_key
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
@@ -458,6 +503,17 @@ class ChampionshipsController < ApplicationController
     else
       build_tranca_summula_import_preview
     end
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: partidas_championship_path(@championship), alert: "Partida inválida."
+  end
+
+  def edit_tranca_summula
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: partidas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    @partida = @championship.tranca_partidas.includes(:category, :dupla_a, :dupla_b, :winner, :maos).find(params[:partida_id])
+    render :edit_tranca_summula
   rescue ActiveRecord::RecordNotFound
     redirect_back fallback_location: partidas_championship_path(@championship), alert: "Partida inválida."
   end
@@ -853,6 +909,15 @@ class ChampionshipsController < ApplicationController
 
   def default_source_id(prefix)
     "#{prefix}-#{SecureRandom.hex(4)}"
+  end
+
+  def tranca_manual_partida_code(category, rodada, group_key, index)
+    [
+      category.name.parameterize.presence || "CAT",
+      group_key.to_s.parameterize.presence || "CHAVE",
+      rodada.round_number,
+      index
+    ].join("-").upcase
   end
 
   def tranca_classificacao_source_id(category, group_key, dupla)

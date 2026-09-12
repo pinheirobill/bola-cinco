@@ -94,7 +94,12 @@
                   </div>
 
                   <% if manage_round_games && section[:key].present? %>
-                    <%= button_to "Excluir chave", destroy_tranca_key_championship_path(@championship, rodada_id: round.id, group_key: section[:key]), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir a chave #{tranca_group_key_label(section[:label]) || section[:label]} e todos os seus jogos?" } } %>
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" class="btn btn-primary btn-xs" onclick="document.getElementById('tranca-round-key-create-<%= round.id %>-<%= section[:key].parameterize %>').showModal()">
+                        Criar jogo
+                      </button>
+                      <%= button_to "Excluir chave", destroy_tranca_key_championship_path(@championship, rodada_id: round.id, group_key: section[:key]), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir a chave #{tranca_group_key_label(section[:label]) || section[:label]} e todos os seus jogos?" } } %>
+                    </div>
                   <% end %>
                 </div>
 
@@ -104,7 +109,12 @@
                     <div class="space-y-2 rounded-2xl border border-base-300 bg-base-200/40 p-3">
                       <div class="flex flex-wrap items-center justify-between gap-3">
                         <%= match_card(match, compact: true) %>
-                        <%= link_to "Abrir súmula", import_tranca_summula_championship_path(@championship, partida_id: match.id), class: "btn btn-outline btn-xs" %>
+                        <div class="flex flex-wrap items-center gap-2">
+                          <%= link_to(match.finished? ? "Editar súmula" : "Abrir súmula", (match.finished? ? edit_tranca_summula_championship_path(@championship, partida_id: match.id) : import_tranca_summula_championship_path(@championship, partida_id: match.id)), class: "btn btn-outline btn-xs") %>
+                          <% if manage_round_games && match.status_agendado? %>
+                            <%= button_to "Excluir jogo", destroy_tranca_partida_championship_path(@championship, partida_id: match.id), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir #{match.code} e liberar a mesa?" } } %>
+                          <% end %>
+                        </div>
                       </div>
 
                       <% if manage_round_games && match.status_agendado? %>
@@ -119,6 +129,18 @@
                   <% end %>
                 </div>
               </div>
+              <% if manage_round_games && section[:key].present? %>
+                <% first_match = section[:rows].first&.dig(:match) %>
+                <% if first_match.present? %>
+                  <%= render "components/tranca_round_key_create_modal",
+                    championship: @championship,
+                    rodada: round,
+                    group_key: section[:key],
+                    group_label: section[:label],
+                    category: first_match.category,
+                    duplas: (@tranca_duplas_by_category[first_match.category_id] || []) %>
+                <% end %>
+              <% end %>
             <% end %>
           </div>
         </div>

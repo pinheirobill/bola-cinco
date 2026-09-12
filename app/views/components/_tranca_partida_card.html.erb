@@ -15,6 +15,9 @@
 
     <div class="text-right">
       <p class="text-2xl font-black"><%= partida.score_a.to_i %> x <%= partida.score_b.to_i %></p>
+      <% if partida.winner.present? %>
+        <p class="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-success">Vencedor: <%= partida.winner.name %></p>
+      <% end %>
       <div class="mt-2 flex flex-wrap justify-end gap-2">
         <%= status_badge(partida.status) %>
         <span class="badge badge-neutral"><%= partida.phase_label %></span>
@@ -25,6 +28,7 @@
   <div class="mt-4 flex flex-wrap gap-3">
     <% if partida.finished? %>
       <%= link_to "Baixar súmula completa", download_complete_tranca_summula_championship_path(championship, partida_id: partida.id), class: "btn btn-primary btn-sm" %>
+      <%= link_to "Editar súmula", edit_tranca_summula_championship_path(championship, partida_id: partida.id), class: "btn btn-outline btn-sm" %>
     <% else %>
       <div class="w-full rounded-2xl border border-base-300 bg-base-100 p-3">
         <p class="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/50">Placar rápido</p>

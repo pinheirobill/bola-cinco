@@ -1,0 +1,119 @@
+<% content_for :title, "Editar súmula | Arena" %>
+
+<%= page_header(
+  title: "Editar súmula",
+  subtitle: "#{@partida.code} · #{@partida.category.name}",
+  badge: @championship.name,
+  actions: [
+    link_to("Voltar às partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Baixar súmula completa", download_complete_tranca_summula_championship_path(@championship, partida_id: @partida.id), class: "btn btn-primary")
+  ]
+) %>
+
+<section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+  <%= surface_card(
+    title: "Resumo da partida",
+    subtitle: "Resultado já finalizado. Aqui você ajusta placar e mãos sem passar pelo importador."
+  ) do %>
+    <% hands = @partida.maos.order(:numero).to_a %>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4 md:col-span-2">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Partida</p>
+        <p class="mt-2 text-lg font-semibold"><%= [@partida.dupla_a_nome, @partida.dupla_b_nome].compact.join(" x ") %></p>
+        <p class="mt-1 text-sm text-base-content/70">
+          Chave: <%= tranca_group_key_label(@partida.group_key) || @partida.group_key.presence || "não definida" %> ·
+          Mesa: <%= @partida.tranca_mesa&.name.presence || "não definida" %>
+        </p>
+      </div>
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Placar atual</p>
+        <p class="mt-2 text-3xl font-black"><%= @partida.score_a.to_i %> x <%= @partida.score_b.to_i %></p>
+      </div>
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Vencedor atual</p>
+        <p class="mt-2 text-lg font-semibold"><%= @partida.winner&.name.presence || "Automático" %></p>
+      </div>
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4 md:col-span-2">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <%= status_badge(@partida.status) %>
+          <span class="badge badge-neutral"><%= @partida.phase_label %></span>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%= surface_card(
+    title: "Conferência",
+    subtitle: "Edite o placar e as mãos para corrigir o resultado final."
+  ) do %>
+    <%= form_with url: update_tranca_partida_championship_path(@championship, partida_id: @partida.id), method: :patch, class: "space-y-4", data: { turbo: false } do %>
+      <%= hidden_field_tag "tranca_partida[status]", "finalizado" %>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="form-control gap-2">
+          <label class="label-text font-medium" for="tranca_partida_score_a">Placar da dupla A</label>
+          <%= number_field_tag "tranca_partida[score_a]", @partida.score_a.to_i, id: "tranca_partida_score_a", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2">
+          <label class="label-text font-medium" for="tranca_partida_score_b">Placar da dupla B</label>
+          <%= number_field_tag "tranca_partida[score_b]", @partida.score_b.to_i, id: "tranca_partida_score_b", class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control gap-2 md:col-span-2">
+          <label class="label-text font-medium" for="tranca_partida_winner_id">Vencedor manual</label>
+          <%= select_tag "tranca_partida[winner_id]",
+                options_for_select([
+                  [@partida.dupla_a_nome, @partida.dupla_a_id],
+                  [@partida.dupla_b_nome, @partida.dupla_b_id]
+                ], @partida.winner_id),
+                include_blank: "Automático",
+                id: "tranca_partida_winner_id",
+                class: "select select-bordered w-full" %>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-3xl border border-base-300">
+        <table class="table table-zebra table-sm">
+          <thead class="bg-base-200">
+            <tr>
+              <th>Batida</th>
+              <th>Pts A</th>
+              <th>Pts B</th>
+              <th>Desc. A</th>
+              <th>Desc. B</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% 4.times do |index| %>
+              <% hand = hands[index] || Tranca::PartidaMao.new(numero: index + 1, pontos_a: 0, pontos_b: 0, desconto_a: 0, desconto_b: 0) %>
+              <tr>
+                <td class="w-24">
+                  <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][source_id]", hand.source_id %>
+                  <%= number_field_tag "tranca_partida[maos_attributes][#{index}][numero]", hand.numero || index + 1, class: "input input-bordered input-sm w-20" %>
+                </td>
+                <td><%= number_field_tag "tranca_partida[maos_attributes][#{index}][pontos_a]", hand.pontos_a, class: "input input-bordered input-sm w-20" %></td>
+                <td><%= number_field_tag "tranca_partida[maos_attributes][#{index}][pontos_b]", hand.pontos_b, class: "input input-bordered input-sm w-20" %></td>
+                <td><%= number_field_tag "tranca_partida[maos_attributes][#{index}][desconto_a]", hand.desconto_a, class: "input input-bordered input-sm w-20" %></td>
+                <td><%= number_field_tag "tranca_partida[maos_attributes][#{index}][desconto_b]", hand.desconto_b, class: "input input-bordered input-sm w-20" %></td>
+                <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][canastra_limpa_a]", hand.canastra_limpa_a? ? 1 : 0 %>
+                <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][canastra_limpa_b]", hand.canastra_limpa_b? ? 1 : 0 %>
+                <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][canastra_suja_a]", hand.canastra_suja_a? ? 1 : 0 %>
+                <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][canastra_suja_b]", hand.canastra_suja_b? ? 1 : 0 %>
+                <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][batida_a]", hand.batida_a? ? 1 : 0 %>
+                <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][batida_b]", hand.batida_b? ? 1 : 0 %>
+                <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][tres_vermelho_a]", hand.tres_vermelho_a? ? 1 : 0 %>
+                <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][tres_vermelho_b]", hand.tres_vermelho_b? ? 1 : 0 %>
+                <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][observacoes]", hand.observacoes %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <%= link_to "Cancelar", rodadas_championship_path(@championship), class: "btn btn-outline" %>
+        <%= button_tag "Salvar edição", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  <% end %>
+</section>
