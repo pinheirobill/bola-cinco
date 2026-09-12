@@ -191,6 +191,7 @@ module Tranca
 
     def record_result!(partida:, score_a:, score_b:, status: :finalizado, winner_id: nil, decision: nil, wo: nil, maos_attributes: nil)
       sync_maos!(partida, maos_attributes) if maos_attributes.present?
+      partida.reload if maos_attributes.present?
 
       score_a, score_b = scores_for_partida(partida) if maos_attributes.present?
 

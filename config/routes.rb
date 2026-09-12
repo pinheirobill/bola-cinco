@@ -42,6 +42,7 @@ Rails.application.routes.draw do
     get :partidas, on: :member, path: "partidas"
     get :rodadas, on: :member, path: "rodadas"
     get :programacao, on: :member, path: "programacao"
+    get :programacao_telao, on: :member, path: "programacao/telao"
     get "rodadas/:rodada_id/sumulas", to: "tranca/round_exports#summulas", as: :round_summulas
     get "rodadas/:rodada_id/jogos.xlsx", to: "tranca/round_exports#games", as: :round_games
     get "jogos.xlsx", to: "tranca/round_exports#all_games", as: :tranca_games
@@ -51,6 +52,7 @@ Rails.application.routes.draw do
     post :generate_tranca_mesas, on: :member, path: "tranca/gerar-mesas"
     delete :destroy_tranca_round, on: :member, path: "rodadas/:rodada_id"
     patch :update_tranca_partida, on: :member, path: "tranca/partidas/:partida_id"
+    delete :destroy_tranca_partida, on: :member, path: "tranca/partidas/:partida_id"
     get :download_tranca_summula, on: :member, path: "tranca/partidas/:partida_id/sumula"
     get :download_complete_tranca_summula, on: :member, path: "tranca/partidas/:partida_id/sumula-completa"
     get :import_tranca_summula, on: :member, path: "tranca/partidas/:partida_id/importar-sumula"

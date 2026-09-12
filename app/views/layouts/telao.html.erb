@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <title><%= content_for(:title) || "Arena - Telão" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Arena">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <link rel="icon" href="/arena-favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/arena-favicon.svg">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body data-theme="<%= user_signed_in? ? current_theme_name : "tranca" %>" class="min-h-screen overflow-hidden bg-slate-100 text-slate-950">
+    <%= yield %>
+  </body>
+</html>

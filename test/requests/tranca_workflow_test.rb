@@ -75,6 +75,37 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla: @dupla_a).points
   end
 
+  test "updates the duplas of a scheduled tranca partida" do
+    dupla_c = Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-c",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Joana / Bruno"
+    )
+
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    partida = rodada.partidas.first
+
+    patch update_tranca_partida_championship_path(@championship, partida_id: partida.id), params: {
+      tranca_partida: {
+        dupla_a_id: dupla_c.id,
+        dupla_b_id: @dupla_b.id
+      }
+    }
+
+    assert_redirected_to rodadas_championship_path(@championship)
+    partida.reload
+
+    assert_equal dupla_c.id, partida.dupla_a_id
+    assert_equal @dupla_b.id, partida.dupla_b_id
+  end
+
   test "deletes a round and its games while no game is finalized" do
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",
@@ -88,6 +119,27 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_redirected_to rodadas_championship_path(@championship)
     assert_not Tranca::Rodada.exists?(rodada.id)
     assert_not Tranca::Partida.exists?(partida_id)
+  end
+
+  test "deletes a scheduled tranca partida and frees the mesa" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    partida = rodada.partidas.first
+    mesa_id = partida.tranca_mesa_id
+
+    delete destroy_tranca_partida_championship_path(@championship, partida_id: partida.id)
+
+    assert_redirected_to rodadas_championship_path(@championship)
+    assert_not Tranca::Partida.exists?(partida.id)
+    assert_not Tranca::Mesa.exists?(mesa_id)
   end
 
   test "does not delete a round with a finalized game" do

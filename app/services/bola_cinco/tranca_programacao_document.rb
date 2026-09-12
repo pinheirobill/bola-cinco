@@ -13,7 +13,7 @@ module BolaCinco
     end
 
     def render
-      @pdf = Prawn::Document.new(page_size: PAGE_SIZE, margin: [ 32, 28, 40, 28 ])
+      @pdf = Prawn::Document.new(page_size: [ 3840, 2160 ], margin: [ 32, 28, 40, 28 ])
       @pdf.font_families.update(
         "DejaVu Sans" => {
           normal: FONT_NORMAL,
@@ -32,9 +32,19 @@ module BolaCinco
 
     def render_document
       start_section
-      presenter.sections.each_with_index do |section, index|
-        next_page if index.positive? && @pdf.cursor < 90
-        render_section(section)
+      left_sections, right_sections = presenter.columns
+      column_width = ((@pdf.bounds.width - 24) / 2.0).floor
+      top = @pdf.cursor
+      column_height = @pdf.cursor
+      render_column(left_sections, x: 0, y: top, width: column_width, height: column_height)
+      render_column(right_sections, x: column_width + 24, y: top, width: column_width, height: column_height)
+    end
+
+    def render_column(sections, x:, y:, width:, height:)
+      @pdf.bounding_box([ x, y ], width: width, height: height) do
+        sections.each do |section|
+          render_section(section)
+        end
       end
     end
 

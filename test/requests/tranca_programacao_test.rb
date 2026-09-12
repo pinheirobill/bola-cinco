@@ -69,7 +69,7 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
       code: "JG 1",
       phase: "classificatoria",
       round_number: 1,
-      group_key: "Chave A",
+      group_key: "Chave 1",
       scheduled_on: Date.new(2026, 9, 19),
       scheduled_time: "17:13"
     )
@@ -85,7 +85,7 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
       code: "JG 2",
       phase: "classificatoria",
       round_number: 1,
-      group_key: "Chave B",
+      group_key: "Chave 2",
       scheduled_on: Date.new(2026, 9, 19),
       scheduled_time: "17:13"
     )
@@ -96,13 +96,25 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Programação de jogos"
-    assert_includes response.body, "Logo do campeonato"
+    assert_includes response.body, "Telão"
     assert_includes response.body, "CHAVE A"
     assert_includes response.body, "CHAVE B"
     assert_includes response.body, "JG 1"
     assert_includes response.body, "JG 2"
     assert_includes response.body, "Rosa / Claudia"
     assert_includes response.body, "Mario / Renata"
+  end
+
+  test "shows the programacao telao screen" do
+    get programacao_telao_championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "CHAVE A"
+    assert_includes response.body, "CHAVE B"
+    assert_includes response.body, "JG 1"
+    assert_includes response.body, "Rosa / Claudia"
+    assert_includes response.body, "Mario / Renata"
+    assert_no_match(/navbar|sidebar/i, response.body)
   end
 
   test "exports the programacao pdf with the same layout text" do

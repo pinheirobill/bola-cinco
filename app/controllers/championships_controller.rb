@@ -88,6 +88,16 @@ class ChampionshipsController < ApplicationController
     end
   end
 
+  def programacao_telao
+    @championship = championship_lookup
+    return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+    return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
+
+    load_tranca_programacao
+    @tranca_programacao = BolaCinco::TrancaProgramacaoPresenter.new(@championship, @tranca_partidas)
+    render "championships/tranca_programacao_telao", layout: "telao"
+  end
+
   def classificacao
     @championship = championship_lookup
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
@@ -191,6 +201,8 @@ class ChampionshipsController < ApplicationController
 
     partida = @championship.tranca_partidas.find(params[:partida_id])
     params_data = params.fetch(:tranca_partida, {}).permit(
+      :dupla_a_id,
+      :dupla_b_id,
       :score_a,
       :score_b,
       :status,
@@ -216,6 +228,36 @@ class ChampionshipsController < ApplicationController
       ]
     )
 
+    if params_data[:dupla_a_id].present? || params_data[:dupla_b_id].present?
+      duplas_update = params_data[:dupla_a_id].present? && params_data[:dupla_b_id].present?
+
+      if duplas_update && params_data[:score_a].blank? && params_data[:score_b].blank? && params_data[:winner_id].blank? && params_data[:decision].blank? && params_data[:wo].blank? && params_data[:maos_attributes].blank?
+        return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Só é possível alterar a dupla em partidas agendadas." unless partida.status_agendado?
+
+        dupla_a = @championship.tranca_duplas.find(params_data[:dupla_a_id])
+        dupla_b = @championship.tranca_duplas.find(params_data[:dupla_b_id])
+        return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "As duplas precisam ser da mesma categoria da partida." unless dupla_a.category_id == partida.category_id && dupla_b.category_id == partida.category_id
+        return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "A mesma dupla não pode ocupar os dois lados do jogo." if dupla_a.id == dupla_b.id
+
+        partida.update!(dupla_a: dupla_a, dupla_b: dupla_b)
+
+        return redirect_back fallback_location: rodadas_championship_path(@championship), notice: "Duplas da partida atualizadas."
+      end
+
+      if duplas_update
+        dupla_a = @championship.tranca_duplas.find(params_data[:dupla_a_id])
+        dupla_b = @championship.tranca_duplas.find(params_data[:dupla_b_id])
+        return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "As duplas precisam ser da mesma categoria da partida." unless dupla_a.category_id == partida.category_id && dupla_b.category_id == partida.category_id
+        return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "A mesma dupla não pode ocupar os dois lados do jogo." if dupla_a.id == dupla_b.id
+
+        partida.assign_attributes(
+          dupla_a: dupla_a,
+          dupla_b: dupla_b
+        )
+        partida.save!
+      end
+    end
+
     Tranca::CompetitionFlow.new(@championship).record_result!(
       partida: partida,
       score_a: params_data[:score_a].presence,
@@ -232,6 +274,29 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: partidas_championship_path(@championship), alert: "Partida inválida."
   rescue ActiveRecord::RecordInvalid => e
     redirect_back fallback_location: partidas_championship_path(@championship), alert: e.record.errors.full_messages.join(" · ")
+  end
+
+  def destroy_tranca_partida
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    partida = @championship.tranca_partidas.find(params[:partida_id])
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Só é possível excluir partidas agendadas." unless partida.status_agendado?
+
+    rodada = partida.tranca_rodada
+    mesa = partida.tranca_mesa
+    partida_label = "#{partida.code} · #{partida.category.name}"
+
+    Tranca::Partida.transaction do
+      partida.destroy!
+      mesa.destroy! if mesa.present? && mesa.partidas.reload.empty?
+      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if rodada&.classificatoria?
+    end
+
+    redirect_back fallback_location: rodadas_championship_path(@championship), notice: "#{partida_label} excluída."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Partida inválida."
   end
 
   def download_tranca_summula

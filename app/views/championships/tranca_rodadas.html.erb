@@ -54,6 +54,7 @@
   <% if @tranca_rodadas.any? %>
     <div class="space-y-6">
       <% dupla_names = @tranca_duplas.index_by(&:id) %>
+      <% manage_round_games = user_signed_in? && @championship.manageable_by?(current_user) %>
       <% @tranca_rodadas.each do |round| %>
         <div class="rounded-3xl bg-base-200 p-4">
           <div class="flex flex-wrap items-center justify-between gap-3">
@@ -84,9 +85,20 @@
 
           <div class="mt-4 space-y-3">
             <% round.partidas.each do |match| %>
-              <div class="flex flex-wrap items-center justify-between gap-3">
-                <%= match_card(match, compact: true) %>
-                <%= link_to "Abrir súmula", import_tranca_summula_championship_path(@championship, partida_id: match.id), class: "btn btn-outline btn-xs" %>
+              <div class="space-y-2 rounded-2xl border border-base-300 bg-base-100 p-3">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <%= match_card(match, compact: true) %>
+                  <%= link_to "Abrir súmula", import_tranca_summula_championship_path(@championship, partida_id: match.id), class: "btn btn-outline btn-xs" %>
+                </div>
+
+                <% if manage_round_games && match.status_agendado? %>
+                  <div class="flex flex-wrap justify-end gap-2">
+                    <button type="button" class="btn btn-primary btn-xs" onclick="document.getElementById('tranca-partida-modal-<%= match.id %>').showModal()">
+                      Alterar dupla / excluir
+                    </button>
+                  </div>
+                  <%= render "components/tranca_partida_management_modal", championship: @championship, partida: match, duplas: (@tranca_duplas_by_category[match.category_id] || []) %>
+                <% end %>
               </div>
             <% end %>
           </div>

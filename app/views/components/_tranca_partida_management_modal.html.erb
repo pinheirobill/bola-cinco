@@ -1,0 +1,61 @@
+<% partida_duplas = Array(duplas).dup %>
+<% [partida.association(:dupla_a).reader, partida.association(:dupla_b).reader].compact.each do |dupla| %>
+  <% partida_duplas << dupla unless partida_duplas.any? { |candidate| candidate.id == dupla.id } %>
+<% end %>
+<% partida_duplas = partida_duplas.sort_by(&:name) %>
+
+<dialog id="tranca-partida-modal-<%= partida.id %>" class="modal">
+  <div class="modal-box max-w-4xl">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-[0.28em] text-base-content/50">Gerenciar jogo</p>
+        <h3 class="mt-1 text-2xl font-black"><%= partida.code %></h3>
+        <p class="mt-1 text-sm text-base-content/70"><%= partida.category.name %> · <%= partida.phase_label %></p>
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tranca-partida-modal-<%= partida.id %>').close()">Fechar</button>
+    </div>
+
+    <div class="mt-5 rounded-3xl bg-base-200 p-4">
+      <p class="text-sm font-medium">Atual</p>
+      <p class="mt-1 text-base font-semibold"><%= [partida.dupla_a_nome, partida.dupla_b_nome].compact.join(" x ") %></p>
+      <p class="mt-1 text-xs text-base-content/60">
+        Mesa: <%= partida.tranca_mesa&.name.presence || "não definida" %> ·
+        Status: <%= partida.status.to_s.tr("_", " ").humanize %>
+      </p>
+    </div>
+
+    <%= form_with url: update_tranca_partida_championship_path(championship, partida_id: partida.id), method: :patch, class: "mt-6 space-y-4" do %>
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="form-control">
+          <%= label_tag "tranca_partida_dupla_a_id_#{partida.id}", "Dupla A", class: "label-text font-medium" %>
+          <%= select_tag "tranca_partida[dupla_a_id]", options_from_collection_for_select(partida_duplas, :id, :name, partida.dupla_a_id), id: "tranca_partida_dupla_a_id_#{partida.id}", class: "select select-bordered w-full", required: true %>
+        </div>
+
+        <div class="form-control">
+          <%= label_tag "tranca_partida_dupla_b_id_#{partida.id}", "Dupla B", class: "label-text font-medium" %>
+          <%= select_tag "tranca_partida[dupla_b_id]", options_from_collection_for_select(partida_duplas, :id, :name, partida.dupla_b_id), id: "tranca_partida_dupla_b_id_#{partida.id}", class: "select select-bordered w-full", required: true %>
+        </div>
+      </div>
+
+      <p class="text-sm text-base-content/60">
+        Use este ajuste quando a dupla prevista não comparecer e precisar ser substituída manualmente antes do jogo começar.
+      </p>
+
+      <div class="modal-action flex-wrap">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-partida-modal-<%= partida.id %>').close()">Cancelar</button>
+        <%= button_tag "Salvar troca", type: :submit, class: "btn btn-primary" %>
+      </div>
+    <% end %>
+
+    <div class="mt-5 border-t border-base-300 pt-4">
+      <p class="text-sm font-semibold">Excluir jogo</p>
+      <p class="mt-1 text-sm text-base-content/70">Remove a partida agendada e libera a mesa para outro uso.</p>
+      <div class="mt-3">
+        <%= button_to "Excluir jogo", destroy_tranca_partida_championship_path(championship, partida_id: partida.id), method: :delete, class: "btn btn-outline btn-error btn-sm", form: { data: { turbo_confirm: "Excluir #{partida.code} e liberar a mesa?" } } %>
+      </div>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>Fechar</button>
+  </form>
+</dialog>

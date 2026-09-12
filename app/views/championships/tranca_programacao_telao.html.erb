@@ -1,0 +1,34 @@
+<% content_for :title, "#{@championship.name} | Programação - Telão | Arena" %>
+
+<div class="fixed inset-0 overflow-hidden bg-slate-100">
+  <div class="relative h-full w-full overflow-hidden" data-programacao-fit>
+    <div class="absolute left-0 top-0 origin-top-left" data-programacao-board>
+      <%= render "components/tranca_programacao_board", presenter: @tranca_programacao, fixed_canvas: true %>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const fit = () => {
+      const viewport = document.querySelector("[data-programacao-fit]")
+      const board = document.querySelector("[data-programacao-board]")
+      if (!viewport || !board) return
+
+      const width = board.offsetWidth
+      const height = board.offsetHeight
+      if (!width || !height) return
+
+      const scale = Math.min(viewport.clientWidth / width, viewport.clientHeight / height, 1)
+      const offsetX = Math.max((viewport.clientWidth - width * scale) / 2, 0)
+      const offsetY = Math.max((viewport.clientHeight - height * scale) / 2, 0)
+
+      board.style.transformOrigin = "top left"
+      board.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`
+    }
+
+    fit()
+    document.addEventListener("turbo:load", fit)
+    window.addEventListener("resize", fit)
+  })()
+</script>

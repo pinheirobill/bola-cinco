@@ -29,16 +29,32 @@ module BolaCinco
 
     def sections
       counter = 0
+      key_index = 0
+
       grouped_matches.map do |group_key, group_matches|
+        label = if group_key == "Sem chave"
+          "Sem chave"
+        else
+          key_index += 1
+          alphabet_label(key_index)
+        end
+
         {
           key: group_key,
-          label: group_label(group_key),
+          label: label,
           rows: group_matches.sort_by { |match| row_sort_key(match) }.map do |match|
             counter += 1
             row_for(match, counter)
           end
         }
       end
+    end
+
+    def columns
+      return [ sections, [] ] if sections.size <= 1
+
+      split_index = (sections.size / 2.0).ceil
+      [ sections.take(split_index), sections.drop(split_index) ]
     end
 
     def grouped_matches
@@ -58,7 +74,7 @@ module BolaCinco
         team_b: match.dupla_b_nome.to_s.presence || "-",
         score_a: score_value(match[:score_a]),
         score_b: score_value(match[:score_b]),
-        key: group_label(match.group_key)
+        key: group_label_for(match.group_key)
       }
     end
 
@@ -66,18 +82,23 @@ module BolaCinco
       value.to_i
     end
 
-    def group_label(value)
+    def group_label_for(value)
       text = value.to_s.squish
       text = text.sub(/\ACHAVE\s+/i, "").squish
       text.presence || "Sem chave"
     end
 
     def group_sort_key(group_key)
-      label = group_label(group_key)
+      label = group_key.to_s.squish
       return [ 0, label ] if label == "Sem chave"
-      return [ 1, label.to_i ] if label.match?(/\A\d+\z/)
 
-      [ 1, label.downcase ]
+      numeric = label.match(/\A(?:CHAVE\s+)?(\d+)\z/i)
+      return [ 1, numeric[1].to_i ] if numeric
+
+      letter = label.match(/\A(?:CHAVE\s+)?([A-Z]+)\z/i)
+      return [ 2, letter[1].upcase ] if letter
+
+      [ 3, label.downcase ]
     end
 
     def mesa_label(match)
@@ -86,6 +107,18 @@ module BolaCinco
 
     def row_sort_key(match)
       [ match.game_number_label.to_s.scan(/\d+/).first.to_i, mesa_label(match).to_s.downcase, match.id.to_i ]
+    end
+
+    def alphabet_label(index)
+      number = index.to_i
+      return "A" if number <= 1
+
+      letters = +""
+      while number.positive?
+        number, remainder = (number - 1).divmod(26)
+        letters.prepend(("A".ord + remainder).chr)
+      end
+      letters
     end
   end
 end
