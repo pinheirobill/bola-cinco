@@ -2,8 +2,10 @@
 <% fixed_canvas = local_assigns.fetch(:fixed_canvas, false) %>
 <% columns = presenter.columns %>
 <% logo_present = championship_logo_attached?(presenter.championship) %>
+<% row_grid = fixed_canvas ? "grid-cols-[3rem_3.5rem_minmax(14rem,18rem)_2rem_4rem_2rem_minmax(14rem,18rem)]" : "grid-cols-[3.75rem_4rem_minmax(0,1fr)_2.4rem_6rem_2.4rem_minmax(0,1fr)]" %>
+<% team_text_class = fixed_canvas ? "overflow-hidden break-words leading-tight" : "truncate" %>
 
-<div class="<%= fixed_canvas ? 'w-[3840px]' : 'w-full' %> overflow-hidden rounded-[28px] border border-slate-300 bg-white text-slate-950 shadow-sm">
+<div class="<%= fixed_canvas ? 'inline-block w-max' : 'w-full' %> overflow-hidden rounded-[28px] border border-slate-300 bg-white text-slate-950 shadow-sm">
   <div class="flex items-start justify-between gap-4 px-6 py-4 sm:px-8">
     <div class="min-w-0">
       <p class="text-[11px] uppercase tracking-[0.32em] text-slate-700">ESPORTE CLUBE PINHEIROS</p>
@@ -30,12 +32,12 @@
 
   <div class="border-y-[10px] border-[#102A66] bg-white px-6 py-2 sm:px-8"></div>
 
-  <div class="grid gap-6 px-0 py-0 lg:grid-cols-2">
+  <div class="grid gap-6 px-0 py-0 <%= fixed_canvas ? 'grid-cols-2' : 'lg:grid-cols-2' %>">
     <% columns.each_with_index do |sections, column_index| %>
       <div class="<%= column_index.zero? ? 'pb-0 lg:border-r lg:border-slate-200' : 'pb-0' %>">
         <% sections.each do |section| %>
           <section class="border-t-[10px] border-[#102A66]">
-            <div class="grid grid-cols-[3.75rem_4rem_minmax(0,1fr)_2.4rem_6rem_2.4rem_minmax(0,1fr)] bg-[#F4B400] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-slate-950">
+            <div class="grid <%= row_grid %> bg-[#F4B400] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-slate-950">
               <div>JG</div>
               <div>mesa</div>
               <div></div>
@@ -46,14 +48,14 @@
             </div>
 
             <% section[:rows].each_with_index do |row, index| %>
-              <div class="grid grid-cols-[3.75rem_4rem_minmax(0,1fr)_2.4rem_6rem_2.4rem_minmax(0,1fr)] items-center px-3 py-2 text-[11px] font-semibold text-slate-950 <%= index.even? ? 'bg-[#FFF7E1]' : 'bg-white' %>">
+              <div class="grid <%= row_grid %> items-center px-3 py-2 text-[11px] font-semibold text-slate-950 <%= index.even? ? 'bg-[#FFF7E1]' : 'bg-white' %>">
                 <div class="truncate font-black"><%= "JG #{row[:jg]}" %></div>
                 <div class="text-center"><%= row[:mesa] %></div>
-                <div class="truncate pr-2"><%= row[:team_a] %></div>
+                <div class="<%= team_text_class %> pr-2"><%= row[:team_a] %></div>
                 <div class="text-center text-[10px] font-normal text-slate-700"><%= row[:score_a] %></div>
                 <div class="text-center text-lg font-black leading-none text-[#D40000]">x</div>
                 <div class="text-center text-[10px] font-normal text-slate-700"><%= row[:score_b] %></div>
-                <div class="truncate pl-2"><%= row[:team_b] %></div>
+                <div class="<%= team_text_class %> pl-2"><%= row[:team_b] %></div>
               </div>
             <% end %>
           </section>

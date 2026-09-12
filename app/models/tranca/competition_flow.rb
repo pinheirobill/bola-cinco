@@ -19,7 +19,7 @@ module Tranca
         first_match = history.order(:round_number, :id).first
         order = first_match&.source_data&.[]("round_robin_order")
         order = dupla_ids if !order.is_a?(Array) || order.sort != dupla_ids.sort
-        used_matchups = history.pluck(:dupla_a_id, :dupla_b_id).to_set { |ids| matchup_key(*ids) }
+        used_matchups = history.pluck(:dupla_a_id, :dupla_b_id).filter_map { |ids| matchup_key(*ids) }.to_set
 
         grouped_dupla_ids(order).any? do |group_ids|
           RoundRobinPairings.new(group_ids).round(round_number.to_i).any? do |first_id, second_id|
@@ -456,7 +456,10 @@ module Tranca
     end
 
     def matchup_key(dupla_a_id, dupla_b_id)
-      [ dupla_a_id, dupla_b_id ].sort
+      ids = [ dupla_a_id, dupla_b_id ].compact
+      return nil if ids.size < 2
+
+      ids.sort
     end
 
     def round_source_id(phase, round_number)

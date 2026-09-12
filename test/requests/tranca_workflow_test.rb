@@ -65,14 +65,16 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     }
 
     assert_redirected_to partidas_championship_path(@championship)
-    assert_equal 2, partida.reload.score_a
+    partida.reload
+    assert_equal 2, partida.score_a
     assert_equal 1, partida.score_b
-    assert_equal 1, @championship.tranca_classificacao_rows.find_by!(tranca_dupla: @dupla_a).position
+    assert_includes [ @dupla_a.id, @dupla_b.id ], partida.winner_id
+    assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla_id: partida.winner_id).points
 
     patch rebuild_tranca_classificacao_championship_path(@championship)
 
     assert_redirected_to classificacao_championship_path(@championship)
-    assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla: @dupla_a).points
+    assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla_id: partida.winner_id).points
   end
 
   test "updates the duplas of a scheduled tranca partida" do
@@ -142,6 +144,32 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_not Tranca::Mesa.exists?(mesa_id)
   end
 
+  test "shows the rounds page even when a classificatoria partida has a missing dupla" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    Tranca::Partida.create!(
+      source_id: "partida-tranca-workflow-missing-dupla",
+      championship: @championship,
+      category: @category,
+      tranca_rodada: rodada,
+      code: "JG 99",
+      phase: "classificatoria",
+      round_number: 1,
+      group_key: "Chave 1",
+      dupla_a: @dupla_a,
+      dupla_b: nil
+    )
+
+    get rodadas_championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Rodada 1"
+  end
+
   test "does not delete a round with a finalized game" do
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",
@@ -200,7 +228,8 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal 17, partida.score_a
     assert_equal 15, partida.score_b
     assert_equal 2, partida.maos.count
-    assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla: @dupla_a).points
+    assert_includes [ @dupla_a.id, @dupla_b.id ], partida.winner_id
+    assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla_id: partida.winner_id).points
   end
 
   test "creates a knockout round and auto-generates the next bracket round" do
