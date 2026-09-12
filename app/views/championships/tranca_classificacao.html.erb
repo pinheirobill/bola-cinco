@@ -70,6 +70,35 @@
                 </div>
 
                 <div class="mt-6 space-y-6">
+                  <% available_duplas = category_duplas.reject { |dupla| group.rows.any? { |row| row.tranca_dupla_id == dupla.id } } %>
+
+                  <div class="border-b border-base-300 pb-5">
+                    <%= form_with url: append_tranca_classificacao_row_from_existing_dupla_championship_path(@championship), method: :post, class: "space-y-4" do %>
+                      <%= hidden_field_tag :category_id, group.category.id %>
+                      <%= hidden_field_tag :group_key, group.group_key %>
+                      <p class="text-sm font-semibold">Adicionar linha na chave</p>
+                      <div class="grid gap-4 md:grid-cols-2">
+                        <div class="form-control">
+                          <%= label_tag "tranca_classificacao_row_tranca_dupla_id", "Dupla cadastrada", class: "label-text font-medium" %>
+                          <%= select_tag "tranca_classificacao_row[tranca_dupla_id]",
+                            options_from_collection_for_select(available_duplas, :id, :name),
+                            class: "select select-bordered w-full",
+                            required: true,
+                            prompt: "Selecione uma dupla" %>
+                        </div>
+
+                        <div class="rounded-2xl bg-base-200 p-4 text-sm text-base-content/70">
+                          A nova linha entra no fim da chave e mantém as demais posições.
+                        </div>
+                      </div>
+
+                      <div class="modal-action">
+                        <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-classificacao-group-<%= group.category.id %>-<%= group.group_key.parameterize %>').close()">Cancelar</button>
+                        <%= button_tag "Adicionar linha", type: :submit, class: "btn btn-primary" %>
+                      </div>
+                    <% end %>
+                  </div>
+
                   <%= form_with url: update_tranca_classificacao_row_championship_path(@championship), method: :patch, class: "space-y-4" do %>
                     <p class="text-sm font-semibold">Substituir dupla da linha</p>
                     <div class="grid gap-4 md:grid-cols-2">

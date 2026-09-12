@@ -55,6 +55,7 @@ Rails.application.routes.draw do
     delete :destroy_tranca_programacao_key, on: :member, path: "programacao/chaves/:group_key"
     patch :update_tranca_classificacao_row, on: :member, path: "tranca/classificacao/linhas"
     delete :destroy_tranca_classificacao_row, on: :member, path: "tranca/classificacao/linhas"
+    post :append_tranca_classificacao_row_from_existing_dupla, on: :member, path: "tranca/classificacao/linhas/nova-linha"
     patch :replace_tranca_classificacao_row_from_recent_team, on: :member, path: "tranca/classificacao/linhas/duplas-recentes"
     patch :update_tranca_partida, on: :member, path: "tranca/partidas/:partida_id"
     delete :destroy_tranca_partida, on: :member, path: "tranca/partidas/:partida_id"

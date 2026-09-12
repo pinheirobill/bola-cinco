@@ -285,6 +285,39 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal "Lucia / Rita", row.reload.tranca_dupla.name
   end
 
+  test "adds a new classificatoria row with an already registered dupla" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    row = @championship.tranca_classificacao_rows.order(:position).first
+    dupla_c = Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-c",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Luana / Carol"
+    )
+    original_count = @championship.tranca_classificacao_rows.where(category_id: @category.id, group_key: row.group_key).count
+    original_last_position = @championship.tranca_classificacao_rows.where(category_id: @category.id, group_key: row.group_key).maximum(:position)
+
+    post append_tranca_classificacao_row_from_existing_dupla_championship_path(@championship), params: {
+      category_id: @category.id,
+      group_key: row.group_key,
+      tranca_classificacao_row: {
+        tranca_dupla_id: dupla_c.id
+      }
+    }
+
+    assert_redirected_to classificacao_championship_path(@championship)
+
+    appended_rows = @championship.tranca_classificacao_rows.where(category_id: @category.id, group_key: row.group_key).order(:position)
+    assert_equal original_count + 1, appended_rows.count
+    assert_equal dupla_c.id, appended_rows.last.tranca_dupla_id
+    assert_equal original_last_position + 1, appended_rows.last.position
+  end
+
   test "removes a dupla from a classificatoria key and shifts the remaining rows" do
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",

@@ -228,6 +228,45 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Linha de classificação inválida."
   end
 
+  def append_tranca_classificacao_row_from_existing_dupla
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    category = @championship.categories.find(params[:category_id])
+    group_key = params[:group_key].to_s.squish
+    group_rows = @championship.tranca_classificacao_rows.where(category_id: category.id, group_key: group_key)
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Chave inválida." if group_rows.blank?
+
+    dupla = @championship.tranca_duplas.find(params.fetch(:tranca_classificacao_row, {}).fetch(:tranca_dupla_id))
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "A dupla precisa ser da mesma categoria da chave." unless dupla.category_id == category.id
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa dupla já está nesta categoria." if @championship.tranca_classificacao_rows.where(category_id: category.id, tranca_dupla_id: dupla.id).exists?
+
+    Tranca::ClassificacaoRow.create!(
+      championship: @championship,
+      category: category,
+      tranca_dupla: dupla,
+      source_id: tranca_classificacao_source_id(category, group_key, dupla),
+      group_key: group_key,
+      position: group_rows.maximum(:position).to_i + 1,
+      played: 0,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+      goals_for: 0,
+      goals_against: 0,
+      goal_diff: 0,
+      points: 0,
+      qualified: nil
+    )
+
+    redirect_back fallback_location: classificacao_championship_path(@championship), notice: "Dupla adicionada à chave."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Dupla, categoria ou chave inválida."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: e.record.errors.full_messages.join(" · ")
+  end
+
   def replace_tranca_classificacao_row_from_recent_team
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
@@ -813,6 +852,10 @@ class ChampionshipsController < ApplicationController
 
   def default_source_id(prefix)
     "#{prefix}-#{SecureRandom.hex(4)}"
+  end
+
+  def tranca_classificacao_source_id(category, group_key, dupla)
+    "tranca-classification-#{@championship.id}-#{category.id}-#{group_key.presence || 'general'}-#{dupla.id}"
   end
 
   def next_tranca_round_number(phase)
