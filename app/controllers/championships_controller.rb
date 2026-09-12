@@ -208,6 +208,73 @@ class ChampionshipsController < ApplicationController
     destroy_tranca_key_with_fallback(programacao_championship_path(@championship))
   end
 
+  def update_tranca_classificacao_row
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    row = @championship.tranca_classificacao_rows.find(params[:row_id])
+    dupla = @championship.tranca_duplas.find(params.fetch(:tranca_classificacao_row, {}).fetch(:tranca_dupla_id))
+
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "A dupla precisa ser da mesma categoria da chave." unless dupla.category_id == row.category_id
+
+    if @championship.tranca_classificacao_rows.where(category_id: row.category_id, group_key: row.group_key, tranca_dupla_id: dupla.id).where.not(id: row.id).exists?
+      return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa dupla já está nesta chave."
+    end
+
+    row.update!(tranca_dupla: dupla)
+    redirect_back fallback_location: classificacao_championship_path(@championship), notice: "Dupla da chave atualizada."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Linha de classificação inválida."
+  end
+
+  def replace_tranca_classificacao_row_from_recent_team
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    row = @championship.tranca_classificacao_rows.find(params[:row_id])
+    team = recent_tranca_source_teams.find { |candidate| candidate.id == params[:team_id].to_i }
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Dupla recente inválida." if team.blank?
+
+    dupla = @championship.invite_tranca_dupla_into_category!(team, row.category)
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Não foi possível criar a dupla para esta chave." if dupla.blank?
+
+    if @championship.tranca_classificacao_rows.where(category_id: row.category_id, group_key: row.group_key, tranca_dupla_id: dupla.id).where.not(id: row.id).exists?
+      return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa dupla já está nesta chave."
+    end
+
+    row.update!(tranca_dupla: dupla)
+    redirect_back fallback_location: classificacao_championship_path(@championship), notice: "Dupla recente adicionada à chave."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Linha de classificação inválida."
+  end
+
+  def destroy_tranca_classificacao_row
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    row = @championship.tranca_classificacao_rows.find(params[:row_id])
+    group_key = row.group_key.to_s
+    row_position = row.position.to_i
+
+    Tranca::ClassificacaoRow.transaction do
+      row.destroy!
+      @championship.tranca_classificacao_rows
+        .where(category_id: row.category_id, group_key: group_key)
+        .where("position > ?", row_position)
+        .order(:position)
+        .find_each do |remaining_row|
+          remaining_row.update_columns(position: remaining_row.position - 1, updated_at: Time.current)
+        end
+    end
+
+    redirect_back fallback_location: classificacao_championship_path(@championship), notice: "Linha removida da chave."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Linha de classificação inválida."
+  end
+
   def update_tranca_partida
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
@@ -709,6 +776,7 @@ class ChampionshipsController < ApplicationController
     @tranca_knockout_partidas = dashboard.knockout_partidas
     @tranca_stats = dashboard.stats
     @tranca_recent_duplas = @championship.tranca_duplas.includes(:entity, :category).order(created_at: :desc).limit(3)
+    @recent_tranca_source_teams = recent_tranca_source_teams
     qualified_ids = @tranca_standings.select(&:qualified?).map(&:tranca_dupla_id)
     @tranca_knockout_qualified_rows = @tranca_standings.select(&:qualified?).sort_by { |row| [ row.group_key.to_s, row.position ] }
     @tranca_knockout_candidate_rows = @tranca_standings.reject { |row| qualified_ids.include?(row.tranca_dupla_id) }

@@ -253,6 +253,13 @@ class Championship < ApplicationRecord
     invited
   end
 
+  def invite_tranca_dupla_into_category!(team, category)
+    return unless tranca?
+
+    duplicated_team = duplicate_team_into_category!(team, category)
+    Tranca::Dupla.find_by(source_id: duplicated_team.source_id)
+  end
+
   def athlete_registration_open?
     athlete_action_enabled?("allow_register")
   end

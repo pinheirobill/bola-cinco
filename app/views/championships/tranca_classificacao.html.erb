@@ -32,8 +32,10 @@
 <%= surface_card(title: "Tabela da Tranca", subtitle: "Classificação consolidada por categoria.") do %>
   <div class="space-y-6">
     <% if @tranca_standing_groups.any? %>
+      <% manage_classification = user_signed_in? && @championship.manageable_by?(current_user) %>
       <% classification_position = 0 %>
       <% @tranca_standing_groups.each do |group| %>
+        <% category_duplas = @tranca_duplas_by_category[group.category.id] || [] %>
         <div>
           <div class="mb-3 flex items-center justify-between gap-3">
             <div>
@@ -42,12 +44,125 @@
                 <p class="mt-1 text-xs uppercase tracking-[0.25em] text-base-content/50"><%= group.group_key %></p>
               <% end %>
             </div>
-            <span class="badge badge-outline"><%= group.rows.size %> linhas</span>
+            <div class="flex items-center gap-2">
+              <span class="badge badge-outline"><%= group.rows.size %> linhas</span>
+              <% if manage_classification && group.group_key.present? %>
+                <button type="button" class="btn btn-outline btn-xs" onclick="document.getElementById('tranca-classificacao-group-<%= group.category.id %>-<%= group.group_key.parameterize %>').showModal()">
+                  Gerenciar chave
+                </button>
+              <% end %>
+            </div>
           </div>
 
           <div class="overflow-x-auto">
             <%= standing_table(group.category, group.rows, group_key: group.group_key, position_offset: classification_position, tranca: true) %>
           </div>
+
+          <% if manage_classification && group.group_key.present? %>
+            <dialog id="tranca-classificacao-group-<%= group.category.id %>-<%= group.group_key.parameterize %>" class="modal">
+              <div class="modal-box max-w-3xl">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 class="text-2xl font-bold">Gerenciar chave <%= group.group_key %></h2>
+                    <p class="mt-1 text-sm text-base-content/70"><%= group.category.name %></p>
+                  </div>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tranca-classificacao-group-<%= group.category.id %>-<%= group.group_key.parameterize %>').close()">Fechar</button>
+                </div>
+
+                <div class="mt-6 space-y-6">
+                  <%= form_with url: update_tranca_classificacao_row_championship_path(@championship), method: :patch, class: "space-y-4" do %>
+                    <p class="text-sm font-semibold">Substituir dupla da linha</p>
+                    <div class="grid gap-4 md:grid-cols-2">
+                      <div class="form-control">
+                        <%= label_tag nil, "Linha da chave", class: "label-text font-medium" %>
+                        <%= select_tag :row_id, options_from_collection_for_select(group.rows, :id, :dupla_nome), class: "select select-bordered w-full", required: true %>
+                      </div>
+
+                      <div class="form-control">
+                        <%= label_tag "tranca_classificacao_row_tranca_dupla_id", "Nova dupla", class: "label-text font-medium" %>
+                        <%= select_tag "tranca_classificacao_row[tranca_dupla_id]",
+                          options_from_collection_for_select(category_duplas, :id, :name),
+                          class: "select select-bordered w-full",
+                          required: true %>
+                      </div>
+                    </div>
+
+                    <div class="modal-action">
+                      <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-classificacao-group-<%= group.category.id %>-<%= group.group_key.parameterize %>').close()">Cancelar</button>
+                      <%= button_tag "Trocar dupla", type: :submit, class: "btn btn-primary" %>
+                    </div>
+                  <% end %>
+
+                  <div class="border-t border-base-300 pt-5">
+                    <%= form_with url: destroy_tranca_classificacao_row_championship_path(@championship), method: :delete, class: "space-y-4" do %>
+                      <p class="text-sm font-semibold">Remover linha da chave</p>
+                      <div class="grid gap-4 md:grid-cols-2">
+                        <div class="form-control">
+                          <%= label_tag nil, "Linha da chave", class: "label-text font-medium" %>
+                          <%= select_tag :row_id, options_from_collection_for_select(group.rows, :id, :dupla_nome), class: "select select-bordered w-full", required: true %>
+                        </div>
+
+                        <div class="rounded-2xl bg-base-200 p-4 text-sm text-base-content/70">
+                          Remove a dupla selecionada e puxa as posições abaixo para cima.
+                        </div>
+                      </div>
+
+                      <div class="modal-action">
+                        <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-classificacao-group-<%= group.category.id %>-<%= group.group_key.parameterize %>').close()">Cancelar</button>
+                        <%= button_tag "Remover linha", type: :submit, class: "btn btn-outline btn-error" %>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <% if @recent_tranca_source_teams.present? %>
+                    <div class="border-t border-base-300 pt-5">
+                      <div class="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                          <p class="text-sm font-semibold">Duplas recentes</p>
+                          <p class="mt-1 text-xs text-base-content/60">Mostra o status da inscrição para escolher a que entra no lugar.</p>
+                        </div>
+                        <span class="badge badge-outline"><%= @recent_tranca_source_teams.size %></span>
+                      </div>
+
+                      <div class="grid gap-3 md:grid-cols-2">
+                        <% @recent_tranca_source_teams.each do |team| %>
+                          <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+                            <%= form_with url: replace_tranca_classificacao_row_from_recent_team_championship_path(@championship), method: :patch, class: "space-y-3" do %>
+                              <%= hidden_field_tag :team_id, team.id %>
+                              <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                  <p class="font-semibold"><%= team.name %></p>
+                                  <p class="mt-1 text-xs text-base-content/60"><%= team.source_championship.name %> · <%= team.source_category.name %></p>
+                                </div>
+                                <div class="flex flex-col items-end gap-2">
+                                  <%= status_badge(team.registration_status) %>
+                                  <% if team.athletes.blank? %>
+                                    <span class="badge badge-outline">Vazia</span>
+                                  <% end %>
+                                </div>
+                              </div>
+
+                              <p class="text-xs text-base-content/60"><%= team.entity&.name || "Sem entidade" %></p>
+
+                              <div class="grid gap-2">
+                                <%= label_tag nil, "Linha da chave", class: "label-text text-xs font-medium" %>
+                                <%= select_tag :row_id, options_from_collection_for_select(group.rows, :id, :dupla_nome), class: "select select-bordered select-sm w-full", required: true %>
+                              </div>
+
+                              <div class="flex flex-wrap justify-end gap-2">
+                                <%= button_tag "Usar nesta chave", type: :submit, class: "btn btn-primary btn-xs", data: { turbo_confirm: "Convidar #{team.name} e usar como substituta da chave #{group.group_key}?" } %>
+                              </div>
+                            <% end %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+              <form method="dialog" class="modal-backdrop"><button>Fechar</button></form>
+            </dialog>
+          <% end %>
         </div>
         <% classification_position += group.rows.size %>
       <% end %>

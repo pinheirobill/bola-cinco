@@ -218,6 +218,90 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert Tranca::Partida.exists?(partida_keep.id)
   end
 
+  test "updates a dupla inside a classificatoria key" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    dupla_c = Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-c",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Luana / Carol"
+    )
+
+    row = @championship.tranca_classificacao_rows.order(:position).first
+
+    patch update_tranca_classificacao_row_championship_path(@championship, row_id: row.id), params: {
+      tranca_classificacao_row: {
+        tranca_dupla_id: dupla_c.id
+      }
+    }
+
+    assert_redirected_to classificacao_championship_path(@championship)
+    assert_equal dupla_c.id, row.reload.tranca_dupla_id
+  end
+
+  test "replaces a classificatoria row with a recent rejected team" do
+    source_championship = Championship.create!(
+      source_id: "champ-tranca-workflow-source",
+      name: "Fluxo Tranca Base",
+      season: 2025,
+      modality: :tranca,
+      status: :em_andamento
+    )
+
+    source_category = Category.create!(
+      source_id: "cat-tranca-workflow-source",
+      championship: source_championship,
+      name: "Livre"
+    )
+
+    source_team = Team.create!(
+      source_id: "team-tranca-workflow-source",
+      category: source_category,
+      entity: @entity,
+      name: "Lucia / Rita",
+      registration_status: :rejeitada,
+      finance_status: :pendente
+    )
+
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    row = @championship.tranca_classificacao_rows.order(:position).first
+
+    get classificacao_championship_path(@championship)
+    assert_response :success
+    assert_includes response.body, "Rejeitada"
+
+    patch replace_tranca_classificacao_row_from_recent_team_championship_path(@championship, row_id: row.id, team_id: source_team.id)
+
+    assert_redirected_to classificacao_championship_path(@championship)
+    assert_equal "Lucia / Rita", row.reload.tranca_dupla.name
+  end
+
+  test "removes a dupla from a classificatoria key and shifts the remaining rows" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    row = @championship.tranca_classificacao_rows.order(:position).first
+    next_row = @championship.tranca_classificacao_rows.order(:position).second
+    next_row_position = next_row.position
+
+    delete destroy_tranca_classificacao_row_championship_path(@championship, row_id: row.id)
+
+    assert_redirected_to classificacao_championship_path(@championship)
+    assert_not Tranca::ClassificacaoRow.exists?(row.id)
+    assert_equal next_row_position - 1, next_row.reload.position
+  end
+
   test "shows the rounds page even when a classificatoria partida has a missing dupla" do
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",
