@@ -240,7 +240,7 @@ class ChampionshipsController < ApplicationController
 
     dupla = @championship.tranca_duplas.find(params.fetch(:tranca_classificacao_row, {}).fetch(:tranca_dupla_id))
     return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "A dupla precisa ser da mesma categoria da chave." unless dupla.category_id == category.id
-    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa dupla já está nesta categoria." if @championship.tranca_classificacao_rows.where(category_id: category.id, tranca_dupla_id: dupla.id).exists?
+    return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa dupla já está nesta chave." if group_rows.where(tranca_dupla_id: dupla.id).exists?
 
     Tranca::ClassificacaoRow.create!(
       championship: @championship,

@@ -299,6 +299,14 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
       entity: @entity,
       name: "Luana / Carol"
     )
+    Tranca::ClassificacaoRow.create!(
+      source_id: "tranca-standing-row-workflow-extra",
+      championship: @championship,
+      category: @category,
+      tranca_dupla: dupla_c,
+      group_key: "B",
+      position: 1
+    )
     original_count = @championship.tranca_classificacao_rows.where(category_id: @category.id, group_key: row.group_key).count
     original_last_position = @championship.tranca_classificacao_rows.where(category_id: @category.id, group_key: row.group_key).maximum(:position)
 
@@ -316,6 +324,11 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal original_count + 1, appended_rows.count
     assert_equal dupla_c.id, appended_rows.last.tranca_dupla_id
     assert_equal original_last_position + 1, appended_rows.last.position
+
+    get classificacao_championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Luana / Carol"
   end
 
   test "removes a dupla from a classificatoria key and shifts the remaining rows" do
