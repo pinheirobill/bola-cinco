@@ -56,7 +56,6 @@ Rails.application.routes.draw do
     patch :update_tranca_classificacao_row, on: :member, path: "tranca/classificacao/linhas"
     delete :destroy_tranca_classificacao_row, on: :member, path: "tranca/classificacao/linhas"
     patch :replace_tranca_classificacao_row_from_recent_team, on: :member, path: "tranca/classificacao/linhas/duplas-recentes"
-    post :create_tranca_classificacao_row_from_new_team, on: :member, path: "tranca/classificacao/linhas/nova-dupla"
     patch :update_tranca_partida, on: :member, path: "tranca/partidas/:partida_id"
     delete :destroy_tranca_partida, on: :member, path: "tranca/partidas/:partida_id"
     get :download_tranca_summula, on: :member, path: "tranca/partidas/:partida_id/sumula"

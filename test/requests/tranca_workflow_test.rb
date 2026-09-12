@@ -285,33 +285,6 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal "Lucia / Rita", row.reload.tranca_dupla.name
   end
 
-  test "creates a new dupla and uses it in a classificatoria row" do
-    post generate_tranca_round_championship_path(@championship), params: {
-      phase: "classificatoria",
-      round_number: 1
-    }
-
-    row = @championship.tranca_classificacao_rows.order(:position).first
-
-    post create_tranca_classificacao_row_from_new_team_championship_path(@championship), params: {
-      row_id: row.id,
-      team: {
-        name: "",
-        participant_one_name: "Luana",
-        participant_two_name: "Carol",
-        entity_name: "Nova Entidade"
-      }
-    }
-
-    assert_redirected_to classificacao_championship_path(@championship)
-    row.reload
-
-    assert_equal "Luana / Carol", row.tranca_dupla.name
-    assert_equal "Nova Entidade", row.tranca_dupla.entity.name
-    assert_equal "pendente", row.tranca_dupla.registration_status
-    assert_equal "Luana / Carol", Team.find_by!(source_id: row.tranca_dupla.source_id).name
-  end
-
   test "removes a dupla from a classificatoria key and shifts the remaining rows" do
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",
