@@ -194,6 +194,20 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: fallback_location, alert: "Rodada inválida."
   end
 
+  def destroy_tranca_key
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+    destroy_tranca_key_with_fallback(rodadas_championship_path(@championship))
+  end
+
+  def destroy_tranca_programacao_key
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: programacao_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+    destroy_tranca_key_with_fallback(programacao_championship_path(@championship))
+  end
+
   def update_tranca_partida
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
@@ -541,6 +555,42 @@ class ChampionshipsController < ApplicationController
   end
 
   private
+
+  def destroy_tranca_key_with_fallback(fallback_location)
+    rodada = @championship.tranca_rodadas.find_by(id: params[:rodada_id]) if params[:rodada_id].present?
+    group_key = params[:group_key].to_s.squish
+    partidas = if rodada.present?
+      rodada.partidas.where(group_key: group_key)
+    else
+      @championship.tranca_partidas.where(group_key: group_key)
+    end
+
+    return redirect_back fallback_location: fallback_location, alert: "Chave inválida." if group_key.blank? || partidas.blank?
+    return redirect_back fallback_location: fallback_location, alert: "Só é possível excluir chaves com jogos agendados." if partidas.where.not(status: :agendado).exists?
+
+    key_label = group_key.sub(/\ACHAVE\s+/i, "").presence || group_key
+
+    Tranca::Rodada.transaction do
+      mesas = partidas.includes(:tranca_mesa).map(&:tranca_mesa).compact.uniq
+
+      partidas.to_a.each(&:destroy!)
+
+      mesas.each do |mesa|
+        mesa.destroy! if mesa.partidas.reload.empty?
+      end
+
+      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if rodada&.classificatoria?
+
+      if rodada.present? && rodada.partidas.reload.empty?
+        rodada.mesas.destroy_all
+        rodada.destroy!
+      end
+    end
+
+    redirect_back fallback_location: fallback_location, notice: "Chave #{key_label} excluída."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: fallback_location, alert: "Chave inválida."
+  end
 
   def championship_lookup
     identifier = params[:id].to_s

@@ -3,7 +3,10 @@
 <div class="fixed inset-0 overflow-hidden bg-slate-100">
   <div class="relative h-full w-full overflow-hidden" data-programacao-fit>
     <div class="absolute left-0 top-0 origin-top-left" data-programacao-board>
-      <%= render "components/tranca_programacao_board", presenter: @tranca_programacao, fixed_canvas: true %>
+      <%= render "components/tranca_programacao_board",
+        presenter: @tranca_programacao,
+        fixed_canvas: true,
+        key_delete_path: (user_signed_in? && @championship.manageable_by?(current_user) ? ->(group_key) { destroy_tranca_programacao_key_championship_path(@championship, group_key: group_key) } : nil) %>
     </div>
   </div>
 </div>

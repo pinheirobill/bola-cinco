@@ -144,6 +144,80 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_not Tranca::Mesa.exists?(mesa_id)
   end
 
+  test "deletes a scheduled tranca key and keeps the other keys intact" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    partida_delete = rodada.partidas.first
+
+    partida_keep = Tranca::Partida.create!(
+      source_id: "partida-tranca-workflow-keep-key",
+      championship: @championship,
+      category: @category,
+      tranca_rodada: rodada,
+      code: "JG 99",
+      phase: "classificatoria",
+      round_number: 1,
+      group_key: "Chave Z",
+      dupla_a: @dupla_a,
+      dupla_b: @dupla_b,
+      status: :agendado
+    )
+
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    mesa_id = partida_delete.reload.tranca_mesa_id
+
+    delete destroy_tranca_key_championship_path(@championship, rodada_id: rodada.id, group_key: partida_delete.group_key)
+
+    assert_redirected_to rodadas_championship_path(@championship)
+    assert_not Tranca::Partida.exists?(partida_delete.id)
+    assert_not Tranca::Mesa.exists?(mesa_id)
+    assert Tranca::Partida.exists?(partida_keep.id)
+  end
+
+  test "deletes a programming key across the championship and keeps other keys intact" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    partida_delete = rodada.partidas.first
+
+    partida_keep = Tranca::Partida.create!(
+      source_id: "partida-tranca-workflow-programacao-keep",
+      championship: @championship,
+      category: @category,
+      tranca_rodada: rodada,
+      code: "JG 100",
+      phase: "classificatoria",
+      round_number: 1,
+      group_key: "Chave Z",
+      dupla_a: @dupla_a,
+      dupla_b: @dupla_b,
+      status: :agendado
+    )
+
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    mesa_id = partida_delete.reload.tranca_mesa_id
+
+    delete destroy_tranca_programacao_key_championship_path(@championship, group_key: partida_delete.group_key)
+
+    assert_redirected_to programacao_championship_path(@championship)
+    assert_not Tranca::Partida.exists?(partida_delete.id)
+    assert_not Tranca::Mesa.exists?(mesa_id)
+    assert Tranca::Partida.exists?(partida_keep.id)
+  end
+
   test "shows the rounds page even when a classificatoria partida has a missing dupla" do
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",

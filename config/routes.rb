@@ -51,6 +51,8 @@ Rails.application.routes.draw do
     post :select_tranca_knockout_duplas, on: :member, path: "tranca/selecionar-mata-mata"
     post :generate_tranca_mesas, on: :member, path: "tranca/gerar-mesas"
     delete :destroy_tranca_round, on: :member, path: "rodadas/:rodada_id"
+    delete :destroy_tranca_key, on: :member, path: "rodadas/:rodada_id/chaves/:group_key"
+    delete :destroy_tranca_programacao_key, on: :member, path: "programacao/chaves/:group_key"
     patch :update_tranca_partida, on: :member, path: "tranca/partidas/:partida_id"
     delete :destroy_tranca_partida, on: :member, path: "tranca/partidas/:partida_id"
     get :download_tranca_summula, on: :member, path: "tranca/partidas/:partida_id/sumula"

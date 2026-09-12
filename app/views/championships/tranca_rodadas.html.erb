@@ -56,6 +56,7 @@
       <% dupla_names = @tranca_duplas.index_by(&:id) %>
       <% manage_round_games = user_signed_in? && @championship.manageable_by?(current_user) %>
       <% @tranca_rodadas.each do |round| %>
+        <% round_presenter = BolaCinco::TrancaProgramacaoPresenter.new(@championship, round.partidas) %>
         <div class="rounded-3xl bg-base-200 p-4">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -83,22 +84,40 @@
             </div>
           </div>
 
-          <div class="mt-4 space-y-3">
-            <% round.partidas.each do |match| %>
-              <div class="space-y-2 rounded-2xl border border-base-300 bg-base-100 p-3">
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <%= match_card(match, compact: true) %>
-                  <%= link_to "Abrir súmula", import_tranca_summula_championship_path(@championship, partida_id: match.id), class: "btn btn-outline btn-xs" %>
+          <div class="mt-4 space-y-4">
+            <% round_presenter.sections.each do |section| %>
+              <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-base-200 pb-3">
+                  <div>
+                    <p class="text-xs uppercase tracking-[0.28em] text-base-content/50">Chave <%= section[:label] %></p>
+                    <p class="mt-1 text-sm text-base-content/60"><%= section[:rows].size %> partida(s)</p>
+                  </div>
+
+                  <% if manage_round_games && section[:key].present? %>
+                    <%= button_to "Excluir chave", destroy_tranca_key_championship_path(@championship, rodada_id: round.id, group_key: section[:key]), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir a chave #{section[:label]} e todos os seus jogos?" } } %>
+                  <% end %>
                 </div>
 
-                <% if manage_round_games && match.status_agendado? %>
-                  <div class="flex flex-wrap justify-end gap-2">
-                    <button type="button" class="btn btn-primary btn-xs" onclick="document.getElementById('tranca-partida-modal-<%= match.id %>').showModal()">
-                      Alterar dupla / excluir
-                    </button>
-                  </div>
-                  <%= render "components/tranca_partida_management_modal", championship: @championship, partida: match, duplas: (@tranca_duplas_by_category[match.category_id] || []) %>
-                <% end %>
+                <div class="mt-3 space-y-3">
+                  <% section[:rows].each do |row| %>
+                    <% match = row[:match] %>
+                    <div class="space-y-2 rounded-2xl border border-base-300 bg-base-200/40 p-3">
+                      <div class="flex flex-wrap items-center justify-between gap-3">
+                        <%= match_card(match, compact: true) %>
+                        <%= link_to "Abrir súmula", import_tranca_summula_championship_path(@championship, partida_id: match.id), class: "btn btn-outline btn-xs" %>
+                      </div>
+
+                      <% if manage_round_games && match.status_agendado? %>
+                        <div class="flex flex-wrap justify-end gap-2">
+                          <button type="button" class="btn btn-primary btn-xs" onclick="document.getElementById('tranca-partida-modal-<%= match.id %>').showModal()">
+                            Alterar dupla / excluir
+                          </button>
+                        </div>
+                        <%= render "components/tranca_partida_management_modal", championship: @championship, partida: match, duplas: (@tranca_duplas_by_category[match.category_id] || []) %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
               </div>
             <% end %>
           </div>

@@ -1,5 +1,6 @@
 <% presenter = local_assigns.fetch(:presenter) %>
 <% fixed_canvas = local_assigns.fetch(:fixed_canvas, false) %>
+<% key_delete_path = local_assigns[:key_delete_path] %>
 <% columns = presenter.columns %>
 <% logo_present = championship_logo_attached?(presenter.championship) %>
 <% row_grid = fixed_canvas ? "grid-cols-[3rem_3.5rem_minmax(14rem,18rem)_2rem_4rem_2rem_minmax(14rem,18rem)]" : "grid-cols-[3.75rem_4rem_minmax(0,1fr)_2.4rem_6rem_2.4rem_minmax(0,1fr)]" %>
@@ -37,14 +38,20 @@
       <div class="<%= column_index.zero? ? 'pb-0 lg:border-r lg:border-slate-200' : 'pb-0' %>">
         <% sections.each do |section| %>
           <section class="border-t-[10px] border-[#102A66]">
-            <div class="grid <%= row_grid %> bg-[#F4B400] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-slate-950">
-              <div>JG</div>
-              <div>mesa</div>
-              <div></div>
-              <div class="text-right">PTS</div>
-              <div class="text-center">CHAVE <%= section[:label] %></div>
-              <div>PTS</div>
-              <div></div>
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-[#F4B400] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-slate-950">
+              <div class="grid <%= row_grid %> min-w-0 flex-1">
+                <div>JG</div>
+                <div>mesa</div>
+                <div></div>
+                <div class="text-right">PTS</div>
+                <div class="text-center">CHAVE <%= section[:label] %></div>
+                <div>PTS</div>
+                <div></div>
+              </div>
+
+              <% if key_delete_path.present? && section[:key].present? %>
+                <%= button_to "Excluir chave", key_delete_path.call(section[:key]), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir a chave #{section[:label]} e todos os seus jogos?" } } %>
+              <% end %>
             </div>
 
             <% section[:rows].each_with_index do |row, index| %>

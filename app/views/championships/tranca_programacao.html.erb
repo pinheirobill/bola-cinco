@@ -17,5 +17,8 @@
   title: "Programação de jogos",
   subtitle: "A tela usa a mesma estrutura visual do PDF de referência."
 ) do %>
-  <%= render "components/tranca_programacao_board", presenter: @tranca_programacao %>
+  <% manage_programacao_keys = user_signed_in? && @championship.manageable_by?(current_user) %>
+  <%= render "components/tranca_programacao_board",
+    presenter: @tranca_programacao,
+    key_delete_path: (manage_programacao_keys ? ->(group_key) { destroy_tranca_programacao_key_championship_path(@championship, group_key: group_key) } : nil) %>
 <% end %>
