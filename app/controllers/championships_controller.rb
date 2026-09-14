@@ -127,7 +127,12 @@ class ChampionshipsController < ApplicationController
     round_number = next_tranca_round_number(phase) if round_number.blank? || round_number <= 0
 
     flow = Tranca::CompetitionFlow.new(@championship)
-    rodada = flow.generate_round!(phase: phase, round_number: round_number)
+    rodada = flow.generate_round!(
+      phase: phase,
+      round_number: round_number,
+      knockout_stage_type: params[:knockout_stage_type].presence,
+      qualified_per_group: params[:qualified_per_group].presence
+    )
 
     redirect_back fallback_location: rodadas_championship_path(@championship), notice: "#{rodada.label} gerada."
   rescue ActiveRecord::RecordNotFound
@@ -149,14 +154,15 @@ class ChampionshipsController < ApplicationController
 
     Tranca::CompetitionFlow.new(@championship).generate_knockout_round!(
       round_number: 1,
-      selected_dupla_ids: params[:dupla_ids]
+      knockout_stage_type: params[:knockout_stage_type].presence,
+      qualified_per_group: params[:qualified_per_group].presence
     )
 
-    redirect_to rodadas_championship_path(@championship), notice: "Chave eliminatória gerada com 16 duplas."
-  rescue Tranca::CompetitionFlow::InvalidKnockoutSelectionError => error
-    redirect_back fallback_location: classificacao_championship_path(@championship), alert: error.message, status: :see_other
+    redirect_to rodadas_championship_path(@championship), notice: "Chave eliminatória gerada."
   rescue ActiveRecord::RecordInvalid => error
     redirect_back fallback_location: classificacao_championship_path(@championship), alert: error.record.errors.full_messages.join(" · ")
+  rescue Tranca::CompetitionFlow::InvalidKnockoutSelectionError => error
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: error.message, status: :see_other
   end
 
   def generate_tranca_mesas
@@ -968,6 +974,17 @@ class ChampionshipsController < ApplicationController
     @tranca_knockout_candidate_rows = @tranca_standings.reject { |row| qualified_ids.include?(row.tranca_dupla_id) }
       .sort_by { |row| [ -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.position.to_i ] }
     @tranca_knockout_selection_done = @championship.tranca_partidas.where(phase: "mata_mata", round_number: 1).exists?
+    @tranca_knockout_stage_type_options = [
+      [ "Oitavas / quartas / semi / final", "oitavas_quartas_semi_final" ],
+      [ "Quartas / semi / final", "quartas_semi_final" ],
+      [ "Semi / final", "semi_final" ]
+    ]
+    @tranca_knockout_stage_type = @tranca_knockout_stage_type_options.first.last
+    @tranca_knockout_qualified_per_group = [ @championship.qualified_per_group, 1 ].max
+    @tranca_knockout_preview = build_tranca_knockout_preview(
+      knockout_stage_type: @tranca_knockout_stage_type,
+      qualified_per_group: @tranca_knockout_qualified_per_group
+    )
   end
 
   def load_tranca_programacao
@@ -1027,6 +1044,37 @@ class ChampionshipsController < ApplicationController
     end
 
     round_number.to_i.positive? ? "Rodada #{round_number} · #{phase_label}" : phase_label
+  end
+
+  def knockout_stage_slots_for(knockout_stage_type)
+    case knockout_stage_type.to_s
+    when "oitavas_quartas_semi_final" then 16
+    when "quartas_semi_final" then 8
+    when "semi_final" then 4
+    when "final" then 2
+    else 16
+    end
+  end
+
+  def build_tranca_knockout_preview(knockout_stage_type:, qualified_per_group:)
+    target_slots = knockout_stage_slots_for(knockout_stage_type)
+    qualified_count = qualified_per_group.to_i
+    qualified_count = 1 if qualified_count <= 0
+
+    direct_rows = @tranca_standing_groups.flat_map do |group|
+      group.rows.first(qualified_count)
+    end
+
+    backup_rows = @tranca_standings.reject { |row| direct_rows.any? { |selected_row| selected_row.id == row.id } }
+      .sort_by { |row| [ -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.position.to_i, row.group_key.to_s.downcase, row.tranca_dupla.name.to_s.downcase ] }
+      .first([ target_slots - direct_rows.size, 0 ].max)
+
+    {
+      target_slots: target_slots,
+      qualified_per_group: qualified_count,
+      direct_rows: direct_rows,
+      backup_rows: backup_rows
+    }
   end
 
   def normalize_tranca_maos_attributes(maos_attributes)

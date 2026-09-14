@@ -48,8 +48,8 @@ module Tranca
       end
     end
 
-    def generate_round!(phase:, round_number:)
-      return generate_knockout_round!(round_number: round_number) if phase.to_s == "mata_mata"
+    def generate_round!(phase:, round_number:, knockout_stage_type: nil, qualified_per_group: nil)
+      return generate_knockout_round!(round_number: round_number, knockout_stage_type: knockout_stage_type, qualified_per_group: qualified_per_group) if phase.to_s == "mata_mata"
 
       number = round_number.to_i
       raise InvalidScheduleError, "Número de rodada inválido." unless number.positive?
@@ -124,12 +124,8 @@ module Tranca
 
     private :generate_classificatoria_round!
 
-    def generate_knockout_round!(round_number:, selected_dupla_ids: nil)
+    def generate_knockout_round!(round_number:, selected_dupla_ids: nil, knockout_stage_type: nil, qualified_per_group: nil)
       selected_dupla_ids = normalize_dupla_ids(selected_dupla_ids)
-      if round_number.to_i <= 1 && selected_dupla_ids.empty? && championship.group_stage_and_knockout_mode? && championship.tranca_classificacao_rows.where(qualified: true).exists?
-        raise InvalidKnockoutSelectionError, "Selecione 5 duplas não classificadas para completar as 16 vagas."
-      end
-      validate_knockout_selection!(selected_dupla_ids) if round_number.to_i <= 1 && selected_dupla_ids.any?
       rodada = championship.tranca_rodadas.find_or_initialize_by(
         phase: "mata_mata",
         round_number: round_number.to_i
@@ -143,7 +139,13 @@ module Tranca
       rodada.save!
 
       championship.categories.includes(:teams).order(:name).each do |category|
-        pairings_for_knockout(category, round_number, selected_dupla_ids: selected_dupla_ids).each_with_index do |(dupla_a, dupla_b), index|
+        pairings_for_knockout(
+          category,
+          round_number,
+          selected_dupla_ids: selected_dupla_ids,
+          knockout_stage_type: knockout_stage_type,
+          qualified_per_group: qualified_per_group
+        ).each_with_index do |(dupla_a, dupla_b), index|
           next if dupla_a.blank? || dupla_b.blank?
 
           partida = championship.tranca_partidas.find_or_initialize_by(
@@ -650,8 +652,14 @@ module Tranca
       generate_knockout_round!(round_number: current_round + 1)
     end
 
-    def pairings_for_knockout(category, round_number, selected_dupla_ids: [])
-      participants = knockout_participants_for(category, round_number, selected_dupla_ids: selected_dupla_ids)
+    def pairings_for_knockout(category, round_number, selected_dupla_ids: [], knockout_stage_type: nil, qualified_per_group: nil)
+      participants = knockout_participants_for(
+        category,
+        round_number,
+        selected_dupla_ids: selected_dupla_ids,
+        knockout_stage_type: knockout_stage_type,
+        qualified_per_group: qualified_per_group
+      )
       half = participants.size / 2
       left_side = participants.first(half)
       right_side = participants.last(half).reverse
@@ -659,21 +667,42 @@ module Tranca
       left_side.zip(right_side)
     end
 
-    def knockout_participants_for(category, round_number, selected_dupla_ids: [])
+    def knockout_participants_for(category, round_number, selected_dupla_ids: [], knockout_stage_type: nil, qualified_per_group: nil)
       round_number = round_number.to_i
-      return qualified_knockout_participants_for(category, selected_dupla_ids: selected_dupla_ids) if round_number <= 1
+      return qualified_knockout_participants_for(
+        category,
+        selected_dupla_ids: selected_dupla_ids,
+        knockout_stage_type: knockout_stage_type,
+        qualified_per_group: qualified_per_group
+      ) if round_number <= 1
 
       return [] unless knockout_round_complete?(category, round_number - 1)
 
       knockout_winners_for(category, round_number - 1)
     end
 
-    def qualified_knockout_participants_for(category, selected_dupla_ids: [])
-      rows = championship.tranca_classificacao_rows.where(category_id: category.id)
+    def qualified_knockout_participants_for(category, selected_dupla_ids: [], knockout_stage_type: nil, qualified_per_group: nil)
+      rows = championship.tranca_classificacao_rows.includes(:tranca_dupla).where(category_id: category.id)
+      if knockout_stage_type.present? || qualified_per_group.present?
+        preview = knockout_selection_preview(
+          category,
+          knockout_stage_type: knockout_stage_type,
+          qualified_per_group: qualified_per_group
+        )
+        duplas = (preview[:direct_rows] + preview[:backup_rows]).map(&:tranca_dupla).compact.uniq
+        if duplas.size < preview[:target_slots]
+          raise InvalidKnockoutSelectionError, "A configuração escolhida não preenche todas as vagas do mata-mata."
+        end
+
+        return duplas
+      end
+
       qualified_rows = rows.where(qualified: true).order(:group_key, :position)
       if selected_dupla_ids.any?
-        selected_rows = rows.where(tranca_dupla_id: selected_dupla_ids)
-        return (qualified_rows.to_a + selected_rows.to_a).map(&:tranca_dupla).compact.uniq
+        selected_rows = rows.where(tranca_dupla_id: selected_dupla_ids).to_a.sort_by do |row|
+          selected_dupla_ids.index(row.tranca_dupla_id) || Float::INFINITY
+        end
+        return (qualified_rows.to_a + selected_rows).map(&:tranca_dupla).compact.uniq
       end
 
       rows = qualified_rows if qualified_rows.exists?
@@ -684,24 +713,41 @@ module Tranca
       duplas
     end
 
-    def validate_knockout_selection!(selected_dupla_ids)
-      raise InvalidKnockoutSelectionError, "Selecione exatamente 5 duplas." unless selected_dupla_ids.size == 5
+    def knockout_selection_preview(category, knockout_stage_type:, qualified_per_group:)
+      stage_slots = knockout_stage_slots_for(knockout_stage_type)
+      qualified_count = qualified_per_group.to_i
+      qualified_count = 1 if qualified_count <= 0
 
-      qualified_rows = championship.tranca_classificacao_rows.where(qualified: true)
-      qualified_ids = qualified_rows.pluck(:tranca_dupla_id)
-      candidate_rows = championship.tranca_classificacao_rows.where.not(tranca_dupla_id: qualified_ids)
-      candidate_ids = candidate_rows.pluck(:tranca_dupla_id)
-
-      unless qualified_rows.count == championship.group_count && qualified_rows.distinct.count(:group_key) == championship.group_count && qualified_ids.uniq.size == championship.group_count
-        raise InvalidKnockoutSelectionError, "A classificação precisa ter exatamente um classificado por chave antes do mata-mata."
+      rows = championship.tranca_classificacao_rows.includes(:tranca_dupla, :category).where(category_id: category.id).to_a
+      grouped_rows = rows.group_by { |row| row.group_key.to_s }
+      direct_rows = grouped_rows.sort_by { |group_key, _| group_key }.flat_map do |_group_key, group_rows|
+        group_rows.sort_by { |row| [ row.position.to_i, -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.tranca_dupla.name.to_s.downcase ] }.first(qualified_count)
       end
 
-      unless selected_dupla_ids.all? { |id| candidate_ids.include?(id) }
-        raise InvalidKnockoutSelectionError, "Escolha somente duplas não classificadas."
+      if direct_rows.size > stage_slots
+        raise InvalidKnockoutSelectionError, "A regra escolhida gera mais classificados diretos do que vagas na chave."
       end
 
-      unless selected_dupla_ids.all? { |id| championship.tranca_duplas.exists?(id: id) }
-        raise InvalidKnockoutSelectionError, "Há uma dupla inválida na seleção."
+      backup_rows = rows.reject { |row| direct_rows.any? { |direct_row| direct_row.id == row.id } }
+        .sort_by { |row| [ -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.position.to_i, row.group_key.to_s.downcase, row.tranca_dupla.name.to_s.downcase ] }
+        .first([ stage_slots - direct_rows.size, 0 ].max)
+
+      {
+        target_slots: stage_slots,
+        qualified_per_group: qualified_count,
+        direct_rows: direct_rows,
+        backup_rows: backup_rows,
+        total_rows: rows.size
+      }
+    end
+
+    def knockout_stage_slots_for(knockout_stage_type)
+      case knockout_stage_type.to_s
+      when "oitavas_quartas_semi_final" then 16
+      when "quartas_semi_final" then 8
+      when "semi_final" then 4
+      when "final" then 2
+      else 16
       end
     end
 

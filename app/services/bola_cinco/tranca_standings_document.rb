@@ -1,3 +1,4 @@
+require "ostruct"
 require "prawn"
 
 module BolaCinco
@@ -41,16 +42,39 @@ module BolaCinco
 
       @pdf.start_new_page
       start_section("Participantes")
-      if @duplas.empty?
+      participant_groups = if @groups.any?
+        @groups
+      else
+        @duplas.group_by(&:category).map do |category, pairs|
+          OpenStruct.new(category: category, group_key: nil, rows: pairs.map { |pair| OpenStruct.new(tranca_dupla: pair, points: 0, goal_diff: 0, goals_for: 0, position: 0) })
+        end
+      end
+
+      if participant_groups.empty?
         @pdf.text "Nenhuma dupla cadastrada.", size: 11
       end
-      @duplas.group_by(&:category).each do |category, pairs|
-        rows = pairs.each_with_index.map do |pair, index|
-          names = pair.integrante_names
-          [ index + 1, pair.name, names.any? ? names.join("\n") : pair.name ]
+
+      participant_groups.each do |group|
+        rows = group.rows.sort_by do |row|
+          [
+            -row.points.to_i,
+            -row.goal_diff.to_i,
+            -row.goals_for.to_i,
+            row.position.to_i,
+            row.tranca_dupla.name.to_s.downcase
+          ]
+        end.each_with_index.map do |row, index|
+          names = if row.tranca_dupla.respond_to?(:integrante_names)
+            Array(row.tranca_dupla.integrante_names)
+          else
+            []
+          end
+          [ index + 1, row.tranca_dupla.name, names.any? ? names.join("\n") : row.tranca_dupla.name, row.points ]
         end
-        draw_table(category.name, [ "#", "Dupla", "Participantes" ],
-          [ 28, (@pdf.bounds.width - 28) / 2, (@pdf.bounds.width - 28) / 2 ], rows)
+        title = [ group.category.name, group.group_key.presence ].compact.join(" · ")
+        participant_widths = [ 28, 150, @pdf.bounds.width - 226, 48 ]
+        draw_table(title, [ "#", "Dupla", "Participantes", "PTS" ],
+          participant_widths, rows)
       end
 
       @pdf.number_pages "Página <page> de <total>", at: [ 0, -16 ],

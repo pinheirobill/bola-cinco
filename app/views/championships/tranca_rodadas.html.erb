@@ -37,17 +37,59 @@
         <% end %>
       <% end %>
 
-      <%= form_with url: generate_tranca_round_championship_path(@championship), method: :post, class: "rounded-3xl border border-base-300 bg-base-100 p-4 text-left hover:border-primary/40" do %>
-        <%= hidden_field_tag :phase, "mata_mata" %>
-        <%= hidden_field_tag :round_number, @tranca_next_knockout_round_number %>
-        <%= button_tag type: :submit, disabled: mata_mata_encerrado, class: "block w-full text-left disabled:cursor-not-allowed disabled:opacity-60" do %>
+      <div class="rounded-3xl border border-base-300 bg-base-100 p-4 text-left hover:border-primary/40">
+        <button
+          type="button"
+          <%= "disabled" if mata_mata_encerrado %>
+          class="block w-full text-left disabled:cursor-not-allowed disabled:opacity-60"
+          onclick="document.getElementById('tranca-knockout-config-modal').showModal()"
+        >
           <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Mata-mata</p>
-          <p class="mt-2 text-lg font-semibold"><%= mata_mata_encerrado ? "Mata-mata encerrado" : "Gerar chave eliminatória" %></p>
+          <p class="mt-2 text-lg font-semibold"><%= mata_mata_encerrado ? "Mata-mata encerrado" : "Configurar chave eliminatória" %></p>
           <p class="mt-1 text-sm text-base-content/70"><%= mata_mata_encerrado ? "A final já foi concluída." : "Abre a próxima rodada do chaveamento com os vencedores anteriores." %></p>
-        <% end %>
-      <% end %>
+        </button>
+      </div>
     </div>
   <% end %>
+
+  <dialog id="tranca-knockout-config-modal" class="modal">
+    <div class="modal-box max-w-3xl">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-xs uppercase tracking-[0.28em] text-base-content/50">Configuração do mata-mata</p>
+          <h3 class="mt-1 text-2xl font-black">Escolher o tipo de chave</h3>
+          <p class="mt-1 text-sm text-base-content/70">Primeiro definimos a estrutura da eliminatória. A próxima etapa vai completar a configuração.</p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tranca-knockout-config-modal').close()">Fechar</button>
+      </div>
+
+      <%= form_with url: generate_tranca_round_championship_path(@championship), method: :post, class: "mt-6 space-y-4" do %>
+        <%= hidden_field_tag :phase, "mata_mata" %>
+        <%= hidden_field_tag :round_number, @tranca_next_knockout_round_number %>
+
+        <div class="form-control">
+          <%= label_tag :knockout_stage_type, "Tipo de mata-mata", class: "label-text font-medium" %>
+          <%= select_tag :knockout_stage_type,
+            options_for_select([
+              ["Oitavas / quartas / semi / final", "oitavas_quartas_semi_final"],
+              ["Quartas / semi / final", "quartas_semi_final"],
+              ["Semi / final", "semi_final"]
+            ]),
+            class: "select select-bordered w-full",
+            required: true %>
+          <p class="mt-2 text-sm text-base-content/60">Essa escolha vai orientar a próxima etapa da configuração do mata-mata.</p>
+        </div>
+
+        <div class="modal-action">
+          <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-knockout-config-modal').close()">Cancelar</button>
+          <%= submit_tag "Continuar", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button aria-label="Fechar">Fechar</button>
+    </form>
+  </dialog>
 <% end %>
 
 <%= surface_card(title: "Rodadas", subtitle: "As partidas podem ser organizadas por fase e número.") do %>

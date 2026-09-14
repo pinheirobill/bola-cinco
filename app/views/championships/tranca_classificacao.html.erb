@@ -220,9 +220,9 @@
 <% end %>
 
 <% if user_signed_in? && @championship.manageable_by?(current_user) && @tranca_knockout_qualified_rows.any? && !@tranca_knockout_selection_done %>
-  <%= surface_card(title: "Montar oitavas", subtitle: "Os 11 classificados avançam. Escolha exatamente 5 duplas entre as demais para completar as 16 vagas.") do %>
+  <%= surface_card(title: "Montar mata-mata", subtitle: "Escolha a estrutura da chave e a regra de classificação antes de gerar o primeiro confronto eliminatório.") do %>
     <button type="button" class="btn btn-primary" onclick="document.getElementById('tranca-knockout-selection-modal').showModal()">
-      Selecionar 5 duplas
+      Configurar mata-mata
     </button>
   <% end %>
 
@@ -230,70 +230,179 @@
     <div class="modal-box max-w-5xl">
       <div class="flex items-start justify-between gap-4">
         <div>
-          <h2 class="text-2xl font-bold">Selecionar duplas para as oitavas</h2>
-          <p class="mt-1 text-sm text-base-content/70">Os classificados por chave já estão definidos. Marque 5 duplas não classificadas.</p>
+          <h2 class="text-2xl font-bold">Configurar mata-mata</h2>
+          <p class="mt-1 text-sm text-base-content/70">Primeiro escolhemos o tamanho da chave. Depois definimos quantas duplas avançam por chave e quais entram por pontuação.</p>
         </div>
         <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tranca-knockout-selection-modal').close()">Fechar</button>
       </div>
 
-      <%= form_with url: select_tranca_knockout_duplas_championship_path(@championship), method: :post, class: "mt-6 space-y-6", data: { knockout_selection: true } do %>
-        <section>
-          <div class="mb-3 flex items-center justify-between gap-3">
-            <h3 class="text-lg font-semibold">Classificados</h3>
-            <span class="badge badge-outline"><%= @tranca_knockout_qualified_rows.size %> duplas</span>
+      <%= form_with url: select_tranca_knockout_duplas_championship_path(@championship), method: :post, class: "mt-6 space-y-6" do %>
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="form-control">
+            <%= label_tag :knockout_stage_type, "Tipo de chave", class: "label-text font-medium" %>
+            <%= select_tag :knockout_stage_type,
+              options_for_select(@tranca_knockout_stage_type_options, @tranca_knockout_stage_type),
+              class: "select select-bordered w-full",
+              data: { knockout_stage_type: true } %>
+            <p class="mt-2 text-sm text-base-content/60">Define se o mata-mata começa nas oitavas, quartas ou semifinais.</p>
           </div>
-          <div class="grid gap-2 md:grid-cols-2">
-            <% @tranca_knockout_qualified_rows.each do |row| %>
-              <div class="rounded-xl border border-success/30 bg-success/10 p-3">
-                <p class="text-xs uppercase tracking-[0.2em] text-base-content/50"><%= row.group_key.presence || "Classificação geral" %> · <%= row.position %>º</p>
-                <p class="mt-1 font-semibold"><%= row.tranca_dupla.name %></p>
-                <p class="text-xs text-base-content/60"><%= row.points %> pts · <%= row.played %> jogo(s)</p>
-              </div>
-            <% end %>
-          </div>
-        </section>
 
-        <section>
-          <div class="mb-3 flex items-center justify-between gap-3">
-            <h3 class="text-lg font-semibold">Melhores duplas restantes</h3>
-            <span class="badge badge-primary" data-selection-count>0 de 5</span>
+          <div class="form-control">
+            <%= label_tag :qualified_per_group, "Classificados por chave", class: "label-text font-medium" %>
+            <%= number_field_tag :qualified_per_group, @tranca_knockout_qualified_per_group, min: 1, step: 1, class: "input input-bordered w-full", data: { qualified_per_group: true } %>
+            <p class="mt-2 text-sm text-base-content/60">1, 2, 3, 4, 5... Se faltar vaga, o sistema completa com as melhores pontuadas restantes.</p>
           </div>
-          <div class="grid gap-2 md:grid-cols-2">
-            <% @tranca_knockout_candidate_rows.each do |row| %>
-              <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-base-300 bg-base-100 p-3 transition hover:border-primary/50">
-                <%= check_box_tag "dupla_ids[]", row.tranca_dupla_id, false, class: "checkbox checkbox-primary", data: { selection_checkbox: true } %>
-                <span class="min-w-0 flex-1">
-                  <span class="block font-semibold"><%= row.tranca_dupla.name %></span>
-                  <span class="text-xs text-base-content/60"><%= row.group_key.presence || "Classificação geral" %> · <%= row.position %>º · <%= row.points %> pts</span>
-                </span>
-              </label>
-            <% end %>
+        </div>
+
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Prévia</p>
+              <p class="mt-1 text-sm text-base-content/70" data-knockout-preview-summary>
+                <%= @tranca_knockout_preview[:direct_rows].size %> classificados diretos + <%= @tranca_knockout_preview[:backup_rows].size %> duplas por pontuação para fechar <%= @tranca_knockout_preview[:target_slots] %> vagas.
+              </p>
+            </div>
+            <span class="badge badge-outline" data-knockout-preview-slots><%= @tranca_knockout_preview[:target_slots] %> vagas</span>
           </div>
-        </section>
+
+          <div class="mt-4 grid gap-4 lg:grid-cols-2">
+            <section>
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <h3 class="text-lg font-semibold">Classificados diretos</h3>
+                <span class="badge badge-success" data-knockout-direct-count><%= @tranca_knockout_preview[:direct_rows].size %></span>
+              </div>
+              <div class="grid gap-2 md:grid-cols-2" data-knockout-direct-list>
+                <% @tranca_knockout_preview[:direct_rows].each do |row| %>
+                  <div class="rounded-xl border border-success/30 bg-success/10 p-3">
+                    <p class="text-xs uppercase tracking-[0.2em] text-base-content/50"><%= row.group_key.presence || "Classificação geral" %> · <%= row.position %>º</p>
+                    <p class="mt-1 font-semibold"><%= row.tranca_dupla.name %></p>
+                    <p class="text-xs text-base-content/60"><%= row.points %> pts · <%= row.goal_diff %> SG</p>
+                  </div>
+                <% end %>
+              </div>
+            </section>
+
+            <section>
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <h3 class="text-lg font-semibold">Melhores pontuadas para completar</h3>
+                <span class="badge badge-primary" data-knockout-backup-count><%= @tranca_knockout_preview[:backup_rows].size %></span>
+              </div>
+              <div class="grid gap-2 md:grid-cols-2" data-knockout-backup-list>
+                <% @tranca_knockout_preview[:backup_rows].each do |row| %>
+                  <div class="rounded-xl border border-primary/20 bg-primary/10 p-3">
+                    <p class="text-xs uppercase tracking-[0.2em] text-base-content/50"><%= row.group_key.presence || "Classificação geral" %> · <%= row.position %>º</p>
+                    <p class="mt-1 font-semibold"><%= row.tranca_dupla.name %></p>
+                    <p class="text-xs text-base-content/60"><%= row.points %> pts · <%= row.goal_diff %> SG</p>
+                  </div>
+                <% end %>
+              </div>
+            </section>
+          </div>
+
+          <p class="mt-4 text-sm text-base-content/60">
+            Se a soma dos classificados diretos não fechar as vagas do tipo escolhido, a lista acima mostra exatamente quem entra por pontuação.
+          </p>
+        </div>
 
         <div class="modal-action">
           <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-knockout-selection-modal').close()">Cancelar</button>
-          <%= submit_tag "Gerar chave com 16 duplas", class: "btn btn-primary", disabled: true, data: { selection_submit: true } %>
+          <%= submit_tag "Gerar mata-mata", class: "btn btn-primary" %>
         </div>
       <% end %>
     </div>
     <form method="dialog" class="modal-backdrop"><button>Fechar</button></form>
   </dialog>
 
+  <% knockout_preview_groups = @tranca_standing_groups.map do |group|
+       {
+         category: group.category.name,
+         group_key: group.group_key.to_s,
+         rows: group.rows.map do |row|
+           {
+             id: row.id,
+             name: row.tranca_dupla.name,
+             position: row.position.to_i,
+             points: row.points.to_i,
+             goal_diff: row.goal_diff.to_i,
+             goals_for: row.goals_for.to_i
+           }
+         end
+       }
+     end %>
+
   <script>
     (() => {
       const modal = document.getElementById("tranca-knockout-selection-modal")
       if (!modal) return
-      const checkboxes = [...modal.querySelectorAll("[data-selection-checkbox]")]
-      const counter = modal.querySelector("[data-selection-count]")
-      const submit = modal.querySelector("[data-selection-submit]")
-      const update = () => {
-        const selected = checkboxes.filter((checkbox) => checkbox.checked)
-        counter.textContent = `${selected.length} de 5`
-        submit.disabled = selected.length !== 5
-        checkboxes.forEach((checkbox) => { checkbox.disabled = !checkbox.checked && selected.length >= 5 })
+
+      const groups = <%= raw json_escape(knockout_preview_groups.to_json) %>
+      const stageTypeInput = modal.querySelector("[data-knockout-stage-type]")
+      const qualifiedPerGroupInput = modal.querySelector("[data-qualified-per-group]")
+      const summary = modal.querySelector("[data-knockout-preview-summary]")
+      const slotsBadge = modal.querySelector("[data-knockout-preview-slots]")
+      const directCount = modal.querySelector("[data-knockout-direct-count]")
+      const backupCount = modal.querySelector("[data-knockout-backup-count]")
+      const directList = modal.querySelector("[data-knockout-direct-list]")
+      const backupList = modal.querySelector("[data-knockout-backup-list]")
+
+      const stageSlots = {
+        oitavas_quartas_semi_final: 16,
+        quartas_semi_final: 8,
+        semi_final: 4,
+        final: 2
       }
-      checkboxes.forEach((checkbox) => checkbox.addEventListener("change", update))
+
+      const rowCard = (row, variant) => {
+        const borderClass = variant === "direct" ? "border-success/30 bg-success/10" : "border-primary/20 bg-primary/10"
+        return `
+          <div class="rounded-xl border ${borderClass} p-3">
+            <p class="text-xs uppercase tracking-[0.2em] text-base-content/50">${row.group_key || "Classificação geral"} · ${row.position}º</p>
+            <p class="mt-1 font-semibold">${row.name}</p>
+            <p class="text-xs text-base-content/60">${row.points} pts · ${row.goal_diff} SG</p>
+          </div>
+        `
+      }
+
+      const buildPreview = () => {
+        const stageType = stageTypeInput?.value || "oitavas_quartas_semi_final"
+        const slots = stageSlots[stageType] || 16
+        const qualifiedPerGroup = Math.max(1, parseInt(qualifiedPerGroupInput?.value, 10) || 1)
+
+        const directRows = []
+        groups.forEach((group) => {
+          const orderedRows = [...group.rows].sort((left, right) => {
+            if (left.position !== right.position) return left.position - right.position
+            if (left.points !== right.points) return right.points - left.points
+            if (left.goal_diff !== right.goal_diff) return right.goal_diff - left.goal_diff
+            if (left.goals_for !== right.goals_for) return right.goals_for - left.goals_for
+            return left.name.localeCompare(right.name)
+          })
+          orderedRows.slice(0, qualifiedPerGroup).forEach((row) => directRows.push({ ...row, group_key: group.group_key }))
+        })
+
+        const directIds = new Set(directRows.map((row) => row.id))
+        const backupRows = groups.flatMap((group) =>
+          group.rows.map((row) => ({ ...row, group_key: group.group_key, category: group.category }))
+        ).filter((row) => !directIds.has(row.id)).sort((left, right) => {
+          if (left.points !== right.points) return right.points - left.points
+          if (left.goal_diff !== right.goal_diff) return right.goal_diff - left.goal_diff
+          if (left.goals_for !== right.goals_for) return right.goals_for - left.goals_for
+          if (left.position !== right.position) return left.position - right.position
+          if (left.group_key !== right.group_key) return left.group_key.localeCompare(right.group_key)
+          return left.name.localeCompare(right.name)
+        }).slice(0, Math.max(slots - directRows.length, 0))
+
+        summary.textContent = `${directRows.length} classificados diretos + ${backupRows.length} duplas por pontuação para fechar ${slots} vagas.`
+        slotsBadge.textContent = `${slots} vagas`
+        directCount.textContent = directRows.length
+        backupCount.textContent = backupRows.length
+        directList.innerHTML = directRows.map((row) => rowCard(row, "direct")).join("")
+        backupList.innerHTML = backupRows.map((row) => rowCard(row, "backup")).join("")
+      }
+
+      stageTypeInput?.addEventListener("change", buildPreview)
+      qualifiedPerGroupInput?.addEventListener("input", buildPreview)
+      buildPreview()
     })()
   </script>
 <% end %>
