@@ -111,6 +111,54 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal "finalizado", partida.status
   end
 
+  test "updates tranca partida duplas through turbo stream without redirecting to rodadas" do
+    dupla_c = Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-c",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Luana / Carol"
+    )
+    dupla_d = Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-d",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Rafa / Ju"
+    )
+
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    partida = rodada.partidas.first
+
+    patch update_tranca_partida_championship_path(@championship, partida_id: partida.id), params: {
+      tranca_partida: {
+        dupla_a_id: dupla_c.id,
+        dupla_b_id: dupla_d.id
+      }
+    }, as: :turbo_stream
+
+    assert_response :success
+    assert_equal "text/vnd.turbo-stream.html", response.media_type
+    assert_includes response.body, %(turbo-stream action="replace" target="flash-messages")
+    assert_includes response.body, %(turbo-stream action="replace" target="tranca-partida-card-#{partida.id}")
+    assert_includes response.body, "Duplas da partida atualizadas."
+    assert_includes response.body, "Luana / Carol"
+    assert_includes response.body, "Rafa / Ju"
+
+    partida.reload
+    assert_equal dupla_c.id, partida.dupla_a_id
+    assert_equal dupla_d.id, partida.dupla_b_id
+  end
+
   test "shows the quick score form on tranca partida cards" do
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",

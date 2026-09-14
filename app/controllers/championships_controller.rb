@@ -66,7 +66,7 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
     return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
 
-    load_tranca_management
+    load_tranca_rodadas
     render "championships/tranca_rodadas"
   end
 
@@ -405,8 +405,25 @@ class ChampionshipsController < ApplicationController
         return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "A mesma dupla não pode ocupar os dois lados do jogo." if dupla_a.id == dupla_b.id
 
         partida.update!(dupla_a: dupla_a, dupla_b: dupla_b)
+        partida.reload
 
-        return redirect_back fallback_location: rodadas_championship_path(@championship), notice: "Duplas da partida atualizadas."
+        return respond_to do |format|
+          format.turbo_stream do
+            flash.now[:notice] = "Duplas da partida atualizadas."
+            render turbo_stream: [
+              turbo_stream.replace("flash-messages", partial: "shared/flash"),
+              turbo_stream.replace("tranca-partida-card-#{partida.id}", partial: "components/tranca_partida_card", locals: {
+                partida: partida,
+                championship: @championship,
+                allow_dupla_editing: true,
+                duplas: @championship.tranca_duplas.includes(:entity, :athletes).where(category_id: partida.category_id).order(:name)
+              })
+            ]
+          end
+          format.html do
+            redirect_back fallback_location: rodadas_championship_path(@championship), notice: "Duplas da partida atualizadas."
+          end
+        end
       end
 
       if duplas_update
@@ -865,6 +882,29 @@ class ChampionshipsController < ApplicationController
     @tranca_total_duplas = @tranca_duplas.size
     @tranca_total_partidas = @championship.tranca_partidas.count
     @tranca_legacy_teams = Team.where(source_id: @tranca_duplas.map(&:source_id)).index_by(&:source_id)
+  end
+
+  def load_tranca_rodadas
+    @tranca_categories = @championship.categories.order(:name).to_a
+    @tranca_default_category = @tranca_categories.first
+    @tranca_entities = Entity.order(:name)
+    @tranca_duplas = @championship.tranca_duplas.includes(:entity, :athletes).order(:name).to_a
+    @tranca_duplas_by_category = @tranca_duplas.group_by(&:category_id)
+    @tranca_rodadas = @championship.tranca_rodadas.includes(
+      :mesas,
+      partidas: %i[category dupla_a dupla_b winner tranca_mesa]
+    ).order(
+      phase: :asc,
+      round_number: :asc,
+      id: :asc
+    )
+    @tranca_total_duplas = @tranca_duplas.size
+    @tranca_total_partidas = @championship.tranca_partidas.count
+    @tranca_total_rodadas = @tranca_rodadas.size
+    @tranca_next_round_number = @tranca_rodadas.select(&:classificatoria?).map(&:round_number).max.to_i + 1
+    @tranca_next_knockout_round_number = @tranca_rodadas.select(&:mata_mata?).map(&:round_number).max.to_i + 1
+    @tranca_classificatoria_esgotada = !Tranca::CompetitionFlow.new(@championship).classificatoria_pairings_available?(round_number: @tranca_next_round_number)
+    @tranca_mata_mata_encerrado = Tranca::CompetitionFlow.new(@championship).knockout_finished?
   end
 
   def load_tranca_management

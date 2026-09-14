@@ -57,6 +57,7 @@
       <% manage_round_games = user_signed_in? && @championship.manageable_by?(current_user) %>
       <% @tranca_rodadas.each do |round| %>
         <% round_presenter = BolaCinco::TrancaProgramacaoPresenter.new(@championship, round.partidas) %>
+        <% round_deletable = round.partidas.none?(&:finished?) %>
         <div class="rounded-3xl bg-base-200 p-4">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -77,7 +78,7 @@
               <% end %>
               <% if user_signed_in? && @championship.manageable_by?(current_user) %>
                 <%= button_to "Definir mesas", generate_tranca_mesas_championship_path(@championship, rodada_id: round.id), method: :post, class: "btn btn-outline btn-xs" %>
-                <% if round.deletable? %>
+                <% if round_deletable %>
                   <%= button_to "Excluir rodada", destroy_tranca_round_championship_path(@championship, rodada_id: round.id), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir #{round.label} e todos os seus jogos?" } } %>
                 <% end %>
               <% end %>
@@ -108,7 +109,7 @@
                     <% match = row[:match] %>
                     <div class="space-y-2 rounded-2xl border border-base-300 bg-base-200/40 p-3">
                       <div class="flex flex-wrap items-center justify-between gap-3">
-                        <%= match_card(match, compact: true) %>
+                        <%= match_card(match, compact: true, legacy_match: false) %>
                         <div class="flex flex-wrap items-center gap-2">
                           <%= link_to(match.finished? ? "Editar súmula" : "Abrir súmula", (match.finished? ? edit_tranca_summula_championship_path(@championship, partida_id: match.id) : import_tranca_summula_championship_path(@championship, partida_id: match.id)), class: "btn btn-outline btn-xs") %>
                           <% if manage_round_games && match.status_agendado? %>

@@ -6,6 +6,7 @@
   badge: @championship.name,
   actions: [
     link_to("Voltar às partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
+    link_to("Editar súmula manualmente", edit_tranca_summula_championship_path(@championship, partida_id: @partida.id), class: "btn btn-outline"),
     link_to("Baixar súmula", download_tranca_summula_championship_path(@championship, partida_id: @partida.id), class: "btn btn-primary")
   ]
 ) %>
@@ -161,6 +162,7 @@
         </div>
 
         <div class="flex flex-wrap gap-3">
+          <%= link_to "Editar súmula manualmente", edit_tranca_summula_championship_path(@championship, partida_id: @partida.id), class: "btn btn-outline" %>
           <%= link_to "Cancelar", partidas_championship_path(@championship), class: "btn btn-outline" %>
           <%= button_tag "Enviar arquivo", class: "btn btn-primary" %>
         </div>
@@ -176,6 +178,7 @@
         <p>2. Preencha manualmente no papel.</p>
         <p>3. Fotografe ou envie o PDF preenchido.</p>
         <p>4. Confirme a prévia detectada e salve.</p>
+        <p class="pt-2 text-base-content/60">Se você não tem o arquivo em mãos, pode abrir a edição manual direto pelo botão acima.</p>
       </div>
     <% end %>
   </section>

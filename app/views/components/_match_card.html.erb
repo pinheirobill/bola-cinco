@@ -1,4 +1,5 @@
-<% match_record = if match.respond_to?(:legacy_match)
+<% legacy_match_enabled = local_assigns.fetch(:legacy_match, true) %>
+<% match_record = if legacy_match_enabled && match.respond_to?(:legacy_match)
   match.legacy_match.presence
 else
   match
@@ -31,7 +32,7 @@ end %>
   </div>
 <% end %>
 
-<% if match_record.present? %>
+<% if match_record.present? && legacy_match_enabled %>
   <% link_target = if match.respond_to?(:legacy_match)
     if match.finished?
       edit_tranca_summula_championship_path(match.championship, partida_id: match.id)
@@ -50,6 +51,8 @@ end %>
       <% action_path = match.finished? ? edit_tranca_summula_championship_path(match.championship, partida_id: match.id) : import_tranca_summula_championship_path(match.championship, partida_id: match.id) %>
       <%= link_to action_label, action_path, class: "btn btn-primary btn-xs" %>
     </div>
+  <% else %>
+    <%= card_content %>
   <% end %>
 <% else %>
   <div class="block rounded-2xl bg-base-200 p-4">

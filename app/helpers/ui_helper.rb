@@ -45,10 +45,11 @@ module UiHelper
     }
   end
 
-  def match_card(match, compact: false)
+  def match_card(match, compact: false, legacy_match: true)
     render partial: "components/match_card", locals: {
       match: match,
-      compact: compact
+      compact: compact,
+      legacy_match: legacy_match
     }
   end
 

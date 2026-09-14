@@ -336,6 +336,16 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
     assert link.present?
   end
 
+  test "shows the manual edit shortcut on the tranca import page" do
+    sign_in users(:one)
+
+    get import_tranca_summula_championship_path(@championship, partida_id: @live_match.id)
+
+    assert_response :success
+    assert_includes response.body, "Editar súmula manualmente"
+    assert_includes response.body, edit_tranca_summula_championship_path(@championship, partida_id: @live_match.id)
+  end
+
   test "shows only the complete summary download for finished tranca partidas" do
     sign_in users(:one)
     suffix = SecureRandom.hex(3)
