@@ -433,12 +433,40 @@ class ChampionshipsController < ApplicationController
       wo: params_data[:wo].presence,
       maos_attributes: normalize_tranca_maos_attributes(params_data[:maos_attributes])
     )
+    partida.reload
 
-    redirect_back fallback_location: partidas_championship_path(@championship), notice: "Resultado lançado."
+    respond_to do |format|
+      format.turbo_stream do
+        flash.now[:notice] = "Resultado lançado."
+        render turbo_stream: [
+          turbo_stream.replace("flash-messages", partial: "shared/flash"),
+          turbo_stream.replace("tranca-partida-card-#{partida.id}", partial: "components/tranca_partida_card", locals: { partida: partida, championship: @championship })
+        ]
+      end
+      format.html do
+        redirect_back fallback_location: partidas_championship_path(@championship), notice: "Resultado lançado."
+      end
+    end
   rescue ActiveRecord::RecordNotFound
-    redirect_back fallback_location: partidas_championship_path(@championship), alert: "Partida inválida."
+    respond_to do |format|
+      format.turbo_stream do
+        flash.now[:alert] = "Partida inválida."
+        render turbo_stream: turbo_stream.replace("flash-messages", partial: "shared/flash"), status: :not_found
+      end
+      format.html do
+        redirect_back fallback_location: partidas_championship_path(@championship), alert: "Partida inválida."
+      end
+    end
   rescue ActiveRecord::RecordInvalid => e
-    redirect_back fallback_location: partidas_championship_path(@championship), alert: e.record.errors.full_messages.join(" · ")
+    respond_to do |format|
+      format.turbo_stream do
+        flash.now[:alert] = e.record.errors.full_messages.join(" · ")
+        render turbo_stream: turbo_stream.replace("flash-messages", partial: "shared/flash"), status: :unprocessable_entity
+      end
+      format.html do
+        redirect_back fallback_location: partidas_championship_path(@championship), alert: e.record.errors.full_messages.join(" · ")
+      end
+    end
   end
 
   def destroy_tranca_partida

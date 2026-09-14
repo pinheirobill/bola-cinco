@@ -1,6 +1,6 @@
 <% flash_types = { notice: "success", alert: "error" } %>
 
-<div class="space-y-3">
+<div id="flash-messages" class="space-y-3">
   <% flash_types.each do |key, variant| %>
     <% next if flash[key].blank? %>
 

@@ -77,6 +77,40 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal 3, @championship.tranca_classificacao_rows.find_by!(tranca_dupla_id: partida.winner_id).points
   end
 
+  test "updates a tranca partida result through turbo stream without reloading the page" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    partida = rodada.partidas.first
+
+    patch update_tranca_partida_championship_path(@championship, partida_id: partida.id), params: {
+      tranca_partida: {
+        score_a: 4,
+        score_b: 2,
+        status: "finalizado"
+      }
+    }, as: :turbo_stream
+
+    assert_response :success
+    assert_equal "text/vnd.turbo-stream.html", response.media_type
+    assert_includes response.body, %(turbo-stream action="replace" target="flash-messages")
+    assert_includes response.body, %(turbo-stream action="replace" target="tranca-partida-card-#{partida.id}")
+    assert_includes response.body, "Resultado lançado."
+    assert_includes response.body, "4 x 2"
+
+    partida.reload
+    assert_equal 4, partida.score_a
+    assert_equal 2, partida.score_b
+    assert_equal "finalizado", partida.status
+  end
+
   test "shows the quick score form on tranca partida cards" do
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",
