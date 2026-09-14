@@ -4,6 +4,14 @@ import "controllers"
 
 window.BolaCinco ||= {}
 
+function closeOpenDialogs() {
+  document.querySelectorAll("dialog[open]").forEach((dialog) => {
+    if (typeof dialog.close === "function") {
+      dialog.close()
+    }
+  })
+}
+
 async function copyTextToClipboard(value, sourceElement) {
   if (!value) return false
 
@@ -63,6 +71,17 @@ document.addEventListener("turbo:load", () => {
   const url = new URL(window.location.href)
   url.searchParams.delete("modal")
   window.history.replaceState({}, "", url.toString())
+})
+
+document.addEventListener("turbo:before-cache", closeOpenDialogs)
+document.addEventListener("turbo:before-render", closeOpenDialogs)
+document.addEventListener("turbo:submit-end", (event) => {
+  if (!event.detail?.success) return
+
+  const dialog = event.target?.closest?.("dialog")
+  if (dialog?.open && typeof dialog.close === "function") {
+    dialog.close()
+  }
 })
 
 window.BolaCinco.openCategoryDuplicateModal = (duplicateUrl, categoryName) => {

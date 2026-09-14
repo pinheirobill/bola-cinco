@@ -15,7 +15,7 @@
     title: "Resumo da partida",
     subtitle: "Resultado já finalizado. Aqui você ajusta placar e mãos sem passar pelo importador."
   ) do %>
-    <% hands = @partida.maos.order(:numero).to_a %>
+    <% hands = @partida.maos.to_a.sort_by { |hand| [ hand.numero.to_i, hand.id.to_i ] } %>
     <div class="grid gap-4 md:grid-cols-2">
       <div class="rounded-3xl border border-base-300 bg-base-200 p-4 md:col-span-2">
         <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Partida</p>

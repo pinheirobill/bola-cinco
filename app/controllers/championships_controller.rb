@@ -1012,10 +1012,12 @@ class ChampionshipsController < ApplicationController
     score_a = payload[:score_a].presence || preview.dig(:header, :score_a)
     score_b = payload[:score_b].presence || preview.dig(:header, :score_b)
     winner_name = payload[:winner_name].presence || preview.dig(:header, :winner_name)
+    dupla_a = @partida.association(:dupla_a).reader
+    dupla_b = @partida.association(:dupla_b).reader
 
     winner = case winner_name.to_s
-    when @partida.dupla_a_nome.to_s then @partida.dupla_a
-    when @partida.dupla_b_nome.to_s then @partida.dupla_b
+    when @partida.dupla_a_nome.to_s then dupla_a
+    when @partida.dupla_b_nome.to_s then dupla_b
     end
 
     Tranca::CompetitionFlow.new(@championship).record_result!(
