@@ -348,10 +348,7 @@ class ChampionshipsController < ApplicationController
       @championship.tranca_classificacao_rows
         .where(category_id: row.category_id, group_key: group_key)
         .where("position > ?", row_position)
-        .order(:position)
-        .find_each do |remaining_row|
-          remaining_row.update_columns(position: remaining_row.position - 1, updated_at: Time.current)
-        end
+        .update_all(position: Arel.sql("position - 1"), updated_at: Time.current)
     end
 
     redirect_back fallback_location: classificacao_championship_path(@championship), notice: "Linha removida da chave."

@@ -651,20 +651,35 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
   end
 
   test "removes a dupla from a classificatoria key and shifts the remaining rows" do
+    Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-c",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Luana / Carol"
+    )
+    Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-d",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Rafa / Ju"
+    )
+
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",
       round_number: 1
     }
 
-    row = @championship.tranca_classificacao_rows.order(:position).first
-    next_row = @championship.tranca_classificacao_rows.order(:position).second
-    next_row_position = next_row.position
+    row = @championship.tranca_classificacao_rows.order(:position).second
 
     delete destroy_tranca_classificacao_row_championship_path(@championship, row_id: row.id)
 
     assert_redirected_to classificacao_championship_path(@championship)
     assert_not Tranca::ClassificacaoRow.exists?(row.id)
-    assert_equal next_row_position - 1, next_row.reload.position
+
+    remaining_positions = @championship.tranca_classificacao_rows.where(category_id: @category.id, group_key: row.group_key).order(:position).pluck(:position)
+    assert_equal [ 1, 2, 3 ], remaining_positions
   end
 
   test "shows the rounds page even when a classificatoria partida has a missing dupla" do
