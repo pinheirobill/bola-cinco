@@ -111,17 +111,15 @@
 
         <div class="overflow-x-auto rounded-3xl border border-base-300">
           <table class="table table-zebra table-sm">
-            <thead class="bg-base-200">
-              <tr>
-                <th>Batida</th>
-                <th>Pts A</th>
-                <th>Pts B</th>
-                <th>Desc. A</th>
-                <th>Desc. B</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% 4.times do |index| %>
+          <thead class="bg-base-200">
+            <tr>
+              <th>Batida</th>
+              <th>Pts A</th>
+              <th>Pts B</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% 4.times do |index| %>
                 <% hand = @hands[index] || {} %>
                 <tr>
                   <td class="w-24">
@@ -130,8 +128,6 @@
                   </td>
                   <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][pontos_a]", hand[:pontos_a], class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
                   <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][pontos_b]", hand[:pontos_b], class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
-                  <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][desconto_a]", hand[:desconto_a] || 0, class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
-                  <td><%= number_field_tag "tranca_summula_import[maos_attributes][#{index}][desconto_b]", hand[:desconto_b] || 0, class: "input input-bordered input-sm w-20", placeholder: "0" %></td>
                 </tr>
               <% end %>
             </tbody>

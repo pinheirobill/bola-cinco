@@ -387,8 +387,6 @@ class ChampionshipsController < ApplicationController
         :batida_b,
         :tres_vermelho_a,
         :tres_vermelho_b,
-        :desconto_a,
-        :desconto_b,
         :observacoes
       ]
     )
@@ -492,19 +490,34 @@ class ChampionshipsController < ApplicationController
     return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
 
     partida = @championship.tranca_partidas.find(params[:partida_id])
-    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Só é possível excluir partidas agendadas." unless partida.status_agendado?
-
     rodada = partida.tranca_rodada
     mesa = partida.tranca_mesa
     partida_label = "#{partida.code} · #{partida.category.name}"
 
-    Tranca::Partida.transaction do
-      partida.destroy!
-      mesa.destroy! if mesa.present? && mesa.partidas.reload.empty?
-      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if rodada&.classificatoria?
+    if partida.status_agendado?
+      Tranca::Partida.transaction do
+        partida.destroy!
+        mesa.destroy! if mesa.present? && mesa.partidas.reload.empty?
+        Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if rodada&.classificatoria?
+      end
+
+      redirect_back fallback_location: rodadas_championship_path(@championship), notice: "#{partida_label} excluída."
+      return
     end
 
-    redirect_back fallback_location: rodadas_championship_path(@championship), notice: "#{partida_label} excluída."
+    unless partida.finished? && partida.classification_phase?
+      return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Só é possível remover o resultado de partidas finalizadas da classificatória."
+    end
+
+    Tranca::Partida.transaction do
+      partida.clear_result!
+      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao!(
+        categories: [partida.category],
+        group_keys: [partida.group_key.presence].compact
+      )
+    end
+
+    redirect_back fallback_location: rodadas_championship_path(@championship), notice: "#{partida_label} reaberta. Resultado removido."
   rescue ActiveRecord::RecordNotFound
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Partida inválida."
   end

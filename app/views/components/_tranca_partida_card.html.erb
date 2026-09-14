@@ -33,6 +33,9 @@
     <% if partida.finished? %>
       <%= link_to "Baixar súmula completa", download_complete_tranca_summula_championship_path(championship, partida_id: partida.id), class: "btn btn-primary btn-sm" %>
       <%= link_to "Editar súmula", edit_tranca_summula_championship_path(championship, partida_id: partida.id), class: "btn btn-outline btn-sm" %>
+      <% if partida.classification_phase? %>
+        <%= button_to "Remover resultado", destroy_tranca_partida_championship_path(championship, partida_id: partida.id), method: :delete, class: "btn btn-outline btn-error btn-sm", form: { data: { turbo_confirm: "Remover o resultado de #{partida.code} e reabrir o jogo?" } } %>
+      <% end %>
     <% else %>
       <% if allow_dupla_editing && partida_duplas.any? %>
         <%= button_tag "Alterar dupla", type: "button", class: "btn btn-outline btn-sm", onclick: "document.getElementById('tranca-partida-modal-#{partida.id}').showModal()" %>

@@ -83,13 +83,11 @@
               <th>Batida</th>
               <th>Pts A</th>
               <th>Pts B</th>
-              <th>Desc. A</th>
-              <th>Desc. B</th>
             </tr>
           </thead>
           <tbody>
             <% 4.times do |index| %>
-              <% hand = @hands[index] || Tranca::PartidaMao.new(numero: index + 1, pontos_a: 0, pontos_b: 0, desconto_a: 0, desconto_b: 0) %>
+              <% hand = @hands[index] || Tranca::PartidaMao.new(numero: index + 1, pontos_a: 0, pontos_b: 0) %>
               <tr>
                 <td class="w-24">
                   <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][source_id]", hand.source_id %>
@@ -97,8 +95,6 @@
                 </td>
                 <td><%= number_field_tag "tranca_partida[maos_attributes][#{index}][pontos_a]", hand.pontos_a, class: "input input-bordered input-sm w-20" %></td>
                 <td><%= number_field_tag "tranca_partida[maos_attributes][#{index}][pontos_b]", hand.pontos_b, class: "input input-bordered input-sm w-20" %></td>
-                <td><%= number_field_tag "tranca_partida[maos_attributes][#{index}][desconto_a]", hand.desconto_a, class: "input input-bordered input-sm w-20" %></td>
-                <td><%= number_field_tag "tranca_partida[maos_attributes][#{index}][desconto_b]", hand.desconto_b, class: "input input-bordered input-sm w-20" %></td>
                 <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][canastra_limpa_a]", hand.canastra_limpa_a? ? 1 : 0 %>
                 <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][canastra_limpa_b]", hand.canastra_limpa_b? ? 1 : 0 %>
                 <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][canastra_suja_a]", hand.canastra_suja_a? ? 1 : 0 %>

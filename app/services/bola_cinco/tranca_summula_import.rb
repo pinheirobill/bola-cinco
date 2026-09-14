@@ -146,8 +146,6 @@ module BolaCinco
           batida_b: false,
           tres_vermelho_a: false,
           tres_vermelho_b: false,
-          desconto_a: 0,
-          desconto_b: 0,
           observacoes: nil
         }
       end

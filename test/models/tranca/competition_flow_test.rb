@@ -143,8 +143,7 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
           numero: 2,
           pontos_a: 7,
           pontos_b: 9,
-          batida_b: true,
-          desconto_b: 1
+          batida_b: true
         }
       ]
     )

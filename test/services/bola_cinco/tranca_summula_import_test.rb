@@ -52,4 +52,25 @@ class BolaCinco::TrancaSummulaImportTest < ActiveSupport::TestCase
       assert_equal 197, header[:partida_id]
     end
   end
+
+  test "does not expose desconto fields in extracted hands" do
+    partida = Struct.new(:dupla_a_nome, :dupla_b_nome).new("Dupla A", "Dupla B")
+
+    Tempfile.create([ "tranca-summula-import", ".txt" ]) do |file|
+      text = "1ª batida\n10 6\nsem desconto\nsem desconto\n2ª batida\n7 9\nsem desconto\nsem desconto"
+      file.write(text)
+      file.flush
+
+      importer = BolaCinco::TrancaSummulaImport.new(partida: partida, file: file)
+      importer.define_singleton_method(:extract_text) { text }
+
+      hand = importer.call[:hands].first
+
+      assert_equal 1, hand[:numero]
+      assert_equal 10, hand[:pontos_a]
+      assert_equal 6, hand[:pontos_b]
+      assert_not_includes hand.keys, :desconto_a
+      assert_not_includes hand.keys, :desconto_b
+    end
+  end
 end

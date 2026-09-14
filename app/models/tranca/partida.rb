@@ -139,5 +139,21 @@ module Tranca
         updated_at: Time.current
       )
     end
+
+    def clear_result!
+      transaction do
+        maos.destroy_all
+        update!(
+          score_a: nil,
+          score_b: nil,
+          winner: nil,
+          decision: nil,
+          wo: nil,
+          penalties_a: nil,
+          penalties_b: nil,
+          status: :agendado
+        )
+      end
+    end
   end
 end

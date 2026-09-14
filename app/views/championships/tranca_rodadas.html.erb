@@ -112,6 +112,9 @@
                         <%= match_card(match, compact: true, legacy_match: false) %>
                         <div class="flex flex-wrap items-center gap-2">
                           <%= link_to(match.finished? ? "Editar súmula" : "Abrir súmula", (match.finished? ? edit_tranca_summula_championship_path(@championship, partida_id: match.id) : import_tranca_summula_championship_path(@championship, partida_id: match.id)), class: "btn btn-outline btn-xs") %>
+                          <% if match.finished? && match.classification_phase? %>
+                            <%= button_to "Remover resultado", destroy_tranca_partida_championship_path(@championship, partida_id: match.id), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Remover o resultado de #{match.code} e reabrir o jogo?" } } %>
+                          <% end %>
                           <% if manage_round_games && match.status_agendado? %>
                             <%= button_to "Excluir jogo", destroy_tranca_partida_championship_path(@championship, partida_id: match.id), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir #{match.code} e liberar a mesa?" } } %>
                           <% end %>

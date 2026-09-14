@@ -188,6 +188,28 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal partida.dupla_b_id.to_s, modal.at_css(%(select[name="tranca_partida[dupla_b_id]"] option[selected]))["value"]
   end
 
+  test "does not show desconto columns in the tranca summary editor" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    partida = rodada.partidas.first
+
+    get edit_tranca_summula_championship_path(@championship, partida_id: partida.id)
+
+    assert_response :success
+    assert_includes response.body, "Pts A"
+    assert_includes response.body, "Pts B"
+    assert_not_includes response.body, "Desc. A"
+    assert_not_includes response.body, "Desc. B"
+  end
+
   test "shows the winner and edit summula link after a partida is finalized" do
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",
@@ -256,6 +278,28 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Excluir jogo"
+  end
+
+  test "shows remove result action on finalized classificatoria partidas" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    partida = rodada.partidas.first
+    patch update_tranca_partida_championship_path(@championship, partida_id: partida.id), params: {
+      tranca_partida: { score_a: 4, score_b: 1, status: "finalizado" }
+    }
+
+    get rodadas_championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Remover resultado"
   end
 
   test "creates a new game inside an existing chave using existing duplas" do
@@ -381,6 +425,41 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_redirected_to rodadas_championship_path(@championship)
     assert_not Tranca::Partida.exists?(partida.id)
     assert_not Tranca::Mesa.exists?(mesa_id)
+  end
+
+  test "removes the result of a finalized tranca partida without deleting the game" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    partida = rodada.partidas.first
+
+    patch update_tranca_partida_championship_path(@championship, partida_id: partida.id), params: {
+      tranca_partida: {
+        score_a: 4,
+        score_b: 1,
+        status: "finalizado"
+      }
+    }
+
+    assert_no_difference -> { @championship.tranca_classificacao_rows.count } do
+      delete destroy_tranca_partida_championship_path(@championship, partida_id: partida.id)
+    end
+
+    assert_redirected_to rodadas_championship_path(@championship)
+    partida.reload
+
+    assert partida.status_agendado?
+    assert_nil partida.score_a
+    assert_nil partida.score_b
+    assert_equal 0, partida.maos.count
+    assert_equal [ 0, 0 ], @championship.tranca_classificacao_rows.where(category_id: @category.id).order(:position).pluck(:points)
   end
 
   test "deletes a scheduled tranca key and keeps the other keys intact" do
@@ -659,8 +738,7 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
             numero: 2,
             pontos_a: 7,
             pontos_b: 9,
-            batida_b: "1",
-            desconto_b: 1
+            batida_b: "1"
           }
         }
       }
@@ -696,8 +774,7 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
           "0" => {
             numero: 1,
             pontos_a: 10,
-            pontos_b: "-6",
-            desconto_b: 1
+            pontos_b: "-6"
           },
           "1" => {
             numero: 2,
@@ -717,7 +794,6 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     hand_one, hand_two = partida.maos.order(:numero).to_a
     assert_equal(-6, hand_one.pontos_b)
     assert_equal(-7, hand_two.pontos_a)
-    assert_equal 1, hand_one.desconto_b
   end
 
   test "creates a knockout round and auto-generates the next bracket round" do

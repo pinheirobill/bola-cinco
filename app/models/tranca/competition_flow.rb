@@ -243,8 +243,6 @@ module Tranca
             batida_b: boolean_from(attributes[:batida_b]),
             tres_vermelho_a: boolean_from(attributes[:tres_vermelho_a]),
             tres_vermelho_b: boolean_from(attributes[:tres_vermelho_b]),
-            desconto_a: non_negative_integer(attributes[:desconto_a]),
-            desconto_b: non_negative_integer(attributes[:desconto_b]),
             observacoes: attributes[:observacoes].presence,
             source_data: {
               "generated_by" => "tranca_competition_flow"
@@ -699,11 +697,6 @@ module Tranca
 
     def boolean_from(value)
       !!ActiveModel::Type::Boolean.new.cast(value)
-    end
-
-    def non_negative_integer(value)
-      integer = value.to_i
-      integer.positive? ? integer : 0
     end
 
     def positive_integer_or_nil(value)
