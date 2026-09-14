@@ -345,10 +345,14 @@ class ChampionshipsController < ApplicationController
 
     Tranca::ClassificacaoRow.transaction do
       row.destroy!
-      @championship.tranca_classificacao_rows
+      scope = @championship.tranca_classificacao_rows
         .where(category_id: row.category_id, group_key: group_key)
         .where("position > ?", row_position)
-        .update_all(position: Arel.sql("position - 1"), updated_at: Time.current)
+      offset = scope.maximum(:position).to_i + 1
+      timestamp = Time.current
+
+      scope.update_all(position: Arel.sql("position + #{offset}"), updated_at: timestamp)
+      scope.update_all(position: Arel.sql("position - #{offset + 1}"), updated_at: timestamp)
     end
 
     redirect_back fallback_location: classificacao_championship_path(@championship), notice: "Linha removida da chave."
