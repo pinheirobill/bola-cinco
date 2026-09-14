@@ -29,10 +29,23 @@
   { label: "Duplas", value: @tranca_total_duplas, value_class: "text-2xl" }
 ]) %>
 
-<%= surface_card(title: "Tabela da Tranca", subtitle: "Classificação consolidada por categoria.") do %>
+<% manage_classification = user_signed_in? && @championship.manageable_by?(current_user) %>
+
+<%= surface_card(
+  title: "Tabela da Tranca",
+  subtitle: "Classificação consolidada por categoria.",
+  actions: [
+    (manage_classification ? button_to(
+      "Recalcular classificação",
+      rebuild_tranca_classificacao_championship_path(@championship),
+      method: :patch,
+      class: "btn btn-primary btn-sm",
+      form: { data: { turbo_confirm: "Recalcular a classificação agora? Isso vai refazer os pontos e posições a partir das partidas finalizadas." } }
+    ) : nil)
+  ].compact
+) do %>
   <div class="space-y-6">
     <% if @tranca_standing_groups.any? %>
-      <% manage_classification = user_signed_in? && @championship.manageable_by?(current_user) %>
       <% classification_position = 0 %>
       <% @tranca_standing_groups.each do |group| %>
         <% category_duplas = @tranca_duplas_by_category[group.category.id] || [] %>
