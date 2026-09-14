@@ -456,56 +456,67 @@ class Championship < ApplicationRecord
     end
   end
 
-  def rebuild_standings!
+  def rebuild_standings!(categories: nil, group_keys: nil)
     rebuilt_rows = []
-
-    categories.includes(:teams).find_each do |category|
-      standings_groups_for(category).each do |group_key, matches|
-        completed_matches = matches.select { |match| match.status_finalizado? || match.status_wo? }
-        team_ids = matches.flat_map { |match| [match.team_a_id, match.team_b_id] }.compact.uniq
-        teams_by_id = if group_key.present? && team_ids.any?
-          Team.includes(:entity).where(id: team_ids).index_by(&:id)
-        else
-          participating_teams_for(category).index_by(&:id)
-        end
-        team_stats = teams_by_id.transform_values { |team| standing_stats_for(team, group_key) }
-
-        completed_matches.each do |match|
-          apply_match_to_standings!(team_stats, match)
-        end
-
-        sorted_stats = team_stats.values.sort_by do |stats|
-          [
-            -stats[:points],
-            -stats[:goal_diff],
-            -stats[:goals_for],
-            -stats[:wins],
-            stats[:team].name.to_s.downcase
-          ]
-        end
-
-        sorted_stats.each_with_index do |stats, index|
-          rebuilt_rows << standing_rows.new(
-            category: category,
-            group_key: group_key,
-            team: stats[:team],
-            position: index + 1,
-            played: stats[:played],
-            wins: stats[:wins],
-            draws: stats[:draws],
-            losses: stats[:losses],
-            goals_for: stats[:goals_for],
-            goals_against: stats[:goals_against],
-            goal_diff: stats[:goal_diff],
-            points: stats[:points],
-            qualified: group_stage_and_knockout_mode? ? index < qualified_per_group : nil
-          )
-        end
-      end
-    end
+    target_categories = Array(categories).compact.presence || self.categories.includes(:teams).to_a
+    selected_group_keys = Array(group_keys).compact.map(&:to_s).presence
+    full_rebuild = categories.nil? && selected_group_keys.blank?
 
     transaction do
-      standing_rows.delete_all
+      standing_rows.delete_all if full_rebuild
+
+      target_categories.each do |category|
+        groups = standings_groups_for(category)
+        groups = groups.select { |group_key, _matches| selected_group_keys.include?(group_key.to_s) } if selected_group_keys.present?
+
+        delete_scope = standing_rows.where(category_id: category.id)
+        delete_scope = delete_scope.where(group_key: selected_group_keys) if selected_group_keys.present?
+        delete_scope.delete_all unless full_rebuild
+
+        groups.each do |group_key, matches|
+          completed_matches = matches.select { |match| match.status_finalizado? || match.status_wo? }
+          team_ids = matches.flat_map { |match| [match.team_a_id, match.team_b_id] }.compact.uniq
+          teams_by_id = if group_key.present? && team_ids.any?
+            Team.includes(:entity).where(id: team_ids).index_by(&:id)
+          else
+            participating_teams_for(category).index_by(&:id)
+          end
+          team_stats = teams_by_id.transform_values { |team| standing_stats_for(team, group_key) }
+
+          completed_matches.each do |match|
+            apply_match_to_standings!(team_stats, match)
+          end
+
+          sorted_stats = team_stats.values.sort_by do |stats|
+            [
+              -stats[:points],
+              -stats[:goal_diff],
+              -stats[:goals_for],
+              -stats[:wins],
+              stats[:team].name.to_s.downcase
+            ]
+          end
+
+          sorted_stats.each_with_index do |stats, index|
+            rebuilt_rows << standing_rows.new(
+              category: category,
+              group_key: group_key,
+              team: stats[:team],
+              position: index + 1,
+              played: stats[:played],
+              wins: stats[:wins],
+              draws: stats[:draws],
+              losses: stats[:losses],
+              goals_for: stats[:goals_for],
+              goals_against: stats[:goals_against],
+              goal_diff: stats[:goal_diff],
+              points: stats[:points],
+              qualified: group_stage_and_knockout_mode? ? index < qualified_per_group : nil
+            )
+          end
+        end
+      end
+
       rebuilt_rows.each(&:save!)
       sync_tranca_classificacao_rows_from_legacy! if tranca?
     end

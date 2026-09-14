@@ -49,6 +49,23 @@ class ChampionshipCompetitionModesTest < ActiveSupport::TestCase
     assert_equal [true, true, false, false], rows_b.pluck(:qualified)
   end
 
+  test "rebuilds the previous and current standings when a finalized match changes group key" do
+    moved_match = play_classification_match!(code: "A1", group_key: "A", team_a: @teams.fetch("A1"), team_b: @teams.fetch("A2"), score_a: 4, score_b: 0)
+    play_classification_match!(code: "A2", group_key: "A", team_a: @teams.fetch("A3"), team_b: @teams.fetch("A4"), score_a: 1, score_b: 0)
+
+    moved_match.update!(group_key: "B")
+    moved_match.sync_competition_state!
+    @championship.reload
+
+    rows_a = @championship.standing_rows.where(category: @category, group_key: "A").order(:position)
+    rows_b = @championship.standing_rows.where(category: @category, group_key: "B").order(:position)
+
+    assert_equal ["Time A3", "Time A4"], rows_a.map { |row| row.team.name }
+    assert_equal ["Time A1", "Time A2"], rows_b.map { |row| row.team.name }
+    assert_equal [3, 0], rows_b.pluck(:points)
+    assert_equal [3, 0], rows_a.pluck(:points)
+  end
+
   test "creates knockout pairings from qualified group winners" do
     play_classification_match!(code: "A1", group_key: "A", team_a: @teams.fetch("A1"), team_b: @teams.fetch("A2"), score_a: 4, score_b: 0)
     play_classification_match!(code: "A2", group_key: "A", team_a: @teams.fetch("A3"), team_b: @teams.fetch("A4"), score_a: 1, score_b: 0)

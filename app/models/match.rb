@@ -102,7 +102,8 @@ class Match < ApplicationRecord
   end
 
   def sync_competition_state!
-    championship.rebuild_standings! if classification_phase? && (status_finalizado? || status_wo?)
+    sync_previous_classification_standings!
+    sync_current_classification_standings!
     championship.advance_group_stage_knockout_from!(self) if classification_phase? && (status_finalizado? || status_wo?)
     championship.advance_knockout_from!(self) if knockout_phase? && (status_finalizado? || status_wo?)
   end
@@ -156,6 +157,38 @@ class Match < ApplicationRecord
   end
 
   private
+
+  def sync_current_classification_standings!
+    return unless classification_phase? && (status_finalizado? || status_wo?)
+
+    championship.rebuild_standings!(
+      categories: [category].compact,
+      group_keys: [group_key]
+    )
+  end
+
+  def sync_previous_classification_standings!
+    return unless classification_scope_changed?
+    return unless previous_classification_state_finished?
+
+    previous_category = Category.find_by(id: category_id_before_last_save)
+    championship.rebuild_standings!(
+      categories: [previous_category].compact,
+      group_keys: [group_key_before_last_save]
+    )
+  end
+
+  def classification_scope_changed?
+    saved_change_to_phase? || saved_change_to_group_key? || saved_change_to_category_id? || saved_change_to_status?
+  end
+
+  def previous_classification_state_finished?
+    previous_phase = phase_before_last_save
+    previous_status = status_before_last_save
+
+    previous_phase.to_s.match?(/\A(classificatoria|classificatória|grupos?|fase[_\s-]?de[_\s-]?grupos?)\z/i) &&
+      %w[finalizado wo].include?(previous_status.to_s)
+  end
 
   def sync_tranca_mirror!
     return unless championship&.tranca?
