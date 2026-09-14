@@ -18,4 +18,13 @@ class Tranca::PartidaTest < ActiveSupport::TestCase
 
     assert_equal "Final", partida.game_number_label
   end
+
+  test "uses the persisted id as the summula identifier" do
+    partida = Tranca::Partida.new(code: "12-1")
+    partida.id = 197
+
+    assert_equal "197", partida.summula_identifier
+    assert_equal "ID do jogo: 197", partida.summula_reference
+    assert_equal "197-12-1", partida.summula_filename_token
+  end
 end

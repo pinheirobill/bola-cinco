@@ -2,7 +2,7 @@
 
 <%= page_header(
   title: "Editar súmula",
-  subtitle: "#{@partida.code} · #{@partida.category.name}",
+  subtitle: "#{@partida.code} · #{@partida.category.name} · ID #{@partida.id}",
   badge: @championship.name,
   actions: [
     link_to("Voltar às partidas", partidas_championship_path(@championship), class: "btn btn-outline"),

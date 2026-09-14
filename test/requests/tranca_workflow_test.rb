@@ -122,6 +122,7 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Vencedor:"
+    assert_includes response.body, "ID do jogo: #{partida.id}"
     assert_includes response.body, "Editar súmula"
     assert_not_includes response.body, "Abrir súmula"
   end

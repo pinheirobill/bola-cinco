@@ -118,6 +118,7 @@ module BolaCinco
 
     def extract_header(lines)
       {
+        partida_id: extract_partida_id(lines),
         code: normalize_game_number_label(find_value_after_label(lines, "jogo")),
         mesa: find_value_after_label(lines, "mesa"),
         date: find_value_after_label(lines, "data"),
@@ -155,8 +156,18 @@ module BolaCinco
     def warnings_for(lines)
       warnings = []
       warnings << "Não foi possível confirmar o texto da súmula." if lines.blank?
+      warnings << "O OCR não achou o ID do jogo automaticamente." if extract_partida_id(lines).blank?
       warnings << "O OCR não achou o placar automaticamente." if extract_total_score(lines, :left).blank? || extract_total_score(lines, :right).blank?
       warnings
+    end
+
+    def extract_partida_id(lines)
+      value =
+        find_value_after_label(lines, "id do jogo") ||
+        find_value_after_label(lines, "id do sistema") ||
+        find_value_after_label(lines, "identificador")
+
+      normalize_integer(value)
     end
 
     def extract_total_score(lines, side)
@@ -199,6 +210,14 @@ module BolaCinco
 
       numeric_parts = text.scan(/\d+/)
       numeric_parts.last.presence || text
+    end
+
+    def normalize_integer(value)
+      text = value.to_s
+      return nil if text.blank?
+
+      digits = text.scan(/\d+/).first
+      digits&.to_i
     end
   end
 end

@@ -84,6 +84,18 @@ module Tranca
       numeric_parts.last.presence || normalized_code
     end
 
+    def summula_identifier
+      id.to_s
+    end
+
+    def summula_reference
+      "ID do jogo: #{summula_identifier}"
+    end
+
+    def summula_filename_token
+      [ summula_identifier.presence, code.to_s.parameterize.presence ].compact.join("-")
+    end
+
     def legacy_match
       Match.find_by(source_id: source_id)
     end

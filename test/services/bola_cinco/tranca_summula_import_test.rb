@@ -35,4 +35,21 @@ class BolaCinco::TrancaSummulaImportTest < ActiveSupport::TestCase
       assert_equal "1", header[:code]
     end
   end
+
+  test "extracts the partida id from the summary label" do
+    partida = Struct.new(:dupla_a_nome, :dupla_b_nome).new("Dupla A", "Dupla B")
+
+    Tempfile.create([ "tranca-summula-import", ".txt" ]) do |file|
+      text = "ID do jogo: 197\nJogo nº: 12\nMesa nº: 3\nData: 11/9/2026"
+      file.write(text)
+      file.flush
+
+      importer = BolaCinco::TrancaSummulaImport.new(partida: partida, file: file)
+      importer.define_singleton_method(:extract_text) { text }
+
+      header = importer.call[:header]
+
+      assert_equal 197, header[:partida_id]
+    end
+  end
 end

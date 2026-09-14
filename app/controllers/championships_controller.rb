@@ -986,6 +986,12 @@ class ChampionshipsController < ApplicationController
     write_tranca_summula_import_file(token, uploaded_file)
 
     @import_preview = preview.with_indifferent_access
+    imported_partida_id = @import_preview.dig(:header, :partida_id).to_i
+    if imported_partida_id.positive? && imported_partida_id != @partida.id
+      @import_preview[:warnings] = Array(@import_preview[:warnings]) + [
+        "O ID lido no arquivo foi #{imported_partida_id}, mas este formulário está aberto para o jogo ##{@partida.id}."
+      ]
+    end
     @import_token = token
     @import_file_data_url = tranca_import_file_data_url(token, @import_preview[:file_content_type], @import_preview[:file_name])
     render :import_tranca_summula
@@ -997,6 +1003,13 @@ class ChampionshipsController < ApplicationController
 
     if preview.blank?
       redirect_to partidas_championship_path(@championship), alert: "A prévia da súmula expirou. Envie o arquivo novamente."
+      return
+    end
+
+    imported_partida_id = preview.dig(:header, :partida_id).to_i
+    if imported_partida_id.positive? && imported_partida_id != @partida.id
+      redirect_to import_tranca_summula_championship_path(@championship, partida_id: @partida.id),
+        alert: "A súmula lida parece ser do jogo ##{imported_partida_id}, não do jogo ##{@partida.id}."
       return
     end
 
@@ -1073,11 +1086,11 @@ class ChampionshipsController < ApplicationController
   end
 
   def tranca_summula_filename(partida)
-    "sumula-#{partida.code.to_s.parameterize}.pdf"
+    "sumula-#{partida.summula_filename_token}.pdf"
   end
 
   def tranca_complete_summula_filename(partida)
-    "sumula-completa-#{partida.code.to_s.parameterize}.pdf"
+    "sumula-completa-#{partida.summula_filename_token}.pdf"
   end
 
   def championship_params
