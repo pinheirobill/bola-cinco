@@ -581,8 +581,16 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.manageable_by?(current_user)
     return redirect_back fallback_location: classificacao_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
 
-    Tranca::CompetitionFlow.new(@championship).rebuild_classificacao!
-    redirect_back fallback_location: classificacao_championship_path(@championship), notice: "Classificação recalculada."
+    flow = Tranca::CompetitionFlow.new(@championship)
+    if @championship.tranca_classificacao_rows.exists?
+      flow.refresh_classificacao!
+      notice = "Pontuação da classificação atualizada."
+    else
+      flow.rebuild_classificacao!
+      notice = "Classificação recalculada."
+    end
+
+    redirect_back fallback_location: classificacao_championship_path(@championship), notice: notice
   end
 
   def setup

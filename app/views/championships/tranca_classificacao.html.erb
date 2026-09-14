@@ -36,11 +36,11 @@
   subtitle: "Classificação consolidada por categoria.",
   actions: [
     (manage_classification ? button_to(
-      "Recalcular classificação",
+      "Atualizar pontuação",
       rebuild_tranca_classificacao_championship_path(@championship),
       method: :patch,
       class: "btn btn-primary btn-sm",
-      form: { data: { turbo_confirm: "Recalcular a classificação agora? Isso vai refazer os pontos e posições a partir das partidas finalizadas." } }
+      form: { data: { turbo_confirm: "Atualizar a pontuação agora? Isso vai manter as chaves atuais e só refazer os pontos e posições." } }
     ) : nil)
   ].compact
 ) do %>

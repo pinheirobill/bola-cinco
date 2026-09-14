@@ -405,7 +405,7 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Tabela da Tranca"
-    assert_includes response.body, "Recalcular classificação"
+    assert_includes response.body, "Atualizar pontuação"
     assert_includes response.body, @team_a.name
     assert_includes response.body, "PTS PRÓ"
     assert_includes response.body, "PTS CONTRA"

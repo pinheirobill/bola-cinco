@@ -120,6 +120,139 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     assert_equal [ @dupla_b.name, "Zeca / Marta", @dupla_a.name ], sorted.map { |stat| stat[:dupla].name }
   end
 
+  test "refreshes classificacao points without changing current group keys" do
+    dupla_c = Tranca::Dupla.create!(
+      source_id: "dupla-tranca-flow-c",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Zeca / Marta"
+    )
+    dupla_d = Tranca::Dupla.create!(
+      source_id: "dupla-tranca-flow-d",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Joao / Nina"
+    )
+
+    row_a = Tranca::ClassificacaoRow.create!(
+      source_id: "row-tranca-flow-a",
+      championship: @championship,
+      category: @category,
+      tranca_dupla: @dupla_a,
+      group_key: "A",
+      position: 1,
+      played: 0,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+      goals_for: 0,
+      goals_against: 0,
+      goal_diff: 0,
+      points: 0,
+      qualified: nil
+    )
+    row_b = Tranca::ClassificacaoRow.create!(
+      source_id: "row-tranca-flow-b",
+      championship: @championship,
+      category: @category,
+      tranca_dupla: @dupla_b,
+      group_key: "A",
+      position: 2,
+      played: 0,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+      goals_for: 0,
+      goals_against: 0,
+      goal_diff: 0,
+      points: 0,
+      qualified: nil
+    )
+    row_c = Tranca::ClassificacaoRow.create!(
+      source_id: "row-tranca-flow-c",
+      championship: @championship,
+      category: @category,
+      tranca_dupla: dupla_c,
+      group_key: "B",
+      position: 1,
+      played: 0,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+      goals_for: 0,
+      goals_against: 0,
+      goal_diff: 0,
+      points: 0,
+      qualified: nil
+    )
+    row_d = Tranca::ClassificacaoRow.create!(
+      source_id: "row-tranca-flow-d",
+      championship: @championship,
+      category: @category,
+      tranca_dupla: dupla_d,
+      group_key: "B",
+      position: 2,
+      played: 0,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+      goals_for: 0,
+      goals_against: 0,
+      goal_diff: 0,
+      points: 0,
+      qualified: nil
+    )
+
+    Tranca::Partida.create!(
+      source_id: "match-tranca-flow-a",
+      championship: @championship,
+      category: @category,
+      code: "A1",
+      phase: "classificatoria",
+      group_key: "A",
+      dupla_a: @dupla_a,
+      dupla_b: @dupla_b,
+      status: :finalizado,
+      score_a: 4,
+      score_b: 1
+    )
+    Tranca::Partida.create!(
+      source_id: "match-tranca-flow-b",
+      championship: @championship,
+      category: @category,
+      code: "B1",
+      phase: "classificatoria",
+      group_key: "B",
+      dupla_a: dupla_c,
+      dupla_b: dupla_d,
+      status: :finalizado,
+      score_a: 0,
+      score_b: 3
+    )
+
+    row_a.update!(position: 10)
+    row_b.update!(position: 11)
+    row_c.update!(position: 12)
+    row_d.update!(position: 13)
+
+    row_a.update!(group_key: "B", position: 1)
+    row_b.update!(group_key: "B", position: 2)
+    row_c.update!(group_key: "A", position: 1)
+    row_d.update!(group_key: "A", position: 2)
+
+    flow = Tranca::CompetitionFlow.new(@championship)
+    flow.refresh_classificacao!
+
+    assert_equal "B", row_a.reload.group_key
+    assert_equal "B", row_b.reload.group_key
+    assert_equal "A", row_c.reload.group_key
+    assert_equal "A", row_d.reload.group_key
+    assert_equal [3, 0], @championship.tranca_classificacao_rows.where(tranca_dupla_id: [@dupla_a.id, @dupla_b.id]).order(:position).pluck(:points)
+    assert_equal [3, 0], @championship.tranca_classificacao_rows.where(tranca_dupla_id: [dupla_c.id, dupla_d.id]).order(:position).pluck(:points)
+  end
+
   test "recalculates score from detailed hands" do
     flow = Tranca::CompetitionFlow.new(@championship)
     rodada = flow.generate_round!(phase: "classificatoria", round_number: 1)

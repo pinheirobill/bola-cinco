@@ -1,3 +1,5 @@
+require "set"
+
 module Tranca
   class CompetitionFlow
     class NoAvailableMatchupsError < StandardError; end
@@ -270,6 +272,14 @@ module Tranca
       end
     end
 
+    def refresh_classificacao!(categories: nil)
+      selected_categories = Array(categories).compact.presence || championship.categories.includes(:teams).to_a
+
+      selected_categories.each do |category|
+        refresh_category_classificacao!(category)
+      end
+    end
+
     private
 
     def rebuild_category_classificacao!(category, duplas, group_keys: nil)
@@ -318,6 +328,71 @@ module Tranca
             tranca_dupla: stats[:dupla],
             source_id: classification_source_id(category, group_key, stats[:dupla]),
             group_key: group_key,
+            position: index + 1,
+            played: stats[:played],
+            wins: stats[:wins],
+            draws: stats[:draws],
+            losses: stats[:losses],
+            goals_for: stats[:goals_for],
+            goals_against: stats[:goals_against],
+            goal_diff: stats[:goal_diff],
+            points: stats[:points],
+            qualified: qualified_for_group?(index)
+          )
+        end
+      end
+    end
+
+    def refresh_category_classificacao!(category)
+      rows_by_group = championship.tranca_classificacao_rows
+        .includes(:tranca_dupla)
+        .where(category_id: category.id)
+        .order(:group_key, :position, :id)
+        .group_by { |row| row.group_key.to_s }
+
+      return if rows_by_group.blank?
+
+      classification_matches = championship.tranca_partidas
+        .includes(:dupla_a, :dupla_b, :winner, :maos)
+        .where(category_id: category.id, phase: "classificatoria")
+        .to_a
+
+      rows_by_group.each do |group_key, rows|
+        next if rows.blank?
+
+        stats_by_dupla = rows.each_with_object({}) do |row, stats|
+          next if row.tranca_dupla.blank?
+
+          stats[row.tranca_dupla_id] = standing_stats_for(row.tranca_dupla, group_key)
+        end
+
+        current_dupla_ids = stats_by_dupla.keys.to_set
+        relevant_matches = classification_matches.select do |partida|
+          matchup_ids = [ partida.dupla_a_id, partida.dupla_b_id ].compact
+          current_group_match = matchup_ids.size == 2 &&
+            current_dupla_ids.include?(partida.dupla_a_id) &&
+            current_dupla_ids.include?(partida.dupla_b_id)
+
+          next true if current_group_match
+
+          partida.group_key.to_s == group_key.to_s
+        end
+
+        relevant_matches.each do |partida|
+          apply_partida_to_stats!(stats_by_dupla, partida)
+        end
+
+        sorted_stats = stats_by_dupla.values.sort_by { |stats| classification_sort_key_for(stats) }
+
+        rows.each_with_index do |row, index|
+          row.update!(position: 1000 + index)
+        end
+
+        sorted_stats.each_with_index do |stats, index|
+          row = rows.find { |candidate| candidate.tranca_dupla_id == stats[:dupla].id }
+          next if row.blank?
+
+          row.update!(
             position: index + 1,
             played: stats[:played],
             wins: stats[:wins],
