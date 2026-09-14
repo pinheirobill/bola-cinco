@@ -770,7 +770,7 @@ class ChampionshipsController < ApplicationController
         mesa.destroy! if mesa.partidas.reload.empty?
       end
 
-      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if should_rebuild_classificacao
+      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao!(group_keys: [group_key]) if should_rebuild_classificacao
 
       if rodada.present? && rodada.partidas.reload.empty?
         rodada.mesas.destroy_all

@@ -129,6 +129,15 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Placar rápido"
     assert_includes response.body, "Salvar placar"
     assert_includes response.body, "Ou use a súmula"
+    assert_includes response.body, "Alterar dupla"
+
+    document = Nokogiri::HTML(response.body)
+    partida = Tranca::Partida.find_by!(source_id: "tranca-partida-#{@championship.id}-#{@category.id}-classificatoria-1-1")
+    modal = document.at_css("#tranca-partida-modal-#{partida.id}")
+
+    assert modal.present?
+    assert_equal partida.dupla_a_id.to_s, modal.at_css(%(select[name="tranca_partida[dupla_a_id]"] option[selected]))["value"]
+    assert_equal partida.dupla_b_id.to_s, modal.at_css(%(select[name="tranca_partida[dupla_b_id]"] option[selected]))["value"]
   end
 
   test "shows the winner and edit summula link after a partida is finalized" do

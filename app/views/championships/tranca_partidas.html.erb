@@ -27,7 +27,11 @@
   <% if partidas_pendentes.any? %>
     <div class="grid gap-4 xl:grid-cols-2">
       <% partidas_pendentes.each do |partida| %>
-        <%= render "components/tranca_partida_card", partida: partida, championship: @championship %>
+        <%= render "components/tranca_partida_card",
+          partida: partida,
+          championship: @championship,
+          allow_dupla_editing: true,
+          duplas: (@tranca_duplas_by_category[partida.category_id] || []) %>
       <% end %>
     </div>
   <% else %>

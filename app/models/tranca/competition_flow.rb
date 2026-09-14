@@ -206,7 +206,10 @@ module Tranca
       attrs[:winner] = winner_for(partida, score_a, score_b, winner_id, status, wo)
       partida.update!(attrs)
       if partida.classification_phase?
-        rebuild_classificacao!(categories: [partida.category])
+        rebuild_classificacao!(
+          categories: [partida.category],
+          group_keys: [partida.group_key.presence || inferred_group_key_for(partida)]
+        )
       end
       advance_knockout_from!(partida) if partida.knockout_phase?
       championship.update!(status: :finalizado) if knockout_finished?
@@ -258,21 +261,20 @@ module Tranca
       end
     end
 
-    def rebuild_classificacao!(categories: nil)
-      championship.tranca_classificacao_rows.delete_all
-
+    def rebuild_classificacao!(categories: nil, group_keys: nil)
       duplas_by_category = championship.tranca_duplas.includes(:category).group_by(&:category)
       selected_categories = Array(categories).compact.presence || duplas_by_category.keys
+      selected_group_keys = Array(group_keys).compact.map(&:to_s).presence
 
       selected_categories.each do |category|
         duplas = duplas_by_category[category] || []
-        rebuild_category_classificacao!(category, duplas)
+        rebuild_category_classificacao!(category, duplas, group_keys: selected_group_keys)
       end
     end
 
     private
 
-    def rebuild_category_classificacao!(category, duplas)
+    def rebuild_category_classificacao!(category, duplas, group_keys: nil)
       groups = championship.tranca_partidas
         .includes(:dupla_a, :dupla_b, :winner, :maos)
         .where(category_id: category.id, phase: "classificatoria")
@@ -280,6 +282,24 @@ module Tranca
         partida.group_key.presence || inferred_group_key_for(partida)
       end
       groups = { "" => [] } if groups.empty?
+      target_group_keys = group_keys.presence || groups.keys
+      deletion_scope = championship.tranca_classificacao_rows.where(category_id: category.id)
+      if target_group_keys.any?(&:blank?)
+        non_blank_group_keys = target_group_keys.map(&:to_s).reject(&:blank?)
+        deletion_scope = if non_blank_group_keys.any?
+          deletion_scope.where(group_key: non_blank_group_keys).or(
+            championship.tranca_classificacao_rows.where(category_id: category.id, group_key: nil)
+          )
+        else
+          deletion_scope.where(group_key: nil)
+        end
+      else
+        deletion_scope = deletion_scope.where(group_key: target_group_keys)
+      end
+      deletion_scope.delete_all
+
+      groups = groups.slice(*group_keys) if group_keys.present?
+      return if groups.blank?
 
       groups.each do |group_key, partidas|
         participant_ids = partidas.flat_map { |partida| [ partida.dupla_a_id, partida.dupla_b_id ] }.compact.uniq
