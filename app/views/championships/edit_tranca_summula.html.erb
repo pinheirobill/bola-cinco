@@ -10,12 +10,12 @@
   ]
 ) %>
 
+<% @hands = @partida.maos.to_a.sort_by { |hand| [ hand.numero.to_i, hand.id.to_i ] } %>
 <section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
   <%= surface_card(
     title: "Resumo da partida",
     subtitle: "Resultado já finalizado. Aqui você ajusta placar e mãos sem passar pelo importador."
   ) do %>
-    <% hands = @partida.maos.to_a.sort_by { |hand| [ hand.numero.to_i, hand.id.to_i ] } %>
     <div class="grid gap-4 md:grid-cols-2">
       <div class="rounded-3xl border border-base-300 bg-base-200 p-4 md:col-span-2">
         <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Partida</p>
@@ -32,6 +32,10 @@
       <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
         <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Vencedor atual</p>
         <p class="mt-2 text-lg font-semibold"><%= @partida.winner&.name.presence || "Automático" %></p>
+      </div>
+      <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Identificador</p>
+        <p class="mt-2 text-lg font-semibold"><%= @partida.summula_reference %></p>
       </div>
       <div class="rounded-3xl border border-base-300 bg-base-200 p-4 md:col-span-2">
         <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status</p>
@@ -85,7 +89,7 @@
           </thead>
           <tbody>
             <% 4.times do |index| %>
-              <% hand = hands[index] || Tranca::PartidaMao.new(numero: index + 1, pontos_a: 0, pontos_b: 0, desconto_a: 0, desconto_b: 0) %>
+              <% hand = @hands[index] || Tranca::PartidaMao.new(numero: index + 1, pontos_a: 0, pontos_b: 0, desconto_a: 0, desconto_b: 0) %>
               <tr>
                 <td class="w-24">
                   <%= hidden_field_tag "tranca_partida[maos_attributes][#{index}][source_id]", hand.source_id %>

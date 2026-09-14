@@ -127,6 +127,34 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "Abrir súmula"
   end
 
+  test "opens the edit summula page for a finalized partida" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    partida = rodada.partidas.first
+
+    patch update_tranca_partida_championship_path(@championship, partida_id: partida.id), params: {
+      tranca_partida: {
+        score_a: 4,
+        score_b: 1,
+        status: "finalizado"
+      }
+    }
+
+    get edit_tranca_summula_championship_path(@championship, partida_id: partida.id)
+
+    assert_response :success
+    assert_includes response.body, "Editar súmula"
+    assert_includes response.body, "ID do jogo: #{partida.id}"
+  end
+
   test "shows delete game action on scheduled rodada partidas" do
     post generate_tranca_round_championship_path(@championship), params: {
       phase: "classificatoria",

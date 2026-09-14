@@ -12,7 +12,7 @@
 
 <% if @import_preview.present? %>
   <% header = @import_preview[:header] || {} %>
-  <% hands = Array(@import_preview[:hands]) %>
+  <% @hands = Array(@import_preview[:hands]) %>
   <% extracted_lines_count = Array(@import_preview[:extracted_lines]).size %>
 
   <section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
@@ -37,7 +37,7 @@
           </div>
           <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Batidas detectadas</p>
-            <p class="mt-2 text-2xl font-black"><%= hands.size %></p>
+            <p class="mt-2 text-2xl font-black"><%= @hands.size %></p>
           </div>
           <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Placar sugerido</p>
@@ -121,7 +121,7 @@
             </thead>
             <tbody>
               <% 4.times do |index| %>
-                <% hand = hands[index] || {} %>
+                <% hand = @hands[index] || {} %>
                 <tr>
                   <td class="w-24">
                     <%= hidden_field_tag "tranca_summula_import[maos_attributes][#{index}][source_id]", hand[:source_id] %>
