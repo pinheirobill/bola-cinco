@@ -27,7 +27,7 @@ class TrancaKnockoutBuilderTest < ApplicationSystemTestCase
     select "Quartas / semi / final", from: "Tipo de mata-mata"
     click_button "Continuar"
 
-    assert_text "Etapa 2"
+    assert_text "ETAPA 2"
     assert_text "0/8 duplas selecionadas"
     assert_no_text "Próxima etapa"
   end

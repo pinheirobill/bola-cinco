@@ -97,7 +97,7 @@
 
           <div class="modal-action">
             <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-knockout-config-modal').close()">Cancelar</button>
-            <button type="button" class="btn btn-primary" data-action="knockout-builder#next">Continuar</button>
+            <button type="button" class="btn btn-primary" data-action="click->knockout-builder#next">Continuar</button>
           </div>
         </div>
 
@@ -196,7 +196,7 @@
           <p class="hidden rounded-2xl border border-warning/30 bg-warning/10 p-3 text-sm text-warning-content" data-knockout-builder-target="error"></p>
 
           <div class="modal-action">
-            <button type="button" class="btn btn-ghost" data-action="knockout-builder#back">Voltar</button>
+            <button type="button" class="btn btn-ghost" data-action="click->knockout-builder#back">Voltar</button>
             <%= submit_tag "Gerar chave eliminatória", class: "btn btn-primary", data: { knockout_builder_target: "submitButton" } %>
           </div>
         </div>

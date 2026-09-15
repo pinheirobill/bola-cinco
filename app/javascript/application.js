@@ -1,8 +1,13 @@
 // Configure your import map in config/importmap.rb. Read more: https://github.com/rails/importmap-rails
 import "@hotwired/turbo-rails"
 import "controllers"
+import KnockoutBuilderController from "controllers/knockout_builder_controller"
 
 window.BolaCinco ||= {}
+
+if (!window.Stimulus?.router?.modules?.some((module) => module.identifier === "knockout-builder")) {
+  window.Stimulus?.register("knockout-builder", KnockoutBuilderController)
+}
 
 function closeOpenDialogs() {
   document.querySelectorAll("dialog[open]").forEach((dialog) => {
