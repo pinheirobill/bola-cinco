@@ -131,6 +131,7 @@ class ChampionshipsController < ApplicationController
       phase: phase,
       round_number: round_number,
       knockout_stage_type: params[:knockout_stage_type].presence,
+      selected_dupla_ids: params[:selected_dupla_ids],
       qualified_per_group: params[:qualified_per_group].presence
     )
 
@@ -933,6 +934,24 @@ class ChampionshipsController < ApplicationController
     @tranca_next_knockout_round_number = @tranca_rodadas.select(&:mata_mata?).map(&:round_number).max.to_i + 1
     @tranca_classificatoria_esgotada = !Tranca::CompetitionFlow.new(@championship).classificatoria_pairings_available?(round_number: @tranca_next_round_number)
     @tranca_mata_mata_encerrado = Tranca::CompetitionFlow.new(@championship).knockout_finished?
+    @tranca_standings = @championship.tranca_classificacao_rows
+      .includes(:category, :tranca_dupla)
+      .order(:category_id, :group_key, :position, points: :desc, goal_diff: :desc, goals_for: :desc)
+      .to_a
+    @tranca_knockout_candidate_rows = if @tranca_standings.any?
+      @tranca_standings.sort_by do |row|
+        [
+          row.category.name.to_s.downcase,
+          row.group_key.to_s,
+          row.position.to_i,
+          -row.points.to_i,
+          -row.goal_diff.to_i,
+          row.tranca_dupla.name.to_s.downcase
+        ]
+      end
+    else
+      @tranca_duplas.sort_by { |dupla| [dupla.category.name.to_s.downcase, dupla.name.to_s.downcase] }
+    end
   end
 
   def load_tranca_management

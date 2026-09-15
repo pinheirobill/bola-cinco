@@ -53,7 +53,12 @@
   <% end %>
 
   <dialog id="tranca-knockout-config-modal" class="modal">
-    <div class="modal-box max-w-3xl">
+    <% knockout_stage_slots = {
+      "oitavas_quartas_semi_final" => 16,
+      "quartas_semi_final" => 8,
+      "semi_final" => 4
+    } %>
+    <div class="modal-box max-w-7xl" data-controller="knockout-builder" data-knockout-builder-stage-slots-value="<%= knockout_stage_slots.to_json %>">
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-xs uppercase tracking-[0.28em] text-base-content/50">Configuração do mata-mata</p>
@@ -63,26 +68,137 @@
         <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tranca-knockout-config-modal').close()">Fechar</button>
       </div>
 
-      <%= form_with url: generate_tranca_round_championship_path(@championship), method: :post, class: "mt-6 space-y-4" do %>
+      <%= form_with url: generate_tranca_round_championship_path(@championship), method: :post, class: "mt-6 space-y-6" do %>
         <%= hidden_field_tag :phase, "mata_mata" %>
         <%= hidden_field_tag :round_number, @tranca_next_knockout_round_number %>
 
-        <div class="form-control">
-          <%= label_tag :knockout_stage_type, "Tipo de mata-mata", class: "label-text font-medium" %>
-          <%= select_tag :knockout_stage_type,
-            options_for_select([
-              ["Oitavas / quartas / semi / final", "oitavas_quartas_semi_final"],
-              ["Quartas / semi / final", "quartas_semi_final"],
-              ["Semi / final", "semi_final"]
-            ]),
-            class: "select select-bordered w-full",
-            required: true %>
-          <p class="mt-2 text-sm text-base-content/60">Essa escolha vai orientar a próxima etapa da configuração do mata-mata.</p>
+        <div data-knockout-builder-target="stepOne" class="space-y-4">
+          <div class="form-control">
+            <%= label_tag :knockout_stage_type, "Tipo de mata-mata", class: "label-text font-medium" %>
+            <%= select_tag :knockout_stage_type,
+              options_for_select([
+                ["Oitavas / quartas / semi / final", "oitavas_quartas_semi_final"],
+                ["Quartas / semi / final", "quartas_semi_final"],
+                ["Semi / final", "semi_final"]
+              ]),
+              class: "select select-bordered w-full",
+              required: true,
+              data: {
+                knockout_builder_target: "stageSelect",
+                action: "change->knockout-builder#updateStage"
+              } %>
+            <p class="mt-2 text-sm text-base-content/60">Essa escolha define quantas duplas entram na montagem manual da chave.</p>
+          </div>
+
+          <div class="rounded-3xl border border-base-300 bg-base-200/70 p-4">
+            <p class="text-sm font-semibold">Próxima etapa</p>
+            <p class="mt-1 text-sm text-base-content/70">Você vai ver os classificados e escolher as duplas de cada jogo no desenho da chave.</p>
+          </div>
+
+          <div class="modal-action">
+            <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-knockout-config-modal').close()">Cancelar</button>
+            <button type="button" class="btn btn-primary" data-action="knockout-builder#next">Continuar</button>
+          </div>
         </div>
 
-        <div class="modal-action">
-          <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-knockout-config-modal').close()">Cancelar</button>
-          <%= submit_tag "Continuar", class: "btn btn-primary" %>
+        <div data-knockout-builder-target="stepTwo" class="hidden space-y-5">
+          <div class="grid gap-4 lg:grid-cols-[0.9fr_1.5fr]">
+            <aside class="rounded-3xl border border-base-300 bg-base-200/70 p-4">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Etapa 2</p>
+                  <h4 class="mt-1 text-lg font-bold">Classificados</h4>
+                </div>
+                <span class="badge badge-primary" data-knockout-builder-target="counter">0/16 duplas selecionadas</span>
+              </div>
+
+              <div class="mt-4 max-h-[30rem] space-y-2 overflow-y-auto pr-1">
+                <% if @tranca_knockout_candidate_rows.any? %>
+                  <% @tranca_knockout_candidate_rows.each do |entry| %>
+                    <% dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry %>
+                    <% category = entry.respond_to?(:category) ? entry.category : dupla.category %>
+                    <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+                      <p class="font-semibold leading-tight"><%= dupla.name %></p>
+                      <p class="mt-1 text-xs text-base-content/60"><%= category.name %></p>
+                      <% if entry.respond_to?(:position) %>
+                        <p class="mt-1 text-xs text-base-content/50">
+                          <%= entry.group_key.present? ? "Chave #{entry.group_key}" : "Classificação" %> · <%= entry.position %>º · <%= entry.points %> pts
+                        </p>
+                      <% end %>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <p class="text-sm text-base-content/60">Nenhuma dupla disponível para montar a chave.</p>
+                <% end %>
+              </div>
+            </aside>
+
+            <div class="overflow-x-auto rounded-3xl border border-base-300 bg-base-200/70 p-4">
+              <div class="min-w-[52rem]">
+                <div class="grid grid-cols-[1fr_0.75fr_0.75fr_0.75fr] gap-4 text-xs font-semibold uppercase tracking-[0.2em] text-base-content/50">
+                  <span>Entrada</span>
+                  <span>Quartas</span>
+                  <span>Semi</span>
+                  <span>Final</span>
+                </div>
+
+                <div class="mt-4 grid grid-cols-[1fr_0.75fr_0.75fr_0.75fr] gap-4">
+                  <div class="space-y-3">
+                    <% 8.times do |index| %>
+                      <div data-knockout-builder-target="game" class="rounded-2xl border border-base-300 bg-base-100 p-3">
+                        <div class="mb-2 flex items-center justify-between gap-3">
+                          <p class="text-sm font-bold">Jogo <%= index + 1 %></p>
+                          <span class="badge badge-outline badge-sm">mata-mata</span>
+                        </div>
+                        <% 2.times do |slot_index| %>
+                          <%= select_tag "selected_dupla_ids[]",
+                            options_for_select([["Selecione a dupla", ""]] + @tranca_knockout_candidate_rows.map { |entry|
+                              dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry
+                              label = entry.respond_to?(:position) ? "#{dupla.name} · #{entry.group_key.presence || 'geral'} · #{entry.position}º" : dupla.name
+                              [label, dupla.id]
+                            }),
+                            class: "select select-bordered select-sm mb-2 w-full",
+                            data: {
+                              knockout_builder_target: "select",
+                              action: "change->knockout-builder#updateState"
+                            } %>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <div class="space-y-14 pt-10">
+                    <% 4.times do |index| %>
+                      <div class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-3 text-sm text-base-content/60">
+                        Vencedor jogos <%= (index * 2) + 1 %> e <%= (index * 2) + 2 %>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <div class="space-y-32 pt-24">
+                    <% 2.times do |index| %>
+                      <div class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-3 text-sm text-base-content/60">
+                        Vencedor quartas <%= (index * 2) + 1 %> e <%= (index * 2) + 2 %>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <div class="pt-52">
+                    <div class="rounded-2xl border border-dashed border-primary/40 bg-primary/10 p-3 text-sm font-semibold text-primary">
+                      Final
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="hidden rounded-2xl border border-warning/30 bg-warning/10 p-3 text-sm text-warning-content" data-knockout-builder-target="error"></p>
+
+          <div class="modal-action">
+            <button type="button" class="btn btn-ghost" data-action="knockout-builder#back">Voltar</button>
+            <%= submit_tag "Gerar chave eliminatória", class: "btn btn-primary", data: { knockout_builder_target: "submitButton" } %>
+          </div>
         </div>
       <% end %>
     </div>

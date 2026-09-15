@@ -394,6 +394,61 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     assert flow.knockout_finished?
   end
 
+  test "uses manual selected dupla order when generating first knockout round" do
+    championship = Championship.create!(
+      source_id: "champ-tranca-knockout-manual",
+      name: "Tranca Mata-Mata Manual",
+      season: 2026,
+      modality: :tranca
+    )
+
+    category = Category.create!(
+      source_id: "cat-tranca-knockout-manual",
+      championship: championship,
+      name: "Livre"
+    )
+
+    entity = Entity.create!(
+      source_id: "entity-tranca-knockout-manual",
+      name: "Liga Tranca"
+    )
+
+    duplas = %w[Alpha Beta Gamma Omega].map do |name|
+      Tranca::Dupla.create!(
+        source_id: "dupla-tranca-knockout-manual-#{name.downcase}",
+        championship: championship,
+        category: category,
+        entity: entity,
+        name: "#{name} / Dupla"
+      )
+    end
+
+    flow = Tranca::CompetitionFlow.new(championship)
+
+    assert_raises(Tranca::CompetitionFlow::InvalidKnockoutSelectionError) do
+      flow.generate_round!(
+        phase: "mata_mata",
+        round_number: 1,
+        knockout_stage_type: "semi_final",
+        selected_dupla_ids: [duplas[0].id, duplas[0].id, duplas[1].id, duplas[2].id]
+      )
+    end
+
+    rodada = flow.generate_round!(
+      phase: "mata_mata",
+      round_number: 1,
+      knockout_stage_type: "semi_final",
+      selected_dupla_ids: [duplas[1].id, duplas[2].id, duplas[0].id, duplas[3].id]
+    )
+
+    pairings = rodada.partidas.order(:id).map { |partida| [partida.team_a.name, partida.team_b.name] }
+
+    assert_equal [
+      ["Beta / Dupla", "Gamma / Dupla"],
+      ["Alpha / Dupla", "Omega / Dupla"]
+    ], pairings
+  end
+
   test "fills an already created next knockout round after the previous one is finalized" do
     championship = Championship.create!(
       source_id: "champ-tranca-knockout-precreated",
