@@ -17,48 +17,44 @@
   </head>
 
   <body data-theme="<%= user_signed_in? ? current_theme_name : "tranca" %>" class="min-h-screen bg-base-200 text-base-content">
-    <div class="min-h-screen theme-background">
-      <header class="relative z-50 border-b border-base-300 bg-base-100/85 backdrop-blur">
-        <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-base-content/55">Portal Tranca</p>
+    <div class="min-h-screen theme-background pb-20 lg:pb-0">
+      <header class="sticky top-0 z-50 border-b border-base-300/70 bg-base-100/90 backdrop-blur-xl">
+        <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
+          <div class="shrink-0">
+            <p class="text-[0.65rem] font-semibold uppercase tracking-[0.35em] text-base-content/50">Portal Tranca</p>
             <%= render "shared/brand", href: tranca_root_path %>
           </div>
 
-          <nav class="hidden items-center gap-2 lg:flex" aria-label="Navegação da Tranca">
-            <%= link_to "Início", tranca_root_path, class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
-            <%= link_to "Campeonato", tranca_root_path(anchor: "campeonato"), class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
-            <%= link_to "Partidas", tranca_root_path(anchor: "partidas"), class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
-            <%= link_to "Duplas", tranca_root_path(anchor: "duplas"), class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
-            <%= link_to "Estatísticas", tranca_root_path(anchor: "estatisticas"), class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
-            <%= link_to "Regulamento", tranca_root_path(anchor: "regulamento"), class: "btn btn-ghost btn-sm text-base-content hover:bg-base-300" %>
+          <nav class="hidden items-center gap-1 lg:flex" aria-label="Navegação da Tranca">
+            <%= link_to "Início", tranca_root_path, class: "btn btn-ghost btn-sm" %>
+            <%= link_to "Classificação", tranca_root_path(anchor: "classificacao"), class: "btn btn-ghost btn-sm" %>
+            <%= link_to "Resultados", tranca_root_path(anchor: "resultados"), class: "btn btn-ghost btn-sm" %>
+            <%= link_to "Próximos jogos", tranca_root_path(anchor: "proximos-jogos"), class: "btn btn-ghost btn-sm" %>
+            <% if @knockout_rounds&.any? %>
+              <%= link_to "Mata-mata", tranca_root_path(anchor: "mata-mata"), class: "btn btn-ghost btn-sm" %>
+            <% end %>
           </nav>
 
-          <div class="flex items-center gap-2">
-            <% if user_signed_in? %>
+          <% if user_signed_in? %>
+            <div class="flex items-center gap-2">
               <%= render "shared/theme_selector" %>
-              <%= link_to "Admin", root_path, class: "btn btn-outline btn-sm border-base-300 text-base-content hover:bg-base-300" %>
               <%= button_to "Sair", destroy_user_session_path, method: :delete, form: { class: "inline" }, class: "btn btn-primary btn-sm" %>
-            <% else %>
-              <%= link_to "Entrar", tranca_login_path, class: "btn btn-primary btn-sm" %>
-              <%= link_to "Admin", new_user_session_path, class: "btn btn-outline btn-sm border-base-300 text-base-content hover:bg-base-300" %>
-            <% end %>
-          </div>
+            </div>
+          <% end %>
         </div>
       </header>
 
-      <main id="content" class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+      <main id="content" class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <%= render "shared/flash" %>
         <%= yield %>
       </main>
 
       <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-base-300 bg-base-100/95 px-3 py-2 backdrop-blur lg:hidden" aria-label="Navegação móvel da Tranca">
-        <div class="mx-auto grid max-w-3xl grid-cols-5 gap-2 text-center text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-base-content/70">
-          <%= link_to "Início", tranca_root_path, class: "rounded-2xl px-2 py-3 hover:bg-base-300 hover:text-base-content" %>
-          <%= link_to "Jogos", tranca_root_path(anchor: "partidas"), class: "rounded-2xl px-2 py-3 hover:bg-base-300 hover:text-base-content" %>
-          <%= link_to "Ranking", tranca_root_path(anchor: "estatisticas"), class: "rounded-2xl px-2 py-3 hover:bg-base-300 hover:text-base-content" %>
-          <%= link_to "Duplas", tranca_root_path(anchor: "duplas"), class: "rounded-2xl px-2 py-3 hover:bg-base-300 hover:text-base-content" %>
-          <%= link_to "Mais", tranca_root_path(anchor: "regulamento"), class: "rounded-2xl px-2 py-3 hover:bg-base-300 hover:text-base-content" %>
+        <div class="mx-auto grid max-w-3xl grid-cols-4 gap-1 text-center text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-base-content/65">
+          <%= link_to "Início", tranca_root_path, class: "rounded-xl px-2 py-3 hover:bg-base-200 hover:text-base-content" %>
+          <%= link_to "Ranking", tranca_root_path(anchor: "classificacao"), class: "rounded-xl px-2 py-3 hover:bg-base-200 hover:text-base-content" %>
+          <%= link_to "Resultados", tranca_root_path(anchor: "resultados"), class: "rounded-xl px-2 py-3 hover:bg-base-200 hover:text-base-content" %>
+          <%= link_to "Próximos", tranca_root_path(anchor: "proximos-jogos"), class: "rounded-xl px-2 py-3 hover:bg-base-200 hover:text-base-content" %>
         </div>
       </nav>
     </div>
