@@ -1,4 +1,5 @@
 <% content_for :title, "Editar súmula | Arena" %>
+<% partida_route_id = @partida_route_id.presence || @partida.id %>
 
 <%= page_header(
   title: "Editar súmula",
@@ -6,7 +7,7 @@
   badge: @championship.name,
   actions: [
     link_to("Voltar às partidas", partidas_championship_path(@championship), class: "btn btn-outline"),
-    link_to("Baixar súmula completa", download_complete_tranca_summula_championship_path(@championship, partida_id: @partida.id), class: "btn btn-primary")
+    link_to("Baixar súmula completa", download_complete_tranca_summula_championship_path(@championship, partida_id: partida_route_id), class: "btn btn-primary")
   ]
 ) %>
 
@@ -51,7 +52,7 @@
     title: "Conferência",
     subtitle: "Edite o placar e as mãos para corrigir o resultado final."
   ) do %>
-    <%= form_with url: update_tranca_partida_championship_path(@championship, partida_id: @partida.id), method: :patch, class: "space-y-4", data: { turbo: false } do %>
+    <%= form_with url: update_tranca_partida_championship_path(@championship, partida_id: partida_route_id), method: :patch, class: "space-y-4", data: { turbo: false } do %>
       <%= hidden_field_tag "tranca_partida[status]", "finalizado" %>
 
       <div class="grid gap-4 md:grid-cols-2">

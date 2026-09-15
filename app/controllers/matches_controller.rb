@@ -54,7 +54,6 @@ class MatchesController < ApplicationController
 
     if record.save
       record.sync_competition_state! if record.status_finalizado? || record.status_wo?
-      sync_tranca_partida_from_match(record) if championship.tranca?
 
       if browser_form_submission?
         redirect_back fallback_location: match_path(record), notice: "Partida criada."
@@ -105,7 +104,6 @@ class MatchesController < ApplicationController
         @match_report.save!
       end
       @match.sync_competition_state!
-      sync_tranca_partida_from_match(@match) if @match.championship.tranca?
     end
 
     if autosave_request?
