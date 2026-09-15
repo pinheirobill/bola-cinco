@@ -121,8 +121,9 @@
                       <p class="font-semibold leading-tight"><%= dupla.name %></p>
                       <p class="mt-1 text-xs text-base-content/60"><%= category.name %></p>
                       <% if entry.respond_to?(:position) %>
+                        <% group_label = tranca_group_key_label(entry.group_key) || entry.group_key.presence || "geral" %>
                         <p class="mt-1 text-xs text-base-content/50">
-                          <%= entry.group_key.present? ? "Chave #{entry.group_key}" : "Classificação" %> · <%= entry.position %>º · <%= entry.points %> pts
+                          <%= entry.group_key.present? ? "Chave #{group_label}" : "Classificação" %> · <%= entry.position %>º · <%= entry.points %> pts
                         </p>
                       <% end %>
                     </div>
@@ -154,7 +155,8 @@
                           <%= select_tag "selected_dupla_ids[]",
                             options_for_select([["Selecione a dupla", ""]] + @tranca_knockout_candidate_rows.map { |entry|
                               dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry
-                              label = entry.respond_to?(:position) ? "#{dupla.name} · #{entry.group_key.presence || 'geral'} · #{entry.position}º" : dupla.name
+                              group_label = tranca_group_key_label(entry.group_key) || entry.group_key.presence || "geral"
+                              label = entry.respond_to?(:position) ? "#{dupla.name} · #{group_label} · #{entry.position}º" : dupla.name
                               [label, dupla.id]
                             }),
                             class: "select select-bordered select-sm mb-2 w-full",
