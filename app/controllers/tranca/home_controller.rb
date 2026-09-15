@@ -15,13 +15,16 @@ class Tranca::HomeController < ApplicationController
     }
     @knockout_rounds = []
     @knockout_partidas = []
+    @standings_groups = []
+    @recent_results = []
+    @upcoming_matches = []
+    @championship_winners = []
     return unless @championship.present?
 
     dashboard = Tranca::Dashboard.new(@championship)
     @current_round = dashboard.rodadas.first&.label || "Rodada inicial"
-    @live_matches = dashboard.live_partidas
     @recent_results = dashboard.recent_results
-    @standings = dashboard.classificacao_rows.first(3)
+    @standings_groups = dashboard.standings_groups
     @upcoming_matches = dashboard.upcoming_partidas
     @knockout_rounds = dashboard.knockout_rounds
     @knockout_partidas = dashboard.knockout_partidas

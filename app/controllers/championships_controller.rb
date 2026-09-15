@@ -371,7 +371,7 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.manageable_by?(current_user)
     return redirect_back fallback_location: partidas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
 
-    partida = @championship.tranca_partidas.find(params[:partida_id])
+    partida = find_tranca_partida(params[:partida_id])
     params_data = params.fetch(:tranca_partida, {}).permit(
       :dupla_a_id,
       :dupla_b_id,
@@ -496,7 +496,7 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.manageable_by?(current_user)
     return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
 
-    partida = @championship.tranca_partidas.find(params[:partida_id])
+    partida = find_tranca_partida(params[:partida_id])
     rodada = partida.tranca_rodada
     mesa = partida.tranca_mesa
     partida_label = "#{partida.code} · #{partida.category.name}"
@@ -534,7 +534,7 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.manageable_by?(current_user) || @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
     return redirect_back fallback_location: partidas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
 
-    partida = @championship.tranca_partidas.find(params[:partida_id])
+    partida = find_tranca_partida(params[:partida_id])
     pdf = BolaCinco::TrancaSummulaDocument.new(partida).render
     send_data pdf, filename: tranca_summula_filename(partida), type: "application/pdf", disposition: "attachment"
   rescue ActiveRecord::RecordNotFound
@@ -546,7 +546,7 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.manageable_by?(current_user) || @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
     return redirect_back fallback_location: partidas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
 
-    partida = @championship.tranca_partidas.find(params[:partida_id])
+    partida = find_tranca_partida(params[:partida_id])
     pdf = BolaCinco::TrancaSummulaDocument.new(partida, filled: true).render
     send_data pdf, filename: tranca_complete_summula_filename(partida), type: "application/pdf", disposition: "attachment"
   rescue ActiveRecord::RecordNotFound
@@ -558,7 +558,7 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.manageable_by?(current_user)
     return redirect_back fallback_location: partidas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
 
-    @partida = @championship.tranca_partidas.find(params[:partida_id])
+    @partida = find_tranca_partida(params[:partida_id])
 
     if params.dig(:tranca_summula_import, :confirm).present?
       confirm_tranca_summula_import
@@ -577,7 +577,7 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.manageable_by?(current_user)
     return redirect_back fallback_location: partidas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
 
-    @partida = @championship.tranca_partidas.includes(:category, :dupla_a, :dupla_b, :winner, :maos).find(params[:partida_id])
+    @partida = find_tranca_partida(params[:partida_id], includes: %i[category dupla_a dupla_b winner maos])
     render :edit_tranca_summula
   rescue ActiveRecord::RecordNotFound
     redirect_back fallback_location: partidas_championship_path(@championship), alert: "Partida inválida."
@@ -826,6 +826,18 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: fallback_location, notice: "Chave #{key_label} excluída."
   rescue ActiveRecord::RecordNotFound
     redirect_back fallback_location: fallback_location, alert: "Chave inválida."
+  end
+
+  def find_tranca_partida(partida_id, includes: [])
+    @partida_route_id = partida_id.to_s
+    scope = @championship.tranca_partidas.includes(includes)
+    partida = scope.find_by(id: partida_id)
+    return partida if partida.present?
+
+    legacy_match = @championship.matches.find_by(id: partida_id)
+    return scope.find_by(source_id: legacy_match.source_id) if legacy_match.present?
+
+    raise ActiveRecord::RecordNotFound
   end
 
   def championship_lookup
