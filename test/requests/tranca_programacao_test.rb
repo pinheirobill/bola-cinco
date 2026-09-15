@@ -103,6 +103,7 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "JG 2"
     assert_includes response.body, "Rosa / Claudia"
     assert_includes response.body, "Mario / Renata"
+    assert_not_includes response.body, "Excluir chave"
   end
 
   test "shows the programacao telao screen" do
@@ -138,6 +139,10 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
       assert_includes extracted, "JG 2"
       assert_includes extracted, "Rosa / Claudia"
       assert_includes extracted, "Mario / Renata"
+
+      stdout, stderr, status = Open3.capture3("pdfinfo", file.path)
+      assert status.success?, stderr
+      assert_match(/Page size:\s+1600 x 720 pts/, stdout)
     end
   end
 end

@@ -4,7 +4,11 @@ module BolaCinco
   class TrancaProgramacaoDocument
     include ChampionshipLogoPdf
 
-    PAGE_SIZE = "A4".freeze
+    PAGE_WIDTH = 1600
+    MIN_PAGE_HEIGHT = 720
+    MAX_PAGE_HEIGHT = 2160
+    PAGE_MARGINS = [ 32, 28, 40, 28 ].freeze
+    COLUMN_GAP = 24
     FONT_NORMAL = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf".freeze
     FONT_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf".freeze
 
@@ -13,14 +17,8 @@ module BolaCinco
     end
 
     def render
-      @pdf = Prawn::Document.new(page_size: [ 3840, 2160 ], margin: [ 32, 28, 40, 28 ])
-      @pdf.font_families.update(
-        "DejaVu Sans" => {
-          normal: FONT_NORMAL,
-          bold: FONT_BOLD
-        }
-      )
-      @pdf.font "DejaVu Sans"
+      @pdf = build_document(MAX_PAGE_HEIGHT)
+      @pdf = build_document(document_height)
       render_document
       @pdf.number_pages "Página <page> de <total>", at: [ 0, -16 ], width: @pdf.bounds.width, align: :right, size: 8
       @pdf.render
@@ -30,14 +28,39 @@ module BolaCinco
 
     attr_reader :presenter
 
+    def build_document(height)
+      pdf = Prawn::Document.new(page_size: [ PAGE_WIDTH, height ], margin: PAGE_MARGINS)
+      pdf.font_families.update(
+        "DejaVu Sans" => {
+          normal: FONT_NORMAL,
+          bold: FONT_BOLD
+        }
+      )
+      pdf.font "DejaVu Sans"
+      pdf
+    end
+
+    def document_height
+      column_width = ((@pdf.bounds.width - COLUMN_GAP) / 2.0).floor
+      widths = column_widths(column_width)
+      content_height = presenter.columns.map do |sections|
+        sections.sum do |section|
+          42 + section[:rows].sum { |row| row_height(row, widths) }
+        end
+      end.max.to_f
+
+      calculated_height = PAGE_MARGINS[0] + 22 + content_height + PAGE_MARGINS[2] + 8
+      calculated_height.ceil.clamp(MIN_PAGE_HEIGHT, MAX_PAGE_HEIGHT)
+    end
+
     def render_document
       start_section
       left_sections, right_sections = presenter.columns
-      column_width = ((@pdf.bounds.width - 24) / 2.0).floor
+      column_width = ((@pdf.bounds.width - COLUMN_GAP) / 2.0).floor
       top = @pdf.cursor
       column_height = @pdf.cursor
       render_column(left_sections, x: 0, y: top, width: column_width, height: column_height)
-      render_column(right_sections, x: column_width + 24, y: top, width: column_width, height: column_height)
+      render_column(right_sections, x: column_width + COLUMN_GAP, y: top, width: column_width, height: column_height)
     end
 
     def render_column(sections, x:, y:, width:, height:)
@@ -128,10 +151,10 @@ module BolaCinco
       @pdf.move_cursor_to top - height
     end
 
-    def row_height(row)
+    def row_height(row, widths = column_widths)
       team_height = [
-        @pdf.height_of(row[:team_a].to_s, width: column_widths[2] - 8, size: 8),
-        @pdf.height_of(row[:team_b].to_s, width: column_widths[6] - 8, size: 8)
+        @pdf.height_of(row[:team_a].to_s, width: widths[2] - 8, size: 8),
+        @pdf.height_of(row[:team_b].to_s, width: widths[6] - 8, size: 8)
       ].max
       [ team_height + 10, 22 ].max
     end
@@ -140,11 +163,9 @@ module BolaCinco
       next_page if @pdf.cursor < height + 8
     end
 
-    def column_widths
-      @column_widths ||= begin
-        team_width = (@pdf.bounds.width - 30 - 36 - 24 - 65 - 24) / 2.0
-        [ 30, 36, team_width, 24, 65, 24, team_width ]
-      end
+    def column_widths(width = @pdf.bounds.width)
+      team_width = (width - 30 - 36 - 24 - 65 - 24) / 2.0
+      [ 30, 36, team_width, 24, 65, 24, team_width ]
     end
   end
 end
