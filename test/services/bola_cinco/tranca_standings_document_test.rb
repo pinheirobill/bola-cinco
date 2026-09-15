@@ -20,17 +20,14 @@ class BolaCinco::TrancaStandingsDocumentTest < ActiveSupport::TestCase
   test "renders tranca standings with points for and against columns" do
     championship = Struct.new(:name, :logo).new("12o Torneio", nil)
     group = Group.new(
-      Category.new("Chave 1"),
-      "Grupo A",
+      Category.new("12o Torneio"),
+      "Chave 1",
       [
         Row.new(Team.new("Dupla A", [ "Fulano", "Beltrano" ], Category.new("Chave 1")), 3, 2, 156, 124, 32, 6, 1),
         Row.new(Team.new("Dupla B", [ "Alice", "Bob" ], Category.new("Chave 1")), 3, 3, 180, 120, 60, 9, 2)
       ]
     )
-    dupla_a = Team.new("Dupla A", [ "Fulano", "Beltrano" ], Category.new("Chave 1"))
-    dupla_b = Team.new("Dupla B", [ "Alice", "Bob" ], Category.new("Chave 1"))
-
-    document = CaptureDocument.new(championship, groups: [ group ], duplas: [ dupla_a, dupla_b ])
+    document = CaptureDocument.new(championship, groups: [ group ])
 
     assert_nothing_raised do
       document.render
@@ -42,16 +39,47 @@ class BolaCinco::TrancaStandingsDocumentTest < ActiveSupport::TestCase
     assert_equal [ 1, "Dupla A", 3, 2, 156, 124, 32, 6 ], classification_table[3].first
     assert_equal [ 2, "Dupla B", 3, 3, 180, 120, 60, 9 ], classification_table[3].second
 
-    participants_table = document.captured_tables.second
-    assert_equal [ "#", "Dupla", "Participantes", "PTS" ], participants_table[1]
-    assert_equal 4, participants_table[2].size
-    assert_equal [ 1, "Dupla B", "Alice\nBob", 9 ], participants_table[3].first
-    assert_equal [ 2, "Dupla A", "Fulano\nBeltrano", 6 ], participants_table[3].second
+    assert_equal "12o Torneio · Chave A", classification_table[0]
+
+    ranking_table = document.captured_tables.second
+    assert_equal "Melhores duplas", ranking_table[0]
+    assert_equal [ "#", "Dupla", "Vitórias", "Pontos", "Saldo" ], ranking_table[1]
+    assert_equal 5, ranking_table[2].size
+    assert_equal [ 1, "Dupla B", 3, 180, 60 ], ranking_table[3].first
+    assert_equal [ 2, "Dupla A", 2, 156, 32 ], ranking_table[3].second
+  end
+
+  test "orders general ranking by wins points scored and score difference" do
+    championship = Struct.new(:name, :logo).new("12o Torneio", nil)
+    category = Category.new("12o Torneio")
+    rows = [
+      Row.new(Team.new("Dupla C", [], category), 3, 2, 200, 100, 100, 2, 1),
+      Row.new(Team.new("Dupla A", [], category), 3, 3, 180, 120, 60, 3, 1),
+      Row.new(Team.new("Dupla B", [], category), 3, 3, 180, 100, 80, 3, 2)
+    ]
+    groups = [ Group.new(category, "Chave 1", rows) ]
+    document = BolaCinco::TrancaStandingsDocument.new(championship, groups: groups)
+
+    assert_equal [
+      [ 1, "Dupla B", 3, 180, 80 ],
+      [ 2, "Dupla A", 3, 180, 60 ],
+      [ 3, "Dupla C", 2, 200, 100 ]
+    ], document.send(:general_ranking_rows)
+  end
+
+  test "formats numeric tranca keys as alphabetic labels" do
+    championship = Struct.new(:name, :logo).new("12o Torneio", nil)
+    category = Category.new("12o Torneio")
+    document = BolaCinco::TrancaStandingsDocument.new(championship, groups: [])
+
+    assert_equal "12o Torneio · Chave A", document.send(:classification_group_title, Group.new(category, "Chave 1", []))
+    assert_equal "12o Torneio · Chave B", document.send(:classification_group_title, Group.new(category, "Chave 2", []))
+    assert_equal "12o Torneio · Chave C", document.send(:classification_group_title, Group.new(category, "Chave 3", []))
   end
 
   test "highlights only the first place of each classification group in green" do
     championship = Struct.new(:name, :logo).new("12o Torneio", nil)
-    document = BolaCinco::TrancaStandingsDocument.new(championship, groups: [], duplas: [])
+    document = BolaCinco::TrancaStandingsDocument.new(championship, groups: [])
     document.instance_variable_set(:@section, "Classificação")
 
     assert_equal BolaCinco::TrancaStandingsDocument::FIRST_PLACE, document.send(:standings_row_fill, 0)

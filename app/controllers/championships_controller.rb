@@ -107,11 +107,10 @@ class ChampionshipsController < ApplicationController
     respond_to do |format|
       format.html { render "championships/tranca_classificacao" }
       format.pdf do
-        duplas = @championship.tranca_duplas.includes(:category, :athletes).order(:name)
         pdf = BolaCinco::TrancaStandingsDocument.new(
-          @championship, groups: @tranca_standing_groups, duplas: duplas
+          @championship, groups: @tranca_standing_groups
         ).render
-        send_data pdf, filename: "#{@championship.name.parameterize}-classificacao-participantes.pdf",
+        send_data pdf, filename: "#{@championship.name.parameterize}-classificacao.pdf",
           type: "application/pdf", disposition: "attachment"
       end
     end

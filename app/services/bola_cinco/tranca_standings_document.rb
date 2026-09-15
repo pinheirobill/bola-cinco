@@ -1,9 +1,9 @@
-require "ostruct"
 require "prawn"
 
 module BolaCinco
   class TrancaStandingsDocument
     include ChampionshipLogoPdf
+    include UiHelper
 
     NAVY = "082B63"
     GOLD = "F4C20D"
@@ -14,10 +14,9 @@ module BolaCinco
     FIRST_PLACE = "D8F3DC"
     FIRST_PLACE_TEXT = "166534"
 
-    def initialize(championship, groups:, duplas:)
+    def initialize(championship, groups:)
       @championship = championship
       @groups = groups
-      @duplas = duplas.to_a
     end
 
     def render
@@ -30,7 +29,7 @@ module BolaCinco
       end
 
       classification_tables = @groups.map do |group|
-        title = [ group.category.name, group.group_key.presence ].compact.join(" · ")
+        title = classification_group_title(group)
         rows = group.rows.map do |row|
           [
             row.position,
@@ -48,40 +47,15 @@ module BolaCinco
       draw_classification_tables(classification_tables)
 
       @pdf.start_new_page
-      start_section("Participantes")
-      participant_groups = if @groups.any?
-        @groups
+      start_section("Ranking geral")
+      ranking_rows = general_ranking_rows
+
+      if ranking_rows.empty?
+        @pdf.text "Sem classificação consolidada.", size: 11
       else
-        @duplas.group_by(&:category).map do |category, pairs|
-          OpenStruct.new(category: category, group_key: nil, rows: pairs.map { |pair| OpenStruct.new(tranca_dupla: pair, points: 0, goal_diff: 0, goals_for: 0, position: 0) })
-        end
-      end
-
-      if participant_groups.empty?
-        @pdf.text "Nenhuma dupla cadastrada.", size: 11
-      end
-
-      participant_groups.each do |group|
-        rows = group.rows.sort_by do |row|
-          [
-            -row.points.to_i,
-            -row.goal_diff.to_i,
-            -row.goals_for.to_i,
-            row.position.to_i,
-            row.tranca_dupla.name.to_s.downcase
-          ]
-        end.each_with_index.map do |row, index|
-          names = if row.tranca_dupla.respond_to?(:integrante_names)
-            Array(row.tranca_dupla.integrante_names)
-          else
-            []
-          end
-          [ index + 1, row.tranca_dupla.name, names.any? ? names.join("\n") : row.tranca_dupla.name, row.points ]
-        end
-        title = [ group.category.name, group.group_key.presence ].compact.join(" · ")
-        participant_widths = [ 28, 150, @pdf.bounds.width - 226, 48 ]
-        draw_table(title, [ "#", "Dupla", "Participantes", "PTS" ],
-          participant_widths, rows)
+        ranking_widths = [ 34, @pdf.bounds.width - 226, 64, 72, 56 ]
+        draw_table("Melhores duplas", [ "#", "Dupla", "Vitórias", "Pontos", "Saldo" ],
+          ranking_widths, ranking_rows)
       end
 
       @pdf.number_pages "Página <page> de <total>", at: [ 0, -16 ],
@@ -90,6 +64,24 @@ module BolaCinco
     end
 
     private
+
+    def classification_group_title(group)
+      key_label = tranca_group_key_label(group.group_key)
+      [ group.category.name, ("Chave #{key_label}" if key_label.present?) ].compact.join(" · ")
+    end
+
+    def general_ranking_rows
+      @groups.flat_map(&:rows).sort_by do |row|
+        [
+          -row.wins.to_i,
+          -row.goals_for.to_i,
+          -row.goal_diff.to_i,
+          row.tranca_dupla.name.to_s.downcase
+        ]
+      end.each_with_index.map do |row, index|
+        [ index + 1, row.tranca_dupla.name, row.wins, row.goals_for, row.goal_diff ]
+      end
+    end
 
     def start_section(title)
       @section = title
