@@ -132,7 +132,7 @@ module BolaCinco
     end
 
     def extract_hands(lines)
-      labels = ["1ª batida", "2ª batida", "3ª batida", "4ª batida"]
+      labels = ["1ª batida", "2ª batida", "3ª batida", "4ª batida", "5ª batida"]
       labels.each_with_index.map do |label, index|
         {
           numero: index + 1,

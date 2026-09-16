@@ -115,7 +115,15 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "JG 1"
     assert_includes response.body, "Rosa / Claudia"
     assert_includes response.body, "Mario / Renata"
+    assert_includes response.body, "Tempo em minutos"
+    assert_includes response.body, "data-programacao-duration"
+    assert_includes response.body, "formatRemaining"
+    assert_not_includes response.body, "Excluir chave"
     assert_no_match(/navbar|sidebar/i, response.body)
+
+    document = Nokogiri::HTML(response.body)
+    assert_equal 1, document.css("[data-programacao-timer]").size
+    assert_equal "45", document.at_css("[data-programacao-duration]")["value"]
   end
 
   test "exports the programacao pdf with the same layout text" do

@@ -73,4 +73,24 @@ class BolaCinco::TrancaSummulaImportTest < ActiveSupport::TestCase
       assert_not_includes hand.keys, :desconto_b
     end
   end
+
+  test "extracts five batidas" do
+    partida = Struct.new(:dupla_a_nome, :dupla_b_nome).new("Dupla A", "Dupla B")
+
+    Tempfile.create([ "tranca-summula-import", ".txt" ]) do |file|
+      text = "1ª batida\n10 6\n2ª batida\n20 12\n3ª batida\n30 18\n4ª batida\n40 24\n5ª batida\n50 30"
+      file.write(text)
+      file.flush
+
+      importer = BolaCinco::TrancaSummulaImport.new(partida: partida, file: file)
+      importer.define_singleton_method(:extract_text) { text }
+
+      hands = importer.call[:hands]
+
+      assert_equal 5, hands.size
+      assert_equal 5, hands.last[:numero]
+      assert_equal 50, hands.last[:pontos_a]
+      assert_equal 30, hands.last[:pontos_b]
+    end
+  end
 end

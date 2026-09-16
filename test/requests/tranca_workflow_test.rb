@@ -1,4 +1,6 @@
 require "test_helper"
+require "open3"
+require "tempfile"
 
 class TrancaWorkflowTest < ActionDispatch::IntegrationTest
   setup do
@@ -208,6 +210,52 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Pts B"
     assert_not_includes response.body, "Desc. A"
     assert_not_includes response.body, "Desc. B"
+
+    document = Nokogiri::HTML(response.body)
+    hand_number_inputs = document.css('input[name^="tranca_partida[maos_attributes]"][name$="[numero]"]')
+    assert_equal 5, hand_number_inputs.size
+  end
+
+  test "renders scheduled and finalized tranca summulas with five batidas" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    partida = rodada.partidas.first
+
+    get download_tranca_summula_championship_path(@championship, partida_id: partida.id)
+
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+    scheduled_text = extract_pdf_text(response.body)
+    assert_includes scheduled_text, "5ª"
+    assert_includes scheduled_text, "RESULTADO FINAL"
+    assert_includes scheduled_text, "DUPLA VENCEDORA"
+
+    patch update_tranca_partida_championship_path(@championship, partida_id: partida.id), params: {
+      tranca_partida: {
+        status: "finalizado",
+        maos_attributes: {
+          "0" => { numero: 1, pontos_a: 100, pontos_b: 50 },
+          "1" => { numero: 2, pontos_a: 200, pontos_b: 100 },
+          "2" => { numero: 3, pontos_a: 300, pontos_b: 150 },
+          "3" => { numero: 4, pontos_a: 400, pontos_b: 200 },
+          "4" => { numero: 5, pontos_a: 500, pontos_b: 250 }
+        }
+      }
+    }
+
+    get download_complete_tranca_summula_championship_path(@championship, partida_id: partida.id)
+
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+    finalized_text = extract_pdf_text(response.body)
+    assert_includes finalized_text, "5ª"
+    assert_includes finalized_text, "1.500"
+    assert_includes finalized_text, "750"
+    assert_includes finalized_text, @dupla_a.name
   end
 
   test "shows the winner and edit summula link after a partida is finalized" do
@@ -858,5 +906,18 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     round_two = @championship.tranca_rodadas.find_by!(phase: "mata_mata", round_number: 2)
     assert_equal 1, round_two.partidas.count
     assert_equal [ additional_duplas.first.name, @dupla_a.name ], [ round_two.partidas.first.dupla_a, round_two.partidas.first.dupla_b ]
+  end
+
+  private
+
+  def extract_pdf_text(pdf_data)
+    Tempfile.create([ "tranca-summula", ".pdf" ]) do |file|
+      file.binmode
+      file.write(pdf_data)
+      file.flush
+      stdout, stderr, status = Open3.capture3("pdftotext", "-layout", file.path, "-")
+      assert status.success?, stderr
+      stdout
+    end
   end
 end

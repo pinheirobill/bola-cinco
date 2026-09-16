@@ -1,112 +1,148 @@
 <% content_for :title, "#{@championship.name} | Programação - Telão | Arena" %>
 
-<div class="fixed inset-0 overflow-hidden bg-[radial-gradient(circle_at_top,_#ffffff_0%,_#ecf2f8_34%,_#cbd5e1_100%)]">
-  <div class="pointer-events-none absolute inset-x-0 top-0 z-20 px-4 pt-4 sm:px-8 lg:px-12">
-    <div class="pointer-events-auto mx-auto grid w-full max-w-7xl gap-3 rounded-[2rem] border border-slate-900/10 bg-slate-950/92 p-4 shadow-[0_32px_90px_rgba(2,6,23,0.55)] ring-1 ring-cyan-400/20 backdrop-blur md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-stretch md:p-5">
-      <div class="flex flex-col justify-center rounded-[1.5rem] border border-white/10 bg-white/5 px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] md:px-6">
-        <p class="text-[10px] font-black uppercase tracking-[0.42em] text-cyan-300/80">Hoje</p>
-        <p data-programacao-timer class="mt-2 text-[clamp(3rem,5vw,6.5rem)] font-black leading-none tabular-nums tracking-[-0.06em] text-white drop-shadow-[0_4px_20px_rgba(56,189,248,0.22)]">
-          00:00
-        </p>
-      </div>
-
-      <div class="flex flex-col items-stretch justify-center gap-2 rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] sm:flex-row sm:items-center md:min-w-[16rem] md:flex-col md:px-5">
-        <div class="text-center sm:mr-2 md:mr-0">
-          <p class="text-[10px] font-black uppercase tracking-[0.42em] text-white/55">Cronômetro</p>
-          <p data-programacao-status class="mt-1 text-[11px] font-bold uppercase tracking-[0.32em] text-emerald-300">Pronto</p>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2">
-          <button
-            type="button"
-            data-programacao-start
-            class="rounded-full bg-emerald-400 px-4 py-3 text-[11px] font-black uppercase tracking-[0.28em] text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-35"
-          >
-            Iniciar
-          </button>
-          <button
-            type="button"
-            data-programacao-stop
-            class="rounded-full bg-amber-300 px-4 py-3 text-[11px] font-black uppercase tracking-[0.28em] text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-35"
-          >
-            Parar
-          </button>
-          <button
-            type="button"
-            data-programacao-reset
-            class="rounded-full bg-white/10 px-4 py-3 text-[11px] font-black uppercase tracking-[0.28em] text-white ring-1 ring-white/15 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-35"
-          >
-            Zerar
-          </button>
-        </div>
-      </div>
-
-      <div class="flex flex-col justify-center rounded-[1.5rem] border border-white/10 bg-white/5 px-5 py-4 text-right shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] md:px-6">
-        <p class="text-[10px] font-black uppercase tracking-[0.42em] text-cyan-300/80">Hoje</p>
-        <p data-programacao-timer class="mt-2 text-[clamp(3rem,5vw,6.5rem)] font-black leading-none tabular-nums tracking-[-0.06em] text-white drop-shadow-[0_4px_20px_rgba(56,189,248,0.22)]">
-          00:00
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <div class="absolute inset-x-0 top-36 bottom-0 overflow-hidden sm:top-40 lg:top-44" data-programacao-fit>
+<div class="fixed inset-0 grid gap-4 overflow-hidden bg-[radial-gradient(circle_at_top,_#ffffff_0%,_#ecf2f8_34%,_#cbd5e1_100%)] p-4 lg:grid-cols-[minmax(0,9fr)_minmax(13rem,1fr)]">
+  <main class="relative min-h-0 min-w-0 overflow-hidden rounded-[1.5rem]" data-programacao-fit>
     <div class="absolute left-0 top-0 origin-top-left" data-programacao-board>
       <%= render "components/tranca_programacao_board",
         presenter: @tranca_programacao,
-        fixed_canvas: true,
-        key_delete_path: (user_signed_in? && @championship.manageable_by?(current_user) ? ->(group_key) { destroy_tranca_programacao_key_championship_path(@championship, group_key: group_key) } : nil) %>
+        fixed_canvas: true %>
     </div>
-  </div>
+  </main>
+
+  <aside class="flex min-h-0 flex-col justify-center rounded-[1.5rem] border border-slate-900/10 bg-slate-950/95 p-4 text-white shadow-[0_24px_70px_rgba(2,6,23,0.45)] ring-1 ring-cyan-400/20 backdrop-blur lg:p-5">
+    <div class="text-center">
+      <p class="text-[10px] font-black uppercase tracking-[0.36em] text-white/55">Cronômetro</p>
+      <p data-programacao-status class="mt-2 text-[11px] font-bold uppercase tracking-[0.28em] text-emerald-300">Pronto</p>
+    </div>
+
+    <div class="mt-6">
+      <label for="programacao-duration" class="block text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300/80">
+        Tempo em minutos
+      </label>
+      <input
+        id="programacao-duration"
+        type="number"
+        min="1"
+        max="999"
+        step="1"
+        value="45"
+        inputmode="numeric"
+        data-programacao-duration
+        class="mt-2 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-3 text-center text-xl font-black tabular-nums text-white outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+    </div>
+
+    <p data-programacao-timer class="mt-6 text-center text-[clamp(3rem,4.5vw,5.5rem)] font-black leading-none tabular-nums tracking-[-0.08em] text-white drop-shadow-[0_4px_20px_rgba(56,189,248,0.22)]">
+      45:00
+    </p>
+
+    <div class="mt-7 grid gap-2">
+      <button
+        type="button"
+        data-programacao-start
+        class="rounded-full bg-emerald-400 px-4 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-35"
+      >
+        Iniciar
+      </button>
+      <button
+        type="button"
+        data-programacao-stop
+        class="rounded-full bg-amber-300 px-4 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-35"
+      >
+        Parar
+      </button>
+      <button
+        type="button"
+        data-programacao-reset
+        class="rounded-full bg-white/10 px-4 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-white ring-1 ring-white/15 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-35"
+      >
+        Reiniciar
+      </button>
+    </div>
+  </aside>
 </div>
 
 <script>
   (() => {
-    const timerNodes = Array.from(document.querySelectorAll("[data-programacao-timer]"))
+    const timerNode = document.querySelector("[data-programacao-timer]")
+    const durationInput = document.querySelector("[data-programacao-duration]")
     const startButton = document.querySelector("[data-programacao-start]")
     const stopButton = document.querySelector("[data-programacao-stop]")
     const resetButton = document.querySelector("[data-programacao-reset]")
     const statusNode = document.querySelector("[data-programacao-status]")
     let timerInterval = null
     let running = false
-    let elapsedMs = 0
-    let startedAt = null
+    let finished = false
+    let paused = false
+    let remainingMs = 0
+    let endsAt = null
 
-    const getElapsedMs = () => (running && startedAt !== null ? Date.now() - startedAt : elapsedMs)
+    const durationMs = () => {
+      const minutes = Math.max(Number.parseInt(durationInput?.value, 10) || 0, 0)
+      return minutes * 60 * 1000
+    }
 
-    const formatElapsed = (ms) => {
-      const elapsedSeconds = Math.floor(ms / 1000)
-      const minutes = String(Math.floor(elapsedSeconds / 60)).padStart(2, "0")
-      const seconds = String(elapsedSeconds % 60).padStart(2, "0")
-      const value = `${minutes}:${seconds}`
-      return value
+    const currentRemainingMs = () => (
+      running && endsAt !== null ? Math.max(endsAt - Date.now(), 0) : remainingMs
+    )
+
+    const formatRemaining = (ms) => {
+      const totalSeconds = Math.ceil(ms / 1000)
+      const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0")
+      const seconds = String(totalSeconds % 60).padStart(2, "0")
+      return `${minutes}:${seconds}`
+    }
+
+    const clearTimerInterval = () => {
+      if (timerInterval) window.clearInterval(timerInterval)
+      timerInterval = null
     }
 
     const syncControls = () => {
-      if (startButton) startButton.disabled = running
+      if (durationInput) durationInput.disabled = running
+      if (startButton) startButton.disabled = running || durationMs() === 0
       if (stopButton) stopButton.disabled = !running
-      if (resetButton) resetButton.disabled = running ? false : elapsedMs === 0
 
       if (statusNode) {
-        statusNode.textContent = running ? "Rodando" : elapsedMs > 0 ? "Pausado" : "Pronto"
+        statusNode.textContent = running ? "Rodando" : finished ? "Finalizado" : paused ? "Pausado" : "Pronto"
+        statusNode.classList.toggle("text-rose-300", finished)
+        statusNode.classList.toggle("text-emerald-300", !finished)
       }
     }
 
-    const renderTimer = () => {
-      const value = formatElapsed(getElapsedMs())
+    const finishTimer = () => {
+      remainingMs = 0
+      endsAt = null
+      running = false
+      finished = true
+      paused = false
+      clearTimerInterval()
+      if (timerNode) timerNode.textContent = "00:00"
+      syncControls()
+    }
 
-      timerNodes.forEach((node) => {
-        node.textContent = value
-      })
+    const renderTimer = () => {
+      remainingMs = currentRemainingMs()
+
+      if (running && remainingMs === 0) {
+        finishTimer()
+        return
+      }
+
+      if (timerNode) timerNode.textContent = formatRemaining(remainingMs)
     }
 
     const startTimer = () => {
       if (running) return
+      if (remainingMs <= 0) remainingMs = durationMs()
+      if (remainingMs <= 0) return
 
       running = true
-      startedAt = Date.now() - elapsedMs
-      if (!timerInterval) timerInterval = window.setInterval(renderTimer, 250)
-
+      finished = false
+      paused = false
+      endsAt = Date.now() + remainingMs
+      clearTimerInterval()
+      timerInterval = window.setInterval(renderTimer, 250)
       renderTimer()
       syncControls()
     }
@@ -114,25 +150,22 @@
     const stopTimer = () => {
       if (!running) return
 
-      elapsedMs = Date.now() - startedAt
-      startedAt = null
+      remainingMs = currentRemainingMs()
+      endsAt = null
       running = false
-
-      if (timerInterval) window.clearInterval(timerInterval)
-      timerInterval = null
-
+      paused = remainingMs > 0
+      clearTimerInterval()
       renderTimer()
       syncControls()
     }
 
     const resetTimer = () => {
-      elapsedMs = 0
-      startedAt = null
+      clearTimerInterval()
+      endsAt = null
       running = false
-
-      if (timerInterval) window.clearInterval(timerInterval)
-      timerInterval = null
-
+      finished = false
+      paused = false
+      remainingMs = durationMs()
       renderTimer()
       syncControls()
     }
@@ -154,21 +187,32 @@
       board.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`
     }
 
-    fit()
-    renderTimer()
-    syncControls()
+    if (durationInput) {
+      durationInput.addEventListener("input", () => {
+        if (running) return
+        finished = false
+        paused = false
+        remainingMs = durationMs()
+        renderTimer()
+        syncControls()
+      })
+    }
 
     if (startButton) startButton.addEventListener("click", startTimer)
     if (stopButton) stopButton.addEventListener("click", stopTimer)
     if (resetButton) resetButton.addEventListener("click", resetTimer)
 
     document.addEventListener("turbo:before-cache", () => {
-      if (running) elapsedMs = Date.now() - startedAt
+      remainingMs = currentRemainingMs()
       running = false
-      startedAt = null
-      if (timerInterval) window.clearInterval(timerInterval)
-      timerInterval = null
+      endsAt = null
+      clearTimerInterval()
     })
     window.addEventListener("resize", fit)
+
+    remainingMs = durationMs()
+    fit()
+    renderTimer()
+    syncControls()
   })()
 </script>
