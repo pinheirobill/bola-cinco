@@ -43,10 +43,10 @@ class BolaCinco::TrancaStandingsDocumentTest < ActiveSupport::TestCase
 
     ranking_table = document.captured_tables.second
     assert_equal "Melhores duplas", ranking_table[0]
-    assert_equal [ "#", "Dupla", "Vitórias", "Pontos", "Saldo" ], ranking_table[1]
-    assert_equal 5, ranking_table[2].size
-    assert_equal [ 1, "Dupla B", 3, 180, 60 ], ranking_table[3].first
-    assert_equal [ 2, "Dupla A", 2, 156, 32 ], ranking_table[3].second
+    assert_equal [ "#", "", "Dupla", "Vitórias", "Pontos", "Saldo" ], ranking_table[1]
+    assert_equal 6, ranking_table[2].size
+    assert_equal [ 1, nil, "Dupla B", 3, 180, 60 ], ranking_table[3].first
+    assert_equal [ 2, true, "Dupla A", 2, 156, 32 ], ranking_table[3].second
   end
 
   test "orders general ranking by wins points scored and score difference" do
@@ -61,9 +61,9 @@ class BolaCinco::TrancaStandingsDocumentTest < ActiveSupport::TestCase
     document = BolaCinco::TrancaStandingsDocument.new(championship, groups: groups)
 
     assert_equal [
-      [ 1, "Dupla B", 3, 180, 80 ],
-      [ 2, "Dupla A", 3, 180, 60 ],
-      [ 3, "Dupla C", 2, 200, 100 ]
+      [ 1, nil, "Dupla B", 3, 180, 80 ],
+      [ 2, true, "Dupla A", 3, 180, 60 ],
+      [ 3, true, "Dupla C", 2, 200, 100 ]
     ], document.send(:general_ranking_rows)
   end
 

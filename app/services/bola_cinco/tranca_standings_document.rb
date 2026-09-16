@@ -13,6 +13,9 @@ module BolaCinco
     ROW_ALT = "F1F5F9"
     FIRST_PLACE = "D8F3DC"
     FIRST_PLACE_TEXT = "166534"
+    TROPHY = "D4AF37"
+    TROPHY_OUTLINE = "9A7412"
+    FIRST_PLACE_ICON_WIDTH = 18
 
     def initialize(championship, groups:)
       @championship = championship
@@ -53,8 +56,8 @@ module BolaCinco
       if ranking_rows.empty?
         @pdf.text "Sem classificação consolidada.", size: 11
       else
-        ranking_widths = [ 34, @pdf.bounds.width - 226, 64, 72, 56 ]
-        draw_table("Melhores duplas", [ "#", "Dupla", "Vitórias", "Pontos", "Saldo" ],
+        ranking_widths = [ 34, FIRST_PLACE_ICON_WIDTH, @pdf.bounds.width - 244, 64, 72, 56 ]
+        draw_table("Melhores duplas", [ "#", "", "Dupla", "Vitórias", "Pontos", "Saldo" ],
           ranking_widths, ranking_rows)
       end
 
@@ -79,7 +82,7 @@ module BolaCinco
           row.tranca_dupla.name.to_s.downcase
         ]
       end.each_with_index.map do |row, index|
-        [ index + 1, row.tranca_dupla.name, row.wins, row.goals_for, row.goal_diff ]
+        [ index + 1, first_place_icon_for(row), row.tranca_dupla.name, row.wins, row.goals_for, row.goal_diff ]
       end
     end
 
@@ -122,9 +125,7 @@ module BolaCinco
       @pdf.fill_color FIRST_PLACE
       @pdf.rounded_rectangle [ 0, top ], 15, 15, 3
       @pdf.fill
-      @pdf.fill_color FIRST_PLACE_TEXT
-      @pdf.text_box "1", at: [ 0, top - 3 ], width: 15, height: 12,
-        size: 7.5, style: :bold, align: :center
+      draw_first_place_icon(0, top, 15, 15)
       @pdf.fill_color MUTED
       @pdf.text_box "Primeiro lugar de cada chave", at: [ 22, top - 2 ],
         width: 180, height: 14, size: 8
@@ -218,6 +219,8 @@ module BolaCinco
 
     def row_height(values, widths)
       heights = values.each_with_index.map do |value, index|
+        next 0 if icon_marker?(value)
+
         @pdf.height_of(value.to_s, width: widths[index] - 10, size: 9)
       end
       [ heights.max + 11, 25 ].max
@@ -242,13 +245,54 @@ module BolaCinco
         @pdf.stroke_color BORDER
         @pdf.line_width 0.35
         @pdf.fill_and_stroke_rectangle [ left, top ], width, height
-        @pdf.fill_color(header ? NAVY : text_color)
-        @pdf.text_box value.to_s, at: [ left + 6, top - 6 ], width: width - 12,
-          height: height - 10, size: header ? 7.5 : 8.5, style: style,
-          align: cell_alignment(value, index, header: header), overflow: :shrink_to_fit
+        if icon_marker?(value) && !header
+          draw_first_place_icon(left, top, width, height)
+        else
+          @pdf.fill_color(header ? NAVY : text_color)
+          @pdf.text_box value.to_s, at: [ left + 6, top - 6 ], width: width - 12,
+            height: height - 10, size: header ? 7.5 : 8.5, style: style,
+            align: cell_alignment(value, index, header: header), overflow: :shrink_to_fit
+        end
         left += width
       end
       @pdf.move_cursor_to top - height
+    end
+
+    def draw_first_place_icon(left, top, width, height)
+      box = [ width, height ].min.to_f
+      inset = [ box * 0.12, 1.5 ].max
+      body_width = box * 0.56
+      body_height = box * 0.26
+      body_x = left + (width - body_width) / 2.0
+      body_y = top - inset - body_height
+      handle_width = box * 0.12
+      handle_height = body_height * 0.78
+      handle_y = body_y - (body_height * 0.06)
+      stem_width = body_width * 0.2
+      stem_height = box * 0.12
+      stem_x = left + (width - stem_width) / 2.0
+      stem_y = body_y - body_height - (box * 0.03)
+      base_width = body_width * 0.64
+      base_height = box * 0.08
+      base_x = left + (width - base_width) / 2.0
+      base_y = stem_y - stem_height - (box * 0.02)
+
+      @pdf.fill_color TROPHY
+      @pdf.stroke_color TROPHY_OUTLINE
+      @pdf.line_width 0.45
+      @pdf.fill_and_stroke_rectangle [ body_x, body_y ], body_width, body_height
+      @pdf.fill_and_stroke_rectangle [ body_x - handle_width + 1, handle_y ], handle_width, handle_height
+      @pdf.fill_and_stroke_rectangle [ body_x + body_width - 1, handle_y ], handle_width, handle_height
+      @pdf.fill_and_stroke_rectangle [ stem_x, stem_y ], stem_width, stem_height
+      @pdf.fill_and_stroke_rectangle [ base_x, base_y ], base_width, base_height
+    end
+
+    def first_place_icon_for(row)
+      row.position.to_i == 1 ? true : nil
+    end
+
+    def icon_marker?(value)
+      value == true
     end
 
     def cell_alignment(value, index, header:)
