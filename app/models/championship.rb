@@ -233,7 +233,7 @@ class Championship < ApplicationRecord
   end
 
   def recent_tranca_championships(limit: 3)
-    Championship.tranca.where.not(id: id).order(season: :desc, created_at: :desc).limit(limit).includes(categories: { teams: :athletes })
+    Championship.tranca.where.not(id: id).order(created_at: :desc, season: :desc).limit(limit).includes(categories: { teams: :athletes })
   end
 
   def invite_selected_tranca_duplas!(teams)
