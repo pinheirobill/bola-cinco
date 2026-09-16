@@ -17,8 +17,8 @@
     </button>
     <input
       type="range"
-      min="0.7"
-      max="1.1"
+      min="0.45"
+      max="1.8"
       step="0.05"
       value="1"
       data-programacao-zoom
@@ -159,8 +159,9 @@
       zoomValue = clampZoom(value)
       if (shell) {
         shell.style.transform = `scale(${zoomValue})`
-        shell.style.width = `${100 / zoomValue}%`
-        shell.style.height = `${100 / zoomValue}%`
+        shell.style.transformOrigin = "top left"
+        shell.style.width = "100%"
+        shell.style.height = "100%"
       }
 
       if (zoomInput) zoomInput.value = String(zoomValue)
