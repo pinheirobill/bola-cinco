@@ -1,7 +1,56 @@
 <% content_for :title, "#{@championship.name} | Programação - Telão | Arena" %>
 
-<div class="fixed inset-0 overflow-hidden bg-slate-100">
-  <div class="relative h-full w-full overflow-hidden" data-programacao-fit>
+<div class="fixed inset-0 overflow-hidden bg-[radial-gradient(circle_at_top,_#ffffff_0%,_#ecf2f8_34%,_#cbd5e1_100%)]">
+  <div class="pointer-events-none absolute inset-x-0 top-0 z-20 px-4 pt-4 sm:px-8 lg:px-12">
+    <div class="pointer-events-auto mx-auto grid w-full max-w-7xl gap-3 rounded-[2rem] border border-slate-900/10 bg-slate-950/92 p-4 shadow-[0_32px_90px_rgba(2,6,23,0.55)] ring-1 ring-cyan-400/20 backdrop-blur md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-stretch md:p-5">
+      <div class="flex flex-col justify-center rounded-[1.5rem] border border-white/10 bg-white/5 px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] md:px-6">
+        <p class="text-[10px] font-black uppercase tracking-[0.42em] text-cyan-300/80">Hoje</p>
+        <p data-programacao-timer class="mt-2 text-[clamp(3rem,5vw,6.5rem)] font-black leading-none tabular-nums tracking-[-0.06em] text-white drop-shadow-[0_4px_20px_rgba(56,189,248,0.22)]">
+          00:00
+        </p>
+      </div>
+
+      <div class="flex flex-col items-stretch justify-center gap-2 rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] sm:flex-row sm:items-center md:min-w-[16rem] md:flex-col md:px-5">
+        <div class="text-center sm:mr-2 md:mr-0">
+          <p class="text-[10px] font-black uppercase tracking-[0.42em] text-white/55">Cronômetro</p>
+          <p data-programacao-status class="mt-1 text-[11px] font-bold uppercase tracking-[0.32em] text-emerald-300">Pronto</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            data-programacao-start
+            class="rounded-full bg-emerald-400 px-4 py-3 text-[11px] font-black uppercase tracking-[0.28em] text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-35"
+          >
+            Iniciar
+          </button>
+          <button
+            type="button"
+            data-programacao-stop
+            class="rounded-full bg-amber-300 px-4 py-3 text-[11px] font-black uppercase tracking-[0.28em] text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-35"
+          >
+            Parar
+          </button>
+          <button
+            type="button"
+            data-programacao-reset
+            class="rounded-full bg-white/10 px-4 py-3 text-[11px] font-black uppercase tracking-[0.28em] text-white ring-1 ring-white/15 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-35"
+          >
+            Zerar
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-col justify-center rounded-[1.5rem] border border-white/10 bg-white/5 px-5 py-4 text-right shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] md:px-6">
+        <p class="text-[10px] font-black uppercase tracking-[0.42em] text-cyan-300/80">Hoje</p>
+        <p data-programacao-timer class="mt-2 text-[clamp(3rem,5vw,6.5rem)] font-black leading-none tabular-nums tracking-[-0.06em] text-white drop-shadow-[0_4px_20px_rgba(56,189,248,0.22)]">
+          00:00
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="absolute inset-x-0 top-36 bottom-0 overflow-hidden sm:top-40 lg:top-44" data-programacao-fit>
     <div class="absolute left-0 top-0 origin-top-left" data-programacao-board>
       <%= render "components/tranca_programacao_board",
         presenter: @tranca_programacao,
@@ -13,6 +62,81 @@
 
 <script>
   (() => {
+    const timerNodes = Array.from(document.querySelectorAll("[data-programacao-timer]"))
+    const startButton = document.querySelector("[data-programacao-start]")
+    const stopButton = document.querySelector("[data-programacao-stop]")
+    const resetButton = document.querySelector("[data-programacao-reset]")
+    const statusNode = document.querySelector("[data-programacao-status]")
+    let timerInterval = null
+    let running = false
+    let elapsedMs = 0
+    let startedAt = null
+
+    const getElapsedMs = () => (running && startedAt !== null ? Date.now() - startedAt : elapsedMs)
+
+    const formatElapsed = (ms) => {
+      const elapsedSeconds = Math.floor(ms / 1000)
+      const minutes = String(Math.floor(elapsedSeconds / 60)).padStart(2, "0")
+      const seconds = String(elapsedSeconds % 60).padStart(2, "0")
+      const value = `${minutes}:${seconds}`
+      return value
+    }
+
+    const syncControls = () => {
+      if (startButton) startButton.disabled = running
+      if (stopButton) stopButton.disabled = !running
+      if (resetButton) resetButton.disabled = running ? false : elapsedMs === 0
+
+      if (statusNode) {
+        statusNode.textContent = running ? "Rodando" : elapsedMs > 0 ? "Pausado" : "Pronto"
+      }
+    }
+
+    const renderTimer = () => {
+      const value = formatElapsed(getElapsedMs())
+
+      timerNodes.forEach((node) => {
+        node.textContent = value
+      })
+    }
+
+    const startTimer = () => {
+      if (running) return
+
+      running = true
+      startedAt = Date.now() - elapsedMs
+      if (!timerInterval) timerInterval = window.setInterval(renderTimer, 250)
+
+      renderTimer()
+      syncControls()
+    }
+
+    const stopTimer = () => {
+      if (!running) return
+
+      elapsedMs = Date.now() - startedAt
+      startedAt = null
+      running = false
+
+      if (timerInterval) window.clearInterval(timerInterval)
+      timerInterval = null
+
+      renderTimer()
+      syncControls()
+    }
+
+    const resetTimer = () => {
+      elapsedMs = 0
+      startedAt = null
+      running = false
+
+      if (timerInterval) window.clearInterval(timerInterval)
+      timerInterval = null
+
+      renderTimer()
+      syncControls()
+    }
+
     const fit = () => {
       const viewport = document.querySelector("[data-programacao-fit]")
       const board = document.querySelector("[data-programacao-board]")
@@ -31,7 +155,20 @@
     }
 
     fit()
-    document.addEventListener("turbo:load", fit)
+    renderTimer()
+    syncControls()
+
+    if (startButton) startButton.addEventListener("click", startTimer)
+    if (stopButton) stopButton.addEventListener("click", stopTimer)
+    if (resetButton) resetButton.addEventListener("click", resetTimer)
+
+    document.addEventListener("turbo:before-cache", () => {
+      if (running) elapsedMs = Date.now() - startedAt
+      running = false
+      startedAt = null
+      if (timerInterval) window.clearInterval(timerInterval)
+      timerInterval = null
+    })
     window.addEventListener("resize", fit)
   })()
 </script>
