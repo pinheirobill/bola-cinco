@@ -8,6 +8,21 @@ module Tranca
 
     validates :source_id, presence: true, uniqueness: true
     validates :phase, :round_number, :label, presence: true
+    validates :stage_number, numericality: { only_integer: true, greater_than: 0 }
+
+    scope :for_stage, ->(stage_number) { where(stage_number: stage_number) }
+
+    def first_stage?
+      stage_number == 1
+    end
+
+    def second_stage?
+      stage_number == 2
+    end
+
+    def stage_label
+      "#{stage_number}ª etapa"
+    end
 
     def classificatoria?
       phase.to_s.start_with?("classific")

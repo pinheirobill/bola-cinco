@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_11_140634) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_16_150000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -472,12 +472,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_11_140634) do
     t.integer "position", null: false
     t.boolean "qualified"
     t.string "source_id", null: false
+    t.integer "stage_number", default: 1, null: false
     t.integer "tranca_dupla_id", null: false
     t.datetime "updated_at", null: false
     t.integer "wins", default: 0, null: false
-    t.index ["category_id", "group_key", "tranca_dupla_id"], name: "index_tranca_classificacao_rows_on_group_and_dupla", unique: true
+    t.index ["category_id", "stage_number", "group_key", "tranca_dupla_id"], name: "index_tranca_class_rows_on_stage_group_and_dupla", unique: true
     t.index ["category_id"], name: "index_tranca_classificacao_rows_on_category_id"
-    t.index ["championship_id", "category_id", "group_key", "position"], name: "index_tranca_classificacao_rows_on_scope_and_position", unique: true
+    t.index ["championship_id", "category_id", "stage_number", "group_key", "position"], name: "index_tranca_class_rows_on_stage_scope_position", unique: true
     t.index ["championship_id"], name: "index_tranca_classificacao_rows_on_championship_id"
     t.index ["source_id"], name: "index_tranca_classificacao_rows_on_source_id", unique: true
     t.index ["tranca_dupla_id"], name: "index_tranca_classificacao_rows_on_tranca_dupla_id"
@@ -579,6 +580,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_11_140634) do
     t.integer "score_b"
     t.json "source_data", default: {}, null: false
     t.string "source_id", null: false
+    t.integer "stage_number", default: 1, null: false
     t.string "status", default: "agendado", null: false
     t.integer "tranca_mesa_id"
     t.integer "tranca_rodada_id"
@@ -586,8 +588,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_11_140634) do
     t.integer "winner_id"
     t.string "wo"
     t.index ["category_id"], name: "index_tranca_partidas_on_category_id"
-    t.index ["championship_id", "phase", "round_number"], name: "index_tranca_partidas_on_scope_phase_round"
     t.index ["championship_id", "scheduled_on"], name: "index_tranca_partidas_on_championship_and_date"
+    t.index ["championship_id", "stage_number", "phase", "round_number"], name: "index_tranca_partidas_on_stage_scope_phase_round"
     t.index ["championship_id"], name: "index_tranca_partidas_on_championship_id"
     t.index ["dupla_a_id"], name: "index_tranca_partidas_on_dupla_a_id"
     t.index ["dupla_b_id"], name: "index_tranca_partidas_on_dupla_b_id"
@@ -605,10 +607,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_11_140634) do
     t.string "phase", null: false
     t.integer "round_number", null: false
     t.string "source_id", null: false
+    t.integer "stage_number", default: 1, null: false
     t.date "starts_on"
     t.string "status", default: "programada", null: false
     t.datetime "updated_at", null: false
-    t.index ["championship_id", "phase", "round_number"], name: "index_tranca_rodadas_on_scope_and_round", unique: true
+    t.index ["championship_id", "stage_number", "phase", "round_number"], name: "index_tranca_rodadas_on_stage_scope_and_round", unique: true
     t.index ["championship_id"], name: "index_tranca_rodadas_on_championship_id"
     t.index ["source_id"], name: "index_tranca_rodadas_on_source_id", unique: true
   end
