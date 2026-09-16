@@ -1,0 +1,50 @@
+<aside class="flex h-full min-h-0 w-full flex-col justify-center rounded-[1.5rem] border border-slate-900/10 bg-slate-950/95 p-4 text-white shadow-[0_24px_70px_rgba(2,6,23,0.45)] ring-1 ring-cyan-400/20 backdrop-blur lg:p-5">
+  <div class="text-center">
+    <p class="text-[10px] font-black uppercase tracking-[0.36em] text-white/55">Cronômetro</p>
+    <p data-programacao-status class="mt-2 text-[11px] font-bold uppercase tracking-[0.28em] text-emerald-300">Pronto</p>
+  </div>
+
+  <div class="mt-6">
+    <label class="block text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300/80">
+      Tempo em minutos
+    </label>
+    <input
+      type="number"
+      min="1"
+      max="999"
+      step="1"
+      value="45"
+      inputmode="numeric"
+      data-programacao-duration
+      class="mt-2 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-3 text-center text-xl font-black tabular-nums text-white outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+  </div>
+
+  <p data-programacao-timer class="mt-6 text-center text-[clamp(3rem,4.5vw,5.5rem)] font-black leading-none tabular-nums tracking-[-0.08em] text-white drop-shadow-[0_4px_20px_rgba(56,189,248,0.22)]">
+    45:00
+  </p>
+
+  <div class="mt-7 grid gap-2">
+    <button
+      type="button"
+      data-programacao-start
+      class="rounded-full bg-emerald-400 px-4 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-35"
+    >
+      Iniciar
+    </button>
+    <button
+      type="button"
+      data-programacao-stop
+      class="rounded-full bg-amber-300 px-4 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-35"
+    >
+      Parar
+    </button>
+    <button
+      type="button"
+      data-programacao-reset
+      class="rounded-full bg-white/10 px-4 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-white ring-1 ring-white/15 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-35"
+    >
+      Reiniciar
+    </button>
+  </div>
+</aside>

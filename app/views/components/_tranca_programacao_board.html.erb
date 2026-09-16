@@ -3,42 +3,51 @@
 <% key_delete_path = local_assigns[:key_delete_path] %>
 <% columns = presenter.columns %>
 <% logo_present = championship_logo_attached?(presenter.championship) %>
-<% row_grid = fixed_canvas ? "grid-cols-[3rem_3.5rem_minmax(14rem,18rem)_2rem_4rem_2rem_minmax(14rem,18rem)]" : "grid-cols-[3.75rem_4rem_minmax(0,1fr)_2.4rem_6rem_2.4rem_minmax(0,1fr)]" %>
-<% team_text_class = fixed_canvas ? "overflow-hidden break-words leading-tight" : "truncate" %>
+<% row_grid = fixed_canvas ? "grid-cols-[3.5rem_4rem_minmax(16rem,21rem)_2.5rem_4.5rem_2.5rem_minmax(16rem,21rem)]" : "grid-cols-[3.75rem_4rem_minmax(0,1fr)_2.4rem_6rem_2.4rem_minmax(0,1fr)]" %>
+<% team_text_class = fixed_canvas ? "overflow-hidden break-words text-[13px] leading-[1.08]" : "truncate" %>
+<% logo_class = fixed_canvas ? "h-24 w-24 rounded-full border border-slate-300 bg-white p-1 shadow-sm" : "h-20 w-20 rounded-full border border-slate-300 bg-white p-1 shadow-sm" %>
+<% board_padding_class = fixed_canvas ? "px-7 py-5 sm:px-10" : "px-6 py-4 sm:px-8" %>
+<% title_class = fixed_canvas ? "text-[clamp(2.3rem,2.6vw,4.75rem)]" : "text-[clamp(2rem,2.2vw,4rem)]" %>
+<% subtitle_class = fixed_canvas ? "text-[12px] tracking-[0.36em]" : "text-[11px] tracking-[0.34em]" %>
+<% meta_class = fixed_canvas ? "text-[12px] tracking-[0.3em]" : "text-[11px] tracking-[0.28em]" %>
+<% divider_class = fixed_canvas ? "px-7 sm:px-10" : "px-6 sm:px-8" %>
+<% header_row_class = fixed_canvas ? "px-4 py-3 text-[12px]" : "px-3 py-2 text-[11px]" %>
+<% row_class = fixed_canvas ? "px-4 py-3 text-[12px]" : "px-3 py-2 text-[11px]" %>
+<% jg_class = fixed_canvas ? "text-[12px]" : "" %>
+<% mesa_class = fixed_canvas ? "text-[12px]" : "" %>
+<% score_class = fixed_canvas ? "text-[12px]" : "text-[10px]" %>
+<% x_class = fixed_canvas ? "text-2xl" : "text-lg" %>
 
 <div class="<%= fixed_canvas ? 'inline-block w-max' : 'w-full' %> overflow-hidden rounded-[28px] border border-slate-300 bg-white text-slate-950 shadow-sm">
-  <div class="flex items-start justify-between gap-4 px-6 py-4 sm:px-8">
+  <div class="flex items-start justify-between gap-4 <%= board_padding_class %>">
     <div class="min-w-0">
-      <p class="text-[11px] uppercase tracking-[0.32em] text-slate-700">ESPORTE CLUBE PINHEIROS</p>
-      <p class="mt-2 text-[clamp(2rem,2.2vw,4rem)] font-black leading-[0.92] tracking-tight text-slate-950">
+      <p class="text-[11px] uppercase tracking-[0.32em] text-slate-700 <%= subtitle_class %>">ESPORTE CLUBE PINHEIROS</p>
+      <p class="mt-2 <%= title_class %> font-black leading-[0.92] tracking-tight text-slate-950">
         <%= presenter.title %>
       </p>
-      <p class="mt-2 text-[11px] font-bold uppercase tracking-[0.34em] text-slate-700">
+      <p class="mt-2 text-[11px] font-bold uppercase tracking-[0.34em] text-slate-700 <%= subtitle_class %>">
         <%= presenter.subtitle %>
       </p>
     </div>
 
     <div class="flex shrink-0 items-start gap-4">
       <% if logo_present %>
-        <%= championship_logo_tag(
-          presenter.championship,
-          class: "h-20 w-20 rounded-full border border-slate-300 bg-white p-1 shadow-sm"
-        ) %>
+        <%= championship_logo_tag(presenter.championship, class: logo_class) %>
       <% end %>
-      <p class="pt-2 text-[11px] uppercase tracking-[0.28em] text-slate-700">
+      <p class="pt-2 text-[11px] uppercase tracking-[0.28em] text-slate-700 <%= meta_class %>">
         <%= presenter.issued_at.strftime("%d/%m/%Y %H:%M") %>
       </p>
     </div>
   </div>
 
-  <div class="border-y-[10px] border-[#102A66] bg-white px-6 py-2 sm:px-8"></div>
+  <div class="border-y-[10px] border-[#102A66] bg-white <%= divider_class %> py-2"></div>
 
-  <div class="grid gap-6 px-0 py-0 <%= fixed_canvas ? 'grid-cols-2' : 'lg:grid-cols-2' %>">
+  <div class="grid gap-6 px-0 py-0 <%= fixed_canvas ? 'grid-cols-2 gap-4' : 'lg:grid-cols-2' %>">
     <% columns.each_with_index do |sections, column_index| %>
       <div class="<%= column_index.zero? ? 'pb-0 lg:border-r lg:border-slate-200' : 'pb-0' %>">
         <% sections.each do |section| %>
           <section class="border-t-[10px] border-[#102A66]">
-            <div class="flex flex-wrap items-center justify-between gap-2 bg-[#F4B400] px-3 py-2 text-[11px] font-black uppercase tracking-wide text-slate-950">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-[#F4B400] <%= header_row_class %> font-black uppercase tracking-wide text-slate-950">
               <div class="grid <%= row_grid %> min-w-0 flex-1">
                 <div>JG</div>
                 <div>mesa</div>
@@ -55,13 +64,13 @@
             </div>
 
             <% section[:rows].each_with_index do |row, index| %>
-              <div class="grid <%= row_grid %> items-center px-3 py-2 text-[11px] font-semibold text-slate-950 <%= index.even? ? 'bg-[#FFF7E1]' : 'bg-white' %>">
-                <div class="truncate font-black"><%= "JG #{row[:jg]}" %></div>
-                <div class="text-center"><%= row[:mesa] %></div>
+              <div class="grid <%= row_grid %> items-center <%= row_class %> font-semibold text-slate-950 <%= index.even? ? 'bg-[#FFF7E1]' : 'bg-white' %>">
+                <div class="truncate font-black <%= jg_class %>"><%= "JG #{row[:jg]}" %></div>
+                <div class="text-center <%= mesa_class %>"><%= row[:mesa] %></div>
                 <div class="<%= team_text_class %> pr-2"><%= row[:team_a] %></div>
-                <div class="text-center text-[10px] font-normal text-slate-700"><%= row[:score_a] %></div>
-                <div class="text-center text-lg font-black leading-none text-[#D40000]">x</div>
-                <div class="text-center text-[10px] font-normal text-slate-700"><%= row[:score_b] %></div>
+                <div class="text-center font-normal text-slate-700 <%= score_class %>"><%= row[:score_a] %></div>
+                <div class="text-center font-black leading-none text-[#D40000] <%= x_class %>">x</div>
+                <div class="text-center font-normal text-slate-700 <%= score_class %>"><%= row[:score_b] %></div>
                 <div class="<%= team_text_class %> pl-2"><%= row[:team_b] %></div>
               </div>
             <% end %>

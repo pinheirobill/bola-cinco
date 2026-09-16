@@ -122,7 +122,8 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
     assert_no_match(/navbar|sidebar/i, response.body)
 
     document = Nokogiri::HTML(response.body)
-    assert_equal 1, document.css("[data-programacao-timer]").size
+    assert_equal 2, document.css("[data-programacao-timer]").size
+    assert_equal 2, document.css("[data-programacao-duration]").size
     assert_equal "45", document.at_css("[data-programacao-duration]")["value"]
   end
 

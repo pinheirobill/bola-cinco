@@ -1,7 +1,11 @@
 <% content_for :title, "#{@championship.name} | Programação - Telão | Arena" %>
 
-<div class="fixed inset-0 grid gap-4 overflow-hidden bg-[radial-gradient(circle_at_top,_#ffffff_0%,_#ecf2f8_34%,_#cbd5e1_100%)] p-4 lg:grid-cols-[minmax(0,9fr)_minmax(13rem,1fr)]">
-  <main class="relative min-h-0 min-w-0 overflow-hidden rounded-[1.5rem]" data-programacao-fit>
+<div class="fixed inset-0 flex gap-2 overflow-hidden bg-[radial-gradient(circle_at_top,_#ffffff_0%,_#ecf2f8_34%,_#cbd5e1_100%)] p-2">
+  <div class="w-[clamp(9rem,8vw,12rem)] shrink-0">
+    <%= render "programacao_clock_panel" %>
+  </div>
+
+  <main class="relative mx-1 min-h-0 min-w-0 flex-[1.25] overflow-hidden rounded-[1.5rem]" data-programacao-fit>
     <div class="absolute left-0 top-0 origin-top-left" data-programacao-board>
       <%= render "components/tranca_programacao_board",
         presenter: @tranca_programacao,
@@ -9,67 +13,19 @@
     </div>
   </main>
 
-  <aside class="flex min-h-0 flex-col justify-center rounded-[1.5rem] border border-slate-900/10 bg-slate-950/95 p-4 text-white shadow-[0_24px_70px_rgba(2,6,23,0.45)] ring-1 ring-cyan-400/20 backdrop-blur lg:p-5">
-    <div class="text-center">
-      <p class="text-[10px] font-black uppercase tracking-[0.36em] text-white/55">Cronômetro</p>
-      <p data-programacao-status class="mt-2 text-[11px] font-bold uppercase tracking-[0.28em] text-emerald-300">Pronto</p>
-    </div>
-
-    <div class="mt-6">
-      <label for="programacao-duration" class="block text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300/80">
-        Tempo em minutos
-      </label>
-      <input
-        id="programacao-duration"
-        type="number"
-        min="1"
-        max="999"
-        step="1"
-        value="45"
-        inputmode="numeric"
-        data-programacao-duration
-        class="mt-2 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-3 text-center text-xl font-black tabular-nums text-white outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-    </div>
-
-    <p data-programacao-timer class="mt-6 text-center text-[clamp(3rem,4.5vw,5.5rem)] font-black leading-none tabular-nums tracking-[-0.08em] text-white drop-shadow-[0_4px_20px_rgba(56,189,248,0.22)]">
-      45:00
-    </p>
-
-    <div class="mt-7 grid gap-2">
-      <button
-        type="button"
-        data-programacao-start
-        class="rounded-full bg-emerald-400 px-4 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-35"
-      >
-        Iniciar
-      </button>
-      <button
-        type="button"
-        data-programacao-stop
-        class="rounded-full bg-amber-300 px-4 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-35"
-      >
-        Parar
-      </button>
-      <button
-        type="button"
-        data-programacao-reset
-        class="rounded-full bg-white/10 px-4 py-3 text-[11px] font-black uppercase tracking-[0.24em] text-white ring-1 ring-white/15 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-35"
-      >
-        Reiniciar
-      </button>
-    </div>
-  </aside>
+  <div class="w-[clamp(9rem,8vw,12rem)] shrink-0">
+    <%= render "programacao_clock_panel" %>
+  </div>
 </div>
 
 <script>
   (() => {
-    const timerNode = document.querySelector("[data-programacao-timer]")
-    const durationInput = document.querySelector("[data-programacao-duration]")
-    const startButton = document.querySelector("[data-programacao-start]")
-    const stopButton = document.querySelector("[data-programacao-stop]")
-    const resetButton = document.querySelector("[data-programacao-reset]")
-    const statusNode = document.querySelector("[data-programacao-status]")
+    const timerNodes = Array.from(document.querySelectorAll("[data-programacao-timer]"))
+    const durationInputs = Array.from(document.querySelectorAll("[data-programacao-duration]"))
+    const startButtons = Array.from(document.querySelectorAll("[data-programacao-start]"))
+    const stopButtons = Array.from(document.querySelectorAll("[data-programacao-stop]"))
+    const resetButtons = Array.from(document.querySelectorAll("[data-programacao-reset]"))
+    const statusNodes = Array.from(document.querySelectorAll("[data-programacao-status]"))
     let timerInterval = null
     let running = false
     let finished = false
@@ -78,7 +34,7 @@
     let endsAt = null
 
     const durationMs = () => {
-      const minutes = Math.max(Number.parseInt(durationInput?.value, 10) || 0, 0)
+      const minutes = Math.max(Number.parseInt(durationInputs[0]?.value, 10) || 0, 0)
       return minutes * 60 * 1000
     }
 
@@ -98,16 +54,35 @@
       timerInterval = null
     }
 
-    const syncControls = () => {
-      if (durationInput) durationInput.disabled = running
-      if (startButton) startButton.disabled = running || durationMs() === 0
-      if (stopButton) stopButton.disabled = !running
+    const syncDurationInputs = (value) => {
+      durationInputs.forEach((input) => {
+        input.value = value
+      })
+    }
 
-      if (statusNode) {
-        statusNode.textContent = running ? "Rodando" : finished ? "Finalizado" : paused ? "Pausado" : "Pronto"
-        statusNode.classList.toggle("text-rose-300", finished)
-        statusNode.classList.toggle("text-emerald-300", !finished)
-      }
+    const setTextContent = (nodes, text) => {
+      nodes.forEach((node) => {
+        node.textContent = text
+      })
+    }
+
+    const setDisabled = (nodes, disabled) => {
+      nodes.forEach((node) => {
+        node.disabled = disabled
+      })
+    }
+
+    const syncControls = () => {
+      setDisabled(durationInputs, running)
+      setDisabled(startButtons, running || durationMs() === 0)
+      setDisabled(stopButtons, !running)
+
+      const statusText = running ? "Rodando" : finished ? "Finalizado" : paused ? "Pausado" : "Pronto"
+      setTextContent(statusNodes, statusText)
+      statusNodes.forEach((node) => {
+        node.classList.toggle("text-rose-300", finished)
+        node.classList.toggle("text-emerald-300", !finished)
+      })
     }
 
     const finishTimer = () => {
@@ -117,7 +92,7 @@
       finished = true
       paused = false
       clearTimerInterval()
-      if (timerNode) timerNode.textContent = "00:00"
+      setTextContent(timerNodes, "00:00")
       syncControls()
     }
 
@@ -129,7 +104,7 @@
         return
       }
 
-      if (timerNode) timerNode.textContent = formatRemaining(remainingMs)
+      setTextContent(timerNodes, formatRemaining(remainingMs))
     }
 
     const startTimer = () => {
@@ -179,7 +154,7 @@
       const height = board.offsetHeight
       if (!width || !height) return
 
-      const scale = Math.min(viewport.clientWidth / width, viewport.clientHeight / height, 1)
+      const scale = Math.min(viewport.clientWidth / width, 1)
       const offsetX = Math.max((viewport.clientWidth - width * scale) / 2, 0)
       const offsetY = Math.max((viewport.clientHeight - height * scale) / 2, 0)
 
@@ -187,20 +162,21 @@
       board.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`
     }
 
-    if (durationInput) {
+    durationInputs.forEach((durationInput) => {
       durationInput.addEventListener("input", () => {
         if (running) return
         finished = false
         paused = false
+        syncDurationInputs(durationInput.value)
         remainingMs = durationMs()
         renderTimer()
         syncControls()
       })
-    }
+    })
 
-    if (startButton) startButton.addEventListener("click", startTimer)
-    if (stopButton) stopButton.addEventListener("click", stopTimer)
-    if (resetButton) resetButton.addEventListener("click", resetTimer)
+    startButtons.forEach((button) => button.addEventListener("click", startTimer))
+    stopButtons.forEach((button) => button.addEventListener("click", stopTimer))
+    resetButtons.forEach((button) => button.addEventListener("click", resetTimer))
 
     document.addEventListener("turbo:before-cache", () => {
       remainingMs = currentRemainingMs()
@@ -210,6 +186,7 @@
     })
     window.addEventListener("resize", fit)
 
+    syncDurationInputs(durationInputs[0]?.value || "45")
     remainingMs = durationMs()
     fit()
     renderTimer()
