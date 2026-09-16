@@ -105,6 +105,9 @@ module BolaCinco
     end
 
     def mesa_label(match)
+      second_stage_table_number = match.source_data["table_number"] if match.second_stage?
+      return second_stage_table_number.to_s if second_stage_table_number.present?
+
       match.tranca_mesa&.code.to_s.squish.presence || match.tranca_mesa&.name.to_s.squish.presence || match.mesa.to_s.squish.presence || "-"
     end
 

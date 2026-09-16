@@ -21,12 +21,12 @@
 ]) %>
 
 <% if user_signed_in? && @championship.manageable_by?(current_user) %>
-  <% ultima_rodada_classificatoria = @tranca_rodadas.select(&:classificatoria?).max_by(&:round_number) %>
+  <% ultima_rodada_classificatoria = @tranca_rodadas.select { |round| round.first_stage? && round.classificatoria? }.max_by(&:round_number) %>
   <% todos_jogos_agendados = ultima_rodada_classificatoria&.partidas&.any? && ultima_rodada_classificatoria.partidas.all?(&:status_agendado?) %>
   <% classificatoria_esgotada = @tranca_classificatoria_esgotada %>
   <% mata_mata_encerrado = @tranca_mata_mata_encerrado %>
   <%= surface_card(title: "Gerar rodada", subtitle: "Cria a rodada e as partidas da Tranca a partir das duplas cadastradas.") do %>
-    <div class="grid gap-4 lg:grid-cols-2">
+    <div class="grid gap-4 lg:grid-cols-3">
       <%= form_with url: generate_tranca_round_championship_path(@championship), method: :post, class: "rounded-3xl border border-base-300 bg-base-100 p-4 text-left hover:border-primary/40" do %>
         <%= hidden_field_tag :phase, "classificatoria" %>
         <%= hidden_field_tag :round_number, @tranca_next_round_number %>
@@ -49,8 +49,95 @@
           <p class="mt-1 text-sm text-base-content/70"><%= mata_mata_encerrado ? "A final já foi concluída." : "Abre a próxima rodada do chaveamento com os vencedores anteriores." %></p>
         </button>
       </div>
+
+      <div class="rounded-3xl border border-base-300 bg-base-100 p-4 text-left hover:border-primary/40">
+        <button
+          type="button"
+          <%= "disabled" if @tranca_second_stage_created || @tranca_second_stage_candidates.size < 16 %>
+          class="block w-full text-left disabled:cursor-not-allowed disabled:opacity-60"
+          onclick="document.getElementById('tranca-second-stage-modal').showModal()"
+        >
+          <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">2ª etapa</p>
+          <p class="mt-2 text-lg font-semibold"><%= @tranca_second_stage_created ? "2ª etapa criada" : "Montar quatro chaves" %></p>
+          <p class="mt-1 text-sm text-base-content/70">
+            <% if @tranca_second_stage_created %>
+              As três rodadas e os 24 jogos já foram gerados.
+            <% elsif @tranca_second_stage_candidates.size < 16 %>
+              São necessárias pelo menos 16 duplas para montar esta etapa.
+            <% else %>
+              Escolha 16 duplas e defina manualmente as posições das chaves A, B, C e D.
+            <% end %>
+          </p>
+        </button>
+      </div>
     </div>
   <% end %>
+
+  <dialog id="tranca-second-stage-modal" class="modal">
+    <div class="modal-box max-w-7xl" data-controller="second-stage-builder">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-xs uppercase tracking-[0.28em] text-base-content/50">Configuração da 2ª etapa</p>
+          <h3 class="mt-1 text-2xl font-black">Distribuir as 16 duplas</h3>
+          <p class="mt-1 text-sm text-base-content/70">A ordem escolhida define os confrontos das três rodadas. Cada dupla só pode aparecer uma vez.</p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tranca-second-stage-modal').close()">Fechar</button>
+      </div>
+
+      <div class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-base-200 p-3">
+        <p class="text-sm text-base-content/70">Chave A: mesas 1–2 · B: 3–4 · C: 5–6 · D: 7–8</p>
+        <span class="badge badge-primary" data-second-stage-builder-target="counter">0/16 duplas selecionadas</span>
+      </div>
+
+      <%= form_with url: create_tranca_second_stage_championship_path(@championship), method: :post, class: "mt-5 space-y-5" do %>
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <% %w[A B C D].each_with_index do |group_key, group_index| %>
+            <section class="rounded-3xl border border-base-300 bg-base-200/70 p-4">
+              <div class="flex items-center justify-between gap-3">
+                <h4 class="font-bold">Chave <%= group_key %></h4>
+                <span class="badge badge-outline badge-sm">Mesas <%= (group_index * 2) + 1 %> e <%= (group_index * 2) + 2 %></span>
+              </div>
+
+              <div class="mt-4 space-y-3">
+                <% 4.times do |slot_index| %>
+                  <div class="form-control">
+                    <%= label_tag "groups_#{group_key}_#{slot_index}", "Posição #{slot_index + 1}", class: "label-text text-xs font-semibold uppercase tracking-wide" %>
+                    <%= select_tag "groups[#{group_key}][]",
+                      options_for_select([["Selecione a dupla", ""]] + @tranca_second_stage_candidates.map { |entry|
+                        tranca_candidate_option(entry)
+                      }),
+                      id: "groups_#{group_key}_#{slot_index}",
+                      class: "select select-bordered select-sm w-full",
+                      required: true,
+                      data: {
+                        second_stage_builder_target: "select",
+                        action: "change->second-stage-builder#updateState"
+                      } %>
+                  </div>
+                <% end %>
+              </div>
+            </section>
+          <% end %>
+        </div>
+
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-4 text-sm text-base-content/70">
+          <p><strong>1ª rodada:</strong> 1×2 e 4×3</p>
+          <p><strong>2ª rodada:</strong> 4×1 e 3×2</p>
+          <p><strong>3ª rodada:</strong> 1×3 e 2×4</p>
+        </div>
+
+        <p class="hidden rounded-2xl border border-warning/30 bg-warning/10 p-3 text-sm text-warning-content" data-second-stage-builder-target="error"></p>
+
+        <div class="modal-action">
+          <button type="button" class="btn btn-ghost" onclick="document.getElementById('tranca-second-stage-modal').close()">Cancelar</button>
+          <%= submit_tag "Criar 2ª etapa", class: "btn btn-primary", disabled: true, data: { second_stage_builder_target: "submitButton" } %>
+        </div>
+      <% end %>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button aria-label="Fechar">Fechar</button>
+    </form>
+  </dialog>
 
   <dialog id="tranca-knockout-config-modal" class="modal">
     <% knockout_stage_slots = {
@@ -154,10 +241,7 @@
                         <% 2.times do |slot_index| %>
                           <%= select_tag "selected_dupla_ids[]",
                             options_for_select([["Selecione a dupla", ""]] + @tranca_knockout_candidate_rows.map { |entry|
-                              dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry
-                              group_label = tranca_group_key_label(entry.group_key) || entry.group_key.presence || "geral"
-                              label = entry.respond_to?(:position) ? "#{dupla.name} · #{group_label} · #{entry.position}º" : dupla.name
-                              [label, dupla.id]
+                              tranca_candidate_option(entry)
                             }),
                             class: "select select-bordered select-sm mb-2 w-full",
                             data: {
@@ -216,6 +300,7 @@
       <% dupla_names = @tranca_duplas.index_by(&:id) %>
       <% manage_round_games = user_signed_in? && @championship.manageable_by?(current_user) %>
       <% @tranca_rodadas.each do |round| %>
+        <% round_management_enabled = manage_round_games && round.first_stage? %>
         <% round_presenter = BolaCinco::TrancaProgramacaoPresenter.new(@championship, round.partidas) %>
         <% round_deletable = round.partidas.none?(&:finished?) %>
         <div class="rounded-3xl bg-base-200 p-4">
@@ -229,6 +314,7 @@
               <p class="mt-1 text-sm text-base-content/60"><%= round.partidas.size %> partida(s) · <%= round.mesas.size %> mesa(s)</p>
             </div>
             <div class="flex flex-wrap gap-2">
+              <span class="badge badge-outline"><%= round.stage_label %></span>
               <span class="badge badge-outline"><%= round.phase_label %></span>
               <% if round.partidas.any? %>
                 <%= link_to "Baixar todas as súmulas (PDF)", championship_round_summulas_path(@championship, rodada_id: round.id), class: "btn btn-outline btn-xs", data: { turbo: false } %>
@@ -236,7 +322,7 @@
                 <%= link_to "Por nome (Excel)", championship_round_games_path(@championship, rodada_id: round.id, order: :name), class: "btn btn-outline btn-xs", data: { turbo: false } %>
                 <%= link_to "Programação (PDF)", programacao_championship_path(@championship, format: :pdf), class: "btn btn-outline btn-xs", data: { turbo: false } %>
               <% end %>
-              <% if user_signed_in? && @championship.manageable_by?(current_user) %>
+              <% if round_management_enabled %>
                 <%= button_to "Definir mesas", generate_tranca_mesas_championship_path(@championship, rodada_id: round.id), method: :post, class: "btn btn-outline btn-xs" %>
                 <% if round_deletable %>
                   <%= button_to "Excluir rodada", destroy_tranca_round_championship_path(@championship, rodada_id: round.id), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir #{round.label} e todos os seus jogos?" } } %>
@@ -254,7 +340,7 @@
                     <p class="mt-1 text-sm text-base-content/60"><%= section[:rows].size %> partida(s)</p>
                   </div>
 
-                  <% if manage_round_games && section[:key].present? %>
+                  <% if round_management_enabled && section[:key].present? %>
                     <div class="flex flex-wrap gap-2">
                       <button type="button" class="btn btn-primary btn-xs" onclick="document.getElementById('tranca-round-key-create-<%= round.id %>-<%= section[:key].parameterize %>').showModal()">
                         Criar jogo
@@ -275,13 +361,13 @@
                           <% if match.finished? && match.classification_phase? %>
                             <%= button_to "Remover resultado", destroy_tranca_partida_championship_path(@championship, partida_id: match.id), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Remover o resultado de #{match.code} e reabrir o jogo?" } } %>
                           <% end %>
-                          <% if manage_round_games && match.status_agendado? %>
+                          <% if round_management_enabled && match.status_agendado? %>
                             <%= button_to "Excluir jogo", destroy_tranca_partida_championship_path(@championship, partida_id: match.id), method: :delete, class: "btn btn-outline btn-error btn-xs", form: { data: { turbo_confirm: "Excluir #{match.code} e liberar a mesa?" } } %>
                           <% end %>
                         </div>
                       </div>
 
-                      <% if manage_round_games && match.status_agendado? %>
+                      <% if round_management_enabled && match.status_agendado? %>
                         <div class="flex flex-wrap justify-end gap-2">
                           <button type="button" class="btn btn-primary btn-xs" onclick="document.getElementById('tranca-partida-modal-<%= match.id %>').showModal()">
                             Alterar dupla / excluir
@@ -293,7 +379,7 @@
                   <% end %>
                 </div>
               </div>
-              <% if manage_round_games && section[:key].present? %>
+              <% if round_management_enabled && section[:key].present? %>
                 <% first_match = section[:rows].first&.dig(:match) %>
                 <% if first_match.present? %>
                   <%= render "components/tranca_round_key_create_modal",

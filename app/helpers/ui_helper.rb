@@ -89,6 +89,22 @@ module UiHelper
     text.upcase
   end
 
+  def tranca_candidate_option(entry)
+    dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry
+    category = entry.respond_to?(:category) ? entry.category : dupla.category
+
+    label = +"#{dupla.name}"
+    label << " · #{category.name}" if category&.name.present?
+
+    if entry.respond_to?(:position)
+      group_key = entry.respond_to?(:group_key) ? entry.group_key : nil
+      group_label = tranca_group_key_label(group_key) || group_key.to_s.presence || "geral"
+      label << " · #{group_label} · #{entry.position}º"
+    end
+
+    [ label, dupla.id ]
+  end
+
   def ranking_entry_card(entry)
     render partial: "components/ranking_entry_card", locals: {
       entry: entry

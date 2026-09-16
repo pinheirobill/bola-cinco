@@ -165,6 +165,20 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: classificacao_championship_path(@championship), alert: error.message, status: :see_other
   end
 
+  def create_tranca_second_stage
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
+
+    Tranca::SecondStageBuilder.new(@championship).create!(groups: params[:groups] || {})
+
+    redirect_to rodadas_championship_path(@championship), notice: "2ª etapa criada com quatro chaves, 24 jogos e oito mesas."
+  rescue ActiveRecord::RecordInvalid => error
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: error.record.errors.full_messages.join(" · ")
+  rescue Tranca::SecondStageBuilder::InvalidSelectionError => error
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: error.message, status: :see_other
+  end
+
   def generate_tranca_mesas
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
@@ -192,7 +206,7 @@ class ChampionshipsController < ApplicationController
       rodada.partidas.destroy_all
       rodada.mesas.destroy_all
       rodada.destroy!
-      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if rodada.classificatoria?
+      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if rodada.classificatoria? && rodada.first_stage?
     end
 
     redirect_back fallback_location: fallback_location, notice: "#{round_label} excluída."
@@ -505,7 +519,7 @@ class ChampionshipsController < ApplicationController
       Tranca::Partida.transaction do
         partida.destroy!
         mesa.destroy! if mesa.present? && mesa.partidas.reload.empty?
-        Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if rodada&.classificatoria?
+        Tranca::CompetitionFlow.new(@championship).rebuild_classificacao! if rodada&.classificatoria? && rodada.first_stage?
       end
 
       redirect_back fallback_location: rodadas_championship_path(@championship), notice: "#{partida_label} excluída."
@@ -518,10 +532,12 @@ class ChampionshipsController < ApplicationController
 
     Tranca::Partida.transaction do
       partida.clear_result!
-      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao!(
-        categories: [partida.category],
-        group_keys: [partida.group_key.presence].compact
-      )
+      if partida.first_stage?
+        Tranca::CompetitionFlow.new(@championship).rebuild_classificacao!(
+          categories: [partida.category],
+          group_keys: [partida.group_key.presence].compact
+        )
+      end
     end
 
     redirect_back fallback_location: rodadas_championship_path(@championship), notice: "#{partida_label} reaberta. Resultado removido."
@@ -815,7 +831,7 @@ class ChampionshipsController < ApplicationController
         mesa.destroy! if mesa.partidas.reload.empty?
       end
 
-      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao!(group_keys: [group_key]) if should_rebuild_classificacao
+      Tranca::CompetitionFlow.new(@championship).rebuild_classificacao!(group_keys: [group_key]) if should_rebuild_classificacao && (rodada.blank? || rodada.first_stage?)
 
       if rodada.present? && rodada.partidas.reload.empty?
         rodada.mesas.destroy_all
@@ -934,6 +950,7 @@ class ChampionshipsController < ApplicationController
       :mesas,
       partidas: %i[category dupla_a dupla_b winner tranca_mesa]
     ).order(
+      stage_number: :asc,
       phase: :asc,
       round_number: :asc,
       id: :asc
@@ -941,8 +958,9 @@ class ChampionshipsController < ApplicationController
     @tranca_total_duplas = @tranca_duplas.size
     @tranca_total_partidas = @championship.tranca_partidas.count
     @tranca_total_rodadas = @tranca_rodadas.size
-    @tranca_next_round_number = @tranca_rodadas.select(&:classificatoria?).map(&:round_number).max.to_i + 1
-    @tranca_next_knockout_round_number = @tranca_rodadas.select(&:mata_mata?).map(&:round_number).max.to_i + 1
+    first_stage_rounds = @tranca_rodadas.select(&:first_stage?)
+    @tranca_next_round_number = first_stage_rounds.select(&:classificatoria?).map(&:round_number).max.to_i + 1
+    @tranca_next_knockout_round_number = first_stage_rounds.select(&:mata_mata?).map(&:round_number).max.to_i + 1
     @tranca_classificatoria_esgotada = !Tranca::CompetitionFlow.new(@championship).classificatoria_pairings_available?(round_number: @tranca_next_round_number)
     @tranca_mata_mata_encerrado = Tranca::CompetitionFlow.new(@championship).knockout_finished?
     @tranca_standings = @championship.tranca_classificacao_rows
@@ -962,6 +980,17 @@ class ChampionshipsController < ApplicationController
       end
     else
       @tranca_duplas.sort_by { |dupla| [dupla.category.name.to_s.downcase, dupla.name.to_s.downcase] }
+    end
+    @tranca_second_stage_created = @championship.tranca_rodadas.for_stage(2).exists? || @championship.tranca_partidas.for_stage(2).exists?
+    first_stage_rows = @championship.tranca_classificacao_rows
+      .for_stage(1)
+      .includes(:category, :tranca_dupla)
+      .order(:category_id, :group_key, :position)
+      .to_a
+    @tranca_second_stage_candidates = if first_stage_rows.any?
+      first_stage_rows.uniq(&:tranca_dupla_id)
+    else
+      @tranca_duplas
     end
   end
 

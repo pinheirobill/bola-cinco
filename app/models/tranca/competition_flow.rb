@@ -16,6 +16,7 @@ module Tranca
       championship.categories.includes(:teams).any? do |category|
         dupla_ids = championship.tranca_duplas.where(category_id: category.id).pluck(:id)
         history = championship.tranca_partidas
+          .for_stage(1)
           .where(category_id: category.id, phase: "classificatoria")
           .where("round_number < ?", round_number.to_i)
         first_match = history.order(:round_number, :id).first
@@ -62,11 +63,12 @@ module Tranca
       raise InvalidScheduleError, "Número de rodada inválido." unless number.positive?
 
       championship.with_lock do
-        existing = championship.tranca_rodadas.find_by(phase: phase.to_s, round_number: number)
+        first_stage_rounds = championship.tranca_rodadas.for_stage(1)
+        existing = first_stage_rounds.find_by(phase: phase.to_s, round_number: number)
         # A repeated submission must not reset scores, status or opponents.
         return existing if existing && existing.partidas.exists?
 
-        previous = championship.tranca_rodadas.where(phase: phase.to_s).where.not(id: existing&.id).maximum(:round_number).to_i
+        previous = first_stage_rounds.where(phase: phase.to_s).where.not(id: existing&.id).maximum(:round_number).to_i
         unless number == previous + 1
           raise InvalidScheduleError, "Gere as rodadas em sequência. A próxima é #{previous + 1}."
         end
@@ -82,6 +84,7 @@ module Tranca
       raise NoAvailableMatchupsError if pairings_by_category.values.none?(&:any?)
 
       rodada = championship.tranca_rodadas.find_or_initialize_by(
+        stage_number: 1,
         phase: phase.to_s,
         round_number: round_number.to_i
       )
@@ -105,6 +108,7 @@ module Tranca
           )
           partida.assign_attributes(
             championship: championship,
+            stage_number: 1,
             category: category,
             tranca_rodada: rodada,
             code: partida_code(category, phase, round_number, index + 1),
@@ -222,7 +226,7 @@ module Tranca
 
       attrs[:winner] = winner_for(partida, score_a, score_b, winner_id, status, wo)
       partida.update!(attrs)
-      if partida.classification_phase?
+      if partida.classification_phase? && partida.first_stage?
         rebuild_classificacao!(
           categories: [partida.category],
           group_keys: [partida.group_key.presence || inferred_group_key_for(partida)]
@@ -299,6 +303,7 @@ module Tranca
 
     def rebuild_category_classificacao!(category, duplas, group_keys: nil)
       groups = championship.tranca_partidas
+        .for_stage(1)
         .includes(:dupla_a, :dupla_b, :winner, :maos)
         .where(category_id: category.id, phase: "classificatoria")
         .group_by do |partida|
@@ -306,12 +311,12 @@ module Tranca
       end
       groups = { "" => [] } if groups.empty?
       target_group_keys = group_keys.presence || groups.keys
-      deletion_scope = championship.tranca_classificacao_rows.where(category_id: category.id)
+      deletion_scope = championship.tranca_classificacao_rows.for_stage(1).where(category_id: category.id)
       if target_group_keys.any?(&:blank?)
         non_blank_group_keys = target_group_keys.map(&:to_s).reject(&:blank?)
         deletion_scope = if non_blank_group_keys.any?
           deletion_scope.where(group_key: non_blank_group_keys).or(
-            championship.tranca_classificacao_rows.where(category_id: category.id, group_key: nil)
+            championship.tranca_classificacao_rows.for_stage(1).where(category_id: category.id, group_key: nil)
           )
         else
           deletion_scope.where(group_key: nil)
@@ -340,6 +345,7 @@ module Tranca
         sorted_stats.each_with_index do |stats, index|
           championship.tranca_classificacao_rows.create!(
             category: category,
+            stage_number: 1,
             tranca_dupla: stats[:dupla],
             source_id: classification_source_id(category, group_key, stats[:dupla]),
             group_key: group_key,
@@ -360,6 +366,7 @@ module Tranca
 
     def refresh_category_classificacao!(category)
       rows_by_group = championship.tranca_classificacao_rows
+        .for_stage(1)
         .includes(:tranca_dupla)
         .where(category_id: category.id)
         .order(:group_key, :position, :id)
@@ -368,6 +375,7 @@ module Tranca
       return if rows_by_group.blank?
 
       classification_matches = championship.tranca_partidas
+        .for_stage(1)
         .includes(:dupla_a, :dupla_b, :winner, :maos)
         .where(category_id: category.id, phase: "classificatoria")
         .to_a
@@ -533,7 +541,7 @@ module Tranca
       duplas = championship.tranca_duplas.where(category_id: category.id).order(:id).to_a
       return [] if duplas.size < 2
 
-      history = championship.tranca_partidas.where(category_id: category.id, phase: phase.to_s)
+      history = championship.tranca_partidas.for_stage(1).where(category_id: category.id, phase: phase.to_s)
       first_match = history.order(:round_number, :id).first
       if first_match
         order = first_match.source_data["round_robin_order"]
