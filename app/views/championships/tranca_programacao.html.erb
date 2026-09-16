@@ -8,7 +8,7 @@
     link_to("Início", championship_path(@championship), class: "btn btn-outline"),
     link_to("Rodadas", rodadas_championship_path(@championship), class: "btn btn-outline"),
     link_to("Classificação", classificacao_championship_path(@championship), class: "btn btn-outline"),
-    link_to("Telão", programacao_telao_championship_path(@championship), class: "btn btn-primary", data: { turbo: false }),
+    link_to("Telão", programacao_telao_championship_path(@championship), class: "btn btn-primary", data: { turbo: false }, target: "_blank", rel: "noopener noreferrer"),
     link_to("Baixar PDF", programacao_championship_path(@championship, format: :pdf), class: "btn btn-outline", data: { turbo: false })
   ]
 ) %>
