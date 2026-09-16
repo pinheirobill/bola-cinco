@@ -1,37 +1,92 @@
 <% content_for :title, "#{@championship.name} | Programação - Telão | Arena" %>
 
-<div class="fixed inset-0 flex gap-2 overflow-hidden bg-[radial-gradient(circle_at_top,_#ffffff_0%,_#ecf2f8_34%,_#cbd5e1_100%)] p-2">
-  <div class="w-[clamp(20rem,9vw,13rem)] shrink-0">
-    <%= render "programacao_clock_panel" %>
+<div
+  class="fixed inset-0 overflow-hidden bg-[radial-gradient(circle_at_top,_#ffffff_0%,_#ecf2f8_34%,_#cbd5e1_100%)] p-2"
+  data-programacao-root
+  data-programacao-championship-id="<%= @championship.id %>"
+>
+  <div class="absolute right-4 top-4 z-20 flex items-center gap-3 rounded-full border border-slate-900/10 bg-slate-950/85 px-4 py-2 text-white shadow-[0_20px_40px_rgba(2,6,23,0.28)] backdrop-blur">
+    <span class="text-[10px] font-black uppercase tracking-[0.28em] text-white/55">Zoom</span>
+    <button
+      type="button"
+      class="rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] transition hover:bg-white/15"
+      data-programacao-zoom-out
+      aria-label="Diminuir zoom"
+    >
+      -
+    </button>
+    <input
+      type="range"
+      min="0.7"
+      max="1.1"
+      step="0.05"
+      value="1"
+      data-programacao-zoom
+      class="w-28 accent-cyan-300"
+      aria-label="Zoom da programação"
+    >
+    <button
+      type="button"
+      class="rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] transition hover:bg-white/15"
+      data-programacao-zoom-in
+      aria-label="Aumentar zoom"
+    >
+      +
+    </button>
+    <button
+      type="button"
+      class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-white/70 transition hover:bg-white/10"
+      data-programacao-zoom-reset
+    >
+      Redefinir
+    </button>
+    <span class="min-w-12 text-right text-[11px] font-black tabular-nums text-cyan-200" data-programacao-zoom-label>100%</span>
   </div>
 
-  <main class="relative mx-1 min-h-0 min-w-0 flex-[1.25] overflow-hidden rounded-[1.5rem]" data-programacao-fit>
-    <div class="absolute left-0 top-0 origin-top-left" data-programacao-board>
-      <%= render "components/tranca_programacao_board",
-        presenter: @tranca_programacao,
-        fixed_canvas: true %>
-    </div>
-  </main>
+  <div class="h-full w-full origin-top-left" data-programacao-shell>
+    <div class="flex h-full gap-2">
+      <div class="w-[clamp(13rem,9vw,16rem)] shrink-0">
+        <%= render "programacao_clock_panel" %>
+      </div>
 
-  <div class="w-[clamp(20rem,9vw,13rem)] shrink-0">
-    <%= render "programacao_clock_panel" %>
+      <main class="relative mx-1 min-h-0 min-w-0 flex-[1.25] overflow-hidden rounded-[1.5rem]" data-programacao-fit>
+        <div class="absolute left-0 top-0 origin-top-left" data-programacao-board>
+          <%= render "components/tranca_programacao_board",
+            presenter: @tranca_programacao,
+            fixed_canvas: true %>
+        </div>
+      </main>
+
+      <div class="w-[clamp(13rem,9vw,16rem)] shrink-0">
+        <%= render "programacao_clock_panel" %>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
   (() => {
+    const root = document.querySelector("[data-programacao-root]")
+    const shell = document.querySelector("[data-programacao-shell]")
     const timerNodes = Array.from(document.querySelectorAll("[data-programacao-timer]"))
     const durationInputs = Array.from(document.querySelectorAll("[data-programacao-duration]"))
     const startButtons = Array.from(document.querySelectorAll("[data-programacao-start]"))
     const stopButtons = Array.from(document.querySelectorAll("[data-programacao-stop]"))
     const resetButtons = Array.from(document.querySelectorAll("[data-programacao-reset]"))
     const statusNodes = Array.from(document.querySelectorAll("[data-programacao-status]"))
+    const zoomInput = document.querySelector("[data-programacao-zoom]")
+    const zoomOutButton = document.querySelector("[data-programacao-zoom-out]")
+    const zoomInButton = document.querySelector("[data-programacao-zoom-in]")
+    const zoomResetButton = document.querySelector("[data-programacao-zoom-reset]")
+    const zoomLabel = document.querySelector("[data-programacao-zoom-label]")
+    const zoomKey = root?.dataset.programacaoChampionshipId ? `programacao-zoom:${root.dataset.programacaoChampionshipId}` : null
     let timerInterval = null
     let running = false
     let finished = false
     let paused = false
     let remainingMs = 0
     let endsAt = null
+    let zoomValue = 1
 
     const durationMs = () => {
       const minutes = Math.max(Number.parseInt(durationInputs[0]?.value, 10) || 0, 0)
@@ -70,6 +125,48 @@
       nodes.forEach((node) => {
         node.disabled = disabled
       })
+    }
+
+    const clampZoom = (value) => {
+      const min = Number(zoomInput?.min || 0.7)
+      const max = Number(zoomInput?.max || 1.1)
+      const parsed = Number.parseFloat(value)
+      if (Number.isNaN(parsed)) return 1
+      return Math.min(Math.max(parsed, min), max)
+    }
+
+    const persistZoom = (value) => {
+      if (!zoomKey) return
+
+      try {
+        window.localStorage.setItem(zoomKey, String(value))
+      } catch (error) {
+        // Ignore storage failures on locked-down browsers.
+      }
+    }
+
+    const storedZoom = () => {
+      if (!zoomKey) return null
+
+      try {
+        return window.localStorage.getItem(zoomKey)
+      } catch (error) {
+        return null
+      }
+    }
+
+    const applyZoom = (value, { persist = true } = {}) => {
+      zoomValue = clampZoom(value)
+      if (shell) {
+        shell.style.transform = `scale(${zoomValue})`
+        shell.style.width = `${100 / zoomValue}%`
+        shell.style.height = `${100 / zoomValue}%`
+      }
+
+      if (zoomInput) zoomInput.value = String(zoomValue)
+      if (zoomLabel) zoomLabel.textContent = `${Math.round(zoomValue * 100)}%`
+      if (persist) persistZoom(zoomValue)
+      fit()
     }
 
     const syncControls = () => {
@@ -162,6 +259,10 @@
       board.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`
     }
 
+    const changeZoom = (delta) => {
+      applyZoom(zoomValue + delta)
+    }
+
     durationInputs.forEach((durationInput) => {
       durationInput.addEventListener("input", () => {
         if (running) return
@@ -177,6 +278,10 @@
     startButtons.forEach((button) => button.addEventListener("click", startTimer))
     stopButtons.forEach((button) => button.addEventListener("click", stopTimer))
     resetButtons.forEach((button) => button.addEventListener("click", resetTimer))
+    zoomInput?.addEventListener("input", () => applyZoom(zoomInput.value))
+    zoomOutButton?.addEventListener("click", () => changeZoom(-Number(zoomInput?.step || 0.05)))
+    zoomInButton?.addEventListener("click", () => changeZoom(Number(zoomInput?.step || 0.05)))
+    zoomResetButton?.addEventListener("click", () => applyZoom(1))
 
     document.addEventListener("turbo:before-cache", () => {
       remainingMs = currentRemainingMs()
@@ -186,6 +291,7 @@
     })
     window.addEventListener("resize", fit)
 
+    applyZoom(storedZoom() || zoomInput?.value || 1, { persist: false })
     syncDurationInputs(durationInputs[0]?.value || "45")
     remainingMs = durationMs()
     fit()

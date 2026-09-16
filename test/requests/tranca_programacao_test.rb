@@ -117,6 +117,8 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Mario / Renata"
     assert_includes response.body, "Tempo em minutos"
     assert_includes response.body, "data-programacao-duration"
+    assert_includes response.body, "data-programacao-zoom"
+    assert_includes response.body, "data-programacao-zoom-label"
     assert_includes response.body, "formatRemaining"
     assert_not_includes response.body, "Excluir chave"
     assert_no_match(/navbar|sidebar/i, response.body)
