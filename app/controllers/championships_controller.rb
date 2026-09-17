@@ -1005,6 +1005,7 @@ class ChampionshipsController < ApplicationController
       @tranca_duplas
     end
     @tranca_second_stage_prefill_groups = tranca_second_stage_prefill(first_stage_rows)
+    prepare_tranca_knockout_state
   end
 
   def load_tranca_management
@@ -1034,35 +1035,13 @@ class ChampionshipsController < ApplicationController
     @tranca_next_round_number = @tranca_rodadas.select(&:classificatoria?).map(&:round_number).max.to_i + 1
     @tranca_next_knockout_round_number = @tranca_rodadas.select(&:mata_mata?).map(&:round_number).max.to_i + 1
     @tranca_classificatoria_esgotada = !Tranca::CompetitionFlow.new(@championship).classificatoria_pairings_available?(round_number: @tranca_next_round_number)
-    @tranca_knockout_rounds = dashboard.knockout_rounds
     @tranca_mata_mata_encerrado = Tranca::CompetitionFlow.new(@championship).knockout_finished?
     @tranca_championship_winners = dashboard.championship_winners
     @tranca_knockout_partidas = dashboard.knockout_partidas
     @tranca_stats = dashboard.stats
     @tranca_recent_duplas = @championship.tranca_duplas.includes(:entity, :category).order(created_at: :desc).limit(3)
     @recent_tranca_source_teams = recent_tranca_source_teams
-    qualified_ids = @tranca_standings.select(&:qualified?).map(&:tranca_dupla_id)
-    @tranca_knockout_qualified_rows = @tranca_standings.select(&:qualified?).sort_by { |row| [ row.group_key.to_s, row.position ] }
-    available_knockout_rows = @tranca_standings.reject { |row| qualified_ids.include?(row.tranca_dupla_id) }
-    @tranca_knockout_classification_rows = available_knockout_rows.sort_by do |row|
-      [ row.category.name.to_s.downcase, row.group_key.to_s, row.position.to_i ]
-    end
-    @tranca_knockout_ranking_rows = available_knockout_rows.sort_by do |row|
-      [ -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.position.to_i, row.tranca_dupla.name.to_s.downcase ]
-    end
-    @tranca_knockout_candidate_rows = @tranca_knockout_ranking_rows
-    @tranca_knockout_selection_done = @championship.tranca_partidas.where(phase: "mata_mata", round_number: 1).exists?
-    @tranca_knockout_stage_type_options = [
-      [ "Oitavas / quartas / semi / final", "oitavas_quartas_semi_final" ],
-      [ "Quartas / semi / final", "quartas_semi_final" ],
-      [ "Semi / final", "semi_final" ]
-    ]
-    @tranca_knockout_stage_type = @tranca_knockout_stage_type_options.first.last
-    @tranca_knockout_qualified_per_group = [ @championship.qualified_per_group, 1 ].max
-    @tranca_knockout_preview = build_tranca_knockout_preview(
-      knockout_stage_type: @tranca_knockout_stage_type,
-      qualified_per_group: @tranca_knockout_qualified_per_group
-    )
+    prepare_tranca_knockout_state
   end
 
   def tranca_second_stage_prefill(rows)
@@ -1161,11 +1140,14 @@ class ChampionshipsController < ApplicationController
     qualified_count = qualified_per_group.to_i
     qualified_count = 1 if qualified_count <= 0
 
-    direct_rows = @tranca_standing_groups.flat_map do |group|
-      group.rows.first(qualified_count)
+    standing_groups = Array(@tranca_standing_groups)
+    standings = Array(@tranca_standings)
+
+    direct_rows = standing_groups.flat_map do |group|
+      Array(group.rows).first(qualified_count)
     end
 
-    backup_rows = @tranca_standings.reject { |row| direct_rows.any? { |selected_row| selected_row.id == row.id } }
+    backup_rows = standings.reject { |row| direct_rows.any? { |selected_row| selected_row.id == row.id } }
       .sort_by { |row| [ -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.position.to_i, row.group_key.to_s.downcase, row.tranca_dupla.name.to_s.downcase ] }
       .first([ target_slots - direct_rows.size, 0 ].max)
 
@@ -1175,6 +1157,45 @@ class ChampionshipsController < ApplicationController
       direct_rows: direct_rows,
       backup_rows: backup_rows
     }
+  end
+
+  def prepare_tranca_knockout_state
+    @tranca_knockout_rounds = @championship.tranca_rodadas.where(phase: "mata_mata").includes(:partidas).order(
+      round_number: :asc,
+      id: :asc
+    ).to_a
+    @tranca_championship_winners ||= @tranca_knockout_rounds.filter_map do |round|
+      final_partida = round.partidas.one? ? round.partidas.first : nil
+      final_partida&.finished? ? final_partida.winner : nil
+    end.compact.uniq
+
+    @tranca_knockout_stage_type_options = [
+      [ "Oitavas / quartas / semi / final", "oitavas_quartas_semi_final" ],
+      [ "Quartas / semi / final", "quartas_semi_final" ],
+      [ "Semi / final", "semi_final" ]
+    ]
+    @tranca_knockout_stage_type = @tranca_knockout_stage_type_options.first.last
+    @tranca_knockout_qualified_per_group = [ @championship.qualified_per_group, 1 ].max
+
+    standings = Array(@tranca_standings)
+    qualified_ids = standings.select(&:qualified?).map(&:tranca_dupla_id)
+    @tranca_knockout_qualified_rows = standings.select(&:qualified?).sort_by { |row| [ row.group_key.to_s, row.position ] }
+    available_knockout_rows = standings.reject { |row| qualified_ids.include?(row.tranca_dupla_id) }
+    @tranca_knockout_classification_rows = available_knockout_rows.sort_by do |row|
+      [ row.category.name.to_s.downcase, row.group_key.to_s, row.position.to_i ]
+    end
+    @tranca_knockout_classification_groups = @tranca_knockout_classification_rows.group_by do |row|
+      row.group_key.to_s.presence || "geral"
+    end
+    @tranca_knockout_ranking_rows = available_knockout_rows.sort_by do |row|
+      [ -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.position.to_i, row.tranca_dupla.name.to_s.downcase ]
+    end
+    @tranca_knockout_candidate_rows = @tranca_knockout_ranking_rows
+    @tranca_knockout_selection_done = @championship.tranca_partidas.where(phase: "mata_mata", round_number: 1).exists?
+    @tranca_knockout_preview = build_tranca_knockout_preview(
+      knockout_stage_type: @tranca_knockout_stage_type,
+      qualified_per_group: @tranca_knockout_qualified_per_group
+    )
   end
 
   def normalize_tranca_maos_attributes(maos_attributes)

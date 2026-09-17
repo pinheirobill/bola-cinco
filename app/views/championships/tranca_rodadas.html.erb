@@ -255,7 +255,29 @@
               <% end %>
 
               <div class="mt-4 max-h-[30rem] space-y-2 overflow-y-auto pr-1" data-knockout-builder-target="classificationView">
-                <%= render_knockout_candidates.call(@tranca_knockout_classification_rows) %>
+                <% if @tranca_knockout_classification_groups.any? %>
+                  <% @tranca_knockout_classification_groups.each do |group_key, entries| %>
+                    <section class="rounded-2xl border border-base-300 bg-base-100 p-3">
+                      <div class="mb-3 flex items-center justify-between border-b border-base-300 pb-2">
+                        <h5 class="font-bold">Chave <%= tranca_group_key_label(group_key) || group_key %></h5>
+                        <span class="badge badge-outline badge-sm"><%= entries.size %> duplas</span>
+                      </div>
+                      <div class="space-y-2">
+                        <% entries.each do |entry| %>
+                          <% dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry %>
+                          <% category = entry.respond_to?(:category) ? entry.category : dupla.category %>
+                          <div class="rounded-xl border border-base-300 bg-base-200/40 p-3">
+                            <p class="font-semibold leading-tight"><%= dupla.name %></p>
+                            <p class="mt-1 text-xs text-base-content/60"><%= category.name %></p>
+                            <p class="mt-1 text-xs text-base-content/50"><%= entry.position %>º · <%= entry.points %> pts</p>
+                          </div>
+                        <% end %>
+                      </div>
+                    </section>
+                  <% end %>
+                <% else %>
+                  <p class="text-sm text-base-content/60">Nenhuma dupla disponível para montar a chave.</p>
+                <% end %>
               </div>
               <div class="mt-4 hidden max-h-[30rem] space-y-2 overflow-y-auto pr-1" data-knockout-builder-target="rankingView">
                 <%= render_knockout_candidates.call(@tranca_knockout_ranking_rows) %>
