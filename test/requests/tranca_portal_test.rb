@@ -213,7 +213,8 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
     get championship_path(@championship)
 
     assert_response :success
-    assert_includes response.body, "Gestão da Tranca"
+    assert_includes response.body, "Arena"
+    assert_includes response.body, "Campeonato atual"
     assert_includes response.body, "Portal da Tranca"
     assert_includes response.body, "Duplas"
     assert_includes response.body, "Rodadas"
