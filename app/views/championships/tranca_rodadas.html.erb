@@ -237,7 +237,7 @@
                     <% entries.each do |entry| %>
                     <% dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry %>
                     <% category = entry.respond_to?(:category) ? entry.category : dupla.category %>
-                    <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+                    <div draggable="true" data-knockout-builder-target="candidate" data-dupla-id="<%= dupla.id %>" data-dupla-name="<%= dupla.name %>" data-action="dragstart->knockout-builder#dragStart" class="cursor-grab rounded-2xl border border-base-300 bg-base-100 p-3 active:cursor-grabbing">
                       <p class="font-semibold leading-tight"><%= dupla.name %></p>
                       <p class="mt-1 text-xs text-base-content/60"><%= category.name %></p>
                       <% if entry.respond_to?(:position) %>
@@ -266,7 +266,7 @@
                         <% entries.each do |entry| %>
                           <% dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry %>
                           <% category = entry.respond_to?(:category) ? entry.category : dupla.category %>
-                          <div class="rounded-xl border border-base-300 bg-base-200/40 p-3">
+                          <div draggable="true" data-knockout-builder-target="candidate" data-dupla-id="<%= dupla.id %>" data-dupla-name="<%= dupla.name %>" data-action="dragstart->knockout-builder#dragStart" class="cursor-grab rounded-xl border border-base-300 bg-base-200/40 p-3 active:cursor-grabbing">
                             <p class="font-semibold leading-tight"><%= dupla.name %></p>
                             <p class="mt-1 text-xs text-base-content/60"><%= category.name %></p>
                             <p class="mt-1 text-xs text-base-content/50"><%= entry.position %>º · <%= entry.points %> pts</p>
@@ -290,7 +290,7 @@
                     </div>
                     <% @tranca_knockout_ranking_rows.each_with_index do |entry, index| %>
                       <% dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry %>
-                      <div class="grid grid-cols-[3rem_1fr_5rem_5rem] items-center gap-2 border-b border-base-300 px-3 py-3 last:border-b-0">
+                      <div draggable="true" data-knockout-builder-target="candidate" data-dupla-id="<%= dupla.id %>" data-dupla-name="<%= dupla.name %>" data-action="dragstart->knockout-builder#dragStart" class="grid cursor-grab grid-cols-[3rem_1fr_5rem_5rem] items-center gap-2 border-b border-base-300 px-3 py-3 last:border-b-0 active:cursor-grabbing">
                         <span class="text-sm font-bold text-base-content/50"><%= index + 1 %></span>
                         <div class="min-w-0">
                           <p class="truncate text-sm font-semibold" title="<%= dupla.name %>"><%= dupla.name %></p>
@@ -325,15 +325,11 @@
                           <span class="badge badge-outline badge-sm">mata-mata</span>
                         </div>
                         <% 2.times do |slot_index| %>
-                          <%= select_tag "selected_dupla_ids[]",
-                            options_for_select([["Selecione a dupla", ""]] + @tranca_knockout_candidate_rows.map { |entry|
-                              tranca_candidate_option(entry)
-                            }),
-                            class: "select select-bordered select-sm mb-2 w-full",
-                            data: {
-                              knockout_builder_target: "select",
-                              action: "change->knockout-builder#updateState"
-                            } %>
+                          <div data-knockout-builder-target="slot" data-slot-id="game-<%= index %>-<%= slot_index %>" data-action="dragover->knockout-builder#allowDrop dragleave->knockout-builder#leaveDrop drop->knockout-builder#drop" class="mb-2 flex min-h-10 items-center rounded-xl border-2 border-dashed border-base-300 bg-base-100 px-3 text-sm text-base-content/60 transition" tabindex="0">
+                            <span data-slot-placeholder>Arraste uma dupla para cá</span>
+                            <span data-slot-name class="hidden font-semibold text-base-content"></span>
+                          </div>
+                          <%= hidden_field_tag "selected_dupla_ids[]", "", disabled: true, data: { knockout_builder_target: "hiddenInput", slot_id: "game-#{index}-#{slot_index}" } %>
                         <% end %>
                       </div>
                     <% end %>

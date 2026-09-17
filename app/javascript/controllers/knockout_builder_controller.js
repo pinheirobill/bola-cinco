@@ -7,7 +7,9 @@ export default class extends Controller {
     "stageSelect",
     "counter",
     "game",
-    "select",
+    "slot",
+    "candidate",
+    "hiddenInput",
     "error",
     "submitButton",
     "classificationView",
@@ -29,7 +31,7 @@ export default class extends Controller {
     this.updateStage()
 
     requestAnimationFrame(() => {
-      this.activeSelects[0]?.focus()
+      this.activeSlots[0]?.focus()
     })
   }
 
@@ -46,6 +48,42 @@ export default class extends Controller {
     this.rankingViewTarget.classList.toggle("hidden", !ranking)
   }
 
+  dragStart(event) {
+    event.dataTransfer.setData("text/plain", event.currentTarget.dataset.duplaId)
+    event.dataTransfer.effectAllowed = "move"
+  }
+
+  allowDrop(event) {
+    event.preventDefault()
+    event.currentTarget.classList.add("border-primary", "bg-primary/10")
+  }
+
+  leaveDrop(event) {
+    event.currentTarget.classList.remove("border-primary", "bg-primary/10")
+  }
+
+  drop(event) {
+    event.preventDefault()
+    const slot = event.currentTarget
+    const duplaId = event.dataTransfer.getData("text/plain")
+    const occupiedIds = this.activeHiddenInputs.map((input) => input.value).filter(Boolean)
+    const previousId = slot.dataset.duplaId
+
+    this.leaveDrop(event)
+    if (!duplaId || (occupiedIds.includes(duplaId) && duplaId !== previousId)) {
+      this.showError("Essa dupla já está encaixada em outro jogo.")
+      return
+    }
+
+    slot.dataset.duplaId = duplaId
+    slot.querySelector("[data-slot-placeholder]").classList.add("hidden")
+    const name = slot.querySelector("[data-slot-name]")
+    name.textContent = this.candidateName(duplaId)
+    name.classList.remove("hidden")
+    this.hiddenInputTargets.find((input) => input.dataset.slotId === slot.dataset.slotId).value = duplaId
+    this.updateState()
+  }
+
   updateStage() {
     const gameCount = this.requiredSlots / 2
 
@@ -53,9 +91,9 @@ export default class extends Controller {
       const active = index < gameCount
       game.classList.toggle("hidden", !active)
 
-      game.querySelectorAll("select").forEach((select) => {
-        select.disabled = !active
-        if (!active) select.value = ""
+      game.querySelectorAll("input").forEach((input) => {
+        input.disabled = !active
+        if (!active) input.value = ""
       })
     })
 
@@ -63,13 +101,16 @@ export default class extends Controller {
   }
 
   updateState() {
-    const selectedIds = this.activeSelects.map((select) => select.value).filter(Boolean)
+    const selectedIds = this.activeHiddenInputs.map((input) => input.value).filter(Boolean)
     const uniqueIds = new Set(selectedIds)
     const hasDuplicates = uniqueIds.size !== selectedIds.length
     const complete = selectedIds.length === this.requiredSlots && !hasDuplicates
 
     this.counterTarget.textContent = `${selectedIds.length}/${this.requiredSlots} duplas selecionadas`
     this.submitButtonTarget.disabled = !complete
+    this.candidateTargets.forEach((candidate) => {
+      candidate.classList.toggle("hidden", selectedIds.includes(candidate.dataset.duplaId))
+    })
 
     if (hasDuplicates) {
       this.showError("A mesma dupla não pode aparecer duas vezes na chave eliminatória.")
@@ -85,8 +126,16 @@ export default class extends Controller {
     return slots > 0 ? slots : 16
   }
 
-  get activeSelects() {
-    return this.selectTargets.filter((select) => !select.disabled)
+  get activeHiddenInputs() {
+    return this.hiddenInputTargets.filter((input) => !input.disabled)
+  }
+
+  get activeSlots() {
+    return this.slotTargets.filter((slot) => !slot.closest("[data-knockout-builder-target='game']")?.classList.contains("hidden"))
+  }
+
+  candidateName(id) {
+    return this.candidateTargets.find((candidate) => candidate.dataset.duplaId === id)?.dataset.duplaName || "Dupla selecionada"
   }
 
   showStep(step) {
