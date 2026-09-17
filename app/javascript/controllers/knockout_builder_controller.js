@@ -62,6 +62,25 @@ export default class extends Controller {
     event.currentTarget.classList.remove("border-primary", "bg-primary/10")
   }
 
+  remove(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const slot = event.currentTarget.closest("[data-knockout-builder-target='slot']")
+    if (!slot) return
+
+    slot.dataset.duplaId = ""
+    slot.querySelector("[data-slot-placeholder]").classList.remove("hidden")
+    slot.querySelector("[data-slot-name]").textContent = ""
+    slot.querySelector("[data-slot-name]").classList.add("hidden")
+    slot.querySelector("[data-slot-remove]").classList.add("hidden")
+
+    const input = this.hiddenInputTargets.find((candidate) => candidate.dataset.slotId === slot.dataset.slotId)
+    if (input) input.value = ""
+
+    this.updateState()
+  }
+
   drop(event) {
     event.preventDefault()
     const slot = event.currentTarget
@@ -80,6 +99,7 @@ export default class extends Controller {
     const name = slot.querySelector("[data-slot-name]")
     name.textContent = this.candidateName(duplaId)
     name.classList.remove("hidden")
+    slot.querySelector("[data-slot-remove]").classList.remove("hidden")
     this.hiddenInputTargets.find((input) => input.dataset.slotId === slot.dataset.slotId).value = duplaId
     this.updateState()
   }
