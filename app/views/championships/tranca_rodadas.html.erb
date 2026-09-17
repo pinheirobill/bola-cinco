@@ -101,7 +101,7 @@
               <% @tranca_second_stage_candidates.each do |entry| %>
                 <% dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry %>
                 <% category = entry.respond_to?(:category) ? entry.category : dupla.category %>
-                <div draggable="true" data-second-stage-builder-target="candidate" data-dupla-id="<%= dupla.id %>" data-dupla-name="<%= dupla.name %>" data-action="dragstart->second-stage-builder#dragStart" class="cursor-grab rounded-2xl border border-base-300 bg-base-100 p-3 active:cursor-grabbing">
+                <div draggable="true" data-second-stage-builder-target="candidate" data-dupla-id="<%= dupla.id %>" data-dupla-name="<%= dupla.name %>" data-group-key="<%= entry.respond_to?(:group_key) ? entry.group_key.to_s.upcase : '' %>" data-action="dragstart->second-stage-builder#dragStart" class="cursor-grab rounded-2xl border border-base-300 bg-base-100 p-3 active:cursor-grabbing transition">
                   <p class="font-semibold leading-tight"><%= dupla.name %></p>
                   <p class="mt-1 text-xs text-base-content/60"><%= category.name %></p>
                   <% if entry.respond_to?(:position) %><p class="mt-1 text-xs text-base-content/50"><%= entry.group_key.present? ? "Chave #{entry.group_key}" : "Classificação" %> · <%= entry.position %>º · <%= entry.points %> pts</p><% end %>
@@ -123,7 +123,7 @@
                 <% 4.times do |slot_index| %>
                   <div class="form-control">
                     <%= label_tag "groups_#{group_key}_#{slot_index}", "Posição #{slot_index + 1}", class: "label-text text-xs font-semibold uppercase tracking-wide" %>
-                    <div data-second-stage-builder-target="dropzone" data-select-id="groups_<%= group_key %>_<%= slot_index %>" data-action="dragover->second-stage-builder#allowDrop drop->second-stage-builder#drop" class="mb-2 flex min-h-10 items-center rounded-xl border-2 border-dashed border-base-300 bg-base-100 px-3 text-xs text-base-content/60 transition"><span data-dropzone-placeholder>Arraste a dupla para cá</span><span data-dropzone-name class="hidden font-semibold text-base-content"></span></div>
+                    <div data-second-stage-builder-target="dropzone" data-select-id="groups_<%= group_key %>_<%= slot_index %>" data-group-key="<%= group_key %>" data-action="dragover->second-stage-builder#allowDrop drop->second-stage-builder#drop" class="mb-2 flex min-h-10 items-center rounded-xl border-2 border-dashed border-base-300 bg-base-100 px-3 text-xs text-base-content/60 transition"><span data-dropzone-placeholder>Arraste a dupla para cá</span><span data-dropzone-name class="hidden font-semibold text-base-content"></span></div>
                     <%= select_tag "groups[#{group_key}][]",
                       options_for_select(
                         [["Selecione a dupla", ""]] + @tranca_second_stage_candidates.map { |entry| tranca_candidate_option(entry) },
@@ -151,7 +151,7 @@
                 <% 4.times do |slot_index| %>
                   <div class="form-control">
                     <label class="label-text text-xs font-semibold uppercase tracking-wide">Posição</label>
-                    <div data-second-stage-builder-target="dropzone" data-select-id="groups___GROUP_KEY___<%= slot_index %>" data-action="dragover->second-stage-builder#allowDrop drop->second-stage-builder#drop" class="mb-2 flex min-h-10 items-center rounded-xl border-2 border-dashed border-base-300 bg-base-100 px-3 text-xs text-base-content/60"><span data-dropzone-placeholder>Arraste a dupla para cá</span><span data-dropzone-name class="hidden font-semibold text-base-content"></span></div>
+                    <div data-second-stage-builder-target="dropzone" data-select-id="groups___GROUP_KEY___<%= slot_index %>" data-group-key="__GROUP_KEY__" data-action="dragover->second-stage-builder#allowDrop drop->second-stage-builder#drop" class="mb-2 flex min-h-10 items-center rounded-xl border-2 border-dashed border-base-300 bg-base-100 px-3 text-xs text-base-content/60"><span data-dropzone-placeholder>Arraste a dupla para cá</span><span data-dropzone-name class="hidden font-semibold text-base-content"></span></div>
                     <select name="groups[__GROUP_KEY__][]" class="select select-bordered select-sm hidden w-full" required data-second-stage-builder-target="select" data-action="change->second-stage-builder#updateState">
                       <option value="">Selecione a dupla</option>
                       <% @tranca_second_stage_candidates.each do |entry| %>

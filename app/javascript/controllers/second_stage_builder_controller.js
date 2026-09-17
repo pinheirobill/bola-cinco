@@ -25,9 +25,18 @@ export default class extends Controller {
         name.textContent = option.textContent
         name.classList.remove("hidden")
         placeholder.classList.add("hidden")
+        this.applyGroupColor(dropzone, dropzone.dataset.groupKey)
       }
     })
-    this.candidateTargets.forEach((candidate) => candidate.classList.toggle("hidden", selectedIds.includes(candidate.dataset.duplaId)))
+    this.candidateTargets.forEach((candidate) => {
+      const selected = selectedIds.includes(candidate.dataset.duplaId)
+      candidate.classList.toggle("opacity-50", selected)
+      candidate.classList.toggle("grayscale", selected)
+      candidate.classList.toggle("cursor-not-allowed", selected)
+      candidate.draggable = !selected
+      candidate.setAttribute("aria-disabled", selected)
+      if (selected) this.applyGroupColor(candidate, candidate.dataset.groupKey)
+    })
 
     if (hasDuplicates) {
       this.errorTarget.textContent = "A mesma dupla não pode aparecer em mais de uma posição."
@@ -65,6 +74,7 @@ export default class extends Controller {
     const name = dropzone.querySelector("[data-dropzone-name]")
     name.textContent = this.candidateTargets.find((candidate) => candidate.dataset.duplaId === duplaId)?.dataset.duplaName || "Dupla selecionada"
     name.classList.remove("hidden")
+    this.applyGroupColor(dropzone, dropzone.dataset.groupKey)
     dropzone.classList.remove("border-primary", "bg-primary/10")
     this.updateState()
   }
@@ -90,5 +100,17 @@ export default class extends Controller {
         option.disabled = option.value !== "" && option.value !== select.value && selectedIds.includes(option.value)
       })
     })
+  }
+
+  applyGroupColor(element, groupKey) {
+    const colors = {
+      A: ["border-blue-400", "bg-blue-50"],
+      B: ["border-emerald-400", "bg-emerald-50"],
+      C: ["border-amber-400", "bg-amber-50"],
+      D: ["border-violet-400", "bg-violet-50"]
+    }
+    Object.values(colors).flat().forEach((className) => element.classList.remove(className))
+    const selectedColors = colors[groupKey]
+    if (selectedColors) element.classList.add(...selectedColors)
   }
 }

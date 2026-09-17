@@ -109,7 +109,12 @@ export default class extends Controller {
     this.counterTarget.textContent = `${selectedIds.length}/${this.requiredSlots} duplas selecionadas`
     this.submitButtonTarget.disabled = !complete
     this.candidateTargets.forEach((candidate) => {
-      candidate.classList.toggle("hidden", selectedIds.includes(candidate.dataset.duplaId))
+      const selected = selectedIds.includes(candidate.dataset.duplaId)
+      candidate.classList.toggle("opacity-50", selected)
+      candidate.classList.toggle("grayscale", selected)
+      candidate.classList.toggle("cursor-not-allowed", selected)
+      candidate.draggable = !selected
+      candidate.setAttribute("aria-disabled", selected)
     })
 
     if (hasDuplicates) {
