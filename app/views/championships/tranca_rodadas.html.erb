@@ -464,7 +464,7 @@
                 <%= link_to "Baixar todas as súmulas (PDF)", championship_round_summulas_path(@championship, rodada_id: round.id), class: "btn btn-outline btn-xs", data: { turbo: false } %>
                 <%= link_to "Por mesa (Excel)", championship_round_games_path(@championship, rodada_id: round.id, order: :mesa), class: "btn btn-outline btn-xs", data: { turbo: false } %>
                 <%= link_to "Por nome (Excel)", championship_round_games_path(@championship, rodada_id: round.id, order: :name), class: "btn btn-outline btn-xs", data: { turbo: false } %>
-                <%= link_to "Programação (PDF)", programacao_championship_path(@championship, format: :pdf), class: "btn btn-outline btn-xs", data: { turbo: false } %>
+                <%= link_to "Programação (PDF)", programacao_championship_path(@championship, format: :pdf, stage: round.stage_number), class: "btn btn-outline btn-xs", data: { turbo: false } %>
               <% end %>
               <% if round_management_enabled %>
                 <%= button_to "Definir mesas", generate_tranca_mesas_championship_path(@championship, rodada_id: round.id), method: :post, class: "btn btn-outline btn-xs" %>
