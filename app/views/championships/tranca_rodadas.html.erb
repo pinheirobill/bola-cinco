@@ -280,7 +280,30 @@
                 <% end %>
               </div>
               <div class="mt-4 hidden max-h-[30rem] space-y-2 overflow-y-auto pr-1" data-knockout-builder-target="rankingView">
-                <%= render_knockout_candidates.call(@tranca_knockout_ranking_rows) %>
+                <% if @tranca_knockout_ranking_rows.any? %>
+                  <div class="overflow-hidden rounded-2xl border border-base-300 bg-base-100">
+                    <div class="grid grid-cols-[3rem_1fr_5rem_5rem] gap-2 border-b border-base-300 bg-base-200 px-3 py-2 text-[0.65rem] font-bold uppercase tracking-wide text-base-content/60">
+                      <span>#</span>
+                      <span>Dupla</span>
+                      <span class="text-right">Pontos</span>
+                      <span class="text-right">Vitórias</span>
+                    </div>
+                    <% @tranca_knockout_ranking_rows.each_with_index do |entry, index| %>
+                      <% dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry %>
+                      <div class="grid grid-cols-[3rem_1fr_5rem_5rem] items-center gap-2 border-b border-base-300 px-3 py-3 last:border-b-0">
+                        <span class="text-sm font-bold text-base-content/50"><%= index + 1 %></span>
+                        <div class="min-w-0">
+                          <p class="truncate text-sm font-semibold" title="<%= dupla.name %>"><%= dupla.name %></p>
+                          <p class="truncate text-xs text-base-content/50"><%= entry.category.name %></p>
+                        </div>
+                        <span class="text-right text-sm font-semibold"><%= entry.points.to_i %></span>
+                        <span class="text-right text-sm font-semibold"><%= entry.wins.to_i %></span>
+                      </div>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <p class="text-sm text-base-content/60">Nenhuma dupla disponível para montar a chave.</p>
+                <% end %>
               </div>
             </aside>
 
