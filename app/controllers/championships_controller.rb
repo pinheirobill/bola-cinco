@@ -1003,6 +1003,7 @@ class ChampionshipsController < ApplicationController
     else
       @tranca_duplas
     end
+    @tranca_second_stage_prefill_groups = tranca_second_stage_prefill(first_stage_rows)
   end
 
   def load_tranca_management
@@ -1055,6 +1056,28 @@ class ChampionshipsController < ApplicationController
       knockout_stage_type: @tranca_knockout_stage_type,
       qualified_per_group: @tranca_knockout_qualified_per_group
     )
+  end
+
+  def tranca_second_stage_prefill(rows)
+    positions = rows.index_by do |row|
+      [
+        row.group_key.to_s.upcase,
+        row.position.to_i
+      ]
+    end
+
+    official_distribution = {
+      "A" => [["A", 1], ["I", 1], ["E", 1], ["D", 2]],
+      "B" => [["B", 1], ["E", 2], ["F", 1], ["H", 2]],
+      "C" => [["C", 1], ["A", 2], ["G", 1], ["F", 2]],
+      "D" => [["D", 1], ["G", 2], ["H", 1], ["C", 2]]
+    }
+
+    official_distribution.transform_values do |source_positions|
+      source_positions.map do |group_key, position|
+        positions[[group_key, position]]&.tranca_dupla_id
+      end
+    end
   end
 
   def load_tranca_programacao

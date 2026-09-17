@@ -103,9 +103,10 @@
                   <div class="form-control">
                     <%= label_tag "groups_#{group_key}_#{slot_index}", "Posição #{slot_index + 1}", class: "label-text text-xs font-semibold uppercase tracking-wide" %>
                     <%= select_tag "groups[#{group_key}][]",
-                      options_for_select([["Selecione a dupla", ""]] + @tranca_second_stage_candidates.map { |entry|
-                        tranca_candidate_option(entry)
-                      }),
+                      options_for_select(
+                        [["Selecione a dupla", ""]] + @tranca_second_stage_candidates.map { |entry| tranca_candidate_option(entry) },
+                        @tranca_second_stage_prefill_groups.dig(group_key, slot_index)
+                      ),
                       id: "groups_#{group_key}_#{slot_index}",
                       class: "select select-bordered select-sm w-full",
                       required: true,

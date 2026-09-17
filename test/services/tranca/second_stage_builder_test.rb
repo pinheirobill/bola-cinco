@@ -134,6 +134,6 @@ class Tranca::SecondStageBuilderTest < ActiveSupport::TestCase
 
     assert_equal 9, first_stage_row.reload.points
     assert_equal 1, @championship.tranca_classificacao_rows.for_stage(1).count
-    assert_not @championship.tranca_classificacao_rows.for_stage(2).exists?
+    assert_equal 4, @championship.tranca_classificacao_rows.for_stage(2).count
   end
 end
