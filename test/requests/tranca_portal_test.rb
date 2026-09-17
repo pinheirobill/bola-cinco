@@ -396,6 +396,7 @@ class TrancaPortalTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Rodadas"
     assert_includes response.body, "Rodada 2"
     assert_includes response.body, "Rodada 3"
+    assert_includes response.body, "Configuração do mata-mata"
   end
 
   test "shows the tranca classificacao page" do
