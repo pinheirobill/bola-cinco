@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["select", "counter", "error", "submitButton", "groups", "candidate", "dropzone"]
+  static targets = ["select", "counter", "error", "submitButton", "groups", "candidate", "dropzone", "classificationView", "rankingView"]
 
   connect() {
     this.updateState()
@@ -11,7 +11,7 @@ export default class extends Controller {
     const selectedIds = this.selectTargets.map((select) => select.value).filter(Boolean)
     const uniqueIds = new Set(selectedIds)
     const hasDuplicates = uniqueIds.size !== selectedIds.length
-    const complete = selectedIds.length > 0 && selectedIds.length % 4 === 0 && !hasDuplicates && this.selectTargets.every((select) => select.value)
+    const complete = selectedIds.length > 0 && !hasDuplicates && this.selectTargets.every((select) => select.value)
 
     this.counterTarget.textContent = `${selectedIds.length} duplas selecionadas · ${this.groupsTarget.querySelectorAll(":scope > section").length} chave(s)`
     this.submitButtonTarget.disabled = !complete
@@ -86,6 +86,31 @@ export default class extends Controller {
     wrapper.innerHTML = template.innerHTML.replaceAll("__GROUP_KEY__", key).replaceAll("__SLOT_INDEX__", "0")
     this.groupsTarget.appendChild(wrapper.firstElementChild)
     this.updateState()
+  }
+
+  addSlot(event) {
+    const section = event.currentTarget.closest("section")
+    const template = section?.querySelector("template")
+    if (!section || !template) return
+
+    const groupKey = section.dataset.groupKey
+    const slotIndex = section.querySelectorAll('[data-second-stage-builder-target="dropzone"]').length
+    const wrapper = document.createElement("div")
+    wrapper.innerHTML = template.innerHTML
+      .replaceAll("__GROUP_KEY__", groupKey)
+      .replaceAll("__SLOT_INDEX__", slotIndex)
+      .replaceAll("__POSITION__", slotIndex + 1)
+    section.querySelector("[data-slot-list]").appendChild(wrapper.firstElementChild)
+    this.updateState()
+  }
+
+  toggleView(event) {
+    const ranking = event.currentTarget.dataset.view === "ranking"
+    this.classificationViewTarget.classList.toggle("hidden", ranking)
+    this.rankingViewTarget.classList.toggle("hidden", !ranking)
+    this.element.querySelectorAll("[data-view]").forEach((button) => {
+      button.classList.toggle("btn-primary", button.dataset.view === (ranking ? "ranking" : "classification"))
+    })
   }
 
   removeGroup(event) {

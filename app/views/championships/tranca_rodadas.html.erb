@@ -79,13 +79,13 @@
         <div>
           <p class="text-xs uppercase tracking-[0.28em] text-base-content/50">Configuração da 2ª etapa</p>
           <h3 class="mt-1 text-2xl font-black">Distribuir as duplas nas chaves</h3>
-          <p class="mt-1 text-sm text-base-content/70">Cada chave deve ter quatro duplas. Você pode criar novas chaves e reorganizar as duplas antes de gerar a etapa.</p>
+          <p class="mt-1 text-sm text-base-content/70">Cada chave deve ter pelo menos duas duplas. Você pode criar novas chaves e adicionar posições antes de gerar a etapa.</p>
         </div>
         <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tranca-second-stage-modal').close()">Fechar</button>
       </div>
 
       <div class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-base-200 p-3">
-        <p class="text-sm text-base-content/70">Cada chave gera três rodadas e duas partidas por rodada.</p>
+        <p class="text-sm text-base-content/70">Cada chave gera confrontos em turno de ida, com folga automática quando necessário.</p>
         <span class="badge badge-primary" data-second-stage-builder-target="counter">0 duplas selecionadas</span>
       </div>
 
@@ -94,10 +94,10 @@
           <aside class="rounded-3xl border border-base-300 bg-base-200/70 p-4">
             <h4 class="font-bold">Duplas disponíveis</h4>
             <div class="join mt-4 w-full">
-              <button type="button" class="btn btn-sm join-item btn-primary flex-1">Classificação</button>
-              <button type="button" class="btn btn-sm join-item flex-1">Ranking geral</button>
+              <button type="button" class="btn btn-sm join-item btn-primary flex-1" data-view="classification" data-action="second-stage-builder#toggleView">Classificação</button>
+              <button type="button" class="btn btn-sm join-item flex-1" data-view="ranking" data-action="second-stage-builder#toggleView">Ranking geral</button>
             </div>
-            <div class="mt-4 max-h-[34rem] space-y-2 overflow-y-auto pr-1">
+            <div class="mt-4 max-h-[34rem] space-y-2 overflow-y-auto pr-1" data-second-stage-builder-target="classificationView">
               <% @tranca_second_stage_candidates.each do |entry| %>
                 <% dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry %>
                 <% category = entry.respond_to?(:category) ? entry.category : dupla.category %>
@@ -108,18 +108,35 @@
                 </div>
               <% end %>
             </div>
+            <div class="mt-4 hidden max-h-[34rem] overflow-y-auto pr-1" data-second-stage-builder-target="rankingView">
+              <div class="overflow-hidden rounded-2xl border border-base-300 bg-base-100">
+                <table class="table table-sm">
+                  <thead><tr><th>#</th><th>Dupla</th><th>Vitórias</th><th>Pontos</th></tr></thead>
+                  <tbody>
+                    <% @tranca_second_stage_candidates.sort_by { |entry| -(entry.respond_to?(:points) ? entry.points.to_i : 0) }.each_with_index do |entry, index| %>
+                      <% dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry %>
+                      <% category = entry.respond_to?(:category) ? entry.category : dupla.category %>
+                      <tr draggable="true" data-second-stage-builder-target="candidate" data-dupla-id="<%= dupla.id %>" data-dupla-name="<%= dupla.name %>" data-group-key="<%= entry.respond_to?(:group_key) ? entry.group_key.to_s.upcase : '' %>" data-action="dragstart->second-stage-builder#dragStart" class="cursor-grab active:cursor-grabbing">
+                        <td><%= index + 1 %></td><td><span class="font-semibold"><%= dupla.name %></span><div class="text-xs text-base-content/60"><%= category.name %></div></td>
+                        <td><%= entry.respond_to?(:wins) ? entry.wins : "—" %></td><td><%= entry.respond_to?(:points) ? entry.points : "—" %></td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </aside>
 
           <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4" data-second-stage-builder-target="groups">
           <% %w[A B C D].each_with_index do |group_key, group_index| %>
-            <section class="rounded-3xl border border-base-300 bg-base-200/70 p-4">
+            <section data-group-key="<%= group_key %>" class="rounded-3xl border border-base-300 bg-base-200/70 p-4">
               <div class="flex items-center justify-between gap-3">
                 <h4 class="font-bold">Chave <%= group_key %></h4>
                 <span class="badge badge-outline badge-sm">Mesas <%= (group_index * 2) + 1 %> e <%= (group_index * 2) + 2 %></span>
                 <button type="button" class="btn btn-ghost btn-xs text-error" data-action="second-stage-builder#removeGroup">Remover</button>
               </div>
 
-              <div class="mt-4 space-y-3">
+              <div class="mt-4 space-y-3" data-slot-list>
                 <% 4.times do |slot_index| %>
                   <div class="form-control">
                     <%= label_tag "groups_#{group_key}_#{slot_index}", "Posição #{slot_index + 1}", class: "label-text text-xs font-semibold uppercase tracking-wide" %>
@@ -139,15 +156,23 @@
                   </div>
                 <% end %>
               </div>
+              <button type="button" class="btn btn-ghost btn-sm mt-3 w-full" data-action="second-stage-builder#addSlot">+ Adicionar posição</button>
+              <template>
+                <div class="form-control">
+                  <label class="label-text text-xs font-semibold uppercase tracking-wide">Posição __POSITION__</label>
+                  <div data-second-stage-builder-target="dropzone" data-select-id="groups___GROUP_KEY_____SLOT_INDEX__" data-group-key="__GROUP_KEY__" data-action="dragover->second-stage-builder#allowDrop drop->second-stage-builder#drop" class="mb-2 flex min-h-10 items-center rounded-xl border-2 border-dashed border-base-300 bg-base-100 px-3 text-xs text-base-content/60 transition"><span data-dropzone-placeholder>Arraste a dupla para cá</span><span data-dropzone-name class="hidden font-semibold text-base-content"></span></div>
+                  <select name="groups[__GROUP_KEY__][]" id="groups___GROUP_KEY_____SLOT_INDEX__" class="select select-bordered select-sm hidden w-full" required data-second-stage-builder-target="select" data-action="change->second-stage-builder#updateState"><option value="">Selecione a dupla</option><% @tranca_second_stage_candidates.each do |entry| %><option value="<%= entry.tranca_dupla_id %>"><%= tranca_candidate_option(entry).first %></option><% end %></select>
+                </div>
+              </template>
             </section>
           <% end %>
           <template>
-            <section class="rounded-3xl border border-primary/40 bg-base-200/70 p-4">
+            <section data-group-key="__GROUP_KEY__" class="rounded-3xl border border-primary/40 bg-base-200/70 p-4">
               <div class="flex items-center justify-between gap-3">
                 <h4 class="font-bold">Chave __GROUP_KEY__</h4>
                 <button type="button" class="btn btn-ghost btn-xs text-error" data-action="second-stage-builder#removeGroup">Remover</button>
               </div>
-              <div class="mt-4 space-y-3">
+              <div class="mt-4 space-y-3" data-slot-list>
                 <% 4.times do |slot_index| %>
                   <div class="form-control">
                     <label class="label-text text-xs font-semibold uppercase tracking-wide">Posição</label>
@@ -161,6 +186,14 @@
                   </div>
                 <% end %>
               </div>
+              <button type="button" class="btn btn-ghost btn-sm mt-3 w-full" data-action="second-stage-builder#addSlot">+ Adicionar posição</button>
+              <template>
+                <div class="form-control">
+                  <label class="label-text text-xs font-semibold uppercase tracking-wide">Posição __POSITION__</label>
+                  <div data-second-stage-builder-target="dropzone" data-select-id="groups___GROUP_KEY_____SLOT_INDEX__" data-group-key="__GROUP_KEY__" data-action="dragover->second-stage-builder#allowDrop drop->second-stage-builder#drop" class="mb-2 flex min-h-10 items-center rounded-xl border-2 border-dashed border-base-300 bg-base-100 px-3 text-xs text-base-content/60 transition"><span data-dropzone-placeholder>Arraste a dupla para cá</span><span data-dropzone-name class="hidden font-semibold text-base-content"></span></div>
+                  <select name="groups[__GROUP_KEY__][]" id="groups___GROUP_KEY_____SLOT_INDEX__" class="select select-bordered select-sm hidden w-full" required data-second-stage-builder-target="select" data-action="change->second-stage-builder#updateState"><option value="">Selecione a dupla</option><% @tranca_second_stage_candidates.each do |entry| %><option value="<%= entry.tranca_dupla_id %>"><%= tranca_candidate_option(entry).first %></option><% end %></select>
+                </div>
+              </template>
             </section>
           </template>
           </div>

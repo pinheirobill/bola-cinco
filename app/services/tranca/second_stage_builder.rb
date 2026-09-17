@@ -3,7 +3,7 @@ module Tranca
     class InvalidSelectionError < StandardError; end
 
     STAGE_NUMBER = 2
-    GROUP_SIZE = 4
+    MIN_GROUP_SIZE = 2
     ROUND_PAIRINGS = {
       1 => [[0, 1], [3, 2]],
       2 => [[3, 0], [2, 1]],
@@ -25,7 +25,8 @@ module Tranca
           raise InvalidSelectionError, "A 2ª etapa já foi criada para este campeonato."
         end
 
-        ROUND_PAIRINGS.each_key.map do |round_number|
+        round_count = normalized_groups.values.map { |group_ids| round_pairings_for(group_ids.size).size }.max
+        (1..round_count).map do |round_number|
           create_round!(round_number, normalized_groups, duplas_by_id)
         end
       end
@@ -51,9 +52,9 @@ module Tranca
       group_keys = groups.keys
       raise InvalidSelectionError, "Crie pelo menos uma chave." if group_keys.empty?
 
-      invalid_group = group_keys.find { |group_key| groups.fetch(group_key).size != GROUP_SIZE }
+      invalid_group = group_keys.find { |group_key| groups.fetch(group_key).size < MIN_GROUP_SIZE }
       if invalid_group
-        raise InvalidSelectionError, "A chave #{invalid_group} precisa ter exatamente #{GROUP_SIZE} duplas."
+        raise InvalidSelectionError, "A chave #{invalid_group} precisa ter pelo menos #{MIN_GROUP_SIZE} duplas."
       end
 
       selected_ids = group_keys.flat_map { |group_key| groups.fetch(group_key) }
@@ -68,7 +69,7 @@ module Tranca
 
       category_ids = duplas_by_id.values.map(&:category_id).uniq
       if category_ids.size != 1
-        raise InvalidSelectionError, "As 16 duplas da 2ª etapa precisam pertencer à mesma categoria."
+        raise InvalidSelectionError, "As duplas da 2ª etapa precisam pertencer à mesma categoria."
       end
 
       duplas_by_id
@@ -84,11 +85,13 @@ module Tranca
         status: "programada"
       )
 
-      groups.keys.each_with_index do |group_key, group_index|
+      table_number = 1
+      groups.keys.each do |group_key|
         group_ids = groups.fetch(group_key)
 
-        ROUND_PAIRINGS.fetch(round_number).each_with_index do |(first_slot, second_slot), pairing_index|
-          table_number = (group_index * 2) + pairing_index + 1
+        round_pairings_for(group_ids.size).fetch(round_number - 1, []).each do |(first_slot, second_slot)|
+          next if second_slot.nil?
+
           create_match!(
             rodada: rodada,
             round_number: round_number,
@@ -99,10 +102,29 @@ module Tranca
             first_slot: first_slot + 1,
             second_slot: second_slot + 1
           )
+          table_number += 1
         end
       end
 
       rodada
+    end
+
+    def round_pairings_for(size)
+      return ROUND_PAIRINGS.values if size == 4
+
+      participants = (0...size).to_a
+      participants << nil if participants.size.odd?
+      fixed = participants.first
+      rotating = participants.drop(1)
+      rounds = []
+
+      (participants.size - 1).times do
+        current = [fixed] + rotating
+        rounds << current.each_slice(2).map { |pair| pair }.reject { |first, second| first.nil? || second.nil? }
+        rotating = [rotating.last] + rotating[0...-1]
+      end
+
+      rounds
     end
 
     def create_match!(rodada:, round_number:, group_key:, table_number:, dupla_a:, dupla_b:, first_slot:, second_slot:)
