@@ -3,7 +3,6 @@ module Tranca
     class InvalidSelectionError < StandardError; end
 
     STAGE_NUMBER = 2
-    GROUP_KEYS = %w[A B C D].freeze
     GROUP_SIZE = 4
     ROUND_PAIRINGS = {
       1 => [[0, 1], [3, 2]],
@@ -41,7 +40,7 @@ module Tranca
         groups.to_h
       end
 
-      GROUP_KEYS.to_h do |group_key|
+      raw_groups.keys.map(&:to_s).reject(&:blank?).uniq.sort.to_h do |group_key|
         ids = Array(raw_groups[group_key] || raw_groups[group_key.to_sym])
           .filter_map { |id| Integer(id, exception: false) }
         [group_key, ids]
@@ -49,12 +48,15 @@ module Tranca
     end
 
     def validate_selection!(groups)
-      invalid_group = GROUP_KEYS.find { |group_key| groups.fetch(group_key).size != GROUP_SIZE }
+      group_keys = groups.keys
+      raise InvalidSelectionError, "Crie pelo menos uma chave." if group_keys.empty?
+
+      invalid_group = group_keys.find { |group_key| groups.fetch(group_key).size != GROUP_SIZE }
       if invalid_group
         raise InvalidSelectionError, "A chave #{invalid_group} precisa ter exatamente #{GROUP_SIZE} duplas."
       end
 
-      selected_ids = GROUP_KEYS.flat_map { |group_key| groups.fetch(group_key) }
+      selected_ids = group_keys.flat_map { |group_key| groups.fetch(group_key) }
       if selected_ids.uniq.size != selected_ids.size
         raise InvalidSelectionError, "A mesma dupla não pode aparecer em mais de uma posição da 2ª etapa."
       end
@@ -82,7 +84,7 @@ module Tranca
         status: "programada"
       )
 
-      GROUP_KEYS.each_with_index do |group_key, group_index|
+      groups.keys.each_with_index do |group_key, group_index|
         group_ids = groups.fetch(group_key)
 
         ROUND_PAIRINGS.fetch(round_number).each_with_index do |(first_slot, second_slot), pairing_index|

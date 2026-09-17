@@ -78,24 +78,25 @@
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-xs uppercase tracking-[0.28em] text-base-content/50">Configuração da 2ª etapa</p>
-          <h3 class="mt-1 text-2xl font-black">Distribuir as 16 duplas</h3>
-          <p class="mt-1 text-sm text-base-content/70">A ordem escolhida define os confrontos das três rodadas. Cada dupla só pode aparecer uma vez.</p>
+          <h3 class="mt-1 text-2xl font-black">Distribuir as duplas nas chaves</h3>
+          <p class="mt-1 text-sm text-base-content/70">Cada chave deve ter quatro duplas. Você pode criar novas chaves e reorganizar as duplas antes de gerar a etapa.</p>
         </div>
         <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tranca-second-stage-modal').close()">Fechar</button>
       </div>
 
       <div class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-base-200 p-3">
-        <p class="text-sm text-base-content/70">Chave A: mesas 1–2 · B: 3–4 · C: 5–6 · D: 7–8</p>
-        <span class="badge badge-primary" data-second-stage-builder-target="counter">0/16 duplas selecionadas</span>
+        <p class="text-sm text-base-content/70">Cada chave gera três rodadas e duas partidas por rodada.</p>
+        <span class="badge badge-primary" data-second-stage-builder-target="counter">0 duplas selecionadas</span>
       </div>
 
       <%= form_with url: create_tranca_second_stage_championship_path(@championship), method: :post, class: "mt-5 space-y-5" do %>
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4" data-second-stage-builder-target="groups">
           <% %w[A B C D].each_with_index do |group_key, group_index| %>
             <section class="rounded-3xl border border-base-300 bg-base-200/70 p-4">
               <div class="flex items-center justify-between gap-3">
                 <h4 class="font-bold">Chave <%= group_key %></h4>
                 <span class="badge badge-outline badge-sm">Mesas <%= (group_index * 2) + 1 %> e <%= (group_index * 2) + 2 %></span>
+                <button type="button" class="btn btn-ghost btn-xs text-error" data-action="second-stage-builder#removeGroup">Remover</button>
               </div>
 
               <div class="mt-4 space-y-3">
@@ -119,7 +120,30 @@
               </div>
             </section>
           <% end %>
+          <template>
+            <section class="rounded-3xl border border-primary/40 bg-base-200/70 p-4">
+              <div class="flex items-center justify-between gap-3">
+                <h4 class="font-bold">Chave __GROUP_KEY__</h4>
+                <button type="button" class="btn btn-ghost btn-xs text-error" data-action="second-stage-builder#removeGroup">Remover</button>
+              </div>
+              <div class="mt-4 space-y-3">
+                <% 4.times do %>
+                  <div class="form-control">
+                    <label class="label-text text-xs font-semibold uppercase tracking-wide">Posição</label>
+                    <select name="groups[__GROUP_KEY__][]" class="select select-bordered select-sm w-full" required data-second-stage-builder-target="select" data-action="change->second-stage-builder#updateState">
+                      <option value="">Selecione a dupla</option>
+                      <% @tranca_second_stage_candidates.each do |entry| %>
+                        <option value="<%= entry.tranca_dupla_id %>"><%= tranca_candidate_option(entry).first %></option>
+                      <% end %>
+                    </select>
+                  </div>
+                <% end %>
+              </div>
+            </section>
+          </template>
         </div>
+
+        <button type="button" class="btn btn-outline" data-action="second-stage-builder#addGroup">+ Criar outra chave</button>
 
         <div class="rounded-2xl border border-base-300 bg-base-100 p-4 text-sm text-base-content/70">
           <p><strong>1ª rodada:</strong> 1×2 e 4×3</p>

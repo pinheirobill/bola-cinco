@@ -172,7 +172,8 @@ class ChampionshipsController < ApplicationController
 
     Tranca::SecondStageBuilder.new(@championship).create!(groups: params[:groups] || {})
 
-    redirect_to rodadas_championship_path(@championship), notice: "2ª etapa criada com quatro chaves, 24 jogos e oito mesas."
+    total_groups = (params[:groups] || {}).to_h.keys.reject(&:blank?).uniq.size
+    redirect_to rodadas_championship_path(@championship), notice: "2ª etapa criada com #{total_groups} chave(s)."
   rescue ActiveRecord::RecordInvalid => error
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: error.record.errors.full_messages.join(" · ")
   rescue Tranca::SecondStageBuilder::InvalidSelectionError => error
