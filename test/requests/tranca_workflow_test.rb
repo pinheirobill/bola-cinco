@@ -231,6 +231,8 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal "application/pdf", response.media_type
     scheduled_text = extract_pdf_text(response.body)
     assert_includes scheduled_text, "5ª"
+    assert_includes scheduled_text, "Etapa"
+    assert_includes scheduled_text, "1ª etapa"
     assert_includes scheduled_text, "RESULTADO FINAL"
     assert_includes scheduled_text, "DUPLA VENCEDORA"
 
@@ -253,6 +255,8 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal "application/pdf", response.media_type
     finalized_text = extract_pdf_text(response.body)
     assert_includes finalized_text, "5ª"
+    assert_includes finalized_text, "Etapa"
+    assert_includes finalized_text, "1ª etapa"
     assert_includes finalized_text, "1.500"
     assert_includes finalized_text, "750"
     assert_includes finalized_text, @dupla_a.name

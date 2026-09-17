@@ -76,13 +76,14 @@ class ChampionshipsController < ApplicationController
     return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
 
     load_tranca_programacao
-    @tranca_programacao = BolaCinco::TrancaProgramacaoPresenter.new(@championship, @tranca_partidas)
+    @programacao_stage = tranca_programacao_stage
+    @tranca_programacao = BolaCinco::TrancaProgramacaoPresenter.new(@championship, @tranca_partidas, stage: @programacao_stage)
 
     respond_to do |format|
       format.html { render "championships/tranca_programacao" }
       format.pdf do
         pdf = BolaCinco::TrancaProgramacaoDocument.new(@tranca_programacao).render
-        send_data pdf, filename: "#{@championship.name.parameterize}-programacao.pdf",
+        send_data pdf, filename: tranca_programacao_filename,
           type: "application/pdf", disposition: "attachment"
       end
     end
@@ -94,7 +95,8 @@ class ChampionshipsController < ApplicationController
     return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
 
     load_tranca_programacao
-    @tranca_programacao = BolaCinco::TrancaProgramacaoPresenter.new(@championship, @tranca_partidas)
+    @programacao_stage = tranca_programacao_stage
+    @tranca_programacao = BolaCinco::TrancaProgramacaoPresenter.new(@championship, @tranca_partidas, stage: @programacao_stage)
     render "championships/tranca_programacao_telao", layout: "telao"
   end
 
@@ -1082,6 +1084,10 @@ class ChampionshipsController < ApplicationController
     @tranca_partidas = @championship.tranca_partidas.order(:group_key, :round_number, :id)
   end
 
+  def tranca_programacao_stage
+    params[:stage].presence_in(%w[all 1 2]) || "all"
+  end
+
   def recent_tranca_source_teams
     @recent_tranca_source_teams ||= @championship.recent_tranca_championships.flat_map do |source_championship|
       source_championship.categories.includes(:championships, teams: :athletes).order(:name).flat_map do |category|
@@ -1355,6 +1361,16 @@ class ChampionshipsController < ApplicationController
 
   def tranca_complete_summula_filename(partida)
     "sumula-completa-#{partida.summula_filename_token}.pdf"
+  end
+
+  def tranca_programacao_filename
+    suffix = case @programacao_stage.to_s
+    when "1" then "etapa-1"
+    when "2" then "etapa-2"
+    else "todas-as-etapas"
+    end
+
+    "#{@championship.name.parameterize}-programacao-#{suffix}.pdf"
   end
 
   def championship_params

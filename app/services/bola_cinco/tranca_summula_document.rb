@@ -71,6 +71,7 @@ module BolaCinco
       info_item(pdf, "Jogo:", partida.game_number_label, 370, top - 9, 105)
       info_item(pdf, "ID:", partida.summula_identifier, 505, top - 9, 120)
       info_item(pdf, "Rodada:", round_label, 20, top - 25, 180)
+      info_item(pdf, "Etapa:", partida.stage_label, 245, top - 25, 180)
     end
 
     def draw_team_cards(pdf)

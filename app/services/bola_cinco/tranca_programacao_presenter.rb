@@ -8,11 +8,13 @@ module BolaCinco
       center: 20
     }.freeze
 
-    attr_reader :championship, :matches
+    attr_reader :championship, :matches, :stage
+    alias stage_filter stage
 
-    def initialize(championship, matches)
+    def initialize(championship, matches, stage: "all")
       @championship = championship
-      @matches = matches.to_a
+      @stage = stage.presence_in(%w[all 1 2]) || "all"
+      @matches = filter_matches(matches.to_a)
     end
 
     def title
@@ -61,6 +63,14 @@ module BolaCinco
       matches
         .group_by { |match| [match.stage_number.to_i, match.group_key.to_s.presence || "Sem chave"] }
         .sort_by { |(stage_number, group_key), _| [stage_number, group_sort_key(group_key)] }
+    end
+
+    def stage_label
+      case stage
+      when "1" then "Etapa 1"
+      when "2" then "Etapa 2"
+      else "Todas as etapas"
+      end
     end
 
     def row_for(match, jg_number)
@@ -133,6 +143,13 @@ module BolaCinco
         letters.prepend(("A".ord + remainder).chr)
       end
       letters
+    end
+
+    def filter_matches(matches)
+      return matches if stage == "all"
+
+      stage_number = stage.to_i
+      matches.select { |match| match.stage_number.to_i == stage_number }
     end
   end
 end
