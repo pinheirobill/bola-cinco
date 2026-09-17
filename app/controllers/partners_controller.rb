@@ -2,11 +2,9 @@ class PartnersController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
   def index
-    return redirect_to championships_path, alert: "Crie ou selecione um campeonato antes de cadastrar parceiros." unless current_championship
-
     @partners = scoped_partners.order(highlight: :desc, created_at: :desc)
-    @partner = scoped_championship.partners.new(status: :ativo, tier: :parceiro)
-    @categories = scoped_championship.categories.order(:name)
+    @partner = Partner.new(status: :ativo, tier: :parceiro)
+    @categories = Category.order(:name)
     respond_to do |format|
       format.html
       format.json { render json: @partners }
@@ -15,7 +13,7 @@ class PartnersController < ApplicationController
 
   def show
     @partner = partner
-    @categories = scoped_championship.categories.order(:name)
+    @categories = Category.order(:name)
     respond_to do |format|
       format.html
       format.json { render json: partner }
@@ -23,7 +21,7 @@ class PartnersController < ApplicationController
   end
 
   def create
-    record = scoped_championship.partners.new(partner_params)
+    record = Partner.new(partner_params)
     record.source_id = default_source_id("partner") if record.source_id.blank?
 
     if html_form_submission?
@@ -32,7 +30,7 @@ class PartnersController < ApplicationController
       else
         @partners = scoped_partners.order(highlight: :desc, created_at: :desc)
         @partner = record
-        @categories = scoped_championship.categories.order(:name)
+        @categories = Category.order(:name)
         render :index, status: :unprocessable_entity
       end
     elsif record.save
@@ -54,7 +52,7 @@ class PartnersController < ApplicationController
         redirect_to partner_path(partner), notice: "Parceiro atualizado."
       else
         @partner = partner
-        @categories = scoped_championship.categories.order(:name)
+        @categories = Category.order(:name)
         render :show, status: :unprocessable_entity
       end
     elsif partner.update(partner_params)
@@ -83,13 +81,13 @@ class PartnersController < ApplicationController
   end
 
   def scoped_partners
-    scope = scoped_championship.partners.includes(:championship, :category)
+    scope = Partner.includes(:championship, :category)
     scope = scope.status_ativo unless current_user&.admin?
     @scoped_partners ||= scope
   end
 
   def partner
-    @partner ||= scoped_partners.find(params[:id])
+    @partner ||= Partner.find(params[:id])
   end
 
   def partner_params

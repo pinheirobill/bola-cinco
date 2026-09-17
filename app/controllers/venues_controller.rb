@@ -1,12 +1,7 @@
 class VenuesController < ApplicationController
   def index
-    unless current_championship
-      redirect_to championships_path, alert: "Crie ou selecione um campeonato antes de cadastrar locais."
-      return
-    end
-
-    @venues = scoped_venues.order(:name)
-    @venue = scoped_championship.venues.new(status: :ativo)
+    @venues = Venue.order(:name)
+    @venue = Venue.new(status: :ativo)
     respond_to do |format|
       format.html
       format.json { render json: @venues }
@@ -23,14 +18,14 @@ class VenuesController < ApplicationController
   end
 
   def create
-    record = scoped_championship.venues.new(venue_params)
+    record = Venue.new(venue_params)
     record.source_id = default_source_id("venue") if record.source_id.blank?
 
     if html_form_submission?
       if record.save
         redirect_to venue_path(record), notice: "Local criado."
       else
-        @venues = scoped_venues.order(:name)
+        @venues = Venue.order(:name)
         @venue = record
         render :index, status: :unprocessable_entity
       end
@@ -88,10 +83,6 @@ class VenuesController < ApplicationController
     else
       current_championship || raise(ActiveRecord::RecordNotFound)
     end
-  end
-
-  def scoped_venues
-    @scoped_venues ||= scoped_championship.venues.includes(:championship)
   end
 
   def venue

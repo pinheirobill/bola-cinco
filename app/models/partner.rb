@@ -1,5 +1,5 @@
 class Partner < ApplicationRecord
-  belongs_to :championship
+  belongs_to :championship, optional: true
   belongs_to :category, optional: true
 
   enum :tier, {

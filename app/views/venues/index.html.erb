@@ -2,7 +2,7 @@
 
 <%= page_header(
   title: "Locais",
-  subtitle: "Quadras e arenas vinculadas ao campeonato atual.",
+  subtitle: "Quadras e arenas cadastradas no sistema. O vínculo com campeonatos é opcional.",
   badge: "Operação",
   actions: [
     button_tag("Novo local", type: "button", class: "btn btn-primary", onclick: "document.getElementById('venue-modal').showModal()")
@@ -11,7 +11,7 @@
 
 <%= stats_grid([
   { label: "Locais cadastrados", value: @venues.size, value_class: "text-2xl" },
-  { label: "Campeonato atual", value: current_championship&.name || "-", value_class: "text-2xl" }
+  { label: "Disponíveis para campeonatos", value: @venues.count { |venue| venue.championship_id.blank? }, value_class: "text-2xl" }
 ], columns: "md:grid-cols-2") %>
 
 <section class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
@@ -42,7 +42,7 @@
     <% else %>
       <%= empty_state(
         title: "Nenhum local cadastrado",
-        description: "Crie o primeiro local para vincular jogos ao campeonato."
+        description: "Crie o primeiro local para disponibilizá-lo aos campeonatos."
       ) %>
     <% end %>
   <% end %>
@@ -54,13 +54,12 @@
       <div>
         <p class="text-xs uppercase tracking-[0.35em] text-base-content/50">Novo local</p>
         <h3 class="mt-2 text-2xl font-black">Cadastre uma quadra, arena ou ginásio</h3>
-        <p class="mt-2 text-sm text-base-content/70">O local entra vinculado ao campeonato atual assim que for criado.</p>
+        <p class="mt-2 text-sm text-base-content/70">Depois, você poderá associá-lo a um campeonato quando necessário.</p>
       </div>
       <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('venue-modal').close()">Fechar</button>
     </div>
 
     <%= form_with model: @venue, url: venues_path, class: "mt-6 space-y-4" do |f| %>
-      <%= hidden_field_tag :championship_id, current_championship&.id %>
       <div class="grid gap-4 md:grid-cols-2">
         <div class="form-control gap-2">
           <%= f.label :name, "Nome", class: "label-text font-medium" %>

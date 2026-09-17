@@ -1,9 +1,7 @@
 class RefereesController < ApplicationController
   def index
-    return redirect_to championships_path, alert: "Crie ou selecione um campeonato antes de cadastrar árbitros." unless current_championship
-
-    @referees = scoped_referees.order(:name)
-    @referee = scoped_championship.referees.new(status: :ativo)
+    @referees = Referee.order(:name)
+    @referee = Referee.new(status: :ativo)
     respond_to do |format|
       format.html
       format.json { render json: @referees }
@@ -19,14 +17,14 @@ class RefereesController < ApplicationController
   end
 
   def create
-    record = scoped_championship.referees.new(referee_params)
+    record = Referee.new(referee_params)
     record.source_id = default_source_id("referee") if record.source_id.blank?
 
     if html_form_submission?
       if record.save
         redirect_to referee_path(record), notice: "Árbitro criado."
       else
-        @referees = scoped_referees.order(:name)
+        @referees = Referee.order(:name)
         @referee = record
         render :index, status: :unprocessable_entity
       end
@@ -84,10 +82,6 @@ class RefereesController < ApplicationController
     else
       current_championship || raise(ActiveRecord::RecordNotFound)
     end
-  end
-
-  def scoped_referees
-    @scoped_referees ||= scoped_championship.referees.includes(:championship)
   end
 
   def referee

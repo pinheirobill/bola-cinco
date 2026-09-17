@@ -2,21 +2,20 @@
 
 <%= page_header(
   title: "Parceiros",
-  subtitle: "Apoiadores e patrocinadores do campeonato.",
+  subtitle: "Parceiros e patrocinadores cadastrados no sistema. O vínculo com campeonatos é opcional.",
   badge: "Comunicação",
   actions: [user_signed_in? ? link_to("Novo parceiro", "#novo-parceiro", class: "btn btn-primary") : link_to("Entrar para criar", new_user_session_path, class: "btn btn-outline")]
 ) %>
 
 <%= stats_grid([
   { label: "Parceiros ativos", value: @partners.size, value_class: "text-2xl" },
-  { label: "Campeonato atual", value: current_championship&.name || "-", value_class: "text-2xl" }
+  { label: "Disponíveis para campeonatos", value: @partners.count { |partner| partner.championship_id.blank? }, value_class: "text-2xl" }
 ], columns: "md:grid-cols-2") %>
 
 <section class="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
   <% if user_signed_in? %>
     <%= surface_card(title: "Novo parceiro", subtitle: "Adicione patrocinadores, apoiadores e parceiros.", id: "novo-parceiro") do %>
       <%= form_with model: @partner, url: partners_path, class: "space-y-4" do |f| %>
-        <%= hidden_field_tag :championship_id, current_championship&.id %>
         <div class="grid gap-4 md:grid-cols-2">
           <%= f.text_field :name, class: "input input-bordered w-full", placeholder: "Nome" %>
           <%= f.select :tier, Partner.tiers.keys.map { |value| [value.humanize, value] }, {}, class: "select select-bordered w-full" %>
