@@ -31,6 +31,7 @@
 
 <% manage_classification = user_signed_in? && @championship.manageable_by?(current_user) %>
 
+<div data-controller="classification-navigation">
 <%= surface_card(
   title: "Tabela da Tranca",
   subtitle: "Classificação consolidada por categoria.",
@@ -44,12 +45,23 @@
     ) : nil)
   ].compact
 ) do %>
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <div class="join">
+      <button type="button" class="btn btn-sm join-item btn-primary" data-stage="1" data-classification-navigation-target="stageButton" data-action="classification-navigation#showStage">Etapa 1</button>
+      <button type="button" class="btn btn-sm join-item" data-stage="2" data-classification-navigation-target="stageButton" data-action="classification-navigation#showStage">Etapa 2</button>
+    </div>
+    <div class="join">
+      <button type="button" class="btn btn-sm join-item" data-classification-navigation-target="previous" data-action="classification-navigation#previous" aria-label="Chave anterior">←</button>
+      <span class="btn btn-sm join-item pointer-events-none" data-classification-navigation-target="counter">1 de 1 chaves</span>
+      <button type="button" class="btn btn-sm join-item" data-classification-navigation-target="next" data-action="classification-navigation#next" aria-label="Próxima chave">→</button>
+    </div>
+  </div>
   <div class="space-y-6">
     <% if @tranca_standing_groups.any? %>
       <% classification_position = 0 %>
       <% @tranca_standing_groups.each do |group| %>
         <% category_duplas = @tranca_duplas_by_category[group.category.id] || [] %>
-        <div>
+        <div data-classification-navigation-target="group" data-stage="<%= group.rows.first&.stage_number || 1 %>" class="<%= "hidden" if group.rows.first&.stage_number.to_i == 2 %>">
           <div class="mb-3 flex items-center justify-between gap-3">
             <div>
               <h3 class="text-xl font-bold"><%= group.category.name %></h3>
@@ -218,6 +230,7 @@
     <% end %>
   </div>
 <% end %>
+</div>
 
 <% if user_signed_in? && @championship.manageable_by?(current_user) && @tranca_knockout_qualified_rows.any? && !@tranca_knockout_selection_done %>
   <%= surface_card(title: "Montar mata-mata", subtitle: "Escolha a estrutura da chave e a regra de classificação antes de gerar o primeiro confronto eliminatório.") do %>

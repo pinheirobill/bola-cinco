@@ -170,9 +170,14 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.manageable_by?(current_user)
     return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica da Tranca." unless @championship.tranca?
 
-    Tranca::SecondStageBuilder.new(@championship).create!(groups: params[:groups] || {})
+    groups = params[:groups] || {}
+    Tranca::SecondStageBuilder.new(@championship).create!(groups: groups)
 
-    total_groups = (params[:groups] || {}).to_h.keys.reject(&:blank?).uniq.size
+    total_groups = if groups.respond_to?(:to_unsafe_h)
+      groups.to_unsafe_h.keys
+    else
+      groups.to_h.keys
+    end.reject(&:blank?).uniq.size
     redirect_to rodadas_championship_path(@championship), notice: "2ª etapa criada com #{total_groups} chave(s)."
   rescue ActiveRecord::RecordInvalid => error
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: error.record.errors.full_messages.join(" · ")

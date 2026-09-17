@@ -31,12 +31,12 @@ module BolaCinco
       counter = 0
       key_index = 0
 
-      grouped_matches.map do |group_key, group_matches|
+      grouped_matches.map do |(stage_number, group_key), group_matches|
         label = if group_key == "Sem chave"
-          "Sem chave"
+          "Etapa #{stage_number} · Sem chave"
         else
           key_index += 1
-          alphabet_label(key_index)
+          "Etapa #{stage_number} · Chave #{group_key_for_label(group_key, key_index)}"
         end
 
         {
@@ -59,8 +59,8 @@ module BolaCinco
 
     def grouped_matches
       matches
-        .group_by { |match| match.group_key.to_s.presence || "Sem chave" }
-        .sort_by { |group_key, _| group_sort_key(group_key) }
+        .group_by { |match| [match.stage_number.to_i, match.group_key.to_s.presence || "Sem chave"] }
+        .sort_by { |(stage_number, group_key), _| [stage_number, group_sort_key(group_key)] }
     end
 
     def row_for(match, jg_number)
@@ -89,6 +89,14 @@ module BolaCinco
       return alphabet_label(text.to_i) if text.match?(/\A\d+\z/)
 
       text.upcase
+    end
+
+    def group_key_for_label(value, fallback_index)
+      text = value.to_s.squish
+      return alphabet_label(fallback_index) if text.blank? || text == "Sem chave"
+      return alphabet_label(text.to_i) if text.match?(/\A\d+\z/)
+
+      text.sub(/\ACHAVE\s+/i, "").upcase
     end
 
     def group_sort_key(group_key)

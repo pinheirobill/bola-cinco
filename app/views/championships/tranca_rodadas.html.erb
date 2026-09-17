@@ -432,8 +432,13 @@
   </dialog>
 <% end %>
 
-<%= surface_card(title: "Rodadas", subtitle: "As partidas podem ser organizadas por fase e número.") do %>
+<div data-controller="stage-filter">
+<%= surface_card(title: "Rodadas", subtitle: "As partidas podem ser organizadas por etapa, fase e número.") do %>
   <% if @tranca_rodadas.any? %>
+    <div class="mb-5 join">
+      <button type="button" class="btn btn-sm join-item btn-primary" data-stage="1" data-stage-filter-target="button" data-action="stage-filter#show">Etapa 1</button>
+      <button type="button" class="btn btn-sm join-item" data-stage="2" data-stage-filter-target="button" data-action="stage-filter#show">Etapa 2</button>
+    </div>
     <div class="space-y-6">
       <% dupla_names = @tranca_duplas.index_by(&:id) %>
       <% manage_round_games = user_signed_in? && @championship.manageable_by?(current_user) %>
@@ -441,7 +446,7 @@
         <% round_management_enabled = manage_round_games && round.first_stage? %>
         <% round_presenter = BolaCinco::TrancaProgramacaoPresenter.new(@championship, round.partidas) %>
         <% round_deletable = round.partidas.none?(&:finished?) %>
-        <div class="rounded-3xl bg-base-200 p-4">
+        <div class="rounded-3xl bg-base-200 p-4 <%= "hidden" if round.second_stage? %>" data-stage-filter-target="stage" data-stage="<%= round.stage_number %>">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 class="text-xl font-bold"><%= round.label %></h3>
@@ -541,3 +546,4 @@
     ) %>
   <% end %>
 <% end %>
+</div>
