@@ -1043,8 +1043,14 @@ class ChampionshipsController < ApplicationController
     @recent_tranca_source_teams = recent_tranca_source_teams
     qualified_ids = @tranca_standings.select(&:qualified?).map(&:tranca_dupla_id)
     @tranca_knockout_qualified_rows = @tranca_standings.select(&:qualified?).sort_by { |row| [ row.group_key.to_s, row.position ] }
-    @tranca_knockout_candidate_rows = @tranca_standings.reject { |row| qualified_ids.include?(row.tranca_dupla_id) }
-      .sort_by { |row| [ -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.position.to_i ] }
+    available_knockout_rows = @tranca_standings.reject { |row| qualified_ids.include?(row.tranca_dupla_id) }
+    @tranca_knockout_classification_rows = available_knockout_rows.sort_by do |row|
+      [ row.category.name.to_s.downcase, row.group_key.to_s, row.position.to_i ]
+    end
+    @tranca_knockout_ranking_rows = available_knockout_rows.sort_by do |row|
+      [ -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.position.to_i, row.tranca_dupla.name.to_s.downcase ]
+    end
+    @tranca_knockout_candidate_rows = @tranca_knockout_ranking_rows
     @tranca_knockout_selection_done = @championship.tranca_partidas.where(phase: "mata_mata", round_number: 1).exists?
     @tranca_knockout_stage_type_options = [
       [ "Oitavas / quartas / semi / final", "oitavas_quartas_semi_final" ],

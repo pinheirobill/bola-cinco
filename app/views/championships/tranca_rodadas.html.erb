@@ -224,9 +224,17 @@
                 <span class="badge badge-primary" data-knockout-builder-target="counter">0/16 duplas selecionadas</span>
               </div>
 
-              <div class="mt-4 max-h-[30rem] space-y-2 overflow-y-auto pr-1">
-                <% if @tranca_knockout_candidate_rows.any? %>
-                  <% @tranca_knockout_candidate_rows.each do |entry| %>
+              <div class="tooltip mt-4" data-tip="Alterne entre a posição da dupla na chave e o desempenho geral do campeonato.">
+                <div class="join w-full">
+                  <button type="button" class="btn btn-sm join-item btn-primary flex-1" data-view="classification" data-action="click->knockout-builder#toggleRanking">Classificação</button>
+                  <button type="button" class="btn btn-sm join-item flex-1" data-view="ranking" data-action="click->knockout-builder#toggleRanking">Ranking geral</button>
+                </div>
+              </div>
+
+              <% render_knockout_candidates = lambda do |entries| %>
+                <%= capture do %>
+                  <% if entries.any? %>
+                    <% entries.each do |entry| %>
                     <% dupla = entry.respond_to?(:tranca_dupla) ? entry.tranca_dupla : entry %>
                     <% category = entry.respond_to?(:category) ? entry.category : dupla.category %>
                     <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
@@ -239,10 +247,18 @@
                         </p>
                       <% end %>
                     </div>
+                    <% end %>
+                  <% else %>
+                    <p class="text-sm text-base-content/60">Nenhuma dupla disponível para montar a chave.</p>
                   <% end %>
-                <% else %>
-                  <p class="text-sm text-base-content/60">Nenhuma dupla disponível para montar a chave.</p>
                 <% end %>
+              <% end %>
+
+              <div class="mt-4 max-h-[30rem] space-y-2 overflow-y-auto pr-1" data-knockout-builder-target="classificationView">
+                <%= render_knockout_candidates.call(@tranca_knockout_classification_rows) %>
+              </div>
+              <div class="mt-4 hidden max-h-[30rem] space-y-2 overflow-y-auto pr-1" data-knockout-builder-target="rankingView">
+                <%= render_knockout_candidates.call(@tranca_knockout_ranking_rows) %>
               </div>
             </aside>
 

@@ -9,7 +9,9 @@ export default class extends Controller {
     "game",
     "select",
     "error",
-    "submitButton"
+    "submitButton",
+    "classificationView",
+    "rankingView"
   ]
 
   static values = {
@@ -35,6 +37,13 @@ export default class extends Controller {
     event.preventDefault()
     this.showStep(1)
     this.stageSelectTarget.focus()
+  }
+
+  toggleRanking(event) {
+    event.preventDefault()
+    const ranking = event.currentTarget.dataset.view === "ranking"
+    this.classificationViewTarget.classList.toggle("hidden", ranking)
+    this.rankingViewTarget.classList.toggle("hidden", !ranking)
   }
 
   updateStage() {
