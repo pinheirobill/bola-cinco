@@ -50,11 +50,6 @@
       <button type="button" class="btn btn-sm join-item btn-primary" data-stage="1" data-classification-navigation-target="stageButton" data-action="classification-navigation#showStage">Etapa 1</button>
       <button type="button" class="btn btn-sm join-item" data-stage="2" data-classification-navigation-target="stageButton" data-action="classification-navigation#showStage">Etapa 2</button>
     </div>
-    <div class="join">
-      <button type="button" class="btn btn-sm join-item" data-classification-navigation-target="previous" data-action="classification-navigation#previous" aria-label="Chave anterior">←</button>
-      <span class="btn btn-sm join-item pointer-events-none" data-classification-navigation-target="counter">1 de 1 chaves</span>
-      <button type="button" class="btn btn-sm join-item" data-classification-navigation-target="next" data-action="classification-navigation#next" aria-label="Próxima chave">→</button>
-    </div>
   </div>
   <div class="space-y-6">
     <% if @tranca_standing_groups.any? %>
