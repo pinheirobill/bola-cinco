@@ -179,6 +179,17 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: error.message, status: :see_other
   end
 
+  def create_tranca_second_stage_quarterfinals
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back(fallback_location: classificacao_championship_path(@championship), alert: "Essa ação é específica da Tranca.") unless @championship.tranca?
+
+    Tranca::SecondStageKnockoutBuilder.new(@championship).create!
+    redirect_to rodadas_championship_path(@championship), notice: "Quartas de final da 2ª etapa criadas."
+  rescue Tranca::SecondStageKnockoutBuilder::InvalidStateError => error
+    redirect_back fallback_location: classificacao_championship_path(@championship), alert: error.message, status: :see_other
+  end
+
   def generate_tranca_mesas
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)

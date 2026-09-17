@@ -49,6 +49,7 @@ Rails.application.routes.draw do
     get :classificacao, on: :member, path: "classificacao"
     post :generate_tranca_round, on: :member, path: "tranca/gerar-rodada"
     post :create_tranca_second_stage, on: :member, path: "tranca/criar-segunda-etapa"
+    post :create_tranca_second_stage_quarterfinals, on: :member, path: "tranca/criar-quartas-segunda-etapa"
     post :select_tranca_knockout_duplas, on: :member, path: "tranca/selecionar-mata-mata"
     post :generate_tranca_mesas, on: :member, path: "tranca/gerar-mesas"
     delete :destroy_tranca_round, on: :member, path: "rodadas/:rodada_id"

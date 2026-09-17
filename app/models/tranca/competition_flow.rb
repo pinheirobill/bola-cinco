@@ -231,10 +231,34 @@ module Tranca
           categories: [partida.category],
           group_keys: [partida.group_key.presence || inferred_group_key_for(partida)]
         )
+      elsif partida.classification_phase? && partida.second_stage?
+        rebuild_second_stage_classificacao!(category: partida.category, group_key: partida.group_key)
       end
       advance_knockout_from!(partida) if partida.knockout_phase?
       championship.update!(status: :finalizado) if knockout_finished?
       partida
+    end
+
+    def rebuild_second_stage_classificacao!(categories: nil, category: nil, group_key: nil)
+      selected_categories = Array(categories || category).compact
+      selected_categories = championship.categories.where(id: championship.tranca_partidas.for_stage(2).distinct.pluck(:category_id)) if selected_categories.empty?
+      selected_categories.each do |selected_category|
+        matches = championship.tranca_partidas.for_stage(2).includes(:dupla_a, :dupla_b, :winner, :maos).where(category_id: selected_category.id, phase: "classificatoria")
+        matches = matches.where(group_key: group_key) if group_key.present?
+        matches.to_a.group_by { |match| match.group_key.to_s }.each do |current_group_key, group_matches|
+          participant_ids = group_matches.flat_map { |match| [match.dupla_a_id, match.dupla_b_id] }.compact.uniq
+          duplas = championship.tranca_duplas.where(id: participant_ids).to_a
+          stats = duplas.index_by(&:id).transform_values { |dupla| standing_stats_for(dupla, current_group_key) }
+          group_matches.select(&:finished?).each { |match| apply_partida_to_stats!(stats, match) }
+          championship.tranca_classificacao_rows.for_stage(2).where(category_id: selected_category.id, group_key: current_group_key).delete_all
+          stats.values.sort_by { |value| classification_sort_key_for(value) }.each_with_index do |value, index|
+            championship.tranca_classificacao_rows.create!(category: selected_category, stage_number: 2, tranca_dupla: value[:dupla],
+              source_id: "tranca-stage-2-standing-#{championship.id}-#{selected_category.id}-#{current_group_key}-#{value[:dupla].id}", group_key: current_group_key,
+              position: index + 1, played: value[:played], wins: value[:wins], draws: value[:draws], losses: value[:losses], goals_for: value[:goals_for],
+              goals_against: value[:goals_against], goal_diff: value[:goal_diff], points: value[:points], qualified: index < 2)
+          end
+        end
+      end
     end
 
     def sync_maos!(partida, maos_attributes)
