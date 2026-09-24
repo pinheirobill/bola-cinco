@@ -114,4 +114,20 @@ class Tranca::DashboardTest < ActiveSupport::TestCase
 
     assert_equal [ "", "Chave 1", "Chave 10", "Chave 11" ], groups.map(&:group_key)
   end
+
+  test "separates standing groups by stage number" do
+    Tranca::ClassificacaoRow.create!(
+      source_id: "tranca-standing-row-dashboard-stage-2",
+      championship: @championship,
+      category: @category,
+      tranca_dupla: @dupla_b,
+      stage_number: 2,
+      group_key: "A",
+      position: 1
+    )
+
+    groups = Tranca::Dashboard.new(@championship).standings_groups
+
+    assert_equal [ 1, 2 ], groups.map(&:stage_number)
+  end
 end

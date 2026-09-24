@@ -45,7 +45,8 @@ module Tranca
           .order(round_number: :desc)
           .first
 
-        final_round.present? && final_round.partidas.one? && final_round.partidas.all? { |partida| partida.finished? && partida.winner.present? }
+        final_match = final_round&.partidas&.find { |partida| partida.source_data["bracket_code"] == "FINAL" } || final_round&.partidas&.first
+        final_match.present? && final_match.finished? && final_match.winner.present?
       end
     end
 
@@ -155,6 +156,7 @@ module Tranca
       )
       rodada.assign_attributes(
         championship: championship,
+        stage_number: 2,
         source_id: round_source_id("mata_mata", round_number),
         label: round_label("mata_mata", round_number),
         status: "programada"
@@ -172,6 +174,7 @@ module Tranca
             championship: championship,
             category: category,
             tranca_rodada: rodada,
+            stage_number: 2,
             code: knockout_partida_code(category, round_number, index + 1),
             phase: "mata_mata",
             round_number: round_number.to_i,
@@ -210,33 +213,39 @@ module Tranca
       end
     end
 
-    def record_result!(partida:, score_a:, score_b:, status: :finalizado, winner_id: nil, decision: nil, wo: nil, maos_attributes: nil)
-      sync_maos!(partida, maos_attributes) if maos_attributes.present?
-      partida.reload if maos_attributes.present?
+    def record_result!(partida:, score_a:, score_b:, status: :finalizado, winner_id: nil, decision: nil, wo: nil, maos_attributes: nil, replace_maos: false)
+      Tranca::Partida.transaction do
+        if replace_maos
+          partida.maos.destroy_all
+        else
+          sync_maos!(partida, maos_attributes) if maos_attributes.present?
+          partida.reload if maos_attributes.present?
 
-      score_a, score_b = scores_for_partida(partida) if maos_attributes.present?
+          score_a, score_b = scores_for_partida(partida) if maos_attributes.present?
+        end
 
-      attrs = {
-        score_a: score_a,
-        score_b: score_b,
-        status: status.to_s,
-        decision: decision,
-        wo: wo
-      }
+        attrs = {
+          score_a: score_a,
+          score_b: score_b,
+          status: status.to_s,
+          decision: decision,
+          wo: wo
+        }
 
-      attrs[:winner] = winner_for(partida, score_a, score_b, winner_id, status, wo)
-      partida.update!(attrs)
-      if partida.classification_phase? && partida.first_stage?
-        rebuild_classificacao!(
-          categories: [partida.category],
-          group_keys: [partida.group_key.presence || inferred_group_key_for(partida)]
-        )
-      elsif partida.classification_phase? && partida.second_stage?
-        rebuild_second_stage_classificacao!(category: partida.category, group_key: partida.group_key)
+        attrs[:winner] = winner_for(partida, score_a, score_b, winner_id, status, wo)
+        partida.update!(attrs)
+        if partida.classification_phase? && partida.first_stage?
+          rebuild_classificacao!(
+            categories: [partida.category],
+            group_keys: [partida.group_key.presence || inferred_group_key_for(partida)]
+          )
+        elsif partida.classification_phase? && partida.second_stage?
+          rebuild_second_stage_classificacao!(category: partida.category, group_key: partida.group_key)
+        end
+        advance_knockout_from!(partida) if partida.knockout_phase?
+        championship.update!(status: :finalizado) if knockout_finished?
+        partida
       end
-      advance_knockout_from!(partida) if partida.knockout_phase?
-      championship.update!(status: :finalizado) if knockout_finished?
-      partida
     end
 
     def rebuild_second_stage_classificacao!(categories: nil, category: nil, group_key: nil)
@@ -691,10 +700,86 @@ module Tranca
       return if current_round <= 0
       return unless knockout_round_complete?(partida.category, current_round)
 
+      current_round_matches = knockout_round_matches(partida.category, current_round)
       next_round_participants = knockout_winners_for(partida.category, current_round)
       return if next_round_participants.size < 2
 
       generate_knockout_round!(round_number: current_round + 1)
+
+      if current_round_matches.size == 2
+        create_third_place_match!(partida.category, current_round + 1, current_round_matches)
+      end
+    end
+
+    def knockout_round_matches(category, round_number)
+      championship.tranca_partidas
+        .includes(:dupla_a, :dupla_b, :winner)
+        .where(category_id: category.id, phase: "mata_mata", round_number: round_number)
+        .order(:id)
+        .to_a
+    end
+
+    def create_third_place_match!(category, round_number, previous_round_matches)
+      return if championship.tranca_partidas.where(category_id: category.id, phase: "mata_mata", round_number: round_number, source_id: third_place_match_source_id(category, round_number)).exists?
+
+      losers = previous_round_matches.filter_map { |match| loser_for_knockout_match(match) }
+      return if losers.size < 2
+
+      rodada = championship.tranca_rodadas.find_or_initialize_by(
+        phase: "mata_mata",
+        round_number: round_number
+      )
+      rodada.assign_attributes(
+        championship: championship,
+        stage_number: 2,
+        source_id: round_source_id("mata_mata", round_number),
+        label: round_label("mata_mata", round_number),
+        status: "programada"
+      )
+      rodada.save!
+
+      final_match = rodada.partidas.find { |match| match.source_data["bracket_code"] == "FINAL" } || rodada.partidas.first
+      final_match&.update_columns(
+        source_data: final_match.source_data.to_h.merge("bracket_code" => "FINAL"),
+        updated_at: Time.current
+      )
+
+      championship.tranca_partidas.find_or_create_by!(source_id: third_place_match_source_id(category, round_number)) do |partida|
+        partida.assign_attributes(
+          championship: championship,
+          category: category,
+          tranca_rodada: rodada,
+          stage_number: 2,
+          code: third_place_match_code(category, round_number),
+          phase: "mata_mata",
+          round_number: round_number,
+          status: :agendado,
+          dupla_a: losers.first,
+          dupla_b: losers.last,
+          source_data: {
+            "generated_by" => "tranca_competition_flow",
+            "bracket_code" => "THIRD_PLACE"
+          }
+        )
+      end
+    end
+
+    def loser_for_knockout_match(match)
+      return if match.winner.blank?
+
+      match.association(:dupla_a).reader == match.winner ? match.association(:dupla_b).reader : match.association(:dupla_a).reader
+    end
+
+    def third_place_match_source_id(category, round_number)
+      "tranca-third-place-#{championship.id}-#{category.id}-#{round_number}"
+    end
+
+    def third_place_match_code(category, round_number)
+      [
+        category.name.parameterize.presence || "CAT",
+        "THIRD",
+        round_number
+      ].join("-").upcase
     end
 
     def pairings_for_knockout(category, round_number, selected_dupla_ids: [], knockout_stage_type: nil, qualified_per_group: nil)
@@ -841,17 +926,23 @@ module Tranca
     end
 
     def knockout_round_complete?(category, round_number)
-      matches = championship.tranca_partidas.where(category_id: category.id, phase: "mata_mata", round_number: round_number)
-      matches.exists? && matches.all?(&:finished?)
+      matches = knockout_progression_matches(category, round_number)
+      matches.any? && matches.all?(&:finished?)
     end
 
     def knockout_winners_for(category, round_number)
+      knockout_progression_matches(category, round_number)
+        .sort_by(&:id)
+        .map(&:winner)
+        .compact
+    end
+
+    def knockout_progression_matches(category, round_number)
       championship.tranca_partidas
         .includes(:winner)
         .where(category_id: category.id, phase: "mata_mata", round_number: round_number)
-        .order(:id)
-        .map(&:winner)
-        .compact
+        .reject { |match| match.source_data["bracket_code"] == "THIRD_PLACE" }
+        .to_a
     end
 
     def knockout_partida_source_id(category, round_number, index)

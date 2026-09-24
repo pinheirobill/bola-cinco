@@ -4,6 +4,7 @@ export default class extends Controller {
   static targets = [
     "groupCountField",
     "matchesPerOpponentField",
+    "matchesPerTeamField",
     "qualifiedField",
     "pointsFields",
     "tiebreakersField",
@@ -37,11 +38,13 @@ export default class extends Controller {
     const showScoringFields = !isKnockoutOnly
     const showGroupCountField = !isKnockoutOnly
     const showMatchesPerOpponentField = !isKnockoutOnly
+    const showMatchesPerTeamField = !isKnockoutOnly
     const showQualifiedField = isGroupAndKnockout
     const showTiebreakersField = !isKnockoutOnly
 
     if (this.hasGroupCountFieldTarget) this.applySectionState(this.groupCountFieldTarget, showGroupCountField)
     if (this.hasMatchesPerOpponentFieldTarget) this.applySectionState(this.matchesPerOpponentFieldTarget, showMatchesPerOpponentField)
+    if (this.hasMatchesPerTeamFieldTarget) this.applySectionState(this.matchesPerTeamFieldTarget, showMatchesPerTeamField)
     if (this.hasQualifiedFieldTarget) this.applySectionState(this.qualifiedFieldTarget, showQualifiedField)
     if (this.hasPointsFieldsTarget) this.applySectionState(this.pointsFieldsTarget, showScoringFields)
     if (this.hasTiebreakersFieldTarget) this.applySectionState(this.tiebreakersFieldTarget, showTiebreakersField)

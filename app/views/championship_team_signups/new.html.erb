@@ -71,7 +71,9 @@
           <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4 backdrop-blur">
             <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Formato</p>
             <p class="mt-2 text-2xl font-black"><%= @championship.competition_mode_label %></p>
-            <p class="text-xs text-base-content/60"><%= @championship.matches_per_opponent_label %></p>
+            <p class="text-xs text-base-content/60">
+              <%= [@championship.matches_per_opponent_label, (@championship.matches_per_team.positive? ? @championship.matches_per_team_label : nil)].compact.join(" · ") %>
+            </p>
           </div>
           <div class="rounded-2xl border border-base-300 bg-base-100/80 p-4 backdrop-blur">
             <p class="text-xs uppercase tracking-[0.25em] text-base-content/40">Desempate</p>

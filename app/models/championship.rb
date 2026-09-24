@@ -169,10 +169,62 @@ class Championship < ApplicationRecord
     value.positive? ? value : 1
   end
 
+  def matches_per_team
+    value = format_data.fetch("matchesPerTeam", default_format.fetch("matchesPerTeam")).to_i
+    value.positive? ? value : 0
+  end
+
   def matches_per_opponent_label
     return "Sem jogos por confronto" if knockout_only_mode?
 
     "#{matches_per_opponent} #{'vez'.pluralize(matches_per_opponent)} por adversário"
+  end
+
+  def matches_per_team_label
+    return "Sem limite por equipe" if matches_per_team.zero?
+
+    "#{matches_per_team} #{'jogo'.pluralize(matches_per_team)} por equipe"
+  end
+
+  def estimated_group_stage_matches_count(
+    team_count = format_data.fetch("teamCount", default_format.fetch("teamCount")).to_i,
+    group_count = self.group_count,
+    matches_per_opponent = self.matches_per_opponent
+  )
+    team_count = team_count.to_i
+    group_count = group_count.to_i
+    matches_per_opponent = matches_per_opponent.to_i
+
+    return 0 if team_count < 2 || group_count < 1 || matches_per_opponent < 1
+
+    base_size = team_count / group_count
+    remainder = team_count % group_count
+    group_sizes = Array.new(group_count, base_size)
+    remainder.times { |index| group_sizes[index] += 1 }
+
+    if matches_per_team.positive?
+      group_sizes.sum { |size| [size * matches_per_team / 2, size * (size - 1) / 2].min }
+    else
+      group_sizes.sum { |size| size * (size - 1) / 2 } * matches_per_opponent
+    end
+  end
+
+  def matches_count_explanation
+    return "O formato atual não gera jogos de classificação." if knockout_only_mode?
+
+    team_count = format_data.fetch("teamCount", default_format.fetch("teamCount")).to_i
+    group_count = self.group_count
+    expected = estimated_group_stage_matches_count
+    team_label = team_count == 1 ? "equipe" : "equipes"
+    group_label = group_count == 1 ? "chave" : "chaves"
+
+    return "O sistema estima #{expected} jogo(s) a partir do formato atual." if team_count < 2
+
+    if matches_per_team.positive?
+      "#{team_count} #{team_label} em #{group_count} #{group_label} com #{matches_per_team_label.downcase} geram #{expected} jogos."
+    else
+      "#{team_count} #{team_label} em #{group_count} #{group_label} com #{matches_per_opponent_label.downcase} geram #{expected} jogos."
+    end
   end
 
   def qualified_per_group
@@ -232,6 +284,18 @@ class Championship < ApplicationRecord
     category
   end
 
+  def ensure_team_setup_category!
+    return ensure_tranca_onboarding_category! if tranca?
+
+    category = categories.find_by(source_id: team_setup_category_source_id) || Category.find_or_initialize_by(source_id: team_setup_category_source_id)
+    category.assign_attributes(
+      championship: self,
+      name: name
+    )
+    category.save!
+    category
+  end
+
   def recent_tranca_championships(limit: 3)
     Championship.tranca.where.not(id: id).order(created_at: :desc, season: :desc).limit(limit).includes(categories: { teams: :athletes })
   end
@@ -251,6 +315,10 @@ class Championship < ApplicationRecord
     end
 
     invited
+  end
+
+  def team_setup_category_source_id
+    "category-team-setup-#{source_id}"
   end
 
   def invite_tranca_dupla_into_category!(team, category)
@@ -351,7 +419,8 @@ class Championship < ApplicationRecord
       "teamCount" => categories.sum { |category| category.teams.size },
       "groupCount" => [categories.size, 1].max,
       "qualifiedPerGroup" => default_scoring.fetch("qualifiedPerGroup"),
-      "matchesPerOpponent" => 1
+      "matchesPerOpponent" => 1,
+      "matchesPerTeam" => 0
     }
   end
 
@@ -614,24 +683,42 @@ class Championship < ApplicationRecord
         initial_group_assignments_for(participating_teams).each do |group_key, group_teams|
           next if group_teams.size < 2
 
-          pairings = group_teams.combination(2).to_a.sort_by do |team_a, team_b|
-            [team_a.name.to_s.downcase, team_b.name.to_s.downcase]
-          end
+          if matches_per_team.positive?
+            limited_group_pairings_for(group_teams).each_with_index do |round_pairings, round_index|
+              round_pairings.each do |team_a, team_b|
+                created_matches << matches.create!(
+                  source_id: classification_match_source_id(category, group_key, team_a, team_b, round_index + 1),
+                  category: category,
+                  code: classification_match_code(category, group_key, team_a, team_b, round_index + 1),
+                  phase: "grupos",
+                  group_key: group_key,
+                  round_number: round_index + 1,
+                  team_a: team_a,
+                  team_b: team_b,
+                  status: :agendado
+                )
+              end
+            end
+          else
+            pairings = group_teams.combination(2).to_a.sort_by do |team_a, team_b|
+              [team_a.name.to_s.downcase, team_b.name.to_s.downcase]
+            end
 
-          pairings.each_with_index do |(team_a, team_b), pair_index|
-            matches_per_opponent.times do |repetition_index|
-              repetition = repetition_index + 1
-              created_matches << matches.create!(
-                source_id: classification_match_source_id(category, group_key, team_a, team_b, repetition),
-                category: category,
-                code: classification_match_code(category, group_key, team_a, team_b, repetition),
-                phase: "grupos",
-                group_key: group_key,
-                round_number: pair_index + 1,
-                team_a: team_a,
-                team_b: team_b,
-                status: :agendado
-              )
+            pairings.each_with_index do |(team_a, team_b), pair_index|
+              matches_per_opponent.times do |repetition_index|
+                repetition = repetition_index + 1
+                created_matches << matches.create!(
+                  source_id: classification_match_source_id(category, group_key, team_a, team_b, repetition),
+                  category: category,
+                  code: classification_match_code(category, group_key, team_a, team_b, repetition),
+                  phase: "grupos",
+                  group_key: group_key,
+                  round_number: pair_index + 1,
+                  team_a: team_a,
+                  team_b: team_b,
+                  status: :agendado
+                )
+              end
             end
           end
         end
@@ -886,6 +973,66 @@ class Championship < ApplicationRecord
 
   def finalize_standing_totals!(stats)
     stats[:goal_diff] = stats[:goals_for] - stats[:goals_against]
+  end
+
+  def limited_group_pairings_for(group_teams)
+    degree_limit = [matches_per_team, group_teams.size - 1].min
+    return [] if degree_limit < 1
+
+    degrees = Array.new(group_teams.size, degree_limit)
+    degrees[-1] -= 1 if degrees.sum.odd?
+    pairings = realize_pairings_for(group_teams, degrees)
+    return pairings if pairings.present?
+
+    while degrees.sum.positive?
+      index = degrees.rindex { |degree| degree.positive? }
+      break if index.blank?
+
+      degrees[index] -= 1
+      pairings = realize_pairings_for(group_teams, degrees)
+      return pairings if pairings.present?
+    end
+
+    []
+  end
+
+  def realize_pairings_for(group_teams, degrees)
+    nodes = group_teams.each_with_index.map do |team, index|
+      { team: team, degree: degrees[index].to_i }
+    end
+
+    edges = []
+
+    loop do
+      nodes.sort_by! { |node| [-node[:degree], node[:team].name.to_s.downcase, node[:team].id] }
+      first = nodes.shift
+      break if first.blank? || first[:degree] <= 0
+      return nil if first[:degree] > nodes.size
+
+      partners = nodes.first(first[:degree])
+      partners.each do |partner|
+        edges << [ first[:team], partner[:team] ]
+        partner[:degree] -= 1
+        return nil if partner[:degree] < 0
+      end
+      first[:degree] = 0
+
+      nodes.reject! { |node| node[:degree] <= 0 }
+    end
+
+    edges = edges.sort_by { |team_a, team_b| [team_a.name.to_s.downcase, team_b.name.to_s.downcase] }
+    rounds = []
+
+    edges.each do |team_a, team_b|
+      round = rounds.find { |round_pairings| round_pairings.none? { |existing_a, existing_b| [existing_a.id, existing_b.id].include?(team_a.id) || [existing_a.id, existing_b.id].include?(team_b.id) } }
+      if round.blank?
+        round = []
+        rounds << round
+      end
+      round << [team_a, team_b]
+    end
+
+    rounds
   end
 
   def participating_teams_for(category)

@@ -384,8 +384,11 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     flow.record_result!(partida: segunda, score_a: 6, score_b: 5, status: :finalizado)
 
     round_two = championship.tranca_rodadas.find_by!(phase: "mata_mata", round_number: 2)
-    assert_equal 1, round_two.partidas.count
-    assert_equal [ duplas[0].name, duplas[1].name ], round_two.partidas.first.then { |partida| [ partida.dupla_a, partida.dupla_b ] }
+    assert_equal 2, round_two.partidas.count
+
+    pairings = round_two.partidas.order(:id).map { |partida| [ partida.dupla_a, partida.dupla_b ] }
+    assert_includes pairings, [ duplas[0].name, duplas[1].name ]
+    assert_includes pairings, [ duplas[3].name, duplas[2].name ]
 
     assert_not flow.knockout_finished?
 
@@ -490,7 +493,10 @@ class Tranca::CompetitionFlowTest < ActiveSupport::TestCase
     flow.record_result!(partida: segunda, score_a: 6, score_b: 5, status: :finalizado)
 
     round_two = championship.tranca_rodadas.find_by!(phase: "mata_mata", round_number: 2)
-    assert_equal 1, round_two.partidas.count
-    assert_equal [ duplas[0].name, duplas[1].name ], round_two.partidas.first.then { |partida| [ partida.dupla_a, partida.dupla_b ] }
+    assert_equal 2, round_two.partidas.count
+
+    pairings = round_two.partidas.order(:id).map { |partida| [ partida.dupla_a, partida.dupla_b ] }
+    assert_includes pairings, [ duplas[0].name, duplas[1].name ]
+    assert_includes pairings, [ duplas[3].name, duplas[2].name ]
   end
 end

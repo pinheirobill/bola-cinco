@@ -1,4 +1,5 @@
 require "test_helper"
+require "securerandom"
 
 class TrancaSecondStageTest < ActionDispatch::IntegrationTest
   setup do
@@ -86,10 +87,68 @@ class TrancaSecondStageTest < ActionDispatch::IntegrationTest
   test "creates the second stage through the modal endpoint" do
     post create_tranca_second_stage_championship_path(@championship), params: { groups: @groups }
 
-    assert_redirected_to rodadas_championship_path(@championship)
+    assert_redirected_to rodadas_championship_path(@championship, stage: 2, anchor: "rodadas")
     assert_equal 3, @championship.tranca_rodadas.for_stage(2).count
     assert_equal 24, @championship.tranca_partidas.for_stage(2).count
     assert_equal 8, @championship.tranca_rodadas.for_stage(2).find_by!(round_number: 1).mesas.count
+
+    follow_redirect!
+
+    assert_response :success
+    assert_select "div[data-controller='stage-filter'][data-stage-filter-initial-stage-value='2']"
+    assert_select "button[data-stage='2'].btn-primary"
+  end
+
+  test "keeps the knockout preview on stage 1 standings when stage 2 rows exist" do
+    stage1_duplas = @duplas.first(8)
+    stage2_duplas = @duplas.last(8)
+
+    {
+      "A" => stage1_duplas.slice(0, 2),
+      "B" => stage1_duplas.slice(2, 2),
+      "C" => stage1_duplas.slice(4, 2),
+      "D" => stage1_duplas.slice(6, 2)
+    }.each do |group_key, duplas|
+      duplas.each_with_index do |dupla, index|
+        @championship.tranca_classificacao_rows.create!(
+          source_id: "stage-one-preview-#{group_key}-#{index + 1}-#{SecureRandom.hex(4)}",
+          championship: @championship,
+          category: @category,
+          tranca_dupla: dupla,
+          stage_number: 1,
+          group_key: group_key,
+          position: index + 1,
+          points: 10 - index
+        )
+      end
+    end
+
+    {
+      "E" => stage2_duplas.slice(0, 2),
+      "F" => stage2_duplas.slice(2, 2),
+      "G" => stage2_duplas.slice(4, 2),
+      "H" => stage2_duplas.slice(6, 2)
+    }.each do |group_key, duplas|
+      duplas.each_with_index do |dupla, index|
+        @championship.tranca_classificacao_rows.create!(
+          source_id: "stage-two-preview-#{group_key}-#{index + 1}-#{SecureRandom.hex(4)}",
+          championship: @championship,
+          category: @category,
+          tranca_dupla: dupla,
+          stage_number: 2,
+          group_key: group_key,
+          position: index + 1,
+          points: 10 - index
+        )
+      end
+    end
+
+    get classificacao_championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "8 classificados diretos + 0 duplas por pontuação para fechar 8 vagas."
+    assert_includes response.body, "Etapa 1"
+    assert_includes response.body, "Etapa 2"
   end
 
   test "rejects duplicated selections" do

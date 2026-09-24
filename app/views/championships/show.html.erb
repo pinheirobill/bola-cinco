@@ -7,6 +7,7 @@
   actions: [
     link_to("Classificação", standing_rows_path, class: "btn btn-outline"),
     (@championship.team_signup_open? ? button_tag("Inscrição de equipes", type: "button", class: "btn btn-outline", onclick: "document.getElementById('championship-team-signup-modal').showModal()") : nil),
+    (user_signed_in? && @championship.manageable_by?(current_user) && @championship.team_signup_open? ? link_to("Importar Excel", new_championship_team_import_path(@championship), class: "btn btn-outline") : nil),
     (user_signed_in? && @championship.manageable_by?(current_user) && @championship.team_signup_open? ? button_to("Finalizar inscrições", finalize_registrations_championship_path(@championship), method: :patch, class: "btn btn-primary", data: { turbo_confirm: "Finalizar inscrições e gerar os jogos iniciais?" }) : nil),
     (user_signed_in? && @championship.rascunho? && @championship.manageable_by?(current_user) ? button_to("Ativar campeonato", finalize_onboarding_championship_path(@championship), method: :patch, class: "btn btn-primary", data: { turbo_confirm: "Ativar este campeonato agora?" }) : nil),
     (user_signed_in? && @championship.manageable_by?(current_user) ? link_to("Configurar campeonato", setup_championship_path(@championship), class: "btn btn-primary") : nil)
@@ -15,7 +16,7 @@
 
 <%= stats_grid([
   { label: "Categorias", value: @championship.categories.count, value_class: "text-2xl" },
-  { label: "Jogos", value: @championship.matches.count, value_class: "text-2xl" },
+  { label: "Jogos", value: @championship.matches.count, description: @championship.matches_count_explanation, value_class: "text-2xl" },
   { label: "Classificações", value: @standing_groups.size, value_class: "text-2xl" },
   { label: "Atletas em destaque", value: @top_athletes.size, value_class: "text-2xl" }
 ]) %>
@@ -45,6 +46,10 @@
       <div class="rounded-2xl bg-base-200 p-4">
         <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Confrontos por adversário</p>
         <p class="mt-2 text-lg font-semibold"><%= @championship.matches_per_opponent_label %></p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Jogos por equipe</p>
+        <p class="mt-2 text-lg font-semibold"><%= @championship.matches_per_team_label %></p>
       </div>
       <div class="rounded-2xl bg-base-200 p-4">
         <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Temporada</p>

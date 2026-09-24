@@ -69,9 +69,9 @@ module Tranca
     end
 
     def standings_groups
-      classificacao_rows.group_by { |row| [ row.category, row.group_key.to_s ] }.map do |(category, group_key), rows|
-        StandingGroup.new(category: category, group_key: group_key, rows: rows)
-      end.sort_by { |group| [ group.category.name.to_s.downcase, group_key_sort_value(group.group_key) ] }
+      classificacao_rows.group_by { |row| [ row.stage_number.to_i, row.category, row.group_key.to_s ] }.map do |(stage_number, category, group_key), rows|
+        StandingGroup.new(stage_number: stage_number, category: category, group_key: group_key, rows: rows)
+      end.sort_by { |group| [ group.stage_number.to_i, group.category.name.to_s.downcase, group_key_sort_value(group.group_key) ] }
     end
 
     def live_partidas
@@ -125,6 +125,6 @@ module Tranca
       [ 3, label.downcase ]
     end
 
-    StandingGroup = Struct.new(:category, :group_key, :rows, keyword_init: true)
+    StandingGroup = Struct.new(:stage_number, :category, :group_key, :rows, keyword_init: true)
   end
 end

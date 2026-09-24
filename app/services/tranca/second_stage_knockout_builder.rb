@@ -1,7 +1,12 @@
 module Tranca
   class SecondStageKnockoutBuilder
     class InvalidStateError < StandardError; end
-    PAIRINGS = { "QF1" => [%w[A 1], %w[B 2]], "QF2" => [%w[B 1], %w[A 2]], "QF3" => [%w[C 1], %w[D 2]], "QF4" => [%w[D 1], %w[C 2]] }.freeze
+    PAIRINGS = {
+      "QF1" => [%w[A 1], %w[D 2]],
+      "QF2" => [%w[B 1], %w[C 2]],
+      "QF3" => [%w[C 1], %w[B 2]],
+      "QF4" => [%w[D 1], %w[A 2]]
+    }.freeze
 
     def initialize(championship)
       @championship = championship

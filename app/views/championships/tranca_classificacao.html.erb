@@ -53,10 +53,11 @@
   </div>
   <div class="space-y-6">
     <% if @tranca_standing_groups.any? %>
-      <% classification_position = 0 %>
+      <% classification_positions = Hash.new(0) %>
       <% @tranca_standing_groups.each do |group| %>
+        <% stage_number = group.rows.first&.stage_number.to_i %>
         <% category_duplas = @tranca_duplas_by_category[group.category.id] || [] %>
-        <div data-classification-navigation-target="group" data-stage="<%= group.rows.first&.stage_number || 1 %>" class="<%= "hidden" if group.rows.first&.stage_number.to_i == 2 %>">
+        <div data-classification-navigation-target="group" data-stage="<%= stage_number.presence || 1 %>" class="<%= "hidden" if stage_number == 2 %>">
           <div class="mb-3 flex items-center justify-between gap-3">
             <div>
               <h3 class="text-xl font-bold"><%= group.category.name %></h3>
@@ -76,7 +77,7 @@
           </div>
 
           <div class="overflow-x-auto">
-            <%= standing_table(group.category, group.rows, group_key: group.group_key, position_offset: classification_position, tranca: true, show_header: false) %>
+            <%= standing_table(group.category, group.rows, group_key: group.group_key, position_offset: classification_positions[stage_number], tranca: true, show_header: false) %>
           </div>
 
           <% if manage_classification && group.group_key.present? %>
@@ -215,7 +216,7 @@
             </dialog>
           <% end %>
         </div>
-        <% classification_position += group.rows.size %>
+        <% classification_positions[stage_number] += group.rows.size %>
       <% end %>
     <% else %>
       <%= empty_state(
@@ -321,7 +322,7 @@
     <form method="dialog" class="modal-backdrop"><button>Fechar</button></form>
   </dialog>
 
-  <% knockout_preview_groups = @tranca_standing_groups.map do |group|
+  <% knockout_preview_groups = @tranca_standing_groups.select { |group| group.stage_number.to_i == 1 }.map do |group|
        {
          category: group.category.name,
          group_key: group.group_key.to_s,

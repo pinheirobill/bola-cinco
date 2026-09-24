@@ -12,6 +12,15 @@ class ChampionshipFormatModeTest < ApplicationSystemTestCase
       name: "Campeonato System Format",
       season: 2026
     )
+
+    @championship.update!(
+      format: {
+        "mode" => "grupos_mata_mata",
+        "groupCount" => 1,
+        "teamCount" => 9,
+        "matchesPerOpponent" => 1
+      }
+    )
   end
 
   teardown do
@@ -26,5 +35,18 @@ class ChampionshipFormatModeTest < ApplicationSystemTestCase
 
     assert_text "Campeonato atualizado."
     assert_equal "grupos_mata_mata", @championship.reload.format_data["mode"]
+  end
+
+  test "shows the expected match count explanation" do
+    visit setup_championship_path(@championship, step: "format")
+
+    assert_text "9 equipes em 1 chave com 1 vez por adversário geram 36 jogos."
+  end
+
+  test "shows the team match limit field" do
+    visit setup_championship_path(@championship, step: "format")
+
+    assert_text "Jogos por equipe"
+    assert_text "Ex.: 4 limita cada equipe a quatro jogos na fase classificatória."
   end
 end

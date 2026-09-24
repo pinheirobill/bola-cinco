@@ -87,6 +87,30 @@ class ChampionshipCompetitionModesTest < ActiveSupport::TestCase
     assert_equal "1 vez por adversário", @championship.matches_per_opponent_label
   end
 
+  test "labels the team match limit when configured" do
+    @championship.update!(format: @championship.format_data.merge("matchesPerTeam" => 4))
+
+    assert_equal 4, @championship.matches_per_team
+    assert_equal "4 jogos por equipe", @championship.matches_per_team_label
+    assert_includes @championship.matches_count_explanation, "4 jogos por equipe"
+  end
+
+  test "finalizes registrations with a team match limit" do
+    @championship.update!(format: @championship.format_data.merge("matchesPerTeam" => 4))
+
+    created_matches = @championship.finalize_registrations!
+
+    assert_equal 16, created_matches.size
+
+    counts = Hash.new(0)
+    created_matches.each do |match|
+      counts[match.team_a_id] += 1
+      counts[match.team_b_id] += 1
+    end
+
+    assert_equal [4], counts.values.uniq
+  end
+
   test "finalizes registrations by closing signups and creating the initial group schedule" do
     created_matches = @championship.finalize_registrations!
 

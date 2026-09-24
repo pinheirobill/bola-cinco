@@ -226,7 +226,7 @@
       "quartas_semi_final" => 8,
       "semi_final" => 4
     } %>
-    <div class="modal-box max-w-7xl" data-controller="knockout-builder" data-knockout-builder-stage-slots-value="<%= knockout_stage_slots.to_json %>">
+    <div class="modal-box max-w-7xl" data-controller="knockout-builder" data-knockout-builder-stage-slots-value="<%= knockout_stage_slots.to_json %>" data-knockout-builder-prefill-by-stage-value="<%= json_escape(@tranca_knockout_prefill_by_stage.to_json) %>" data-knockout-builder-dupla-names-by-id-value="<%= json_escape(@tranca_knockout_dupla_names_by_id.to_json) %>">
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="text-xs uppercase tracking-[0.28em] text-base-content/50">Configuração do mata-mata</p>
@@ -260,7 +260,7 @@
 
           <div class="rounded-3xl border border-base-300 bg-base-200/70 p-4">
             <p class="text-sm font-semibold">Próxima etapa</p>
-            <p class="mt-1 text-sm text-base-content/70">Você vai ver os classificados e escolher as duplas de cada jogo no desenho da chave.</p>
+            <p class="mt-1 text-sm text-base-content/70">A chave já abre preenchida pelo sorteio e você pode ajustar as duplas antes de gerar.</p>
           </div>
 
           <div class="modal-action">
@@ -408,9 +408,12 @@
                     <% end %>
                   </div>
 
-                  <div class="pt-52">
+                  <div class="space-y-6 pt-52">
                     <div class="rounded-2xl border border-dashed border-primary/40 bg-primary/10 p-3 text-sm font-semibold text-primary">
                       Final
+                    </div>
+                    <div class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-3 text-sm text-base-content/60">
+                      3º lugar
                     </div>
                   </div>
                 </div>
@@ -433,21 +436,28 @@
   </dialog>
 <% end %>
 
-<div data-controller="stage-filter">
+<% current_stage = @tranca_selected_stage.presence || "1" %>
+
+<div id="rodadas" data-controller="stage-filter" data-stage-filter-initial-stage-value="<%= current_stage %>">
 <%= surface_card(title: "Rodadas", subtitle: "As partidas podem ser organizadas por etapa, fase e número.") do %>
   <% if @tranca_rodadas.any? %>
     <div class="mb-5 join">
-      <button type="button" class="btn btn-sm join-item btn-primary" data-stage="1" data-stage-filter-target="button" data-action="stage-filter#show">Etapa 1</button>
-      <button type="button" class="btn btn-sm join-item" data-stage="2" data-stage-filter-target="button" data-action="stage-filter#show">Etapa 2</button>
+      <button type="button" class="btn btn-sm join-item <%= "btn-primary" if current_stage == "1" %>" data-stage="1" data-stage-filter-target="button" data-action="stage-filter#show">Etapa 1</button>
+      <button type="button" class="btn btn-sm join-item <%= "btn-primary" if current_stage == "2" %>" data-stage="2" data-stage-filter-target="button" data-action="stage-filter#show">Etapa 2</button>
+      <% if @tranca_has_mata_mata %>
+        <button type="button" class="btn btn-sm join-item <%= "btn-primary" if current_stage == "mata_mata" %>" data-stage="mata_mata" data-stage-filter-target="button" data-action="stage-filter#show">Mata-mata</button>
+      <% end %>
     </div>
     <div class="space-y-6">
       <% dupla_names = @tranca_duplas.index_by(&:id) %>
       <% manage_round_games = user_signed_in? && @championship.manageable_by?(current_user) %>
       <% @tranca_rodadas.each do |round| %>
+        <% next if round.partidas.empty? %>
         <% round_management_enabled = manage_round_games && round.first_stage? %>
         <% round_presenter = BolaCinco::TrancaProgramacaoPresenter.new(@championship, round.partidas) %>
         <% round_deletable = round.partidas.none?(&:finished?) %>
-        <div class="rounded-3xl bg-base-200 p-4 <%= "hidden" if round.second_stage? %>" data-stage-filter-target="stage" data-stage="<%= round.stage_number %>">
+        <% visible_round = current_stage == "mata_mata" ? round.mata_mata? : round.stage_number.to_s == current_stage %>
+        <div class="rounded-3xl bg-base-200 p-4 <%= "hidden" unless visible_round %>" data-stage-filter-target="stage" data-stage="<%= round.stage_number %>" data-phase="<%= round.phase %>">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 class="text-xl font-bold"><%= round.label %></h3>
@@ -464,7 +474,7 @@
                 <%= link_to "Baixar todas as súmulas (PDF)", championship_round_summulas_path(@championship, rodada_id: round.id), class: "btn btn-outline btn-xs", data: { turbo: false } %>
                 <%= link_to "Por mesa (Excel)", championship_round_games_path(@championship, rodada_id: round.id, order: :mesa), class: "btn btn-outline btn-xs", data: { turbo: false } %>
                 <%= link_to "Por nome (Excel)", championship_round_games_path(@championship, rodada_id: round.id, order: :name), class: "btn btn-outline btn-xs", data: { turbo: false } %>
-                <%= link_to "Programação (PDF)", programacao_championship_path(@championship, format: :pdf, stage: round.stage_number), class: "btn btn-outline btn-xs", data: { turbo: false } %>
+                <%= link_to "Programação (PDF)", programacao_championship_path(@championship, format: :pdf, stage: (round.mata_mata? ? "mata_mata" : round.stage_number)), class: "btn btn-outline btn-xs", data: { turbo: false } %>
               <% end %>
               <% if round_management_enabled %>
                 <%= button_to "Definir mesas", generate_tranca_mesas_championship_path(@championship, rodada_id: round.id), method: :post, class: "btn btn-outline btn-xs" %>

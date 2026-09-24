@@ -123,7 +123,7 @@ module BolaCinco
       widths = column_widths
       values = [
         "JG #{row[:jg]}",
-        row[:mesa],
+        row[:mesa_label].presence || row[:mesa],
         row[:team_a],
         row[:score_a],
         "x",

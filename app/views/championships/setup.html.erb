@@ -185,7 +185,7 @@ end %>
               <h3 class="text-lg font-semibold">Configuração básica</h3>
               <p class="mt-1 text-sm text-base-content/70">Campos essenciais do formato, organizados para leitura rápida.</p>
             </div>
-            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
               <div class="form-control gap-2">
                 <%= label_tag "championship_format_team_count", "Quantidade de equipes", class: "label-text font-medium" %>
                 <%= number_field_tag "championship[format][teamCount]", @championship.format_data["teamCount"], id: "championship_format_team_count", class: "input input-bordered w-full" %>
@@ -200,6 +200,14 @@ end %>
                 <%= label_tag "championship_format_matches_per_opponent", "Jogos por confronto", class: "label-text font-medium" %>
                 <%= number_field_tag "championship[format][matchesPerOpponent]", @championship.format_data["matchesPerOpponent"], id: "championship_format_matches_per_opponent", min: 1, step: 1, class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
                 <p class="text-xs text-base-content/60">Ex.: 1 vez na fase classificatória; 2 vezes em ida e volta.</p>
+                <p class="text-xs text-base-content/60"><%= @championship.matches_count_explanation %></p>
+              </div>
+
+              <div data-competition-mode-target="matchesPerTeamField" class="<%= selected_mode == "mata_mata" ? "hidden" : "" %> form-control gap-2">
+                <%= label_tag "championship_format_matches_per_team", "Jogos por equipe", class: "label-text font-medium" %>
+                <%= number_field_tag "championship[format][matchesPerTeam]", @championship.format_data["matchesPerTeam"], id: "championship_format_matches_per_team", min: 0, step: 1, class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
+                <p class="text-xs text-base-content/60">Ex.: 4 limita cada equipe a quatro jogos na fase classificatória.</p>
+                <p class="text-xs text-base-content/60">Use 0 para manter o todos contra todos completo.</p>
               </div>
 
               <div data-competition-mode-target="qualifiedField" class="<%= selected_mode == "grupos_mata_mata" ? "" : "hidden" %> form-control gap-2">
@@ -805,7 +813,9 @@ end %>
               <div class="grid gap-3 md:grid-cols-[1fr_auto]">
                 <div class="form-control gap-2">
                   <%= label_tag :category_id, "Categoria destino", class: "label-text font-medium" %>
-                  <%= select_tag :category_id, options_from_collection_for_select(@championship_categories, :id, :name, @championship_categories.first&.id), class: "select select-bordered w-full" %>
+                  <%= select_tag :category_id,
+                        options_from_collection_for_select(@championship_categories, :id, :name, @championship_categories.first&.id),
+                        class: "select select-bordered w-full" %>
                 </div>
                 <div class="flex items-end">
                   <%= submit_tag "Vincular selecionadas", class: "btn btn-primary" %>

@@ -66,7 +66,7 @@
             <% section[:rows].each_with_index do |row, index| %>
               <div class="grid <%= row_grid %> items-center <%= row_class %> font-semibold text-slate-950 <%= index.even? ? 'bg-[#FFF7E1]' : 'bg-white' %>">
                 <div class="truncate font-black <%= jg_class %>"><%= "JG #{row[:jg]}" %></div>
-                <div class="text-center <%= mesa_class %>"><%= row[:mesa] %></div>
+                <div class="text-center <%= mesa_class %>"><%= row[:mesa_label].presence || row[:mesa] %></div>
                 <div class="<%= team_text_class %> pr-2"><%= row[:team_a] %></div>
                 <div class="text-center font-normal text-slate-700 <%= score_class %>"><%= row[:score_a] %></div>
                 <div class="text-center font-black leading-none text-[#D40000] <%= x_class %>">x</div>

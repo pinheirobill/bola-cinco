@@ -127,6 +127,17 @@ class PhaseFivePlatformTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "data-clipboard-value"
   end
 
+  test "creates a default category on onboarding finalization when none are linked" do
+    assert_difference "Category.count", 1 do
+      patch finalize_onboarding_championship_path(@championship_2)
+    end
+
+    created_category = @championship_2.reload.categories.find_by!(name: @championship_2.name)
+    assert_equal "em_andamento", @championship_2.status
+    assert_equal created_category, @championship_2.categories.first
+    assert_redirected_to championship_path(@championship_2)
+  end
+
   test "does not show tiebreakers on tranca onboarding" do
     get setup_championship_path(@championship_tranca, step: "format")
 
@@ -648,6 +659,31 @@ class PhaseFivePlatformTest < ActionDispatch::IntegrationTest
     assert_redirected_to setup_championship_path(@championship_tranca, step: "teams")
     assert_equal destination_category, team.reload.category
     assert team.registration_status_pendente?
+  end
+
+  test "creates a default category with the championship name when attaching teams without selecting one" do
+    entity = Entity.create!(
+      source_id: "entity-phase-five-default-category",
+      name: "Escola Z"
+    )
+
+    team = Team.create!(
+      source_id: "team-phase-five-default-category",
+      entity: entity,
+      category: Category.create!(source_id: "cat-phase-five-default-category-source", championship: @championship_2, name: "Outra"),
+      name: "Time Z"
+    )
+
+    assert_difference "Category.count", 1 do
+      patch attach_team_championship_path(@championship_2), params: {
+        team_id: team.id,
+        category_id: ""
+      }
+    end
+
+    created_category = @championship_2.categories.find_by!(name: @championship_2.name)
+    assert_equal created_category, team.reload.category
+    assert_equal "Categoria vinculada ao campeonato.", flash[:notice]
   end
 
   test "duplicates a category into a new available copy with pending duplas" do

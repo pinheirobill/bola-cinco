@@ -160,7 +160,7 @@ class ChampionshipsController < ApplicationController
       qualified_per_group: params[:qualified_per_group].presence
     )
 
-    redirect_to rodadas_championship_path(@championship), notice: "Chave eliminatória gerada."
+    redirect_to rodadas_championship_path(@championship, stage: "mata_mata", anchor: "rodadas"), notice: "Chave eliminatória gerada."
   rescue ActiveRecord::RecordInvalid => error
     redirect_back fallback_location: classificacao_championship_path(@championship), alert: error.record.errors.full_messages.join(" · ")
   rescue Tranca::CompetitionFlow::InvalidKnockoutSelectionError => error
@@ -180,7 +180,7 @@ class ChampionshipsController < ApplicationController
     else
       groups.to_h.keys
     end.reject(&:blank?).uniq.size
-    redirect_to rodadas_championship_path(@championship), notice: "2ª etapa criada com #{total_groups} chave(s)."
+    redirect_to rodadas_championship_path(@championship, stage: 2, anchor: "rodadas"), notice: "2ª etapa criada com #{total_groups} chave(s)."
   rescue ActiveRecord::RecordInvalid => error
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: error.record.errors.full_messages.join(" · ")
   rescue Tranca::SecondStageBuilder::InvalidSelectionError => error
@@ -193,7 +193,7 @@ class ChampionshipsController < ApplicationController
     return redirect_back(fallback_location: classificacao_championship_path(@championship), alert: "Essa ação é específica da Tranca.") unless @championship.tranca?
 
     Tranca::SecondStageKnockoutBuilder.new(@championship).create!
-    redirect_to rodadas_championship_path(@championship), notice: "Quartas de final da 2ª etapa criadas."
+    redirect_to rodadas_championship_path(@championship, stage: "mata_mata", anchor: "rodadas"), notice: "Quartas de final da 2ª etapa criadas."
   rescue Tranca::SecondStageKnockoutBuilder::InvalidStateError => error
     redirect_back fallback_location: classificacao_championship_path(@championship), alert: error.message, status: :see_other
   end
@@ -486,7 +486,8 @@ class ChampionshipsController < ApplicationController
       winner_id: params_data[:winner_id].presence,
       decision: params_data[:decision].presence,
       wo: params_data[:wo].presence,
-      maos_attributes: normalize_tranca_maos_attributes(params_data[:maos_attributes])
+      maos_attributes: tranca_quick_result_only?(params_data[:maos_attributes]) ? nil : normalize_tranca_maos_attributes(params_data[:maos_attributes]),
+      replace_maos: tranca_quick_result_only?(params_data[:maos_attributes])
     )
     partida.reload
 
@@ -679,7 +680,7 @@ class ChampionshipsController < ApplicationController
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
 
-    @championship.ensure_tranca_onboarding_category! if @championship.tranca?
+    @championship.ensure_team_setup_category! if @championship.categories.none?
     @championship.update!(status: :em_andamento)
     redirect_back fallback_location: championship_path(@championship), notice: "Onboarding concluído."
   rescue ActiveRecord::RecordInvalid => e
@@ -977,9 +978,11 @@ class ChampionshipsController < ApplicationController
     @tranca_total_duplas = @tranca_duplas.size
     @tranca_total_partidas = @championship.tranca_partidas.count
     @tranca_total_rodadas = @tranca_rodadas.size
+    @tranca_selected_stage = params[:stage].presence_in(%w[1 2 mata_mata]) || "1"
+    @tranca_has_mata_mata = @tranca_rodadas.any?(&:mata_mata?)
     first_stage_rounds = @tranca_rodadas.select(&:first_stage?)
     @tranca_next_round_number = first_stage_rounds.select(&:classificatoria?).map(&:round_number).max.to_i + 1
-    @tranca_next_knockout_round_number = first_stage_rounds.select(&:mata_mata?).map(&:round_number).max.to_i + 1
+    @tranca_next_knockout_round_number = @tranca_rodadas.select(&:mata_mata?).map(&:round_number).max.to_i + 1
     @tranca_classificatoria_esgotada = !Tranca::CompetitionFlow.new(@championship).classificatoria_pairings_available?(round_number: @tranca_next_round_number)
     @tranca_mata_mata_encerrado = Tranca::CompetitionFlow.new(@championship).knockout_finished?
     @tranca_standings = @championship.tranca_classificacao_rows
@@ -1085,7 +1088,7 @@ class ChampionshipsController < ApplicationController
   end
 
   def tranca_programacao_stage
-    params[:stage].presence_in(%w[all 1 2]) || "all"
+    params[:stage].presence_in(%w[all 1 2 mata_mata]) || "all"
   end
 
   def recent_tranca_source_teams
@@ -1146,16 +1149,16 @@ class ChampionshipsController < ApplicationController
     end
   end
 
-  def build_tranca_knockout_preview(knockout_stage_type:, qualified_per_group:)
+  def build_tranca_knockout_preview(knockout_stage_type:, qualified_per_group:, standings: Array(@tranca_standings), standing_groups: Array(@tranca_standing_groups))
     target_slots = knockout_stage_slots_for(knockout_stage_type)
     qualified_count = qualified_per_group.to_i
     qualified_count = 1 if qualified_count <= 0
 
-    standing_groups = Array(@tranca_standing_groups)
-    standings = Array(@tranca_standings)
-
-    direct_rows = standing_groups.flat_map do |group|
+    rows_by_group = standing_groups.map do |group|
       Array(group.rows).first(qualified_count)
+    end
+    direct_rows = qualified_count.times.flat_map do |index|
+      rows_by_group.filter_map { |group_rows| group_rows[index] }
     end
 
     backup_rows = standings.reject { |row| direct_rows.any? { |selected_row| selected_row.id == row.id } }
@@ -1168,6 +1171,14 @@ class ChampionshipsController < ApplicationController
       direct_rows: direct_rows,
       backup_rows: backup_rows
     }
+  end
+
+  def build_tranca_knockout_prefill_ids(preview)
+    participants = Array(preview[:direct_rows]) + Array(preview[:backup_rows])
+    return [] if participants.blank?
+
+    half = participants.size / 2
+    participants.first(half).zip(participants.last(half).reverse).flatten.compact.map(&:tranca_dupla_id)
   end
 
   def prepare_tranca_knockout_state
@@ -1189,24 +1200,42 @@ class ChampionshipsController < ApplicationController
     @tranca_knockout_qualified_per_group = [ @championship.qualified_per_group, 1 ].max
 
     standings = Array(@tranca_standings)
+    knockout_stage_number = standings.map { |row| row.stage_number.to_i }.max.to_i
+    knockout_stage_number = 1 if knockout_stage_number <= 0
+    standings = standings.select { |row| row.stage_number.to_i == knockout_stage_number }
     qualified_ids = standings.select(&:qualified?).map(&:tranca_dupla_id)
     @tranca_knockout_qualified_rows = standings.select(&:qualified?).sort_by { |row| [ row.group_key.to_s, row.position ] }
-    available_knockout_rows = standings.reject { |row| qualified_ids.include?(row.tranca_dupla_id) }
-    @tranca_knockout_classification_rows = available_knockout_rows.sort_by do |row|
-      [ row.category.name.to_s.downcase, row.group_key.to_s, row.position.to_i ]
-    end
-    @tranca_knockout_classification_groups = @tranca_knockout_classification_rows.group_by do |row|
+    @tranca_knockout_classification_rows = @tranca_knockout_qualified_rows
+    @tranca_knockout_classification_groups = @tranca_knockout_qualified_rows.group_by do |row|
       row.group_key.to_s.presence || "geral"
     end
+    available_knockout_rows = standings.reject { |row| qualified_ids.include?(row.tranca_dupla_id) }
     @tranca_knockout_ranking_rows = available_knockout_rows.sort_by do |row|
       [ -row.points.to_i, -row.goal_diff.to_i, -row.goals_for.to_i, row.position.to_i, row.tranca_dupla.name.to_s.downcase ]
     end
     @tranca_knockout_candidate_rows = @tranca_knockout_ranking_rows
+    @tranca_knockout_dupla_names_by_id = @championship.tranca_duplas.pluck(:id, :name).to_h
     @tranca_knockout_selection_done = @championship.tranca_partidas.where(phase: "mata_mata", round_number: 1).exists?
     @tranca_knockout_preview = build_tranca_knockout_preview(
       knockout_stage_type: @tranca_knockout_stage_type,
-      qualified_per_group: @tranca_knockout_qualified_per_group
+      qualified_per_group: @tranca_knockout_qualified_per_group,
+      standings: standings,
+      standing_groups: @tranca_knockout_classification_groups.map do |group_key, rows|
+        Tranca::Dashboard::StandingGroup.new(stage_number: knockout_stage_number, category: rows.first.category, group_key: group_key, rows: rows)
+      end
     )
+    @tranca_knockout_prefill_by_stage = @tranca_knockout_stage_type_options.to_h do |_, stage_type|
+      preview = build_tranca_knockout_preview(
+        knockout_stage_type: stage_type,
+        qualified_per_group: @tranca_knockout_qualified_per_group,
+        standings: standings,
+        standing_groups: @tranca_knockout_classification_groups.map do |group_key, rows|
+          Tranca::Dashboard::StandingGroup.new(stage_number: knockout_stage_number, category: rows.first.category, group_key: group_key, rows: rows)
+        end
+      )
+
+      [ stage_type, build_tranca_knockout_prefill_ids(preview) ]
+    end
   end
 
   def normalize_tranca_maos_attributes(maos_attributes)
@@ -1218,6 +1247,32 @@ class ChampionshipsController < ApplicationController
     else
       Array(maos_attributes)
     end.map { |attributes| attributes.respond_to?(:to_h) ? attributes.to_h.symbolize_keys : attributes }
+  end
+
+  def tranca_quick_result_only?(maos_attributes)
+    normalized = normalize_tranca_maos_attributes(maos_attributes)
+    return false if normalized.blank?
+
+    normalized.all? { |attributes| tranca_mao_quick_result_only?(attributes) }
+  end
+
+  def tranca_mao_quick_result_only?(attributes)
+    return false if attributes.blank?
+
+    points_a = attributes[:pontos_a].to_s
+    points_b = attributes[:pontos_b].to_s
+    flags = %i[
+      canastra_limpa_a
+      canastra_limpa_b
+      canastra_suja_a
+      canastra_suja_b
+      batida_a
+      batida_b
+      tres_vermelho_a
+      tres_vermelho_b
+    ]
+
+    points_a.to_i.zero? && points_b.to_i.zero? && flags.none? { |flag| attributes[flag].present? } && attributes[:observacoes].blank?
   end
 
   def build_knockout_brackets(championship)
@@ -1400,7 +1455,8 @@ class ChampionshipsController < ApplicationController
         format: [
           :mode,
           :teamCount,
-          :groupCount
+          :groupCount,
+          :matchesPerTeam
         ] }
     ])
   end

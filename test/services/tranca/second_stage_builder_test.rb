@@ -45,7 +45,15 @@ class Tranca::SecondStageBuilderTest < ActiveSupport::TestCase
       assert_equal (1..8).map { |number| "Mesa #{number}" }, round.mesas.order(:id).pluck(:name)
       presenter = BolaCinco::TrancaProgramacaoPresenter.new(@championship, round.partidas.order(:id))
       assert_equal (1..8).map(&:to_s), presenter.sections.flat_map { |section| section[:rows].map { |row| row[:mesa] } }
+      assert_equal (1..8).map { |number| "R#{round.round_number} · M#{number}" },
+        presenter.sections.flat_map { |section| section[:rows].map { |row| row[:mesa_label] } }
     end
+
+    presenter = BolaCinco::TrancaProgramacaoPresenter.new(@championship, @championship.tranca_partidas.for_stage(2).order(:group_key, :round_number, :id), stage: "2")
+    mesa_labels = presenter.sections.flat_map { |section| section[:rows].map { |row| row[:mesa_label] } }
+    assert_includes mesa_labels, "R1 · M1"
+    assert_includes mesa_labels, "R2 · M1"
+    assert_includes mesa_labels, "R3 · M1"
 
     @duplas.each do |dupla|
       appearances = @championship.tranca_partidas.for_stage(2)

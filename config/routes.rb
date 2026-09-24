@@ -78,6 +78,7 @@ Rails.application.routes.draw do
     patch :confirm_all_team_registrations, on: :member, path: "confirmar-todas-inscricoes"
     patch :attach_partner, on: :member, path: "vincular-parceiro"
     resource :team_signup, only: %i[new create], path: "inscricao-time", controller: "championship_team_signups"
+    resource :team_import, only: %i[new create], path: "inscricao-time/importar", controller: "championship_team_imports"
     resource :athlete_signup, only: %i[new create], path: "inscricao-atleta", controller: "championship_athlete_signups"
     resources :championship_memberships, only: %i[index create]
   end

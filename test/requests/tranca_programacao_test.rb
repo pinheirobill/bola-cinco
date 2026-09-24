@@ -130,6 +130,39 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
       scheduled_on: Date.new(2026, 9, 20),
       scheduled_time: "20:00"
     )
+
+    @mata_mata_round = Tranca::Rodada.create!(
+      source_id: "round-tranca-programacao-mata-mata",
+      championship: @championship,
+      stage_number: 2,
+      phase: "mata_mata",
+      round_number: 2,
+      label: "2ª etapa · Quartas de final"
+    )
+
+    @mata_mata_mesa = Tranca::Mesa.create!(
+      source_id: "mesa-tranca-programacao-mata-mata",
+      championship: @championship,
+      tranca_rodada: @mata_mata_round,
+      code: "E2-QF-M1",
+      name: "Mesa 1"
+    )
+
+    Tranca::Partida.create!(
+      source_id: "partida-tranca-programacao-mata-mata-1",
+      championship: @championship,
+      category: @category,
+      tranca_rodada: @mata_mata_round,
+      tranca_mesa: @mata_mata_mesa,
+      dupla_a: @dupla_a,
+      dupla_b: @dupla_b,
+      code: "E2-QF1",
+      phase: "mata_mata",
+      stage_number: 2,
+      round_number: 2,
+      scheduled_on: Date.new(2026, 9, 21),
+      scheduled_time: "18:00"
+    )
   end
 
   test "shows the programacao screen with the PDF layout" do
@@ -140,6 +173,7 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Telão"
     assert_includes response.body, "Etapa 1"
     assert_includes response.body, "Etapa 2"
+    assert_includes response.body, "Mata-mata"
     assert_includes response.body, "JG 1"
     assert_includes response.body, "JG 2"
     assert_includes response.body, "JG 3"
@@ -172,6 +206,29 @@ class TrancaProgramacaoTest < ActionDispatch::IntegrationTest
     assert_includes extracted, "Preto / Branco"
     assert_not_includes extracted, "Rosa / Claudia"
     assert_not_includes extracted, "Mario / Renata"
+  end
+
+  test "shows the mata-mata stage in the programacao screen and telao" do
+    get programacao_championship_path(@championship, stage: "mata_mata")
+
+    assert_response :success
+    assert_includes response.body, "Selecionado: Mata-mata"
+    assert_includes response.body, "Mata-mata"
+    assert_includes response.body, "R2 · M1"
+    assert_includes response.body, "Azul / Verde"
+    assert_includes response.body, "Preto / Branco"
+    assert_not_includes response.body, "Rosa / Claudia"
+    assert_not_includes response.body, "Mario / Renata"
+
+    get programacao_telao_championship_path(@championship, stage: "mata_mata")
+
+    assert_response :success
+    assert_includes response.body, "Mata-mata"
+    assert_includes response.body, "R2 · M1"
+    assert_includes response.body, "Azul / Verde"
+    assert_includes response.body, "Preto / Branco"
+    assert_not_includes response.body, "Rosa / Claudia"
+    assert_not_includes response.body, "Mario / Renata"
   end
 
   test "shows the programacao telao screen" do

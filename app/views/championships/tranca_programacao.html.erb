@@ -24,6 +24,7 @@
     <%= link_to "Todas as etapas", programacao_championship_path(@championship, stage: "all"), class: "btn btn-sm #{current_stage == 'all' ? 'btn-primary' : 'btn-outline'}", data: { turbo: false } %>
     <%= link_to "Etapa 1", programacao_championship_path(@championship, stage: 1), class: "btn btn-sm #{current_stage == '1' ? 'btn-primary' : 'btn-outline'}", data: { turbo: false } %>
     <%= link_to "Etapa 2", programacao_championship_path(@championship, stage: 2), class: "btn btn-sm #{current_stage == '2' ? 'btn-primary' : 'btn-outline'}", data: { turbo: false } %>
+    <%= link_to "Mata-mata", programacao_championship_path(@championship, stage: "mata_mata"), class: "btn btn-sm #{current_stage == 'mata_mata' ? 'btn-primary' : 'btn-outline'}", data: { turbo: false } %>
     <span class="ml-2 text-sm text-base-content/60">Selecionado: <%= @tranca_programacao.stage_label %></span>
   </div>
 

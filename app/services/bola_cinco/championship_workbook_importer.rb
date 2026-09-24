@@ -184,7 +184,8 @@ module BolaCinco
         "teamCount" => teams.size,
         "groupCount" => 1,
         "qualifiedPerGroup" => 0,
-        "matchesPerOpponent" => 1
+        "matchesPerOpponent" => 1,
+        "matchesPerTeam" => 0
       }
     end
 

@@ -223,6 +223,10 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     }
 
     rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
     partida = rodada.partidas.first
 
     get download_tranca_summula_championship_path(@championship, partida_id: partida.id)
@@ -233,6 +237,7 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_includes scheduled_text, "5ª"
     assert_includes scheduled_text, "Etapa"
     assert_includes scheduled_text, "1ª etapa"
+    assert_includes scheduled_text, "Mesa 1"
     assert_includes scheduled_text, "RESULTADO FINAL"
     assert_includes scheduled_text, "DUPLA VENCEDORA"
 
@@ -257,6 +262,7 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_includes finalized_text, "5ª"
     assert_includes finalized_text, "Etapa"
     assert_includes finalized_text, "1ª etapa"
+    assert_includes finalized_text, "Mesa 1"
     assert_includes finalized_text, "1.500"
     assert_includes finalized_text, "750"
     assert_includes finalized_text, @dupla_a.name
@@ -318,6 +324,41 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Editar súmula"
     assert_includes response.body, "ID do jogo: #{partida.id}"
+  end
+
+  test "saves a quick result from the upper score fields without using hands" do
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "classificatoria",
+      round_number: 1
+    }
+
+    rodada = Tranca::Rodada.find_by!(championship: @championship, phase: "classificatoria", round_number: 1)
+    post generate_tranca_mesas_championship_path(@championship), params: {
+      rodada_id: rodada.id
+    }
+
+    partida = rodada.partidas.first
+
+    patch update_tranca_partida_championship_path(@championship, partida_id: partida.id), params: {
+      tranca_partida: {
+        score_a: 7,
+        score_b: 4,
+        status: "finalizado",
+        maos_attributes: {
+          "0" => { numero: 1, pontos_a: 0, pontos_b: 0 },
+          "1" => { numero: 2, pontos_a: 0, pontos_b: 0 },
+          "2" => { numero: 3, pontos_a: 0, pontos_b: 0 },
+          "3" => { numero: 4, pontos_a: 0, pontos_b: 0 },
+          "4" => { numero: 5, pontos_a: 0, pontos_b: 0 }
+        }
+      }
+    }
+
+    assert_redirected_to partidas_championship_path(@championship)
+    partida.reload
+    assert_equal 7, partida.score_a
+    assert_equal 4, partida.score_b
+    assert_equal 0, partida.maos.count
   end
 
   test "shows delete game action on scheduled rodada partidas" do
@@ -908,8 +949,55 @@ class TrancaWorkflowTest < ActionDispatch::IntegrationTest
 
     assert Tranca::Rodada.exists?(championship: @championship, phase: "mata_mata", round_number: 2)
     round_two = @championship.tranca_rodadas.find_by!(phase: "mata_mata", round_number: 2)
-    assert_equal 1, round_two.partidas.count
-    assert_equal [ additional_duplas.first.name, @dupla_a.name ], [ round_two.partidas.first.dupla_a, round_two.partidas.first.dupla_b ]
+    assert_equal 2, round_two.stage_number
+    assert_equal 2, round_two.partidas.count
+
+    pairings = round_two.partidas.order(:id).map { |partida| [ partida.dupla_a, partida.dupla_b ] }
+    assert_includes pairings, [ additional_duplas.first.name, @dupla_a.name ]
+    assert_includes pairings, [ @dupla_b.name, additional_duplas.last.name ]
+
+    get rodadas_championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Mata-mata"
+    assert_includes response.body, "Rodada 1 · Mata-mata"
+    assert_includes response.body, "Rodada 2 · Mata-mata"
+
+    get rodadas_championship_path(@championship, stage: "mata_mata")
+
+    assert_response :success
+    assert_select "div[data-controller='stage-filter'][data-stage-filter-initial-stage-value='mata_mata']"
+    assert_select "button[data-stage='mata_mata'].btn-primary", text: "Mata-mata"
+  end
+
+  test "hides empty future knockout rounds from the rods page" do
+    Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-c",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Alpha / Carol"
+    )
+    Tranca::Dupla.create!(
+      source_id: "dupla-tranca-workflow-d",
+      championship: @championship,
+      category: @category,
+      entity: @entity,
+      name: "Omega / Dora"
+    )
+
+    post generate_tranca_round_championship_path(@championship), params: {
+      phase: "mata_mata",
+      round_number: 1
+    }
+
+    Tranca::CompetitionFlow.new(@championship).generate_round!(phase: "mata_mata", round_number: 2)
+
+    get rodadas_championship_path(@championship)
+
+    assert_response :success
+    assert_includes response.body, "Rodada 1 · Mata-mata"
+    assert_not_includes response.body, "Rodada 2 · Mata-mata"
   end
 
   private

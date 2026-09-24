@@ -17,7 +17,9 @@ export default class extends Controller {
   ]
 
   static values = {
-    stageSlots: Object
+    stageSlots: Object,
+    prefillByStage: Object,
+    duplaNamesById: Object
   }
 
   connect() {
@@ -104,7 +106,7 @@ export default class extends Controller {
     this.updateState()
   }
 
-  updateStage() {
+  updateStage(event) {
     const gameCount = this.requiredSlots / 2
 
     this.gameTargets.forEach((game, index) => {
@@ -116,6 +118,11 @@ export default class extends Controller {
         if (!active) input.value = ""
       })
     })
+
+    if ((event?.type === "change") || !this.hasSelectedSlots()) {
+      this.resetActiveSlots()
+      this.prefillActiveSlots()
+    }
 
     this.updateState()
   }
@@ -155,12 +162,16 @@ export default class extends Controller {
     return this.hiddenInputTargets.filter((input) => !input.disabled)
   }
 
+  hasSelectedSlots() {
+    return this.activeHiddenInputs.some((input) => input.value)
+  }
+
   get activeSlots() {
     return this.slotTargets.filter((slot) => !slot.closest("[data-knockout-builder-target='game']")?.classList.contains("hidden"))
   }
 
   candidateName(id) {
-    return this.candidateTargets.find((candidate) => candidate.dataset.duplaId === id)?.dataset.duplaName || "Dupla selecionada"
+    return this.duplaNamesByIdValue?.[id] || this.candidateTargets.find((candidate) => candidate.dataset.duplaId === id)?.dataset.duplaName || "Dupla selecionada"
   }
 
   showStep(step) {
@@ -176,5 +187,47 @@ export default class extends Controller {
   hideError() {
     this.errorTarget.textContent = ""
     this.errorTarget.classList.add("hidden")
+  }
+
+  resetActiveSlots() {
+    this.activeSlots.forEach((slot) => this.clearSlot(slot))
+  }
+
+  prefillActiveSlots() {
+    const stage = this.stageSelectTarget.value
+    const selection = this.hasPrefillByStageValue ? this.prefillByStageValue[stage] || [] : []
+
+    this.activeSlots.forEach((slot, index) => {
+      const duplaId = selection[index]?.toString()
+      if (duplaId) this.fillSlot(slot, duplaId)
+    })
+  }
+
+  clearSlot(slot) {
+    slot.dataset.duplaId = ""
+    slot.querySelector("[data-slot-placeholder]")?.classList.remove("hidden")
+    const name = slot.querySelector("[data-slot-name]")
+    if (name) {
+      name.textContent = ""
+      name.classList.add("hidden")
+    }
+    slot.querySelector("[data-slot-remove]")?.classList.add("hidden")
+
+    const input = this.hiddenInputTargets.find((candidate) => candidate.dataset.slotId === slot.dataset.slotId)
+    if (input) input.value = ""
+  }
+
+  fillSlot(slot, duplaId) {
+    slot.dataset.duplaId = String(duplaId)
+    slot.querySelector("[data-slot-placeholder]")?.classList.add("hidden")
+    const name = slot.querySelector("[data-slot-name]")
+    if (name) {
+      name.textContent = this.candidateName(String(duplaId))
+      name.classList.remove("hidden")
+    }
+    slot.querySelector("[data-slot-remove]")?.classList.remove("hidden")
+
+    const input = this.hiddenInputTargets.find((candidate) => candidate.dataset.slotId === slot.dataset.slotId)
+    if (input) input.value = String(duplaId)
   }
 }

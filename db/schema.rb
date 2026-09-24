@@ -11,7 +11,16 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
-  create_table "active_storage_attachments", force: :cascade do |t|
+  create_schema "extensions"
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "extensions.pg_stat_statements"
+  enable_extension "extensions.pgcrypto"
+  enable_extension "extensions.uuid-ossp"
+  enable_extension "pg_catalog.plpgsql"
+  enable_extension "vault.supabase_vault"
+
+  create_table "public.active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -21,7 +30,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
-  create_table "active_storage_blobs", force: :cascade do |t|
+  create_table "public.active_storage_blobs", force: :cascade do |t|
     t.bigint "byte_size", null: false
     t.string "checksum"
     t.string "content_type"
@@ -33,13 +42,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "active_storage_variant_records", force: :cascade do |t|
+  create_table "public.active_storage_variant_records", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "athletes", force: :cascade do |t|
+  create_table "public.athletes", force: :cascade do |t|
     t.string "birth_certificate"
     t.date "birth_date"
     t.integer "category_id", null: false
@@ -71,7 +80,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["user_id"], name: "index_athletes_on_user_id", unique: true
   end
 
-  create_table "audits", force: :cascade do |t|
+  create_table "public.audits", force: :cascade do |t|
     t.string "action"
     t.bigint "associated_id"
     t.string "associated_type"
@@ -93,7 +102,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["user_id", "user_type"], name: "user_index"
   end
 
-  create_table "categories", force: :cascade do |t|
+  create_table "public.categories", force: :cascade do |t|
     t.integer "championship_id"
     t.datetime "created_at", null: false
     t.string "gender"
@@ -109,7 +118,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["source_id"], name: "index_categories_on_source_id", unique: true
   end
 
-  create_table "championship_categories", force: :cascade do |t|
+  create_table "public.championship_categories", force: :cascade do |t|
     t.integer "category_id", null: false
     t.integer "championship_id", null: false
     t.datetime "created_at", null: false
@@ -121,7 +130,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["source_id"], name: "index_championship_categories_on_source_id", unique: true
   end
 
-  create_table "championship_memberships", force: :cascade do |t|
+  create_table "public.championship_memberships", force: :cascade do |t|
     t.integer "championship_id", null: false
     t.datetime "created_at", null: false
     t.text "notes"
@@ -137,7 +146,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["user_id"], name: "index_championship_memberships_on_user_id"
   end
 
-  create_table "championships", force: :cascade do |t|
+  create_table "public.championships", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "end_date"
     t.json "format", default: {}, null: false
@@ -162,7 +171,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["status"], name: "index_championships_on_status"
   end
 
-  create_table "entities", force: :cascade do |t|
+  create_table "public.entities", force: :cascade do |t|
     t.string "city"
     t.datetime "created_at", null: false
     t.string "email"
@@ -177,7 +186,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["source_id"], name: "index_entities_on_source_id", unique: true
   end
 
-  create_table "invoices", force: :cascade do |t|
+  create_table "public.invoices", force: :cascade do |t|
     t.decimal "amount", precision: 12, scale: 2, default: "0.0", null: false
     t.integer "category_id"
     t.integer "championship_id", null: false
@@ -193,7 +202,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["entity_id"], name: "index_invoices_on_entity_id"
   end
 
-  create_table "match_events", force: :cascade do |t|
+  create_table "public.match_events", force: :cascade do |t|
     t.integer "athlete_id"
     t.integer "championship_id", null: false
     t.datetime "created_at", null: false
@@ -215,7 +224,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["team_id"], name: "index_match_events_on_team_id"
   end
 
-  create_table "match_participations", force: :cascade do |t|
+  create_table "public.match_participations", force: :cascade do |t|
     t.integer "athlete_id"
     t.string "athlete_name", null: false
     t.datetime "created_at", null: false
@@ -236,7 +245,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["team_id"], name: "index_match_participations_on_team_id"
   end
 
-  create_table "match_reports", force: :cascade do |t|
+  create_table "public.match_reports", force: :cascade do |t|
     t.datetime "approved_at"
     t.datetime "created_at", null: false
     t.integer "match_id", null: false
@@ -254,7 +263,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["status", "submitted_at"], name: "index_match_reports_on_status_and_submitted_at"
   end
 
-  create_table "matches", force: :cascade do |t|
+  create_table "public.matches", force: :cascade do |t|
     t.integer "category_id", null: false
     t.integer "championship_id", null: false
     t.string "code", null: false
@@ -295,7 +304,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["winner_id"], name: "index_matches_on_winner_id"
   end
 
-  create_table "partners", force: :cascade do |t|
+  create_table "public.partners", force: :cascade do |t|
     t.integer "category_id"
     t.integer "championship_id"
     t.datetime "created_at", null: false
@@ -316,7 +325,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["source_id"], name: "index_partners_on_source_id", unique: true
   end
 
-  create_table "referees", force: :cascade do |t|
+  create_table "public.referees", force: :cascade do |t|
     t.integer "championship_id"
     t.datetime "created_at", null: false
     t.string "document"
@@ -332,7 +341,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["source_id"], name: "index_referees_on_source_id", unique: true
   end
 
-  create_table "round_selection_athletes", force: :cascade do |t|
+  create_table "public.round_selection_athletes", force: :cascade do |t|
     t.integer "athlete_id", null: false
     t.datetime "created_at", null: false
     t.integer "position"
@@ -343,7 +352,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["round_selection_id"], name: "index_round_selection_athletes_on_round_selection_id"
   end
 
-  create_table "round_selections", force: :cascade do |t|
+  create_table "public.round_selections", force: :cascade do |t|
     t.integer "category_id"
     t.integer "championship_id", null: false
     t.datetime "created_at", null: false
@@ -360,7 +369,157 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["source_id"], name: "index_round_selections_on_source_id", unique: true
   end
 
-  create_table "standing_rows", force: :cascade do |t|
+  create_table "public.solid_queue_batch_executions", force: :cascade do |t|
+    t.bigint "batch_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "job_id", null: false
+    t.index ["batch_id"], name: "index_solid_queue_batch_executions_on_batch_id"
+    t.index ["job_id"], name: "index_solid_queue_batch_executions_on_job_id", unique: true
+  end
+
+  create_table "public.solid_queue_batches", force: :cascade do |t|
+    t.string "active_job_batch_id"
+    t.integer "completed_jobs", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.string "description"
+    t.datetime "enqueued_at"
+    t.datetime "failed_at"
+    t.integer "failed_jobs", default: 0, null: false
+    t.datetime "finished_at"
+    t.text "metadata"
+    t.text "on_failure"
+    t.text "on_finish"
+    t.text "on_success"
+    t.integer "total_jobs", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["active_job_batch_id"], name: "index_solid_queue_batches_on_active_job_batch_id", unique: true
+    t.index ["finished_at"], name: "index_solid_queue_batches_on_finished_at"
+  end
+
+  create_table "public.solid_queue_blocked_executions", force: :cascade do |t|
+    t.string "concurrency_key", null: false
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.bigint "job_id", null: false
+    t.integer "priority", default: 0, null: false
+    t.string "queue_name", null: false
+    t.index ["concurrency_key", "priority", "job_id"], name: "index_solid_queue_blocked_executions_for_release"
+    t.index ["expires_at", "concurrency_key"], name: "index_solid_queue_blocked_executions_for_maintenance"
+    t.index ["job_id"], name: "index_solid_queue_blocked_executions_on_job_id", unique: true
+  end
+
+  create_table "public.solid_queue_claimed_executions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "job_id", null: false
+    t.bigint "process_id"
+    t.index ["job_id"], name: "index_solid_queue_claimed_executions_on_job_id", unique: true
+    t.index ["process_id", "job_id"], name: "index_solid_queue_claimed_executions_on_process_id_and_job_id"
+  end
+
+  create_table "public.solid_queue_failed_executions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "error"
+    t.bigint "job_id", null: false
+    t.index ["job_id"], name: "index_solid_queue_failed_executions_on_job_id", unique: true
+  end
+
+  create_table "public.solid_queue_jobs", force: :cascade do |t|
+    t.string "active_job_id"
+    t.text "arguments"
+    t.bigint "batch_id"
+    t.string "class_name", null: false
+    t.string "concurrency_key"
+    t.datetime "created_at", null: false
+    t.datetime "finished_at"
+    t.integer "priority", default: 0, null: false
+    t.string "queue_name", null: false
+    t.datetime "scheduled_at"
+    t.datetime "updated_at", null: false
+    t.index ["active_job_id"], name: "index_solid_queue_jobs_on_active_job_id"
+    t.index ["batch_id"], name: "index_solid_queue_jobs_on_batch_id"
+    t.index ["class_name"], name: "index_solid_queue_jobs_on_class_name"
+    t.index ["finished_at"], name: "index_solid_queue_jobs_on_finished_at"
+    t.index ["queue_name", "finished_at"], name: "index_solid_queue_jobs_for_filtering"
+    t.index ["scheduled_at", "finished_at"], name: "index_solid_queue_jobs_for_alerting"
+  end
+
+  create_table "public.solid_queue_pauses", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "queue_name", null: false
+    t.index ["queue_name"], name: "index_solid_queue_pauses_on_queue_name", unique: true
+  end
+
+  create_table "public.solid_queue_processes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "hostname"
+    t.string "kind", null: false
+    t.datetime "last_heartbeat_at", null: false
+    t.text "metadata"
+    t.string "name", null: false
+    t.integer "pid", null: false
+    t.bigint "supervisor_id"
+    t.index ["last_heartbeat_at"], name: "index_solid_queue_processes_on_last_heartbeat_at"
+    t.index ["name", "supervisor_id"], name: "index_solid_queue_processes_on_name_and_supervisor_id", unique: true
+    t.index ["supervisor_id"], name: "index_solid_queue_processes_on_supervisor_id"
+  end
+
+  create_table "public.solid_queue_ready_executions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "job_id", null: false
+    t.integer "priority", default: 0, null: false
+    t.string "queue_name", null: false
+    t.index ["job_id"], name: "index_solid_queue_ready_executions_on_job_id", unique: true
+    t.index ["priority", "job_id"], name: "index_solid_queue_poll_all"
+    t.index ["queue_name", "priority", "job_id"], name: "index_solid_queue_poll_by_queue"
+  end
+
+  create_table "public.solid_queue_recurring_executions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "job_id", null: false
+    t.datetime "run_at", null: false
+    t.string "task_key", null: false
+    t.index ["job_id"], name: "index_solid_queue_recurring_executions_on_job_id", unique: true
+    t.index ["task_key", "run_at"], name: "index_solid_queue_recurring_executions_on_task_key_and_run_at", unique: true
+  end
+
+  create_table "public.solid_queue_recurring_tasks", force: :cascade do |t|
+    t.text "arguments"
+    t.string "class_name"
+    t.string "command", limit: 2048
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "key", null: false
+    t.integer "priority", default: 0
+    t.string "queue_name"
+    t.string "schedule", null: false
+    t.boolean "static", default: true, null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_solid_queue_recurring_tasks_on_key", unique: true
+    t.index ["static"], name: "index_solid_queue_recurring_tasks_on_static"
+  end
+
+  create_table "public.solid_queue_scheduled_executions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "job_id", null: false
+    t.integer "priority", default: 0, null: false
+    t.string "queue_name", null: false
+    t.datetime "scheduled_at", null: false
+    t.index ["job_id"], name: "index_solid_queue_scheduled_executions_on_job_id", unique: true
+    t.index ["scheduled_at", "priority", "job_id"], name: "index_solid_queue_dispatch_all"
+  end
+
+  create_table "public.solid_queue_semaphores", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "key", null: false
+    t.datetime "updated_at", null: false
+    t.integer "value", default: 1, null: false
+    t.index ["expires_at"], name: "index_solid_queue_semaphores_on_expires_at"
+    t.index ["key", "value"], name: "index_solid_queue_semaphores_on_key_and_value"
+    t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
+  end
+
+  create_table "public.standing_rows", force: :cascade do |t|
     t.integer "category_id", null: false
     t.integer "championship_id", null: false
     t.datetime "created_at", null: false
@@ -384,7 +543,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["team_id"], name: "index_standing_rows_on_team_id"
   end
 
-  create_table "suspensions", force: :cascade do |t|
+  create_table "public.suspensions", force: :cascade do |t|
     t.integer "athlete_id", null: false
     t.boolean "automatic", default: false, null: false
     t.integer "category_id"
@@ -411,7 +570,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["team_id"], name: "index_suspensions_on_team_id"
   end
 
-  create_table "team_athletes", force: :cascade do |t|
+  create_table "public.team_athletes", force: :cascade do |t|
     t.integer "athlete_id", null: false
     t.datetime "created_at", null: false
     t.string "source_id", null: false
@@ -423,7 +582,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["team_id"], name: "index_team_athletes_on_team_id"
   end
 
-  create_table "team_memberships", force: :cascade do |t|
+  create_table "public.team_memberships", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "notes"
     t.string "role", default: "tecnico", null: false
@@ -439,7 +598,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["user_id"], name: "index_team_memberships_on_user_id"
   end
 
-  create_table "teams", force: :cascade do |t|
+  create_table "public.teams", force: :cascade do |t|
     t.integer "category_id", null: false
     t.datetime "created_at", null: false
     t.integer "entity_id", null: false
@@ -457,7 +616,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["source_id"], name: "index_teams_on_source_id", unique: true
   end
 
-  create_table "tranca_classificacao_rows", force: :cascade do |t|
+  create_table "public.tranca_classificacao_rows", force: :cascade do |t|
     t.integer "category_id", null: false
     t.integer "championship_id", null: false
     t.datetime "created_at", null: false
@@ -484,7 +643,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["tranca_dupla_id"], name: "index_tranca_classificacao_rows_on_tranca_dupla_id"
   end
 
-  create_table "tranca_dupla_memberships", force: :cascade do |t|
+  create_table "public.tranca_dupla_memberships", force: :cascade do |t|
     t.integer "athlete_id", null: false
     t.datetime "created_at", null: false
     t.integer "position"
@@ -498,7 +657,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["tranca_dupla_id"], name: "index_tranca_dupla_memberships_on_tranca_dupla_id"
   end
 
-  create_table "tranca_duplas", force: :cascade do |t|
+  create_table "public.tranca_duplas", force: :cascade do |t|
     t.integer "category_id", null: false
     t.integer "championship_id", null: false
     t.datetime "created_at", null: false
@@ -517,7 +676,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["status"], name: "index_tranca_duplas_on_status"
   end
 
-  create_table "tranca_mesas", force: :cascade do |t|
+  create_table "public.tranca_mesas", force: :cascade do |t|
     t.integer "championship_id", null: false
     t.string "code", null: false
     t.datetime "created_at", null: false
@@ -533,7 +692,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["tranca_rodada_id"], name: "index_tranca_mesas_on_tranca_rodada_id"
   end
 
-  create_table "tranca_partida_maos", force: :cascade do |t|
+  create_table "public.tranca_partida_maos", force: :cascade do |t|
     t.boolean "batida_a", default: false, null: false
     t.boolean "batida_b", default: false, null: false
     t.boolean "canastra_limpa_a", default: false, null: false
@@ -561,7 +720,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["tranca_partida_id"], name: "index_tranca_partida_maos_on_tranca_partida_id"
   end
 
-  create_table "tranca_partidas", force: :cascade do |t|
+  create_table "public.tranca_partidas", force: :cascade do |t|
     t.integer "category_id", null: false
     t.integer "championship_id", null: false
     t.string "code", null: false
@@ -599,7 +758,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["winner_id"], name: "index_tranca_partidas_on_winner_id"
   end
 
-  create_table "tranca_rodadas", force: :cascade do |t|
+  create_table "public.tranca_rodadas", force: :cascade do |t|
     t.integer "championship_id", null: false
     t.datetime "created_at", null: false
     t.date "ends_on"
@@ -616,7 +775,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["source_id"], name: "index_tranca_rodadas_on_source_id", unique: true
   end
 
-  create_table "tranca_settings", force: :cascade do |t|
+  create_table "public.tranca_settings", force: :cascade do |t|
     t.integer "championship_id", null: false
     t.datetime "created_at", null: false
     t.json "format", default: {}, null: false
@@ -628,7 +787,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["source_id"], name: "index_tranca_settings_on_source_id", unique: true
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "public.users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -644,7 +803,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["role"], name: "index_users_on_role"
   end
 
-  create_table "venues", force: :cascade do |t|
+  create_table "public.venues", force: :cascade do |t|
     t.string "address"
     t.integer "championship_id"
     t.string "city"
@@ -660,75 +819,84 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.index ["source_id"], name: "index_venues_on_source_id", unique: true
   end
 
-  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "athletes", "categories"
-  add_foreign_key "athletes", "teams"
-  add_foreign_key "athletes", "users"
-  add_foreign_key "categories", "championships", on_delete: :nullify
-  add_foreign_key "championship_categories", "categories"
-  add_foreign_key "championship_categories", "championships"
-  add_foreign_key "championship_memberships", "championships"
-  add_foreign_key "championship_memberships", "users"
-  add_foreign_key "invoices", "categories"
-  add_foreign_key "invoices", "championships"
-  add_foreign_key "invoices", "entities"
-  add_foreign_key "match_events", "athletes", on_delete: :nullify
-  add_foreign_key "match_events", "championships"
-  add_foreign_key "match_events", "matches"
-  add_foreign_key "match_events", "teams", on_delete: :nullify
-  add_foreign_key "match_participations", "athletes", on_delete: :nullify
-  add_foreign_key "match_participations", "matches", on_delete: :cascade
-  add_foreign_key "match_participations", "teams", on_delete: :cascade
-  add_foreign_key "match_reports", "matches"
-  add_foreign_key "match_reports", "referees"
-  add_foreign_key "matches", "categories"
-  add_foreign_key "matches", "championships"
-  add_foreign_key "matches", "teams", column: "team_a_id"
-  add_foreign_key "matches", "teams", column: "team_b_id"
-  add_foreign_key "matches", "teams", column: "winner_id"
-  add_foreign_key "matches", "venues"
-  add_foreign_key "partners", "categories"
-  add_foreign_key "partners", "championships"
-  add_foreign_key "referees", "championships"
-  add_foreign_key "round_selection_athletes", "athletes"
-  add_foreign_key "round_selection_athletes", "round_selections"
-  add_foreign_key "round_selections", "categories"
-  add_foreign_key "round_selections", "championships"
-  add_foreign_key "standing_rows", "categories"
-  add_foreign_key "standing_rows", "championships"
-  add_foreign_key "standing_rows", "teams"
-  add_foreign_key "suspensions", "athletes"
-  add_foreign_key "suspensions", "categories"
-  add_foreign_key "suspensions", "championships"
-  add_foreign_key "suspensions", "match_events"
-  add_foreign_key "suspensions", "teams"
-  add_foreign_key "team_athletes", "athletes", on_delete: :cascade
-  add_foreign_key "team_athletes", "teams", on_delete: :cascade
-  add_foreign_key "team_memberships", "teams"
-  add_foreign_key "team_memberships", "users"
-  add_foreign_key "teams", "categories"
-  add_foreign_key "teams", "entities"
-  add_foreign_key "tranca_classificacao_rows", "categories"
-  add_foreign_key "tranca_classificacao_rows", "championships"
-  add_foreign_key "tranca_classificacao_rows", "tranca_duplas"
-  add_foreign_key "tranca_dupla_memberships", "athletes"
-  add_foreign_key "tranca_dupla_memberships", "tranca_duplas"
-  add_foreign_key "tranca_duplas", "categories"
-  add_foreign_key "tranca_duplas", "championships"
-  add_foreign_key "tranca_duplas", "entities"
-  add_foreign_key "tranca_mesas", "championships"
-  add_foreign_key "tranca_mesas", "tranca_rodadas"
-  add_foreign_key "tranca_partida_maos", "championships"
-  add_foreign_key "tranca_partida_maos", "tranca_partidas"
-  add_foreign_key "tranca_partidas", "categories"
-  add_foreign_key "tranca_partidas", "championships"
-  add_foreign_key "tranca_partidas", "tranca_duplas", column: "dupla_a_id"
-  add_foreign_key "tranca_partidas", "tranca_duplas", column: "dupla_b_id"
-  add_foreign_key "tranca_partidas", "tranca_duplas", column: "winner_id"
-  add_foreign_key "tranca_partidas", "tranca_mesas"
-  add_foreign_key "tranca_partidas", "tranca_rodadas"
-  add_foreign_key "tranca_rodadas", "championships"
-  add_foreign_key "tranca_settings", "championships"
-  add_foreign_key "venues", "championships"
+  add_foreign_key "public.active_storage_attachments", "public.active_storage_blobs", column: "blob_id"
+  add_foreign_key "public.active_storage_variant_records", "public.active_storage_blobs", column: "blob_id"
+  add_foreign_key "public.athletes", "public.categories"
+  add_foreign_key "public.athletes", "public.teams"
+  add_foreign_key "public.athletes", "public.users"
+  add_foreign_key "public.categories", "public.championships", on_delete: :nullify
+  add_foreign_key "public.championship_categories", "public.categories"
+  add_foreign_key "public.championship_categories", "public.championships"
+  add_foreign_key "public.championship_memberships", "public.championships"
+  add_foreign_key "public.championship_memberships", "public.users"
+  add_foreign_key "public.invoices", "public.categories"
+  add_foreign_key "public.invoices", "public.championships"
+  add_foreign_key "public.invoices", "public.entities"
+  add_foreign_key "public.match_events", "public.athletes", on_delete: :nullify
+  add_foreign_key "public.match_events", "public.championships"
+  add_foreign_key "public.match_events", "public.matches"
+  add_foreign_key "public.match_events", "public.teams", on_delete: :nullify
+  add_foreign_key "public.match_participations", "public.athletes", on_delete: :nullify
+  add_foreign_key "public.match_participations", "public.matches", on_delete: :cascade
+  add_foreign_key "public.match_participations", "public.teams", on_delete: :cascade
+  add_foreign_key "public.match_reports", "public.matches"
+  add_foreign_key "public.match_reports", "public.referees"
+  add_foreign_key "public.matches", "public.categories"
+  add_foreign_key "public.matches", "public.championships"
+  add_foreign_key "public.matches", "public.teams", column: "team_a_id"
+  add_foreign_key "public.matches", "public.teams", column: "team_b_id"
+  add_foreign_key "public.matches", "public.teams", column: "winner_id"
+  add_foreign_key "public.matches", "public.venues"
+  add_foreign_key "public.partners", "public.categories"
+  add_foreign_key "public.partners", "public.championships"
+  add_foreign_key "public.referees", "public.championships"
+  add_foreign_key "public.round_selection_athletes", "public.athletes"
+  add_foreign_key "public.round_selection_athletes", "public.round_selections"
+  add_foreign_key "public.round_selections", "public.categories"
+  add_foreign_key "public.round_selections", "public.championships"
+  add_foreign_key "public.solid_queue_batch_executions", "public.solid_queue_batches", column: "batch_id", on_delete: :cascade
+  add_foreign_key "public.solid_queue_batch_executions", "public.solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "public.solid_queue_blocked_executions", "public.solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "public.solid_queue_claimed_executions", "public.solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "public.solid_queue_failed_executions", "public.solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "public.solid_queue_ready_executions", "public.solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "public.solid_queue_recurring_executions", "public.solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "public.solid_queue_scheduled_executions", "public.solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "public.standing_rows", "public.categories"
+  add_foreign_key "public.standing_rows", "public.championships"
+  add_foreign_key "public.standing_rows", "public.teams"
+  add_foreign_key "public.suspensions", "public.athletes"
+  add_foreign_key "public.suspensions", "public.categories"
+  add_foreign_key "public.suspensions", "public.championships"
+  add_foreign_key "public.suspensions", "public.match_events"
+  add_foreign_key "public.suspensions", "public.teams"
+  add_foreign_key "public.team_athletes", "public.athletes", on_delete: :cascade
+  add_foreign_key "public.team_athletes", "public.teams", on_delete: :cascade
+  add_foreign_key "public.team_memberships", "public.teams"
+  add_foreign_key "public.team_memberships", "public.users"
+  add_foreign_key "public.teams", "public.categories"
+  add_foreign_key "public.teams", "public.entities"
+  add_foreign_key "public.tranca_classificacao_rows", "public.categories"
+  add_foreign_key "public.tranca_classificacao_rows", "public.championships"
+  add_foreign_key "public.tranca_classificacao_rows", "public.tranca_duplas"
+  add_foreign_key "public.tranca_dupla_memberships", "public.athletes"
+  add_foreign_key "public.tranca_dupla_memberships", "public.tranca_duplas"
+  add_foreign_key "public.tranca_duplas", "public.categories"
+  add_foreign_key "public.tranca_duplas", "public.championships"
+  add_foreign_key "public.tranca_duplas", "public.entities"
+  add_foreign_key "public.tranca_mesas", "public.championships"
+  add_foreign_key "public.tranca_mesas", "public.tranca_rodadas"
+  add_foreign_key "public.tranca_partida_maos", "public.championships"
+  add_foreign_key "public.tranca_partida_maos", "public.tranca_partidas"
+  add_foreign_key "public.tranca_partidas", "public.categories"
+  add_foreign_key "public.tranca_partidas", "public.championships"
+  add_foreign_key "public.tranca_partidas", "public.tranca_duplas", column: "dupla_a_id"
+  add_foreign_key "public.tranca_partidas", "public.tranca_duplas", column: "dupla_b_id"
+  add_foreign_key "public.tranca_partidas", "public.tranca_duplas", column: "winner_id"
+  add_foreign_key "public.tranca_partidas", "public.tranca_mesas"
+  add_foreign_key "public.tranca_partidas", "public.tranca_rodadas"
+  add_foreign_key "public.tranca_rodadas", "public.championships"
+  add_foreign_key "public.tranca_settings", "public.championships"
+  add_foreign_key "public.venues", "public.championships"
+
 end
