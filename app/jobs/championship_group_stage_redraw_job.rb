@@ -1,5 +1,5 @@
 class ChampionshipGroupStageRedrawJob < ApplicationJob
-  queue_as :default
+  queue_as :schedule_generation
 
   def perform(championship_id, token)
     championship = Championship.find(championship_id)
