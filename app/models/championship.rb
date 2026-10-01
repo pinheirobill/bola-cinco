@@ -752,6 +752,50 @@ class Championship < ApplicationRecord
     end
   end
 
+  def enqueue_group_stage_redraw!
+    token = SecureRandom.uuid
+    with_lock do
+      state = group_stage_redraw_state
+      if state["status"].in?(%w[queued processing])
+        raise ArgumentError, "Já existe um sorteio em andamento para este campeonato."
+      end
+
+      write_group_stage_redraw_state!(state, token: token, status: "queued", error: nil, queued_at: Time.current.iso8601)
+    end
+
+    job = ChampionshipGroupStageRedrawJob.perform_later(id, token)
+    unless job&.successfully_enqueued?
+      raise ActiveJob::EnqueueError, "Não foi possível enfileirar o sorteio."
+    end
+    token
+  rescue ActiveJob::EnqueueError
+    record_group_stage_redraw_failure!(token, "Não foi possível iniciar o sorteio.") if token.present?
+    raise
+  end
+
+  def group_stage_redraw_state
+    (self[:format] || {}).deep_dup.fetch("group_stage_redraw", {})
+  end
+
+  def mark_group_stage_redraw_started!(token)
+    with_lock do
+      state = group_stage_redraw_state
+      next false unless state["token"] == token && state["status"] == "queued"
+
+      write_group_stage_redraw_state!(state, status: "processing", started_at: Time.current.iso8601)
+      true
+    end
+  end
+
+  def complete_group_stage_redraw!(token, match_count:, round_count:)
+    update_group_stage_redraw!(token, status: "completed", match_count: match_count, round_count: round_count,
+      completed_at: Time.current.iso8601, error: nil)
+  end
+
+  def record_group_stage_redraw_failure!(token, message)
+    update_group_stage_redraw!(token, status: "failed", error: message, completed_at: Time.current.iso8601)
+  end
+
   def draw_group_stage_knockout_round_for!(category)
     raise ArgumentError, "campeonato precisa estar em grupos + mata-mata" unless group_stage_and_knockout_mode?
     return [] unless group_stage_complete_for?(category)
@@ -810,6 +854,22 @@ class Championship < ApplicationRecord
   end
 
   private
+
+  def update_group_stage_redraw!(token, attributes)
+    with_lock do
+      state = group_stage_redraw_state
+      next false unless state["token"] == token
+
+      write_group_stage_redraw_state!(state, **attributes)
+      true
+    end
+  end
+
+  def write_group_stage_redraw_state!(state, **attributes)
+    data = (self[:format] || {}).deep_dup
+    data["group_stage_redraw"] = state.merge(attributes.stringify_keys)
+    update!(format: data)
+  end
 
   def standing_stats_for(team, group_key = "")
     {

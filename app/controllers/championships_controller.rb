@@ -777,11 +777,12 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.manageable_by?(current_user)
     return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica do futebol." if @championship.tranca?
 
-    matches = @championship.redraw_group_stage!
-    round_count = matches.map(&:round_number).compact.uniq.size
-    redirect_to rodadas_championship_path(@championship), notice: "Sorteio refeito com #{matches.size} partida(s) distribuídas em #{round_count} rodada(s)."
+    @championship.enqueue_group_stage_redraw!
+    redirect_to rodadas_championship_path(@championship), notice: "Sorteio enviado para processamento. Atualize esta página para acompanhar o resultado."
   rescue ArgumentError => e
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: e.message
+  rescue ActiveJob::EnqueueError
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Não foi possível iniciar o sorteio. Tente novamente em alguns instantes."
   rescue ActiveRecord::RecordInvalid => e
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: e.record.errors.full_messages.to_sentence
   end

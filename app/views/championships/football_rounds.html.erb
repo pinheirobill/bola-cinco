@@ -1,12 +1,27 @@
 <% content_for :title, "#{@championship.name} | Rodadas | Arena" %>
+<% redraw_state = @championship.group_stage_redraw_state %>
 
 <%= page_header(
   title: "#{@championship.name} · Rodadas",
   subtitle: "Partidas organizadas por fase e rodada.",
   badge: @championship.status.to_s.tr("_", " ").humanize,
-  actions: (button_to("Sortear novamente", redraw_group_stage_championship_path(@championship), method: :post, class: "btn btn-outline btn-error", form: { data: { turbo_confirm: "Refazer o sorteio da fase de grupos? As partidas atuais serão substituídas. Só é permitido antes de iniciar jogos ou preencher súmulas." } }) if @championship.manageable_by?(current_user) && @football_matches.any?)
+  actions: (button_to("Sortear novamente", redraw_group_stage_championship_path(@championship), method: :post, class: "btn btn-outline btn-error", form: { data: { turbo_confirm: "Refazer o sorteio da fase de grupos? As partidas atuais serão substituídas. Só é permitido antes de iniciar jogos ou preencher súmulas." } }) if @championship.manageable_by?(current_user) && @football_matches.any? && !redraw_state["status"].in?(%w[queued processing]))
 ) %>
 <%= render "championships/football_navigation", championship: @championship, current: "rodadas" %>
+
+<% if redraw_state["status"].in?(%w[queued processing]) %>
+  <div class="alert alert-info mt-4">
+    Sorteio em andamento. Os jogos atuais continuam visíveis até a nova tabela ser concluída.
+    <%= link_to "Atualizar", rodadas_championship_path(@championship), class: "link font-semibold" %>
+  </div>
+<% elsif redraw_state["status"] == "completed" %>
+  <div class="alert alert-success mt-4">
+    Sorteio concluído: <%= redraw_state["match_count"] %> partidas em <%= redraw_state["round_count"] %> rodadas.
+    <%= link_to "Atualizar", rodadas_championship_path(@championship), class: "link font-semibold" %>
+  </div>
+<% elsif redraw_state["status"] == "failed" %>
+  <div class="alert alert-error mt-4"><%= redraw_state["error"] %></div>
+<% end %>
 
 <%= stats_grid([
   { label: "Rodadas", value: @football_rounds.size, value_class: "text-2xl" },
