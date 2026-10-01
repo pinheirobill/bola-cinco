@@ -1,0 +1,25 @@
+<% content_for :title, "#{@championship.name} | Classificação | Arena" %>
+
+<%= page_header(
+  title: "#{@championship.name} · Classificação",
+  subtitle: "Tabela de pontos organizada por categoria e chave.",
+  badge: @championship.status.to_s.tr("_", " ").humanize
+) %>
+<%= render "championships/football_navigation", championship: @championship, current: "classificacao" %>
+
+<%= stats_grid([
+  { label: "Chaves", value: @football_standing_groups.size, value_class: "text-2xl" },
+  { label: "Equipes", value: @football_standing_groups.sum { |group| group.rows.size }, value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<div class="mt-6 space-y-6">
+  <% if @football_standing_groups.any? %>
+    <% @football_standing_groups.each do |group| %>
+      <%= surface_card(title: group.category.name, subtitle: group.group_key.present? ? "Chave #{group.group_key}" : "Classificação geral") do %>
+        <%= standing_table(group.category, group.rows, group_key: group.group_key, show_header: false) %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%= empty_state(title: "Classificação ainda não disponível", description: "A classificação aparecerá quando os resultados forem registrados.") %>
+  <% end %>
+</div>

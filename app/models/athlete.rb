@@ -4,6 +4,7 @@ class Athlete < ApplicationRecord
   belongs_to :team
   belongs_to :category
   belongs_to :user, optional: true
+  has_one_attached :photo
   has_many :team_athletes, dependent: :delete_all
   has_many :linked_teams, through: :team_athletes, source: :team
   has_many :match_events, dependent: :nullify
@@ -27,6 +28,7 @@ class Athlete < ApplicationRecord
   validates :source_id, uniqueness: true
 
   def display_photo_url
+    return Rails.application.routes.url_helpers.rails_blob_path(photo, only_path: true) if photo.attached?
     return if photo_url.blank?
     return if photo_url == "placeholder.webp"
     return photo_url if photo_url.match?(%r{\Ahttps?://}i) || photo_url.start_with?("//", "/")

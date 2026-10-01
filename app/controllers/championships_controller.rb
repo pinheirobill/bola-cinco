@@ -52,10 +52,20 @@ class ChampionshipsController < ApplicationController
     render "championships/tranca_duplas"
   end
 
+  def equipes
+    @championship = championship_lookup
+    return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+    return redirect_to duplas_championship_path(@championship) if @championship.tranca?
+
+    @football_categories = @championship.categories.includes(:teams).order(:name).to_a
+    @football_teams = @championship.teams.includes(:entity, :category, :athletes).order(:name).to_a
+    render "championships/football_teams"
+  end
+
   def partidas
     @championship = championship_lookup
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
-    return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
+    return load_football_matches_page unless @championship.tranca?
 
     load_tranca_management
     render "championships/tranca_partidas"
@@ -64,7 +74,7 @@ class ChampionshipsController < ApplicationController
   def rodadas
     @championship = championship_lookup
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
-    return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
+    return load_football_rounds_page unless @championship.tranca?
 
     load_tranca_rodadas
     render "championships/tranca_rodadas"
@@ -73,7 +83,7 @@ class ChampionshipsController < ApplicationController
   def programacao
     @championship = championship_lookup
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
-    return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
+    return load_football_programacao_page unless @championship.tranca?
 
     load_tranca_programacao
     @programacao_stage = tranca_programacao_stage
@@ -103,7 +113,7 @@ class ChampionshipsController < ApplicationController
   def classificacao
     @championship = championship_lookup
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
-    return redirect_to championship_path(@championship), alert: "Essa visão é específica da Tranca." unless @championship.tranca?
+    return load_football_classification_page unless @championship.tranca?
 
     load_tranca_management
     respond_to do |format|
@@ -653,7 +663,11 @@ class ChampionshipsController < ApplicationController
       "scoring=#{(params.dig(:championship, :scoring)&.to_unsafe_h || {}).inspect}"
     )
 
-    if @championship.update(championship_params)
+    attributes = championship_params
+    attributes[:format] = @championship.format_data.merge(attributes[:format].to_h) if attributes.key?(:format)
+    attributes[:scoring] = @championship.scoring_data.merge(attributes[:scoring].to_h) if attributes.key?(:scoring)
+
+    if @championship.update(attributes)
       Rails.logger.info(
         "[championships#update] persisted id=#{@championship.id} " \
         "format=#{@championship.format.inspect} scoring=#{@championship.scoring.inspect}"
@@ -827,6 +841,52 @@ class ChampionshipsController < ApplicationController
 
   private
 
+  def load_football_matches_page
+    @football_matches = football_championship_matches
+    @football_match_counts = {
+      total: @football_matches.size,
+      live: @football_matches.count(&:status_em_andamento?),
+      finished: @football_matches.count { |match| match.status_finalizado? || match.status_wo? },
+      upcoming: @football_matches.count(&:status_agendado?)
+    }
+    render "championships/football_matches"
+  end
+
+  def load_football_rounds_page
+    @football_matches = football_championship_matches
+    @football_rounds = @football_matches.group_by do |match|
+      [match.phase_label, match.round_number.presence || "sem_rodada"]
+    end.sort_by { |(phase, round), _matches| [phase, round == "sem_rodada" ? Float::INFINITY : round.to_i] }
+    render "championships/football_rounds"
+  end
+
+  def load_football_programacao_page
+    return head :not_acceptable unless request.format.html?
+
+    @football_matches = football_championship_matches
+    @football_rounds = @football_matches.group_by do |match|
+      [match.phase_label, match.round_number.presence || "sem_rodada"]
+    end.sort_by { |(phase, round), _matches| [phase, round == "sem_rodada" ? Float::INFINITY : round.to_i] }
+    render "championships/football_programacao"
+  end
+
+  def load_football_classification_page
+    @football_standing_groups = @championship.standing_rows
+      .includes(:category, :team)
+      .order(:category_id, :group_key, :position, points: :desc, goal_diff: :desc)
+      .to_a
+      .group_by { |row| [row.category, row.group_key.to_s] }
+      .map { |(category, group_key), rows| Championship::StandingGroup.new(category: category, group_key: group_key, rows: rows) }
+      .sort_by { |group| [group.category.name.to_s.downcase, group.group_key.downcase] }
+    render "championships/football_classificacao"
+  end
+
+  def football_championship_matches
+    @championship.matches.includes(:category, :team_a, :team_b, :winner, :venue)
+      .order(:round_number, :scheduled_on, :scheduled_time, :id)
+      .to_a
+  end
+
   def destroy_tranca_key_with_fallback(fallback_location)
     rodada = @championship.tranca_rodadas.find_by(id: params[:rodada_id]) if params[:rodada_id].present?
     group_key = params[:group_key].to_s.squish
@@ -968,7 +1028,7 @@ class ChampionshipsController < ApplicationController
     @tranca_duplas_by_category = @tranca_duplas.group_by(&:category_id)
     @tranca_rodadas = @championship.tranca_rodadas.includes(
       :mesas,
-      partidas: %i[category dupla_a dupla_b winner tranca_mesa]
+      partidas: %i[category dupla_a dupla_b winner tranca_mesa maos]
     ).order(
       stage_number: :asc,
       phase: :asc,
@@ -1081,7 +1141,10 @@ class ChampionshipsController < ApplicationController
       tranca_partidas: [
         :tranca_mesa,
         :dupla_a,
-        :dupla_b
+        :dupla_b,
+        :category,
+        :winner,
+        :maos
       ]
     ).find(@championship.id)
     @tranca_partidas = @championship.tranca_partidas.order(:group_key, :round_number, :id)

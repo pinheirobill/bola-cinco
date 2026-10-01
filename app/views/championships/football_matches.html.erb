@@ -1,0 +1,33 @@
+<% content_for :title, "#{@championship.name} | Partidas | Arena" %>
+
+<%= page_header(
+  title: "#{@championship.name} · Partidas",
+  subtitle: "Todos os jogos deste campeonato, com placares e situação atual.",
+  badge: @championship.status.to_s.tr("_", " ").humanize
+) %>
+<%= render "championships/football_navigation", championship: @championship, current: "partidas" %>
+
+<%= stats_grid([
+  { label: "Total", value: @football_match_counts[:total], value_class: "text-2xl" },
+  { label: "Ao vivo", value: @football_match_counts[:live], value_class: "text-2xl" },
+  { label: "Finalizadas", value: @football_match_counts[:finished], value_class: "text-2xl" },
+  { label: "Agendadas", value: @football_match_counts[:upcoming], value_class: "text-2xl" }
+]) %>
+
+<%= surface_card(title: "Partidas do campeonato", subtitle: "Ordenadas por rodada e data.") do %>
+  <% if @football_matches.any? %>
+    <div class="grid gap-3 xl:grid-cols-2">
+      <% @football_matches.each do |match| %>
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <div class="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm">
+            <%= link_to match.code, match_path(match), class: "link link-primary font-semibold" %>
+            <span class="text-base-content/60"><%= [match.category.name, match.round_label, match.scheduled_on&.strftime("%d/%m/%Y"), match.scheduled_time].compact.join(" · ") %></span>
+          </div>
+          <%= match_card(match, compact: true, legacy_match: false) %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <%= empty_state(title: "Nenhuma partida cadastrada", description: "As partidas deste campeonato aparecerão aqui.") %>
+  <% end %>
+<% end %>

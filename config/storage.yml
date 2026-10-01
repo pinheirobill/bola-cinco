@@ -6,6 +6,15 @@ local:
   service: Disk
   root: <%= Rails.root.join("storage") %>
 
+cloudflare_r2:
+  service: S3
+  endpoint: <%= "https://#{ENV.fetch('CLOUDFLARE_R2_ACCOUNT_ID', 'account-id')}.r2.cloudflarestorage.com" %>
+  access_key_id: <%= ENV.fetch("CLOUDFLARE_R2_ACCESS_KEY_ID", "") %>
+  secret_access_key: <%= ENV.fetch("CLOUDFLARE_R2_SECRET_ACCESS_KEY", "") %>
+  region: auto
+  bucket: <%= ENV.fetch("CLOUDFLARE_R2_BUCKET", "missing-r2-bucket") %>
+  force_path_style: true
+
 vercel:
   service: Disk
   root: <%= ENV.fetch("ACTIVE_STORAGE_PATH", "/tmp/storage") %>

@@ -228,7 +228,10 @@ class Championship < ApplicationRecord
   end
 
   def qualified_per_group
-    group_stage_and_knockout_mode? ? format_data.fetch("qualifiedPerGroup", default_scoring.fetch("qualifiedPerGroup")).to_i.clamp(1, 16) : 0
+    return 0 unless group_stage_and_knockout_mode?
+
+    configured_value = scoring["qualifiedPerGroup"] || format["qualifiedPerGroup"] || default_scoring.fetch("qualifiedPerGroup")
+    configured_value.to_i.clamp(1, 16)
   end
 
   def group_count

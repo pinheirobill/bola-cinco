@@ -98,6 +98,7 @@ class PartnersController < ApplicationController
       :tier,
       :status,
       :logo_url,
+      :logo,
       :website_url,
       :highlight,
       :notes,

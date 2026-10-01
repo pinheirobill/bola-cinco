@@ -49,6 +49,7 @@ class ChampionshipAthleteSignupsController < ApplicationController
       :name,
       :birth_date,
       :photo_url,
+      :photo,
       :cpf,
       :rg,
       :birth_certificate,
@@ -70,7 +71,7 @@ class ChampionshipAthleteSignupsController < ApplicationController
       when "apelido"
         athlete.errors.add(:name, "obrigatório") if athlete.name.blank?
       when "foto"
-        athlete.errors.add(:photo_url, "obrigatória") if athlete.photo_url.blank?
+        athlete.errors.add(:photo, "obrigatória") if athlete.photo_url.blank? && !athlete.photo.attached?
       when "cpf"
         athlete.errors.add(:cpf, "obrigatório") if athlete.cpf.blank? && athlete.document.blank?
       when "rg"

@@ -34,6 +34,13 @@
           <%= link_to "Remover", partner_path(@partner), data: { turbo_method: :delete }, class: "btn btn-outline btn-error" %>
         </div>
       <% end %>
+      <%= form_with model: @partner, url: partner_path(@partner), method: :patch, multipart: true, class: "mt-5 flex flex-wrap items-end gap-3" do |f| %>
+        <div class="form-control flex-1 gap-2">
+          <%= f.label :logo, "Enviar logo para o armazenamento", class: "label-text font-medium" %>
+          <%= f.file_field :logo, class: "file-input file-input-bordered w-full", accept: "image/*" %>
+        </div>
+        <%= f.submit "Salvar logo", class: "btn btn-primary" %>
+      <% end %>
     <% end %>
   <% end %>
 
@@ -41,7 +48,7 @@
     <div class="space-y-2 text-sm text-base-content/70">
       <p><strong>Categoria:</strong> <%= @partner.category&.name || "-" %></p>
       <p><strong>Website:</strong> <%= @partner.website_url.presence || "-" %></p>
-      <p><strong>Logo:</strong> <%= @partner.logo_url.presence || "-" %></p>
+      <p><strong>Logo:</strong> <%= @partner.display_logo_url.present? ? link_to("Ver logo", @partner.display_logo_url, target: "_blank", rel: "noopener") : "-" %></p>
       <p><strong>Observações:</strong> <%= @partner.notes.presence || "-" %></p>
     </div>
   <% end %>

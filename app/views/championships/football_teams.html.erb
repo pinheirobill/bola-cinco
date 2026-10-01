@@ -1,0 +1,29 @@
+<% content_for :title, "#{@championship.name} | Equipes | Arena" %>
+
+<%= page_header(
+  title: "#{@championship.name} · Equipes",
+  subtitle: "Equipes inscritas e categorias deste campeonato.",
+  badge: @championship.status.to_s.tr("_", " ").humanize
+) %>
+<%= render "championships/football_navigation", championship: @championship, current: "equipes" %>
+
+<%= stats_grid([
+  { label: "Equipes", value: @football_teams.size, value_class: "text-2xl" },
+  { label: "Categorias", value: @football_categories.size, value_class: "text-2xl" },
+  { label: "Atletas", value: @football_teams.sum { |team| team.athletes.size }, value_class: "text-2xl" },
+  { label: "Partidas", value: @championship.matches.count, value_class: "text-2xl" }
+]) %>
+
+<% @football_categories.each do |category| %>
+  <%= surface_card(title: category.name, subtitle: "#{category.teams.size} equipe(s)", classes: "mt-6") do %>
+    <% if category.teams.any? %>
+      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <% category.teams.sort_by { |team| team.name.to_s.downcase }.each do |team| %>
+          <%= team_card(team, compact: true) %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= empty_state(title: "Nenhuma equipe nesta categoria", description: "As equipes inscritas aparecerão aqui.") %>
+    <% end %>
+  <% end %>
+<% end %>

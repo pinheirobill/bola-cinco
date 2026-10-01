@@ -1,0 +1,10 @@
+<% current = local_assigns[:current].to_s %>
+<% nav_class = ->(key) { "btn #{current == key ? 'btn-primary' : 'btn-outline'}" } %>
+<nav class="mb-6 flex flex-wrap gap-2" aria-label="Navegação do campeonato">
+  <%= link_to "Portal", championship_path(championship), class: nav_class.call("portal") %>
+  <%= link_to "Equipes", equipes_championship_path(championship), class: nav_class.call("equipes") %>
+  <%= link_to "Partidas", partidas_championship_path(championship), class: nav_class.call("partidas") %>
+  <%= link_to "Rodadas", rodadas_championship_path(championship), class: nav_class.call("rodadas") %>
+  <%= link_to "Programação", programacao_championship_path(championship), class: nav_class.call("programacao") %>
+  <%= link_to "Classificação", classificacao_championship_path(championship), class: nav_class.call("classificacao") %>
+</nav>

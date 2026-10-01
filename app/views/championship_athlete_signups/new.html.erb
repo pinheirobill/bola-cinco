@@ -14,7 +14,7 @@
 
 <section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
   <%= surface_card(title: "Ficha do atleta", subtitle: "Preencha os campos da carteirinha e da inscrição.") do %>
-    <%= form_with url: championship_athlete_signup_path(@championship), scope: :athlete_signup, class: "space-y-6" do %>
+    <%= form_with url: championship_athlete_signup_path(@championship), scope: :athlete_signup, multipart: true, class: "space-y-6" do %>
       <div class="grid gap-4 md:grid-cols-2">
         <div class="form-control gap-2 md:col-span-2">
           <%= label_tag "athlete_signup_team_id", "Time", class: "label-text font-medium" %>
@@ -29,8 +29,9 @@
           <%= date_field_tag "athlete_signup[birth_date]", @athlete&.birth_date, id: "athlete_signup_birth_date", class: "input input-bordered w-full" %>
         </div>
         <div class="form-control gap-2">
-          <%= label_tag "athlete_signup_photo_url", "Foto", class: "label-text font-medium" %>
-          <%= text_field_tag "athlete_signup[photo_url]", @athlete&.photo_url, id: "athlete_signup_photo_url", class: "input input-bordered w-full", placeholder: "https://..." %>
+          <%= label_tag "athlete_signup_photo", "Enviar foto", class: "label-text font-medium" %>
+          <%= file_field_tag "athlete_signup[photo]", id: "athlete_signup_photo", class: "file-input file-input-bordered w-full", accept: "image/*" %>
+          <%= text_field_tag "athlete_signup[photo_url]", @athlete&.photo_url, id: "athlete_signup_photo_url", class: "input input-bordered w-full", placeholder: "Ou cole uma URL de foto existente" %>
         </div>
         <div class="form-control gap-2">
           <%= label_tag "athlete_signup_cpf", "CPF", class: "label-text font-medium" %>

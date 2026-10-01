@@ -1,0 +1,32 @@
+<% content_for :title, "#{@championship.name} | Programação | Arena" %>
+
+<%= page_header(
+  title: "#{@championship.name} · Programação",
+  subtitle: "Agenda das partidas agrupada por fase e rodada.",
+  badge: @championship.status.to_s.tr("_", " ").humanize,
+  actions: [link_to("Imprimir", "#", class: "btn btn-outline", onclick: "window.print(); return false;")]
+) %>
+<%= render "championships/football_navigation", championship: @championship, current: "programacao" %>
+
+<% if @football_rounds.any? %>
+  <div class="space-y-6">
+    <% @football_rounds.each do |(phase, round), matches| %>
+      <%= surface_card(title: round == "sem_rodada" ? phase : "#{phase} · Rodada #{round}", subtitle: "#{matches.size} partida(s)") do %>
+        <div class="divide-y divide-base-300">
+          <% matches.sort_by { |match| [match.scheduled_on || Date.new(9999, 12, 31), match.scheduled_time.to_s, match.code.to_s] }.each do |match| %>
+            <div class="grid gap-2 py-4 first:pt-0 last:pb-0 md:grid-cols-[12rem_minmax(0,1fr)_10rem] md:items-center">
+              <div class="text-sm text-base-content/70">
+                <p class="font-semibold"><%= [match.scheduled_on&.strftime("%d/%m/%Y"), match.scheduled_time].compact.join(" · ").presence || "Data a definir" %></p>
+                <p class="mt-1"><%= match.venue_name.presence || "Local a definir" %></p>
+              </div>
+              <%= match_card(match, compact: true, legacy_match: false) %>
+              <%= link_to "Abrir partida", match_path(match), class: "btn btn-outline btn-sm" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <%= empty_state(title: "Programação ainda vazia", description: "Quando as partidas forem cadastradas, a agenda aparecerá aqui.") %>
+<% end %>

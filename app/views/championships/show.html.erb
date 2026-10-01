@@ -5,14 +5,17 @@
   subtitle: "Temporada #{@championship.season} · #{@championship.modality_label} · #{@championship.competition_mode_label}",
   badge: @championship.status.to_s.tr("_", " ").humanize,
   actions: [
-    link_to("Classificação", standing_rows_path, class: "btn btn-outline"),
+    link_to("Classificação", classificacao_championship_path(@championship), class: "btn btn-outline"),
     (@championship.team_signup_open? ? button_tag("Inscrição de equipes", type: "button", class: "btn btn-outline", onclick: "document.getElementById('championship-team-signup-modal').showModal()") : nil),
-    (user_signed_in? && @championship.manageable_by?(current_user) && @championship.team_signup_open? ? link_to("Importar Excel", new_championship_team_import_path(@championship), class: "btn btn-outline") : nil),
     (user_signed_in? && @championship.manageable_by?(current_user) && @championship.team_signup_open? ? button_to("Finalizar inscrições", finalize_registrations_championship_path(@championship), method: :patch, class: "btn btn-primary", data: { turbo_confirm: "Finalizar inscrições e gerar os jogos iniciais?" }) : nil),
     (user_signed_in? && @championship.rascunho? && @championship.manageable_by?(current_user) ? button_to("Ativar campeonato", finalize_onboarding_championship_path(@championship), method: :patch, class: "btn btn-primary", data: { turbo_confirm: "Ativar este campeonato agora?" }) : nil),
     (user_signed_in? && @championship.manageable_by?(current_user) ? link_to("Configurar campeonato", setup_championship_path(@championship), class: "btn btn-primary") : nil)
   ].compact
 ) %>
+
+<% unless @championship.tranca? %>
+  <%= render "championships/football_navigation", championship: @championship, current: "portal" %>
+<% end %>
 
 <%= stats_grid([
   { label: "Categorias", value: @championship.categories.count, value_class: "text-2xl" },
@@ -256,6 +259,12 @@
       <p class="mt-2 text-sm text-base-content/70">
         <%= @championship.tranca? ? "Selecione uma dupla já cadastrada ou crie uma nova para vinculá-la ao campeonato." : "Selecione um time já cadastrado e vincule-o à categoria do campeonato." %>
       </p>
+
+      <% if user_signed_in? && @championship.manageable_by?(current_user) %>
+        <div class="mt-4">
+          <%= link_to "Importar Excel", new_championship_team_import_path(@championship), class: "btn btn-outline" %>
+        </div>
+      <% end %>
 
       <% if @team&.errors&.any? %>
         <div class="alert alert-error mt-4 shadow-sm">

@@ -101,6 +101,7 @@ class AthletesController < ApplicationController
       :shirt_number,
       :document,
       :photo_url,
+      :photo,
       :cpf,
       :rg,
       :birth_certificate,

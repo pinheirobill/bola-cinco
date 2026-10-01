@@ -72,19 +72,24 @@ module Tranca
     end
 
     def pontos_a
-      maos.any? ? maos.sum(:pontos_a).to_i : score_a
+      hand_scores(:pontos_a, self[:score_a])
     end
 
     def pontos_b
-      maos.any? ? maos.sum(:pontos_b).to_i : score_b
+      hand_scores(:pontos_b, self[:score_b])
     end
 
     def score_a
-      maos.any? ? maos.sum(:pontos_a).to_i : self[:score_a]
+      hand_scores(:pontos_a, self[:score_a])
     end
 
     def score_b
-      maos.any? ? maos.sum(:pontos_b).to_i : self[:score_b]
+      hand_scores(:pontos_b, self[:score_b])
+    end
+
+    def hand_scores(attribute, fallback)
+      hands = maos.to_a
+      hands.any? ? hands.sum { |hand| hand.public_send(attribute).to_i } : fallback
     end
 
     def venue_name
