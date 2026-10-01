@@ -44,7 +44,7 @@
           <% end %>
         <% end %>
         <div class="divide-y divide-base-300">
-          <% matches.sort_by { |match| [match.scheduled_on || Date.new(9999, 12, 31), match.scheduled_time.to_s, match.code.to_s] }.each do |match| %>
+          <% matches.sort_by { |match| [match.scheduled_on || Date.new(9999, 12, 31), match.scheduled_time.to_s, match.id] }.each do |match| %>
             <div class="grid gap-2 py-4 first:pt-0 last:pb-0 md:grid-cols-[12rem_minmax(0,1fr)_10rem] md:items-center">
               <div class="text-sm text-base-content/70">
                 <p class="font-semibold"><%= [match.scheduled_on&.strftime("%d/%m/%Y"), match.scheduled_time].compact.join(" · ").presence || "Data a definir" %></p>

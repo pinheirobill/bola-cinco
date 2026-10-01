@@ -1110,7 +1110,7 @@ class Championship < ApplicationRecord
 
   def limited_group_pairings_for(group_teams)
     if group_teams.size == 9 && matches_per_team == 4
-      teams_by_slot = group_teams.shuffle
+      teams_by_slot = group_teams
       rounds = Array.new(5) { [] }
 
       NINE_TEAM_FIVE_ROUND_PAIRINGS.each do |home_slot, away_slot, round_number|
