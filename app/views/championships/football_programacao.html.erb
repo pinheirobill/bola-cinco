@@ -14,7 +14,7 @@
       <%= surface_card(
         title: round == "sem_rodada" ? phase : "#{phase} · Rodada #{round}",
         subtitle: "#{matches.size} partida(s)",
-        actions: (link_to("Baixar súmulas pré-preenchidas (PDF)", football_round_summulas_championship_path(@championship, round_number: round), class: "btn btn-outline btn-sm") if round != "sem_rodada")
+        actions: (link_to("Baixar súmulas pré-preenchidas (PDF)", championship_football_round_summulas_path(@championship, round_number: round), class: "btn btn-outline btn-sm") if round != "sem_rodada")
       ) do %>
         <% if @championship.manageable_by?(current_user) && round != "sem_rodada" %>
           <% unassigned_matches = @football_matches.select { |candidate| candidate.round_number.blank? && candidate.phase == matches.first.phase } %>
