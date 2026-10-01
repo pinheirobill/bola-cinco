@@ -956,7 +956,7 @@ class ChampionshipsController < ApplicationController
     return head :not_acceptable unless request.format.html?
 
     @football_matches = football_championship_matches
-    @football_teams = @championship.teams.includes(:category).order("categories.name ASC, teams.name ASC").distinct.to_a
+    @football_teams = @championship.teams.includes(:category).order("categories.name ASC, teams.name ASC").to_a
     @football_rounds = @football_matches.group_by do |match|
       [championship_phase_label(match.phase), match.round_number.presence || "sem_rodada"]
     end.sort_by { |(phase, round), _matches| [phase, round == "sem_rodada" ? Float::INFINITY : round.to_i] }
