@@ -42,7 +42,7 @@ module BolaCinco
       rows = [
         ["Código", match.code, "Categoria", match.category&.name.to_s],
         ["Fase / rodada", [match.phase.to_s.humanize, ("Rodada #{match.round_number}" if match.round_number.present?)].compact.join(" · "), "Grupo", match.group_key.to_s],
-        ["Data", match.scheduled_on&.strftime("%d/%m/%Y").presence || "________________", "Horário / local", [match.scheduled_time&.strftime("%H:%M"), match.venue_name.presence].compact.join(" · ").presence || "________________"]
+        ["Data", match.scheduled_on&.strftime("%d/%m/%Y").presence || "________________", "Horário / local", [formatted_scheduled_time, match.venue_name.presence].compact.join(" · ").presence || "________________"]
       ]
       widths = [82, 280, 82, pdf.bounds.width - 444]
       row_height = 19
@@ -66,6 +66,16 @@ module BolaCinco
       pdf.move_down(row_height * rows.size)
       pdf.move_down 5
       pdf.text("#{match.team_a_label}   ×   #{match.team_b_label}", size: 13, style: :bold, align: :center)
+    end
+
+    def formatted_scheduled_time
+      raw = match.scheduled_time.to_s.strip
+      return if raw.blank?
+
+      parsed = raw.match(/\A(?<hour>\d{1,2})[Hh:](?<minute>\d{2})(?::\d{2})?\z/)
+      return raw unless parsed
+
+      format("%02d:%02d", parsed[:hour].to_i, parsed[:minute].to_i)
     end
 
     def draw_team_rosters(pdf)
