@@ -79,7 +79,7 @@
 
   <%= surface_card(
     title: "Conferência",
-    subtitle: "Ajuste o que o PDF sugeriu antes de confirmar a importação."
+    subtitle: "Confira os atletas e lance os minutos dos gols e cartões. Ao confirmar, os eventos entram no jogo e nas estatísticas."
   ) do %>
     <%= form_with url: import_summula_match_path(@match), method: :post, class: "space-y-4" do %>
       <%= hidden_field_tag "match_summula_import[confirm]", "1" %>
@@ -150,7 +150,7 @@
               <th>Nº</th>
               <th>Detectado no PDF</th>
               <th>Confiança</th>
-              <th>De / Para</th>
+              <th>Atleta e eventos</th>
             </tr>
           </thead>
           <tbody>
@@ -176,6 +176,11 @@
                   <%= hidden_field_tag "match_summula_import[rows][left_#{index}][shirt_number]", row[:shirt_number] %>
                   <%= hidden_field_tag "match_summula_import[rows][left_#{index}][player_name]", row[:player_name] %>
                   <%= hidden_field_tag "match_summula_import[rows][left_#{index}][source_line]", row[:source_line] %>
+                  <div class="mt-2 grid grid-cols-[minmax(7rem,1fr)_auto_auto] items-center gap-2">
+                    <%= text_field_tag "match_summula_import[rows][left_#{index}][goal_minutes]", row[:goal_minutes], class: "input input-bordered input-xs w-full", placeholder: "Minutos dos gols: 8, 23", aria: { label: "Minutos dos gols de #{row[:player_name]}" } %>
+                    <label class="flex items-center gap-1 text-xs"><%= hidden_field_tag "match_summula_import[rows][left_#{index}][cartao_amarelo]", "0" %><%= check_box_tag "match_summula_import[rows][left_#{index}][cartao_amarelo]", "1", row[:cartao_amarelo], class: "checkbox checkbox-warning checkbox-xs" %> AM</label>
+                    <label class="flex items-center gap-1 text-xs"><%= hidden_field_tag "match_summula_import[rows][left_#{index}][cartao_vermelho]", "0" %><%= check_box_tag "match_summula_import[rows][left_#{index}][cartao_vermelho]", "1", row[:cartao_vermelho], class: "checkbox checkbox-error checkbox-xs" %> VM</label>
+                  </div>
                 </td>
               </tr>
             <% end %>
@@ -202,7 +207,7 @@
               <th>Nº</th>
               <th>Detectado no PDF</th>
               <th>Confiança</th>
-              <th>De / Para</th>
+              <th>Atleta e eventos</th>
             </tr>
           </thead>
           <tbody>
@@ -228,6 +233,11 @@
                   <%= hidden_field_tag "match_summula_import[rows][right_#{index}][shirt_number]", row[:shirt_number] %>
                   <%= hidden_field_tag "match_summula_import[rows][right_#{index}][player_name]", row[:player_name] %>
                   <%= hidden_field_tag "match_summula_import[rows][right_#{index}][source_line]", row[:source_line] %>
+                  <div class="mt-2 grid grid-cols-[minmax(7rem,1fr)_auto_auto] items-center gap-2">
+                    <%= text_field_tag "match_summula_import[rows][right_#{index}][goal_minutes]", row[:goal_minutes], class: "input input-bordered input-xs w-full", placeholder: "Minutos dos gols: 8, 23", aria: { label: "Minutos dos gols de #{row[:player_name]}" } %>
+                    <label class="flex items-center gap-1 text-xs"><%= hidden_field_tag "match_summula_import[rows][right_#{index}][cartao_amarelo]", "0" %><%= check_box_tag "match_summula_import[rows][right_#{index}][cartao_amarelo]", "1", row[:cartao_amarelo], class: "checkbox checkbox-warning checkbox-xs" %> AM</label>
+                    <label class="flex items-center gap-1 text-xs"><%= hidden_field_tag "match_summula_import[rows][right_#{index}][cartao_vermelho]", "0" %><%= check_box_tag "match_summula_import[rows][right_#{index}][cartao_vermelho]", "1", row[:cartao_vermelho], class: "checkbox checkbox-error checkbox-xs" %> VM</label>
+                  </div>
                 </td>
               </tr>
             <% end %>

@@ -352,7 +352,7 @@ class Match < ApplicationRecord
     match_events
       .select { |event| event.team_id == team.id && event.athlete_id == athlete.id && event.kind == kind.to_s }
       .sort_by do |event|
-        sheet_index = event.source_data.dig("event_sheet_index").to_i if event.source_data["event_sheet"]
+        sheet_index = event.source_data.dig("event_sheet_index").to_i if event.source_data.key?("event_sheet_index")
         [ sheet_index.present? ? 0 : 1, sheet_index || event.minute.to_i, event.created_at || Time.zone.at(0), event.id.to_i ]
       end
   end

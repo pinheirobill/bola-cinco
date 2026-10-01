@@ -459,9 +459,12 @@ class Championship < ApplicationRecord
   def top_scorers(limit = 5)
     totals = Hash.new(0)
 
-    completed_matches.each do |match|
-      match.scorers.to_h.each do |athlete_id, goals|
-        totals[athlete_id.to_s] += goals.to_i
+    completed_matches.includes(match_events: :athlete).each do |match|
+      event_totals = match.match_events.select { |event| event.kind_gol? && event.athlete.present? }
+        .each_with_object(Hash.new(0)) { |event, result| result[event.athlete.source_id.to_s] += 1 }
+      scorer_totals = match.scorers.to_h.transform_values(&:to_i)
+      (event_totals.keys | scorer_totals.keys.map(&:to_s)).each do |athlete_id|
+        totals[athlete_id] += [event_totals[athlete_id], scorer_totals[athlete_id].to_i].max
       end
     end
 

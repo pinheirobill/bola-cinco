@@ -28,8 +28,8 @@ module BolaCinco
       draw_match_details(pdf)
       pdf.move_down 10
       draw_team_rosters(pdf)
-      pdf.move_down 10
-      draw_events_area(pdf)
+      pdf.move_down 5
+      pdf.text("Placar: #{match.score_a.presence || "___"} × #{match.score_b.presence || "___"}     Árbitro: #{match.match_report&.referee&.name.presence || "________________________________"}", size: 9)
       pdf.move_down 9
       draw_signatures(pdf)
     end
@@ -81,23 +81,41 @@ module BolaCinco
     def draw_team_rosters(pdf)
       left = roster_rows(match.team_a)
       right = roster_rows(match.team_b)
-      widths = [34, (pdf.bounds.width - 68) / 2.0, 34, (pdf.bounds.width - 68) / 2.0]
+      panel_width = (pdf.bounds.width - 12) / 2.0
+      columns = [[22, 94, 24], *Array.new(9) { [18] }, [27, 27]].flatten
+      columns = columns.map { |width| width * panel_width / columns.sum }
       row_height = 13
-      header = ["Nº", match.team_a_label, "Nº", match.team_b_label]
-      draw_grid_row(pdf, header, widths, row_height + 5, header: true)
+      pdf.text_box(match.team_a_label, at: [0, pdf.cursor], width: panel_width, height: 13,
+        size: 8, style: :bold, align: :center, overflow: :shrink_to_fit)
+      pdf.text_box(match.team_b_label, at: [panel_width + 12, pdf.cursor], width: panel_width, height: 13,
+        size: 8, style: :bold, align: :center, overflow: :shrink_to_fit)
+      pdf.move_down 14
+      headers = ["Nº", "Atleta", "GOL", *1.upto(9).map { |number| "#{number}º" }, "AMAR", "VERM"]
+      header_values = headers + [""] + headers
+      header_widths = columns + [12] + columns
+      draw_grid_row(pdf, header_values, header_widths, row_height + 2, header: true, font_size: 6)
       ROSTER_ROWS.times do |index|
-        draw_grid_row(pdf, [left[index]&.first.to_s, left[index]&.last.to_s, right[index]&.first.to_s, right[index]&.last.to_s], widths, row_height)
+        left_row = left[index] ? athlete_cells(match.team_a, left[index]) : Array.new(headers.size, "")
+        right_row = right[index] ? athlete_cells(match.team_b, right[index]) : Array.new(headers.size, "")
+        draw_grid_row(pdf, left_row + [""] + right_row, header_widths, row_height, font_size: 6)
       end
     end
 
-    def draw_events_area(pdf)
-      widths = [pdf.bounds.width * 0.4, pdf.bounds.width * 0.2, pdf.bounds.width * 0.4]
-      draw_grid_row(pdf, ["Gols / minuto", "Cartões", "Substituições / minuto"], widths, 18, header: true)
-      draw_grid_row(pdf, ["", "", ""], widths, 34)
-      pdf.move_down 4
-      pdf.text("Placar: #{match.score_a.presence || "___"} × #{match.score_b.presence || "___"}     Árbitro: #{match.match_report&.referee&.name.presence || "________________________________"}", size: 9)
-      pdf.move_down 5
-      pdf.text("Observações: ______________________________________________________________________________________________________________", size: 8)
+    def athlete_cells(team, athlete)
+      events = match.match_events.select { |event| event.team_id == team&.id && event.athlete_id == athlete.id }
+      goals = events.select(&:kind_gol?)
+      indexed_goals = goals.sort_by do |event|
+        sheet_index = event.source_data["event_sheet_index"].to_i if event.source_data.key?("event_sheet_index")
+        [sheet_index.present? ? 0 : 1, sheet_index || event.minute.to_i, event.id.to_i]
+      end
+      goal_minutes = Array.new(9, "")
+      indexed_goals.first(9).each_with_index do |event, index|
+        goal_minutes[index] = event.minute.present? ? "#{event.minute}'" : ""
+      end
+      legacy_goal_count = match.scorers.to_h.fetch(athlete.source_id.to_s, 0).to_i
+
+      [athlete.shirt_number.to_s, athlete.name.to_s, [goals.size, legacy_goal_count].max.to_s, *goal_minutes,
+        events.count(&:kind_cartao_amarelo?).to_s, events.count(&:kind_cartao_vermelho?).to_s]
     end
 
     def draw_signatures(pdf)
@@ -106,12 +124,20 @@ module BolaCinco
     end
 
     def roster_rows(team)
-      team&.athletes&.sort_by { |athlete| [athlete.shirt_number.to_i.zero? ? Float::INFINITY : athlete.shirt_number.to_i, athlete.name.to_s.downcase] }&.first(ROSTER_ROWS)&.map do |athlete|
-        [athlete.shirt_number, athlete.name]
-      end || []
+      return [] unless team
+
+      participants = match.match_participations.filter_map do |participation|
+        participation.athlete if participation.team_id == team.id
+      end
+      event_athletes = match.match_events.filter_map do |event|
+        event.athlete if event.team_id == team.id
+      end
+      (team.athletes.to_a + participants + event_athletes).uniq(&:id)
+        .sort_by { |athlete| [athlete.shirt_number.to_i.zero? ? Float::INFINITY : athlete.shirt_number.to_i, athlete.name.to_s.downcase] }
+        .first(ROSTER_ROWS)
     end
 
-    def draw_grid_row(pdf, values, widths, height, header: false)
+    def draw_grid_row(pdf, values, widths, height, header: false, font_size: 8)
       top = pdf.cursor
       x = 0
       values.each_with_index do |value, index|
@@ -122,7 +148,7 @@ module BolaCinco
         pdf.stroke_rectangle([x, top], width, height)
         pdf.fill_color "1F2937"
         pdf.text_box(value.to_s, at: [x + 3, top - 2], width: width - 6, height: height - 4,
-          size: 8, style: header ? :bold : :normal, valign: :center,
+          size: font_size, style: header ? :bold : :normal, valign: :center,
           overflow: :shrink_to_fit, min_font_size: 6)
         x += width
       end

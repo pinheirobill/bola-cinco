@@ -272,7 +272,7 @@ class MatchesController < ApplicationController
       @match.update!(match_attrs)
       @match.sync_pending_participations!
 
-    rows.each do |row|
+      rows.each do |row|
         team = row[:side].to_s == "right" ? right_team : left_team
         athlete = import_athlete_for_row(team, row)
         next if team.blank? || athlete.blank?
@@ -284,8 +284,50 @@ class MatchesController < ApplicationController
         participation.shirt_number = athlete.shirt_number
         participation.position = athlete.position
         participation.save!
+        sync_imported_summula_events!(team, athlete, row)
       end
     end
+  end
+
+  def sync_imported_summula_events!(team, athlete, row)
+    prefix = "match-summula-import-event-#{@match.id}-#{team.id}-#{athlete.id}-"
+    allowed_source_ids = []
+    minutes = row[:goal_minutes].to_s.split(/[;,\s]+/).filter_map do |value|
+      minute = value.strip.sub(/[’']\z/, "")
+      minute if minute.match?(/\A\d{1,3}\z/) && minute.to_i <= 150
+    end.first(9)
+
+    minutes.each_with_index do |minute, index|
+      source_id = "#{prefix}gol-#{index + 1}"
+      save_imported_summula_event!(source_id, team, athlete, "gol", minute, index + 1)
+      allowed_source_ids << source_id
+    end
+
+    %w[cartao_amarelo cartao_vermelho].each do |kind|
+      next unless ActiveModel::Type::Boolean.new.cast(row[kind])
+
+      source_id = "#{prefix}#{kind}-1"
+      save_imported_summula_event!(source_id, team, athlete, kind, nil, 1)
+      allowed_source_ids << source_id
+    end
+
+    @match.match_events.select { |event| event.source_id.start_with?(prefix) && !allowed_source_ids.include?(event.source_id) }.each(&:destroy!)
+  end
+
+  def save_imported_summula_event!(source_id, team, athlete, kind, minute, index)
+    event = @match.match_events.find_or_initialize_by(source_id: source_id)
+    event.assign_attributes(
+      championship: @match.championship,
+      match: @match,
+      team: team,
+      athlete: athlete,
+      kind: kind,
+      minute: minute,
+      period: nil,
+      notes: "Evento conferido na importação da súmula",
+      source_data: event.source_data.merge("summula_import" => true, "event_sheet_kind" => kind, "event_sheet_index" => index)
+    )
+    event.save!
   end
 
   def import_athlete_for_row(team, row)

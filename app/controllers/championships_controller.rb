@@ -117,7 +117,8 @@ class ChampionshipsController < ApplicationController
 
     round_number = params[:round_number].to_i
     matches = @championship.matches.where(round_number: round_number)
-      .includes(:category, :venue, :team_a, :team_b, :match_report, team_a: :athletes, team_b: :athletes)
+      .includes(:category, :venue, :team_a, :team_b, :match_report, :match_events, :match_participations,
+        team_a: :athletes, team_b: :athletes)
       .order(:scheduled_on, :scheduled_time, :id).to_a
     return redirect_to programacao_championship_path(@championship), alert: "Esta rodada não tem partidas para exportar." if round_number <= 0 || matches.empty?
 
