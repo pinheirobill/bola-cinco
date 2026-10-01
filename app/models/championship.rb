@@ -1,4 +1,13 @@
 class Championship < ApplicationRecord
+  # Slot numbers map A5:A13 in the official nine-team, five-round schedule.
+  NINE_TEAM_FIVE_ROUND_PAIRINGS = [
+    [9, 4, 1], [3, 1, 1], [6, 5, 1], [8, 7, 1],
+    [9, 1, 2], [8, 2, 2], [5, 4, 2], [6, 7, 2],
+    [5, 9, 3], [4, 8, 3], [1, 2, 3], [7, 3, 3],
+    [6, 8, 4], [5, 3, 4], [4, 2, 4],
+    [6, 2, 5], [9, 3, 5], [7, 1, 5]
+  ].freeze
+
   ScorerEntry = Struct.new(:athlete_id, :name, :team_name, :goals, keyword_init: true)
   StandingGroup = Struct.new(:category, :group_key, :rows, keyword_init: true)
 
@@ -1060,6 +1069,17 @@ class Championship < ApplicationRecord
   end
 
   def limited_group_pairings_for(group_teams)
+    if group_teams.size == 9 && matches_per_team == 4
+      teams_by_slot = group_teams.shuffle
+      rounds = Array.new(5) { [] }
+
+      NINE_TEAM_FIVE_ROUND_PAIRINGS.each do |home_slot, away_slot, round_number|
+        rounds[round_number - 1] << [teams_by_slot[home_slot - 1], teams_by_slot[away_slot - 1]]
+      end
+
+      return rounds
+    end
+
     degree_limit = [matches_per_team, group_teams.size - 1].min
     return [] if degree_limit < 1
 
