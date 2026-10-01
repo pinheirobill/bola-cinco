@@ -25,6 +25,8 @@ module BolaCinco
       header[:score_left] ||= extracted_score[:left] || match.score_a
       header[:score_right] ||= extracted_score[:right] || match.score_b
       header[:date] ||= match.scheduled_on&.to_s
+      own_goal_lines = (sections[:own_goals] + lines).uniq
+      own_goals = extract_own_goals(own_goal_lines)
       sides = if sections[:left].any? || sections[:right].any?
         {
           left: extract_roster_rows_from_section(sections[:left], :left),
@@ -48,7 +50,8 @@ module BolaCinco
         extracted_lines: lines,
         header: header,
         sides: sides,
-        warnings: warnings_for(text, header, sides)
+        own_goals: own_goals,
+        warnings: warnings_for(text, header, sides, own_goals)
       }
     end
 
@@ -197,6 +200,9 @@ module BolaCinco
 
     def extract_roster_rows_from_section(lines, side)
       lines.each_with_index.filter_map do |line, index|
+        next unless line.match?(/\A\d{1,2}\s+/)
+        next if line.match?(/\A\d{1,2}(\s+\d{1,2})+\z/)
+
         parse_player_row(line, index, side)
       end
     end
@@ -240,7 +246,7 @@ module BolaCinco
     end
 
     def split_ocr_sections(lines)
-      sections = { header: [], score: [], left: [], right: [] }
+      sections = { header: [], score: [], left: [], right: [], own_goals: [] }
       current = :header
 
       lines.each do |line|
@@ -257,12 +263,44 @@ module BolaCinco
         when /\A\[\[TEAM_B\]\]\z/i
           current = :right
           next
+        when /\A\[\[OWN_GOALS\]\]\z/i
+          current = :own_goals
+          next
         end
 
         sections[current] << line
       end
 
       sections
+    end
+
+    def extract_own_goals(lines)
+      result = {
+        left: { detected: false, occurred: false, minutes: [] },
+        right: { detected: false, occurred: false, minutes: [] }
+      }
+
+      lines.each do |line|
+        side = if line.match?(/\b(?:EQUIPE|TEAM)\s*A\b/i)
+          :left
+        elsif line.match?(/\b(?:EQUIPE|TEAM)\s*B\b/i)
+          :right
+        end
+        next unless side && line.match?(/GOL\s*CONTRA/i)
+
+        minutes_text = line.split(/MINUTOS?/i, 2).last.to_s
+        minutes = minutes_text.scan(/\b\d{1,3}\b/).map(&:to_i).select { |minute| minute <= 150 }
+        marked_yes = line.match?(/(?:\[\s*[xX✓]\s*\]|\bx\b)\s*SIM/i)
+        marked_no = line.match?(/(?:\[\s*[xX✓]\s*\]|\bx\b)\s*N[ÃA]O/i)
+
+        result[side] = {
+          detected: true,
+          occurred: marked_no ? false : (marked_yes || minutes.any?),
+          minutes: minutes.first(9)
+        }
+      end
+
+      result
     end
 
     def suggested_athlete_for(side, shirt_number, player_name)
@@ -367,12 +405,13 @@ module BolaCinco
       normalize_text(token).match?(/\A[123][a-z]*per\z/)
     end
 
-    def warnings_for(text, header, sides)
+    def warnings_for(text, header, sides, own_goals)
       warnings = []
       warnings << "Foto enviada: confira manualmente os times e atletas." if image_file?
       warnings << "Não consegui extrair texto legível do arquivo." if text.blank? && !image_file?
       warnings << "Não encontrei o cabeçalho do jogo no arquivo." if !image_file? && (header[:left_team_name].blank? || header[:right_team_name].blank?)
       warnings << "Não encontrei jogadores nas equipes do PDF." if sides[:left].blank? && sides[:right].blank?
+      warnings << "Não consegui ler os campos de gol contra; confira as duas equipes antes de confirmar." if own_goals.values.none? { |side| side[:detected] }
       warnings
     end
 

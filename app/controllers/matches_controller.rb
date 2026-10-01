@@ -286,7 +286,54 @@ class MatchesController < ApplicationController
         participation.save!
         sync_imported_summula_events!(team, athlete, row)
       end
+
+      own_goals_payload = payload[:own_goals] || {}
+      sync_imported_own_goals!(left_team, own_goals_payload[:left], preview.dig(:own_goals, :left))
+      sync_imported_own_goals!(right_team, own_goals_payload[:right], preview.dig(:own_goals, :right))
     end
+  end
+
+  def sync_imported_own_goals!(team, values, preview_values)
+    return if team.blank?
+
+    values ||= {}
+    preview_values ||= {}
+    minutes = values[:minutes].to_s.split(/[;,\s]+/).filter_map do |value|
+      minute = value.strip.sub(/[’']\z/, "")
+      minute if minute.match?(/\A\d{1,3}\z/) && minute.to_i <= 150
+    end.first(9)
+    occurred = ActiveModel::Type::Boolean.new.cast(values[:occurred]) || minutes.any?
+    detected = ActiveModel::Type::Boolean.new.cast(values[:detected]) || preview_values[:detected]
+    return unless detected || occurred
+
+    minutes = [""] if occurred && minutes.blank?
+    events = @match.own_goal_events_for(team)
+    allowed_source_ids = []
+    prefix = "match-summula-import-event-#{@match.id}-#{team.id}-own-goal-"
+
+    minutes.each_with_index do |minute, index|
+      source_id = "#{prefix}#{index + 1}"
+      event = events[index] || @match.match_events.find_or_initialize_by(source_id: source_id)
+      event.assign_attributes(
+        championship: @match.championship,
+        match: @match,
+        team: team,
+        athlete: nil,
+        kind: "gol",
+        minute: minute,
+        period: nil,
+        notes: "Gol contra conferido na importação da súmula para #{team.name}",
+        source_data: event.source_data.merge("own_goal" => true, "summula_import" => true, "event_sheet_index" => index + 1)
+      )
+      event.source_id = source_id
+      event.save!
+      allowed_source_ids << source_id
+    end
+
+    events.reject { |event| allowed_source_ids.include?(event.source_id) }.each(&:destroy!)
+    @match.match_events.select do |event|
+      event.source_id.start_with?(prefix) && !allowed_source_ids.include?(event.source_id)
+    end.each(&:destroy!)
   end
 
   def sync_imported_summula_events!(team, athlete, row)

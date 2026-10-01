@@ -13,6 +13,8 @@
 <% header = @import_preview[:header] || {} %>
 <% left_rows = Array(@import_preview.dig(:sides, :left)) %>
 <% right_rows = Array(@import_preview.dig(:sides, :right)) %>
+<% left_own_goals = @import_preview.dig(:own_goals, :left) || {} %>
+<% right_own_goals = @import_preview.dig(:own_goals, :right) || {} %>
 <% extracted_lines_count = Array(@import_preview[:extracted_lines]).size %>
 
 <section class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
@@ -122,6 +124,24 @@
         <div class="form-control gap-2">
           <label class="label-text font-medium" for="match_summula_import_scheduled_time">Hora do jogo</label>
           <%= time_field_tag "match_summula_import[scheduled_time]", match_scheduled_time_value(@match.scheduled_time), class: "input input-bordered w-full", id: "match_summula_import_scheduled_time", step: 300 %>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+        <p class="font-semibold">Gols contra, sem atleta</p>
+        <p class="mt-1 text-xs text-base-content/60">Confira a equipe que recebeu o gol contra e os minutos lidos da súmula.</p>
+        <div class="mt-3 grid gap-3 md:grid-cols-2">
+          <% { left: ["Equipe esquerda", left_own_goals], right: ["Equipe direita", right_own_goals] }.each do |side, (label, own_goal_data)| %>
+            <div class="rounded-xl bg-base-100 p-3">
+              <%= hidden_field_tag "match_summula_import[own_goals][#{side}][detected]", own_goal_data[:detected] ? "1" : "0" %>
+              <%= hidden_field_tag "match_summula_import[own_goals][#{side}][occurred]", "0" %>
+              <label class="flex items-center gap-2 text-sm font-medium">
+                <%= check_box_tag "match_summula_import[own_goals][#{side}][occurred]", "1", own_goal_data[:occurred], class: "checkbox checkbox-info checkbox-sm" %>
+                <%= label %> recebeu gol contra
+              </label>
+              <%= text_field_tag "match_summula_import[own_goals][#{side}][minutes]", Array(own_goal_data[:minutes]).join(", "), class: "input input-bordered input-sm mt-2 w-full", placeholder: "Minutos, ex.: 12, 38", aria: { label: "Minutos dos gols contra para #{label}" } %>
+            </div>
+          <% end %>
         </div>
       </div>
 

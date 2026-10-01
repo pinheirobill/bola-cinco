@@ -110,12 +110,15 @@ def crop_boxes(image: Image.Image) -> dict[str, tuple[int, int, int, int]]:
     team_a_bottom = int(height * 0.70)
     team_b_top = int(height * 0.58)
     team_b_bottom = int(height * 0.98)
+    own_goals_top = int(height * 0.70)
+    own_goals_bottom = int(height * 0.82)
 
     return {
         "HEADER": (left, top, right, header_bottom),
         "SCORE": (int(width * 0.7778), score_top, right, score_bottom),
         "TEAM_A": (left, team_a_top, right, team_a_bottom),
         "TEAM_B": (left, team_b_top, right, team_b_bottom),
+        "OWN_GOALS": (left, own_goals_top, right, own_goals_bottom),
     }
 
 

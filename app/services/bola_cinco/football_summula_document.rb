@@ -30,6 +30,7 @@ module BolaCinco
       draw_team_rosters(pdf)
       pdf.move_down 5
       pdf.text("Placar: #{match.score_a.presence || "___"} × #{match.score_b.presence || "___"}     Árbitro: #{match.match_report&.referee&.name.presence || "________________________________"}", size: 9)
+      draw_own_goal_fields(pdf)
       pdf.move_down 9
       draw_signatures(pdf)
     end
@@ -121,6 +122,24 @@ module BolaCinco
     def draw_signatures(pdf)
       pdf.text("\n______________________________________________                               ______________________________________________", size: 9, align: :center)
       pdf.text("Assinatura da arbitragem                                                     Responsável pela mesa", size: 8, align: :center)
+    end
+
+    def draw_own_goal_fields(pdf)
+      pdf.move_down 4
+      pdf.text("GOL CONTRA - marque a equipe que recebeu o gol; não marque um atleta", size: 8, style: :bold)
+      [[match.team_a, "EQUIPE A"], [match.team_b, "EQUIPE B"]].each do |team, side_label|
+        next unless team
+
+        events = match.own_goal_events_for(team)
+        checked_yes = events.any?
+        checked_no = !checked_yes
+        minutes = events.filter_map { |event| event.minute&.to_s.presence }.join(", ")
+        minutes = "________________" if minutes.blank?
+        label = "#{side_label} - #{team.name}: GOL CONTRA? [#{checked_yes ? 'X' : ' '}] SIM [#{checked_no ? 'X' : ' '}] NÃO | MINUTOS: #{minutes}"
+        pdf.text_box(label, at: [0, pdf.cursor], width: pdf.bounds.width, height: 13,
+          size: 7, overflow: :shrink_to_fit, min_font_size: 6)
+        pdf.move_down 13
+      end
     end
 
     def roster_rows(team)

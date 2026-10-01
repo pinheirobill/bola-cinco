@@ -128,7 +128,23 @@ class Match < ApplicationRecord
       managed_source_ids.concat(sync_event_sheet_row!(team, athlete, athlete_sheet))
     end
 
+    [ team_a, team_b ].compact.each do |team|
+      team_sheet = sheet[team_event_sheet_key(team)]
+      managed_source_ids.concat(sync_event_sheet_own_goals!(team, team_sheet)) if team_sheet.present?
+    end
+
     destroy_event_sheet_records_not_in(managed_source_ids)
+  end
+
+  def own_goal_events_for(team)
+    return [] if team.blank?
+
+    match_events.select do |event|
+      event.team_id == team.id && event.kind_gol? && event.athlete_id.nil? && event.source_data["own_goal"] == true
+    end.sort_by do |event|
+      index = event.source_data["event_sheet_index"].to_i if event.source_data.key?("event_sheet_index")
+      [index.present? ? 0 : 1, index || event.minute.to_i, event.id.to_i]
+    end
   end
 
   def event_sheet_state_for(team, athlete)
@@ -283,6 +299,40 @@ class Match < ApplicationRecord
     managed_source_ids.concat(sync_event_sheet_minutes!(team, athlete, "gol", row_params[:goal_minutes], "Gol lançado pela súmula"))
     managed_source_ids.concat(sync_event_sheet_minutes!(team, athlete, "substituicao", row_params[:substitution_minutes], "Substituição lançada pela súmula"))
 
+    managed_source_ids
+  end
+
+  def sync_event_sheet_own_goals!(team, team_params)
+    enabled = truthy_param?(team_params[:own_goal])
+    minutes = normalize_event_sheet_minutes_list(team_params[:own_goal_minutes]).first(9)
+    minutes = [""] if enabled && minutes.blank?
+    minutes = [] unless enabled
+    events = own_goal_events_for(team).select { |event| event.source_data["event_sheet"] }
+    managed_source_ids = []
+
+    minutes.each_with_index do |minute, index|
+      source_id = "#{EVENT_SHEET_PREFIX}-#{id}-#{team.id}-own-goal-#{index + 1}"
+      event = match_events.find_by(source_id: source_id) || events[index] || match_events.find_or_initialize_by(source_id: source_id)
+      event.assign_attributes(
+        kind: "gol",
+        team: team,
+        athlete: nil,
+        minute: minute,
+        period: nil,
+        notes: "Gol contra a favor de #{team.name}",
+        source_data: event.source_data.merge(
+          "event_sheet" => true,
+          "event_sheet_kind" => "gol",
+          "event_sheet_index" => index + 1,
+          "own_goal" => true
+        )
+      )
+      event.source_id = source_id
+      event.save!
+      managed_source_ids << source_id
+    end
+
+    events.reject { |event| managed_source_ids.include?(event.source_id) }.each(&:destroy!)
     managed_source_ids
   end
 

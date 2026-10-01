@@ -47,6 +47,19 @@
                   class: "input input-bordered input-sm h-7 w-12 px-0 text-center text-xs tabular-nums",
                   data: { action: "blur->autosave-form#submit change->autosave-form#submit" } %>
               </div>
+              <% own_goal_events = match.own_goal_events_for(side[:team]) %>
+              <div class="flex flex-wrap items-center gap-2 rounded-xl bg-base-100 px-2 py-2">
+                <label class="flex items-center gap-1.5 text-xs font-medium">
+                  <%= hidden_field_tag "match[event_sheet][#{side[:key]}][own_goal]", "0" %>
+                  <%= check_box_tag "match[event_sheet][#{side[:key]}][own_goal]", "1", own_goal_events.any?, class: "checkbox checkbox-sm checkbox-info" %>
+                  Gol contra (sem atleta)
+                </label>
+                <%= text_field_tag "match[event_sheet][#{side[:key]}][own_goal_minutes]",
+                  own_goal_events.filter_map { |event| event.minute&.to_s.presence }.join(", "),
+                  class: "input input-bordered input-xs w-28",
+                  placeholder: "Minutos: 12, 38",
+                  aria: { label: "Minutos dos gols contra a favor de #{side[:team]&.name || side[:label]}" } %>
+              </div>
 
               <% if side[:team].present? %>
                 <%= button_tag(
