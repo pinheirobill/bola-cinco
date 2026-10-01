@@ -21,7 +21,7 @@
         <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
           <div class="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm">
             <%= link_to match.code, match_path(match), class: "link link-primary font-semibold" %>
-            <span class="text-base-content/60"><%= [match.category.name, match.round_label, match.scheduled_on&.strftime("%d/%m/%Y"), match.scheduled_time].compact.join(" · ") %></span>
+            <span class="text-base-content/60"><%= [match.category.name, match.phase.to_s.tr("_", " ").humanize, ("Rodada #{match.round_number}" if match.round_number.to_i.positive?), match.scheduled_on&.strftime("%d/%m/%Y"), match.scheduled_time].compact.join(" · ") %></span>
           </div>
           <%= match_card(match, compact: true, legacy_match: false) %>
         </div>

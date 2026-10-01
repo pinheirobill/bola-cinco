@@ -855,7 +855,7 @@ class ChampionshipsController < ApplicationController
   def load_football_rounds_page
     @football_matches = football_championship_matches
     @football_rounds = @football_matches.group_by do |match|
-      [match.phase_label, match.round_number.presence || "sem_rodada"]
+      [championship_phase_label(match.phase), match.round_number.presence || "sem_rodada"]
     end.sort_by { |(phase, round), _matches| [phase, round == "sem_rodada" ? Float::INFINITY : round.to_i] }
     render "championships/football_rounds"
   end
@@ -865,7 +865,7 @@ class ChampionshipsController < ApplicationController
 
     @football_matches = football_championship_matches
     @football_rounds = @football_matches.group_by do |match|
-      [match.phase_label, match.round_number.presence || "sem_rodada"]
+      [championship_phase_label(match.phase), match.round_number.presence || "sem_rodada"]
     end.sort_by { |(phase, round), _matches| [phase, round == "sem_rodada" ? Float::INFINITY : round.to_i] }
     render "championships/football_programacao"
   end
@@ -1193,13 +1193,17 @@ class ChampionshipsController < ApplicationController
   end
 
   def knockout_round_label(phase, round_number)
-    phase_label = case phase.to_s
+    phase_label = championship_phase_label(phase)
+
+    round_number.to_i.positive? ? "Rodada #{round_number} · #{phase_label}" : phase_label
+  end
+
+  def championship_phase_label(phase)
+    case phase.to_s
     when "classificatoria" then "Classificatória"
     when "mata_mata" then "Mata-mata"
     else phase.to_s.tr("_", " ").humanize
     end
-
-    round_number.to_i.positive? ? "Rodada #{round_number} · #{phase_label}" : phase_label
   end
 
   def knockout_stage_slots_for(knockout_stage_type)

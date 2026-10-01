@@ -10,6 +10,7 @@ Create an R2 bucket, then create an R2 S3 API token scoped to that bucket with O
 - `CLOUDFLARE_R2_BUCKET`
 
 The S3 endpoint is built from the account ID as `https://<account-id>.r2.cloudflarestorage.com`; the SDK region is `auto`.
+The S3 client calculates request checksums only when required, avoiding incompatible multiple checksum headers on R2 uploads.
 
 For the Dokku app named `bola5`, set the variables with `dokku config:set bola5` and provide their values through the server's secure shell. Do not put credentials in this repository, a command history, or chat. For Kamal, add the same four variable names and values to `.kamal/secrets`.
 
