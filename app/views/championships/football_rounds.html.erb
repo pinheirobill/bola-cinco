@@ -11,8 +11,15 @@
 
 <% if redraw_state["status"].in?(%w[queued processing]) %>
   <div class="alert alert-info mt-4">
-    Sorteio em andamento. Os jogos atuais continuam visíveis até a nova tabela ser concluída.
-    <%= link_to "Atualizar", rodadas_championship_path(@championship), class: "link font-semibold" %>
+    <div class="w-full space-y-3">
+      <div>
+        Sorteio em andamento. Os jogos atuais continuam visíveis até a nova tabela ser concluída.
+        <%= link_to "Atualizar", rodadas_championship_path(@championship), class: "link font-semibold" %>
+      </div>
+      <progress class="progress progress-primary w-full" max="100" aria-label="Sorteio dos jogos em andamento">
+        Sorteio dos jogos em andamento
+      </progress>
+    </div>
   </div>
 <% elsif redraw_state["status"] == "completed" %>
   <div class="alert alert-success mt-4">

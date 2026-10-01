@@ -29,6 +29,20 @@
             <% end %>
           <% end %>
         <% end %>
+        <% if @championship.manageable_by?(current_user) && round != "sem_rodada" && matches.first.classification_phase? %>
+          <%= form_with url: create_football_match_in_round_championship_path(@championship, round_number: round), method: :post, class: "mb-4 flex flex-wrap items-end gap-2 rounded-box border border-base-300 p-4" do %>
+            <%= hidden_field_tag :phase, matches.first.phase %>
+            <div class="min-w-56 flex-1">
+              <%= label_tag "team_a_id_round_#{round}", "Equipe mandante", class: "label label-text" %>
+              <%= select_tag :team_a_id, options_from_collection_for_select(@football_teams, :id, :picker_label), id: "team_a_id_round_#{round}", prompt: "Selecione uma equipe", class: "select select-bordered w-full", required: true %>
+            </div>
+            <div class="min-w-56 flex-1">
+              <%= label_tag "team_b_id_round_#{round}", "Equipe visitante", class: "label label-text" %>
+              <%= select_tag :team_b_id, options_from_collection_for_select(@football_teams, :id, :picker_label), id: "team_b_id_round_#{round}", prompt: "Selecione uma equipe", class: "select select-bordered w-full", required: true %>
+            </div>
+            <%= submit_tag "Criar jogo nesta rodada", class: "btn btn-primary" %>
+          <% end %>
+        <% end %>
         <div class="divide-y divide-base-300">
           <% matches.sort_by { |match| [match.scheduled_on || Date.new(9999, 12, 31), match.scheduled_time.to_s, match.code.to_s] }.each do |match| %>
             <div class="grid gap-2 py-4 first:pt-0 last:pb-0 md:grid-cols-[12rem_minmax(0,1fr)_10rem] md:items-center">

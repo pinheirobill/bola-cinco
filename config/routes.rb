@@ -45,6 +45,7 @@ Rails.application.routes.draw do
     post :redraw_group_stage, on: :member, path: "rodadas/sortear-novamente"
     get :programacao, on: :member, path: "programacao"
     get "rodadas/:round_number/sumulas-pre-preenchidas", to: "championships#download_football_round_summulas", as: :football_round_summulas
+    post :create_football_match_in_round, on: :member, path: "rodadas/:round_number/jogos"
     patch :add_football_match_to_round, on: :member, path: "rodadas/:round_number/jogos"
     patch :remove_football_match_from_round, on: :member, path: "rodadas/:round_number/jogos/:match_id"
     get :programacao_telao, on: :member, path: "programacao/telao"

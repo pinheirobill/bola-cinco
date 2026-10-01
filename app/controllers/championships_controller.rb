@@ -145,6 +145,32 @@ class ChampionshipsController < ApplicationController
     redirect_back fallback_location: rodadas_championship_path(@championship), alert: e.record.errors.full_messages.to_sentence
   end
 
+  def create_football_match_in_round
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: programacao_championship_path(@championship), alert: "Essa ação é específica do futebol." if @championship.tranca?
+
+    round_number = params[:round_number].to_i
+    return redirect_back fallback_location: programacao_championship_path(@championship), alert: "Rodada inválida." unless round_number.positive?
+
+    team_a = @championship.teams.find(params[:team_a_id])
+    team_b = @championship.teams.find(params[:team_b_id])
+    match = @championship.create_group_match!(
+      round_number: round_number,
+      phase: params[:phase],
+      team_a: team_a,
+      team_b: team_b
+    )
+
+    redirect_back fallback_location: programacao_championship_path(@championship), notice: "Jogo #{match.code} adicionado à rodada #{round_number}."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: programacao_championship_path(@championship), alert: "Selecione duas equipes deste campeonato."
+  rescue ArgumentError => e
+    redirect_back fallback_location: programacao_championship_path(@championship), alert: e.message
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: programacao_championship_path(@championship), alert: e.record.errors.full_messages.to_sentence
+  end
+
   def remove_football_match_from_round
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
@@ -930,6 +956,7 @@ class ChampionshipsController < ApplicationController
     return head :not_acceptable unless request.format.html?
 
     @football_matches = football_championship_matches
+    @football_teams = @championship.teams.includes(:category).order("categories.name ASC, teams.name ASC").distinct.to_a
     @football_rounds = @football_matches.group_by do |match|
       [championship_phase_label(match.phase), match.round_number.presence || "sem_rodada"]
     end.sort_by { |(phase, round), _matches| [phase, round == "sem_rodada" ? Float::INFINITY : round.to_i] }

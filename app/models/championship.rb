@@ -761,6 +761,46 @@ class Championship < ApplicationRecord
     end
   end
 
+  def create_group_match!(round_number:, phase:, team_a:, team_b:)
+    raise ArgumentError, "Jogos manuais estão disponíveis apenas na fase de grupos do futebol." if tranca? || knockout_only_mode?
+
+    round_number = round_number.to_i
+    raise ArgumentError, "Rodada inválida." unless round_number.positive?
+    raise ArgumentError, "Fase de grupos inválida." unless classification_phase_values.include?(phase.to_s)
+    raise ArgumentError, "Escolha duas equipes diferentes." if team_a.id == team_b.id
+    raise ArgumentError, "As equipes precisam pertencer à mesma categoria." unless team_a.category_id == team_b.category_id
+    raise ArgumentError, "As duas equipes precisam estar inscritas neste campeonato." unless categories.exists?(id: team_a.category_id)
+
+    group_key = initial_group_assignments_for(participating_teams_for(team_a.category))
+      .find { |_key, group_teams| group_teams.include?(team_a) && group_teams.include?(team_b) }
+      &.first
+    raise ArgumentError, "As equipes precisam estar no mesmo grupo e aptas a jogar." if group_key.blank?
+
+    group_matches = matches.where(category_id: team_a.category_id, phase: phase, group_key: group_key)
+    same_pair = group_matches.where(
+      "(team_a_id = :team_a_id AND team_b_id = :team_b_id) OR (team_a_id = :team_b_id AND team_b_id = :team_a_id)",
+      team_a_id: team_a.id,
+      team_b_id: team_b.id
+    )
+    allowed_meetings = matches_per_team.positive? ? 1 : matches_per_opponent
+    raise ArgumentError, "Essas equipes já atingiram o limite de confrontos." if same_pair.count >= allowed_meetings
+
+    source_id = "manual-group-match-#{id}-#{SecureRandom.uuid}"
+    code = "MAN-R#{round_number}-#{SecureRandom.hex(3).upcase}"
+
+    matches.create!(
+      source_id: source_id,
+      category_id: team_a.category_id,
+      code: code,
+      phase: phase,
+      group_key: group_key,
+      round_number: round_number,
+      team_a: team_a,
+      team_b: team_b,
+      status: :agendado
+    )
+  end
+
   def enqueue_group_stage_redraw!
     token = SecureRandom.uuid
     with_lock do
