@@ -110,6 +110,57 @@ class ChampionshipsController < ApplicationController
     render "championships/tranca_programacao_telao", layout: "telao"
   end
 
+  def download_football_round_summulas
+    @championship = championship_lookup
+    return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+    return redirect_to programacao_championship_path(@championship), alert: "Esta súmula está disponível apenas para campeonatos de futebol." if @championship.tranca?
+
+    round_number = params[:round_number].to_i
+    matches = @championship.matches.where(round_number: round_number)
+      .includes(:category, :venue, :team_a, :team_b, :match_report, team_a: :athletes, team_b: :athletes)
+      .order(:scheduled_on, :scheduled_time, :id).to_a
+    return redirect_to programacao_championship_path(@championship), alert: "Esta rodada não tem partidas para exportar." if round_number <= 0 || matches.empty?
+
+    send_data BolaCinco::FootballSummulaDocument.render_all(matches),
+      filename: "#{@championship.name.parameterize}-rodada-#{round_number}-sumulas.pdf",
+      type: "application/pdf", disposition: "attachment"
+  end
+
+  def add_football_match_to_round
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica do futebol." if @championship.tranca?
+
+    match = @championship.matches.find(params[:match_id])
+    round_number = params[:round_number].to_i
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Rodada inválida." unless round_number.positive?
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "A partida pertence a outra fase." unless match.phase == params[:phase]
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "A partida já pertence a uma rodada." if match.round_number.present?
+
+    match.update!(round_number: round_number)
+    redirect_back fallback_location: rodadas_championship_path(@championship), notice: "Partida adicionada à rodada #{match.round_number}."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Partida não encontrada neste campeonato."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: e.record.errors.full_messages.to_sentence
+  end
+
+  def remove_football_match_from_round
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica do futebol." if @championship.tranca?
+
+    match = @championship.matches.find(params[:match_id])
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "A partida não está nesta rodada." unless match.round_number.to_s == params[:round_number].to_s
+
+    match.update!(round_number: nil)
+    redirect_back fallback_location: rodadas_championship_path(@championship), notice: "Partida removida da rodada."
+  rescue ActiveRecord::RecordNotFound
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Partida não encontrada neste campeonato."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: e.record.errors.full_messages.to_sentence
+  end
+
   def classificacao
     @championship = championship_lookup
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
@@ -719,6 +770,20 @@ class ChampionshipsController < ApplicationController
 
     created_matches = @championship.draw_initial_knockout_round!
     redirect_to setup_championship_path(@championship, step: "teams"), notice: "#{created_matches.size} jogos da primeira rodada sorteados."
+  end
+
+  def redraw_group_stage
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_back fallback_location: rodadas_championship_path(@championship), alert: "Essa ação é específica do futebol." if @championship.tranca?
+
+    matches = @championship.redraw_group_stage!
+    round_count = matches.map(&:round_number).compact.uniq.size
+    redirect_to rodadas_championship_path(@championship), notice: "Sorteio refeito com #{matches.size} partida(s) distribuídas em #{round_count} rodada(s)."
+  rescue ArgumentError => e
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: e.message
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: rodadas_championship_path(@championship), alert: e.record.errors.full_messages.to_sentence
   end
 
   def attach_category

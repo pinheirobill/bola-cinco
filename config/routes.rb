@@ -42,7 +42,11 @@ Rails.application.routes.draw do
     end
     get :partidas, on: :member, path: "partidas"
     get :rodadas, on: :member, path: "rodadas"
+    post :redraw_group_stage, on: :member, path: "rodadas/sortear-novamente"
     get :programacao, on: :member, path: "programacao"
+    get "rodadas/:round_number/sumulas-pre-preenchidas", to: "championships#download_football_round_summulas", as: :football_round_summulas
+    patch :add_football_match_to_round, on: :member, path: "rodadas/:round_number/jogos"
+    patch :remove_football_match_from_round, on: :member, path: "rodadas/:round_number/jogos/:match_id"
     get :programacao_telao, on: :member, path: "programacao/telao"
     get "rodadas/:rodada_id/sumulas", to: "tranca/round_exports#summulas", as: :round_summulas
     get "rodadas/:rodada_id/jogos.xlsx", to: "tranca/round_exports#games", as: :round_games

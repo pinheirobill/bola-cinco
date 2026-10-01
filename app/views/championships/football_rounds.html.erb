@@ -3,7 +3,8 @@
 <%= page_header(
   title: "#{@championship.name} · Rodadas",
   subtitle: "Partidas organizadas por fase e rodada.",
-  badge: @championship.status.to_s.tr("_", " ").humanize
+  badge: @championship.status.to_s.tr("_", " ").humanize,
+  actions: (button_to("Sortear novamente", redraw_group_stage_championship_path(@championship), method: :post, class: "btn btn-outline btn-error", form: { data: { turbo_confirm: "Refazer o sorteio da fase de grupos? As partidas atuais serão substituídas. Só é permitido antes de iniciar jogos ou preencher súmulas." } }) if @championship.manageable_by?(current_user) && @football_matches.any?)
 ) %>
 <%= render "championships/football_navigation", championship: @championship, current: "rodadas" %>
 

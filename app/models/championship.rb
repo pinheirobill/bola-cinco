@@ -731,6 +731,27 @@ class Championship < ApplicationRecord
     created_matches
   end
 
+  def redraw_group_stage!
+    raise ArgumentError, "Este sorteio está disponível apenas para campeonatos de futebol." if tranca? || knockout_only_mode?
+
+    with_lock do
+      raise ArgumentError, "Remova ou conclua a fase mata-mata antes de refazer o sorteio." if matches.where(phase: "mata_mata").exists?
+
+      existing_matches = matches.where(phase: classification_phase_values).includes(:match_report, :match_events, :match_participations).to_a
+      has_recorded_data = existing_matches.any? do |match|
+        !match.status_agendado? || match.score_a.present? || match.score_b.present? ||
+          match.match_report.present? || match.match_events.any? ||
+          match.match_participations.any? { |participation| !participation.status_pendente? }
+      end
+      raise ArgumentError, "O sorteio só pode ser refeito antes de iniciar os jogos ou preencher súmulas." if has_recorded_data
+
+      existing_matches.each(&:destroy!)
+      created_matches = draw_initial_group_stage_round!
+      rebuild_standings!
+      created_matches
+    end
+  end
+
   def draw_group_stage_knockout_round_for!(category)
     raise ArgumentError, "campeonato precisa estar em grupos + mata-mata" unless group_stage_and_knockout_mode?
     return [] unless group_stage_complete_for?(category)
@@ -1001,17 +1022,19 @@ class Championship < ApplicationRecord
 
   def realize_pairings_for(group_teams, degrees)
     nodes = group_teams.each_with_index.map do |team, index|
-      { team: team, degree: degrees[index].to_i }
+      { team: team, degree: degrees[index].to_i, tie_breaker: rand }
     end
 
     edges = []
 
     loop do
-      nodes.sort_by! { |node| [-node[:degree], node[:team].name.to_s.downcase, node[:team].id] }
+      nodes.sort_by! { |node| [-node[:degree], node[:tie_breaker]] }
       first = nodes.shift
       break if first.blank? || first[:degree] <= 0
       return nil if first[:degree] > nodes.size
 
+      nodes.each { |node| node[:tie_breaker] = rand }
+      nodes.sort_by! { |node| [-node[:degree], node[:tie_breaker]] }
       partners = nodes.first(first[:degree])
       partners.each do |partner|
         edges << [ first[:team], partner[:team] ]
@@ -1023,19 +1046,40 @@ class Championship < ApplicationRecord
       nodes.reject! { |node| node[:degree] <= 0 }
     end
 
-    edges = edges.sort_by { |team_a, team_b| [team_a.name.to_s.downcase, team_b.name.to_s.downcase] }
-    rounds = []
+    schedule_pairings_into_rounds(edges, group_teams.size)
+  end
 
-    edges.each do |team_a, team_b|
-      round = rounds.find { |round_pairings| round_pairings.none? { |existing_a, existing_b| [existing_a.id, existing_b.id].include?(team_a.id) || [existing_a.id, existing_b.id].include?(team_b.id) } }
-      if round.blank?
-        round = []
-        rounds << round
+  def schedule_pairings_into_rounds(edges, team_count)
+    return [] if edges.empty?
+
+    max_games_per_round = team_count / 2
+    return [] if max_games_per_round.zero?
+
+    minimum_rounds = [
+      (edges.size.to_f / max_games_per_round).ceil,
+      edges.flat_map { |pair| pair.map(&:id) }.tally.values.max.to_i
+    ].max
+
+    minimum_rounds.upto(edges.size) do |round_count|
+      100.times do
+        rounds = Array.new(round_count) { [] }
+        ordered_edges = edges.shuffle.sort_by do |pair|
+          [-pair.sum { |team| edges.count { |edge| edge.include?(team) } }, rand]
+        end
+
+        success = ordered_edges.all? do |team_a, team_b|
+          available_rounds = rounds.select do |round|
+            round.size < max_games_per_round && round.flatten.none? { |team| team.id == team_a.id || team.id == team_b.id }
+          end
+          selected_round = available_rounds.min_by { |round| [round.size, rand] }
+          selected_round&.push([team_a, team_b])
+        end
+
+        return rounds if success
       end
-      round << [team_a, team_b]
     end
 
-    rounds
+    raise "Could not distribute generated matches into rounds"
   end
 
   def participating_teams_for(category)

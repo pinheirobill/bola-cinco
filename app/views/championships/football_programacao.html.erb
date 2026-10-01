@@ -11,7 +11,24 @@
 <% if @football_rounds.any? %>
   <div class="space-y-6">
     <% @football_rounds.each do |(phase, round), matches| %>
-      <%= surface_card(title: round == "sem_rodada" ? phase : "#{phase} · Rodada #{round}", subtitle: "#{matches.size} partida(s)") do %>
+      <%= surface_card(
+        title: round == "sem_rodada" ? phase : "#{phase} · Rodada #{round}",
+        subtitle: "#{matches.size} partida(s)",
+        actions: (link_to("Baixar súmulas pré-preenchidas (PDF)", football_round_summulas_championship_path(@championship, round_number: round), class: "btn btn-outline btn-sm") if round != "sem_rodada")
+      ) do %>
+        <% if @championship.manageable_by?(current_user) && round != "sem_rodada" %>
+          <% unassigned_matches = @football_matches.select { |candidate| candidate.round_number.blank? && candidate.phase == matches.first.phase } %>
+          <% if unassigned_matches.any? %>
+            <%= form_with url: add_football_match_to_round_championship_path(@championship, round_number: round), method: :patch, class: "mb-4 flex flex-wrap items-end gap-2" do %>
+              <%= hidden_field_tag :phase, matches.first.phase %>
+              <div class="min-w-64 flex-1">
+                <%= label_tag :match_id, "Adicionar partida existente", class: "label label-text" %>
+                <%= select_tag :match_id, options_from_collection_for_select(unassigned_matches, :id, ->(match) { "#{match.code} · #{match.teams_label}" }), prompt: "Selecione uma partida", class: "select select-bordered w-full", required: true %>
+              </div>
+              <%= submit_tag "Adicionar à rodada", class: "btn btn-primary" %>
+            <% end %>
+          <% end %>
+        <% end %>
         <div class="divide-y divide-base-300">
           <% matches.sort_by { |match| [match.scheduled_on || Date.new(9999, 12, 31), match.scheduled_time.to_s, match.code.to_s] }.each do |match| %>
             <div class="grid gap-2 py-4 first:pt-0 last:pb-0 md:grid-cols-[12rem_minmax(0,1fr)_10rem] md:items-center">
@@ -20,7 +37,12 @@
                 <p class="mt-1"><%= match.venue_name.presence || "Local a definir" %></p>
               </div>
               <%= match_card(match, compact: true, legacy_match: false) %>
-              <%= link_to "Abrir partida", match_path(match), class: "btn btn-outline btn-sm" %>
+              <div class="flex flex-wrap gap-2">
+                <%= link_to "Abrir partida", match_path(match), class: "btn btn-outline btn-sm" %>
+                <% if @championship.manageable_by?(current_user) && round != "sem_rodada" %>
+                  <%= button_to "Remover da rodada", remove_football_match_from_round_championship_path(@championship, round_number: round, match_id: match.id), method: :patch, class: "btn btn-outline btn-error btn-sm", form: { data: { turbo_confirm: "Remover #{match.code} desta rodada? A partida continuará cadastrada no campeonato." } } %>
+                <% end %>
+              </div>
             </div>
           <% end %>
         </div>
