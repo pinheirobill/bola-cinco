@@ -40,12 +40,8 @@ export default class extends Controller {
   syncRows() {
     if (!this.hasFieldsTarget) return
 
-    if (this.hasScoreSelectorValue) {
-      return
-    }
-
     if (this.hasFixedCountValue && this.fixedCountValue > 0) {
-      this.ensureFixedRowCount(this.fixedCountValue)
+      this.ensureFixedRowCount(this.hasScoreSelectorValue ? this.desiredCount() : this.fixedCountValue)
       return
     }
 

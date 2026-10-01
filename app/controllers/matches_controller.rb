@@ -112,13 +112,6 @@ class MatchesController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.replace("match-score-card", partial: "matches/score_card", locals: { match: @match }),
-            turbo_stream.replace("match-event-editor", partial: "matches/event_sheet_editor", locals: {
-              match: @match,
-              team_a_athletes: @team_a_athletes,
-              team_b_athletes: @team_b_athletes,
-              team_a_participations_by_athlete: @team_a_participations_by_athlete,
-              team_b_participations_by_athlete: @team_b_participations_by_athlete
-            }),
             turbo_stream.replace("match-event-summary", partial: "matches/event_summary", locals: {
               match: @match,
               match_events: @match_events
