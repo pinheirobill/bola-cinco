@@ -42,6 +42,7 @@ export default class extends Controller {
 
     this.showStatus("Salvando...", "alert-info")
     this.submitting = true
+    this.submittedSnapshot = this.snapshot()
     if (this.hasFlagTarget) this.flagTarget.disabled = false
     this.element.requestSubmit()
   }
@@ -51,7 +52,7 @@ export default class extends Controller {
     if (this.hasFlagTarget) this.flagTarget.disabled = true
 
     if (event.detail.success) {
-      this.lastSnapshot = this.snapshot()
+      this.lastSnapshot = this.submittedSnapshot
       this.showStatus("Salvo", "alert-success", 900)
     } else {
       this.showStatus("Erro ao salvar", "alert-error", 1400)
@@ -71,7 +72,9 @@ export default class extends Controller {
   }
 
   snapshot() {
-    return new URLSearchParams(new FormData(this.element)).toString()
+    const formData = new FormData(this.element)
+    formData.delete("autosave")
+    return new URLSearchParams(formData).toString()
   }
 
   clearTimer() {

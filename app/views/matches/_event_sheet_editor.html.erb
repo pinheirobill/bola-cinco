@@ -229,14 +229,14 @@
                             <% owner_row = owner_index.present? ? athlete_rows[owner_index] : nil %>
                             <% locked_by_other = owner_index.present? && owner_index != athlete_index %>
                             <% if locked_by_other && owner_row.present? %>
-                              <div class="flex w-[2.75rem] flex-none flex-col gap-0.5 rounded-xl bg-base-100 px-1 py-1 opacity-60">
+                              <div class="flex w-[2.75rem] flex-none flex-col gap-0.5 rounded-xl bg-base-100 px-1 py-1 opacity-60" data-goal-slot="true">
                                 <div class="text-center text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-base-content/60"><%= index + 1 %></div>
                                 <div class="flex h-7 items-center justify-center rounded-lg border border-dashed border-base-300 text-[0.58rem] text-base-content/45" title="<%= owner_row[:athlete].name %>">
                                   <%= owner_row[:athlete].name.to_s.split.first %>
                                 </div>
                               </div>
                             <% else %>
-                              <div class="flex w-[2.75rem] flex-none flex-col gap-0.5 rounded-xl bg-base-100 px-1 py-1" data-minute-row="true">
+                              <div class="flex w-[2.75rem] flex-none flex-col gap-0.5 rounded-xl bg-base-100 px-1 py-1" data-minute-row="true" data-goal-slot="true">
                                 <div class="text-center text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-base-content/60"><%= index + 1 %></div>
                                 <input
                                   type="text"

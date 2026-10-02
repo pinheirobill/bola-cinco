@@ -175,12 +175,20 @@ class MatchesController < ApplicationController
     @athlete_events = @match_events.reject { |event| event.athlete_id.blank? }
                                   .group_by(&:athlete_id)
     @match_participations = @match.match_participations.includes(:team, :athlete).order(created_at: :desc)
-    @team_a_athletes = @match.team_a&.athletes&.includes(:team)&.order(:shirt_number, :name) || Athlete.none
-    @team_b_athletes = @match.team_b&.athletes&.includes(:team)&.order(:shirt_number, :name) || Athlete.none
+    @team_a_athletes = ordered_match_athletes(@match.team_a)
+    @team_b_athletes = ordered_match_athletes(@match.team_b)
     @team_a_participations = @match_participations.select { |participation| participation.team_id == @match.team_a_id }
     @team_b_participations = @match_participations.select { |participation| participation.team_id == @match.team_b_id }
     @team_a_participations_by_athlete = @team_a_participations.index_by(&:athlete_id)
     @team_b_participations_by_athlete = @team_b_participations.index_by(&:athlete_id)
+  end
+
+  def ordered_match_athletes(team)
+    return [] if team.blank?
+
+    team.athletes.includes(:team).to_a.sort_by do |athlete|
+      [ athlete.shirt_number_sort_key, athlete.name.to_s.downcase ]
+    end
   end
 
   def match_params
@@ -213,7 +221,12 @@ class MatchesController < ApplicationController
   end
 
   def match_form_params
-    params.fetch(:match, {}).permit(event_sheet: {})
+    event_sheet = params.dig(:match, :event_sheet)
+    return {} unless event_sheet.respond_to?(:to_unsafe_h)
+
+    # Athlete IDs are dynamic keys and each field can contain an array of minutes.
+    # Match#sync_event_sheet! only applies entries for the match's roster and known event fields.
+    { event_sheet: event_sheet.to_unsafe_h }
   end
 
   def build_summula_import_preview

@@ -84,15 +84,18 @@ export default class extends Controller {
   }
 
   ensureFixedRowCount(count = this.fixedCountValue) {
-    while (this.minuteTargets.length > count) {
-      const row = this.minuteTargets[this.minuteTargets.length - 1]?.closest("[data-minute-row]")
-      if (row) row.remove()
-      else break
+    while (this.goalSlotCount() > count) {
+      const slots = this.fieldsTarget.querySelectorAll("[data-goal-slot]")
+      slots[slots.length - 1]?.remove()
     }
 
-    while (this.minuteTargets.length < count) {
-      this.fieldsTarget.appendChild(this.buildMinuteRow(this.minuteTargets.length, ""))
+    while (this.goalSlotCount() < count) {
+      this.fieldsTarget.appendChild(this.buildMinuteRow(this.goalSlotCount(), ""))
     }
+  }
+
+  goalSlotCount() {
+    return this.fieldsTarget.querySelectorAll("[data-goal-slot]").length
   }
 
   ensureTrailingBlankRow() {
@@ -111,6 +114,7 @@ export default class extends Controller {
     const row = document.createElement("div")
     row.className = "flex items-center gap-2 rounded-xl bg-base-100 px-2 py-2"
     row.dataset.minuteRow = "true"
+    row.dataset.goalSlot = "true"
 
     const label = document.createElement("div")
     label.className = "shrink-0 text-xs font-semibold text-base-content/70"
