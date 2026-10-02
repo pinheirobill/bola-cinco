@@ -23,9 +23,11 @@ module BolaCinco
       header = extract_header(header_lines)
       header[:left_team_name] ||= match.team_a&.name
       header[:right_team_name] ||= match.team_b&.name
-      extracted_score = extract_period_score(sections[:score].presence || lines)
-      header[:score_left] ||= extracted_score[:left] || match.score_a
-      header[:score_right] ||= extracted_score[:right] || match.score_b
+      extracted_score = extract_match_score(lines) || extract_period_score(sections[:score].presence || lines)
+      header[:score_left] = extracted_score[:left] if extracted_score[:left].present?
+      header[:score_right] = extracted_score[:right] if extracted_score[:right].present?
+      header[:score_left] = match.score_a if header[:score_left].nil?
+      header[:score_right] = match.score_b if header[:score_right].nil?
       header[:date] ||= match.scheduled_on&.to_s
       own_goal_lines = (sections[:own_goals] + lines).uniq
       own_goals = extract_own_goals(own_goal_lines)
@@ -141,6 +143,8 @@ module BolaCinco
 
           minute_columns = words.filter_map do |x, y, text|
             next unless (y - header_y).abs < 2 && text.match?(/\A[1-9][º°o]\z/i)
+            next if side == :left && x >= 420
+            next if side == :right && x <= 420
             x
           end.sort
           next if minute_columns.empty?
@@ -477,8 +481,16 @@ module BolaCinco
 
       {
         left: left_total.positive? ? left_total : nil,
-        right: right_total.positive? ? right_total : 0
+        right: right_total.positive? ? right_total : nil
       }
+    end
+
+    def extract_match_score(lines)
+      line = lines.find { |value| normalize_text(value).include?("placar") }
+      score = line&.match(/placar\s*:?\s*(\d{1,2})\s*[x×]\s*(\d{1,2})/i)
+      return unless score
+
+      { left: score[1].to_i, right: score[2].to_i }
     end
 
     def score_token_value(token)

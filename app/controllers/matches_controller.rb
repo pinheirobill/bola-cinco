@@ -266,6 +266,7 @@ class MatchesController < ApplicationController
       }
       match_attrs[:score_a] = payload[:score_a] if payload[:score_a].present?
       match_attrs[:score_b] = payload[:score_b] if payload[:score_b].present?
+      match_attrs[:status] = :finalizado if match_attrs[:score_a].present? && match_attrs[:score_b].present?
       match_attrs[:scheduled_on] = payload[:scheduled_on] if payload[:scheduled_on].present?
       match_attrs[:scheduled_time] = payload[:scheduled_time] if payload[:scheduled_time].present?
 
@@ -290,6 +291,7 @@ class MatchesController < ApplicationController
       own_goals_payload = payload[:own_goals] || {}
       sync_imported_own_goals!(left_team, own_goals_payload[:left], preview.dig(:own_goals, :left))
       sync_imported_own_goals!(right_team, own_goals_payload[:right], preview.dig(:own_goals, :right))
+      @match.sync_competition_state! if @match.status_finalizado?
     end
   end
 
