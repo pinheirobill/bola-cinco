@@ -105,8 +105,11 @@ def crop_boxes(image: Image.Image) -> dict[str, tuple[int, int, int, int]]:
     right = int(width * 0.97)
     top = 0
     header_bottom = int(height * 0.43)
-    score_top = int(height * 0.20625)
-    score_bottom = int(height * 0.3375)
+    # In the football summula the printed final score is below both roster
+    # tables, aligned to the left ("Placar: A × B"). Keep this crop across
+    # the full page width so OCR can read that line from scanned PDFs too.
+    score_top = int(height * 0.69)
+    score_bottom = int(height * 0.76)
     team_a_top = int(height * 0.31)
     team_a_bottom = int(height * 0.70)
     team_b_top = int(height * 0.58)
@@ -116,7 +119,7 @@ def crop_boxes(image: Image.Image) -> dict[str, tuple[int, int, int, int]]:
 
     return {
         "HEADER": (left, top, right, header_bottom),
-        "SCORE": (int(width * 0.7778), score_top, right, score_bottom),
+        "SCORE": (left, score_top, right, score_bottom),
         "TEAM_A": (left, team_a_top, right, team_a_bottom),
         "TEAM_B": (left, team_b_top, right, team_b_bottom),
         "OWN_GOALS": (left, own_goals_top, right, own_goals_bottom),

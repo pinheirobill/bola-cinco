@@ -51,6 +51,7 @@ module BolaCinco
         header[:score_left] = @printed_score[:left] if @printed_score
         header[:score_right] = @printed_score[:right] if @printed_score
       end
+      fill_score_from_detected_goals!(header, sides, own_goals)
 
       {
         file_name: upload_file_name,
@@ -491,6 +492,25 @@ module BolaCinco
       return unless score
 
       { left: score[1].to_i, right: score[2].to_i }
+    end
+
+    def fill_score_from_detected_goals!(header, sides, own_goals)
+      scores = %i[left right].to_h do |side|
+        player_goals = sides.fetch(side, []).sum do |row|
+          row[:goal_minutes].to_s.split(/[;,\s]+/).count do |minute|
+            minute.strip.sub(/[’']\z/, "").match?(/\A\d{1,3}\z/)
+          end
+        end
+        own_goal = own_goals.fetch(side, {})
+        own_goal_minutes = Array(own_goal[:minutes]).size
+        own_goal_count = own_goal_minutes.positive? ? own_goal_minutes : (own_goal[:occurred] ? 1 : 0)
+
+        [side, player_goals + own_goal_count]
+      end
+      return unless scores.values.sum.positive?
+
+      header[:score_left] = scores[:left] if header[:score_left].nil?
+      header[:score_right] = scores[:right] if header[:score_right].nil?
     end
 
     def score_token_value(token)
