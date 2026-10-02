@@ -172,6 +172,8 @@ class MatchesController < ApplicationController
     @available_teams = [@match.team_a, @match.team_b].compact.uniq
     @available_venues = @match.championship.venues.order(:name)
     @match_events = @match.match_events.includes(:team, :athlete).order(created_at: :desc)
+    @athlete_events = @match_events.reject { |event| event.athlete_id.blank? }
+                                  .group_by(&:athlete_id)
     @match_participations = @match.match_participations.includes(:team, :athlete).order(created_at: :desc)
     @team_a_athletes = @match.team_a&.athletes&.includes(:team)&.order(:shirt_number, :name) || Athlete.none
     @team_b_athletes = @match.team_b&.athletes&.includes(:team)&.order(:shirt_number, :name) || Athlete.none

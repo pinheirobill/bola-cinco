@@ -167,6 +167,25 @@
                 <td>
                   <div class="font-medium"><%= athlete.name %></div>
                   <div class="text-xs text-base-content/50"><%= athlete.registration_label.strftime("%d/%m/%Y %H:%M") %></div>
+                  <% events = Array(@athlete_events[athlete.id]) %>
+                  <% goals = events.select(&:kind_gol?) %>
+                  <% yellow_cards = events.count(&:kind_cartao_amarelo?) %>
+                  <% red_cards = events.count(&:kind_cartao_vermelho?) %>
+                  <% if goals.any? || yellow_cards.positive? || red_cards.positive? %>
+                    <div class="mt-2 flex flex-wrap gap-1" aria-label="Eventos de <%= athlete.name %>">
+                      <% if goals.any? %>
+                        <span class="badge badge-success badge-sm" title="Gols marcados">
+                          ⚽ <%= goals.size %><%= " · #{goals.filter_map { |event| event.minute.presence }.join(', ')}′" if goals.any? { |event| event.minute.present? } %>
+                        </span>
+                      <% end %>
+                      <% if yellow_cards.positive? %>
+                        <span class="badge badge-warning badge-sm" title="Cartões amarelos">🟨 <%= yellow_cards %></span>
+                      <% end %>
+                      <% if red_cards.positive? %>
+                        <span class="badge badge-error badge-sm" title="Cartões vermelhos">🟥 <%= red_cards %></span>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </td>
                 <td><%= athlete.position.presence || "-" %></td>
               </tr>
@@ -200,6 +219,25 @@
                 <td>
                   <div class="font-medium"><%= athlete.name %></div>
                   <div class="text-xs text-base-content/50"><%= athlete.registration_label.strftime("%d/%m/%Y %H:%M") %></div>
+                  <% events = Array(@athlete_events[athlete.id]) %>
+                  <% goals = events.select(&:kind_gol?) %>
+                  <% yellow_cards = events.count(&:kind_cartao_amarelo?) %>
+                  <% red_cards = events.count(&:kind_cartao_vermelho?) %>
+                  <% if goals.any? || yellow_cards.positive? || red_cards.positive? %>
+                    <div class="mt-2 flex flex-wrap gap-1" aria-label="Eventos de <%= athlete.name %>">
+                      <% if goals.any? %>
+                        <span class="badge badge-success badge-sm" title="Gols marcados">
+                          ⚽ <%= goals.size %><%= " · #{goals.filter_map { |event| event.minute.presence }.join(', ')}′" if goals.any? { |event| event.minute.present? } %>
+                        </span>
+                      <% end %>
+                      <% if yellow_cards.positive? %>
+                        <span class="badge badge-warning badge-sm" title="Cartões amarelos">🟨 <%= yellow_cards %></span>
+                      <% end %>
+                      <% if red_cards.positive? %>
+                        <span class="badge badge-error badge-sm" title="Cartões vermelhos">🟥 <%= red_cards %></span>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </td>
                 <td><%= athlete.position.presence || "-" %></td>
               </tr>
