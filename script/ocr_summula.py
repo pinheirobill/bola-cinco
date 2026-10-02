@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import json
 import subprocess
 import sys
 import tempfile
@@ -37,12 +38,12 @@ def preprocess_region(image: Image.Image) -> Path:
     return Path(handle.name)
 
 
-def convert_pdf_first_page(source_path: Path) -> Path:
+def convert_pdf_first_page(source_path: Path, dpi: int = 150) -> Path:
     handle = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
     handle.close()
     prefix = Path(handle.name).with_suffix("")
     subprocess.run(
-        ["pdftoppm", "-f", "1", "-singlefile", "-png", str(source_path), str(prefix)],
+        ["pdftoppm", "-f", "1", "-r", str(dpi), "-singlefile", "-png", str(source_path), str(prefix)],
         check=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -160,7 +161,53 @@ def ocr(source_path: Path) -> str:
                 pass
 
 
+def card_markers(source_path: Path) -> list[dict[str, float]]:
+    rendered = convert_pdf_first_page(source_path, dpi=72)
+    try:
+        image = Image.open(rendered).convert("RGB")
+        yellow_pixels = []
+        red_pixels = []
+        for y in range(image.height):
+            for x in range(image.width):
+                red, green, blue = image.getpixel((x, y))
+                if red > 150 and green > 80 and red > green * 1.25 and green > blue * 1.5 and blue < 80:
+                    yellow_pixels.append((x, y))
+                elif red > 160 and green < 100 and blue < 130:
+                    red_pixels.append((x, y))
+
+        markers = []
+        for color, pixels in (("yellow", yellow_pixels), ("red", red_pixels)):
+            remaining = set(pixels)
+            while remaining:
+                pending = [remaining.pop()]
+                component = []
+                while pending:
+                    x, y = pending.pop()
+                    component.append((x, y))
+                    for neighbor in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                        if neighbor in remaining:
+                            remaining.remove(neighbor)
+                            pending.append(neighbor)
+                minimum_area = 12 if color == "yellow" else 40
+                if len(component) >= minimum_area:
+                    markers.append({"color": color, "x": sum(x for x, _ in component) / len(component), "y": sum(y for _, y in component) / len(component)})
+        return markers
+    finally:
+        try:
+            os.unlink(rendered)
+        except OSError:
+            pass
+
+
 def main() -> int:
+    if len(sys.argv) == 3 and sys.argv[2] == "--card-markers":
+        try:
+            print(json.dumps(card_markers(Path(sys.argv[1]))))
+            return 0
+        except Exception as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+
     if len(sys.argv) != 2:
         print("usage: ocr_summula.py <path>", file=sys.stderr)
         return 2

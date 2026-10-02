@@ -1,4 +1,6 @@
 require "open3"
+require "json"
+require "rexml/document"
 require "tempfile"
 
 begin
@@ -41,6 +43,11 @@ module BolaCinco
         parsed_sides[:left].blank? && parsed_sides[:right].blank? ? fallback_roster_rows : parsed_sides
       else
         fallback_roster_rows
+      end
+      if (grid_events = extract_printed_grid_events)
+        sides.each { |side, rows| apply_printed_grid_events!(rows, side, grid_events) }
+        header[:score_left] = @printed_score[:left] if @printed_score
+        header[:score_right] = @printed_score[:right] if @printed_score
       end
 
       {
@@ -105,6 +112,86 @@ module BolaCinco
       end
     rescue StandardError
       ""
+    end
+
+    # Digital PDFs preserve the table's coordinates. Use those positions to map
+    # each printed goal minute back to its player row instead of guessing from
+    # the flattened text order.
+    def extract_printed_grid_events
+      return if image_file?
+
+      Tempfile.create(["match-summula-layout", ".pdf"]) do |tmp|
+        File.binwrite(tmp.path, File.binread(file.path))
+        stdout, stderr, status = Open3.capture3("pdftotext", "-bbox-layout", tmp.path, "-")
+        return unless status.success?
+
+        document = REXML::Document.new(stdout)
+        words = REXML::XPath.match(document, "//*[local-name()='word']").map do |word|
+          [word.attributes["xMin"].to_f, word.attributes["yMin"].to_f, word.text.to_s.strip]
+        end
+        score_line = words.select { |_x, y, _text| y > 400 }.map(&:last).join(" ")
+        if (score = score_line.match(/Placar:\s*(\d{1,2})\s*[x×]\s*(\d{1,2})/i))
+          @printed_score = { left: score[1].to_i, right: score[2].to_i }
+        end
+
+        layouts = {}
+        { left: 27.0, right: 429.0 }.each do |side, number_x|
+          header_y = words.select { |x, y, text| (x - number_x).abs < 4 && text.casecmp("Nº").zero? }.map { |_x, y, _| y }.first
+          next unless header_y
+
+          minute_columns = words.filter_map do |x, y, text|
+            next unless (y - header_y).abs < 2 && text.match?(/\A[1-9][º°o]\z/i)
+            x
+          end.sort
+          next if minute_columns.empty?
+
+          rows = {}
+          words.each do |x, y, text|
+            next unless (x - number_x).abs < 5 && (y - header_y) > 4 && text.match?(/\A\d{1,2}\z/)
+            shirt = text.to_i.to_s.rjust(2, "0")
+            rows[shirt] = y
+          end
+          card_x = words.find { |x, y, text| (y - header_y).abs < 2 && normalize_text(text) == "amar" && (side == :left ? x < 420 : x > 420) }&.first
+          layouts[side] = { header_y: header_y, columns: minute_columns, card_x: card_x, rows: rows, words: words }
+        end
+        @printed_card_markers = extract_printed_card_markers
+        layouts
+      end
+    rescue StandardError => e
+      Rails.logger.info("[match_summula_import] Could not read PDF table coordinates: #{e.class}: #{e.message}")
+      nil
+    end
+
+    def apply_printed_grid_events!(rows, side, layouts)
+      layout = layouts[side]
+      return unless layout
+
+      rows.each do |row|
+        row_y = layout[:rows][row[:shirt_number].to_s.rjust(2, "0")]
+        next unless row_y
+
+        minutes = layout[:words].filter_map do |x, y, text|
+          next unless (y - row_y).abs <= 4.5 && text.match?(/\A\d{1,3}'\z/)
+          next unless layout[:columns].any? { |column_x| (x - column_x).abs < 5 }
+          text.to_i
+        end
+        row[:goal_minutes] = minutes.uniq.join(", ") if minutes.any?
+        markers = Array(@printed_card_markers).select do |marker|
+          layout[:card_x] && (marker[:x] - layout[:card_x]).abs < 12 && (marker[:y] - row_y).abs <= 5
+        end
+        row[:cartao_amarelo] = true if markers.any? { |marker| marker[:color] == "yellow" }
+        row[:cartao_vermelho] = true if markers.any? { |marker| marker[:color] == "red" }
+      end
+    end
+
+    def extract_printed_card_markers
+      stdout, _stderr, status = Open3.capture3(ocr_python_path, ocr_script_path.to_s, file.path.to_s, "--card-markers")
+      return [] unless status.success?
+
+      JSON.parse(stdout, symbolize_names: true)
+    rescue StandardError => e
+      Rails.logger.info("[match_summula_import] Could not detect colored card marks: #{e.class}: #{e.message}")
+      []
     end
 
     def extract_with_ocr

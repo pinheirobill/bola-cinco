@@ -197,7 +197,7 @@
                   <%= hidden_field_tag "match_summula_import[rows][left_#{index}][player_name]", row[:player_name] %>
                   <%= hidden_field_tag "match_summula_import[rows][left_#{index}][source_line]", row[:source_line] %>
                   <div class="mt-2 grid grid-cols-[minmax(7rem,1fr)_auto_auto] items-center gap-2">
-                    <%= text_field_tag "match_summula_import[rows][left_#{index}][goal_minutes]", row[:goal_minutes], class: "input input-bordered input-xs w-full", placeholder: "Minutos dos gols: 8, 23", aria: { label: "Minutos dos gols de #{row[:player_name]}" } %>
+                    <%= text_field_tag "match_summula_import[rows][left_#{index}][goal_minutes]", row[:goal_minutes], autocomplete: "off", id: "summula_left_#{index}_goal_minutes", class: "input input-bordered input-xs w-full", placeholder: "Minutos dos gols: 8, 23", aria: { label: "Minutos dos gols de #{row[:player_name]}" } %>
                     <label class="flex items-center gap-1 text-xs"><%= hidden_field_tag "match_summula_import[rows][left_#{index}][cartao_amarelo]", "0" %><%= check_box_tag "match_summula_import[rows][left_#{index}][cartao_amarelo]", "1", row[:cartao_amarelo], class: "checkbox checkbox-warning checkbox-xs" %> AM</label>
                     <label class="flex items-center gap-1 text-xs"><%= hidden_field_tag "match_summula_import[rows][left_#{index}][cartao_vermelho]", "0" %><%= check_box_tag "match_summula_import[rows][left_#{index}][cartao_vermelho]", "1", row[:cartao_vermelho], class: "checkbox checkbox-error checkbox-xs" %> VM</label>
                   </div>
@@ -254,7 +254,7 @@
                   <%= hidden_field_tag "match_summula_import[rows][right_#{index}][player_name]", row[:player_name] %>
                   <%= hidden_field_tag "match_summula_import[rows][right_#{index}][source_line]", row[:source_line] %>
                   <div class="mt-2 grid grid-cols-[minmax(7rem,1fr)_auto_auto] items-center gap-2">
-                    <%= text_field_tag "match_summula_import[rows][right_#{index}][goal_minutes]", row[:goal_minutes], class: "input input-bordered input-xs w-full", placeholder: "Minutos dos gols: 8, 23", aria: { label: "Minutos dos gols de #{row[:player_name]}" } %>
+                    <%= text_field_tag "match_summula_import[rows][right_#{index}][goal_minutes]", row[:goal_minutes], autocomplete: "off", id: "summula_right_#{index}_goal_minutes", class: "input input-bordered input-xs w-full", placeholder: "Minutos dos gols: 8, 23", aria: { label: "Minutos dos gols de #{row[:player_name]}" } %>
                     <label class="flex items-center gap-1 text-xs"><%= hidden_field_tag "match_summula_import[rows][right_#{index}][cartao_amarelo]", "0" %><%= check_box_tag "match_summula_import[rows][right_#{index}][cartao_amarelo]", "1", row[:cartao_amarelo], class: "checkbox checkbox-warning checkbox-xs" %> AM</label>
                     <label class="flex items-center gap-1 text-xs"><%= hidden_field_tag "match_summula_import[rows][right_#{index}][cartao_vermelho]", "0" %><%= check_box_tag "match_summula_import[rows][right_#{index}][cartao_vermelho]", "1", row[:cartao_vermelho], class: "checkbox checkbox-error checkbox-xs" %> VM</label>
                   </div>
