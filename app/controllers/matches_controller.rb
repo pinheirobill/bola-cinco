@@ -257,6 +257,12 @@ class MatchesController < ApplicationController
     left_team = @match.championship.teams.find_by(id: payload[:left_team_id]).presence || @match.team_a
     right_team = @match.championship.teams.find_by(id: payload[:right_team_id]).presence || @match.team_b
     rows = payload.fetch(:rows, {}).values
+    own_goals_payload = payload[:own_goals] || {}
+    imported_goal_counts = {
+      left: imported_goal_count(rows, :left, own_goals_payload[:left]),
+      right: imported_goal_count(rows, :right, own_goals_payload[:right])
+    }
+    has_imported_goals = imported_goal_counts.values.sum.positive?
 
     ActiveRecord::Base.transaction do
       match_attrs = {
@@ -264,8 +270,10 @@ class MatchesController < ApplicationController
         team_b: right_team,
         venue: venue_from_preview(preview)
       }
-      match_attrs[:score_a] = payload[:score_a] if payload[:score_a].present?
-      match_attrs[:score_b] = payload[:score_b] if payload[:score_b].present?
+      score_a = score_for_import(payload[:score_a], imported_goal_counts[:left], has_imported_goals)
+      score_b = score_for_import(payload[:score_b], imported_goal_counts[:right], has_imported_goals)
+      match_attrs[:score_a] = score_a unless score_a.nil?
+      match_attrs[:score_b] = score_b unless score_b.nil?
       match_attrs[:status] = :finalizado if match_attrs[:score_a].present? && match_attrs[:score_b].present?
       match_attrs[:scheduled_on] = payload[:scheduled_on] if payload[:scheduled_on].present?
       match_attrs[:scheduled_time] = payload[:scheduled_time] if payload[:scheduled_time].present?
@@ -288,11 +296,35 @@ class MatchesController < ApplicationController
         sync_imported_summula_events!(team, athlete, row)
       end
 
-      own_goals_payload = payload[:own_goals] || {}
       sync_imported_own_goals!(left_team, own_goals_payload[:left], preview.dig(:own_goals, :left))
       sync_imported_own_goals!(right_team, own_goals_payload[:right], preview.dig(:own_goals, :right))
       @match.sync_competition_state! if @match.status_finalizado?
     end
+  end
+
+  def imported_goal_count(rows, side, own_goal_values)
+    athlete_goals = rows.sum do |row|
+      next 0 unless row[:side].to_s == side.to_s
+
+      row[:goal_minutes].to_s.split(/[;,\s]+/).count do |value|
+        minute = value.strip.sub(/[’']\z/, "")
+        minute.match?(/\A\d{1,3}\z/) && minute.to_i <= 150
+      end
+    end
+
+    own_goal_values ||= {}
+    own_goal_minutes = own_goal_values[:minutes].to_s.split(/[;,\s]+/).count do |value|
+      minute = value.strip.sub(/[’']\z/, "")
+      minute.match?(/\A\d{1,3}\z/) && minute.to_i <= 150
+    end
+    own_goals_occurred = ActiveModel::Type::Boolean.new.cast(own_goal_values[:occurred])
+    athlete_goals + (own_goal_minutes.positive? ? own_goal_minutes : (own_goals_occurred ? 1 : 0))
+  end
+
+  def score_for_import(submitted_score, imported_count, has_imported_goals)
+    return submitted_score.to_i if submitted_score.present? && submitted_score.to_i.positive?
+    return imported_count if has_imported_goals
+    return submitted_score.to_i if submitted_score.present?
   end
 
   def sync_imported_own_goals!(team, values, preview_values)
