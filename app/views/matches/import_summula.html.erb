@@ -17,6 +17,10 @@
 <% right_own_goals = @import_preview.dig(:own_goals, :right) || {} %>
 <% extracted_lines_count = Array(@import_preview[:extracted_lines]).size %>
 
+<%= form_with url: import_summula_match_path(@match), method: :post, class: "space-y-6" do %>
+  <%= hidden_field_tag "match_summula_import[confirm]", "1" %>
+  <%= hidden_field_tag "match_summula_import[token]", @import_token %>
+
 <section class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
   <%= surface_card(
     title: "Prévia detectada",
@@ -83,10 +87,6 @@
     title: "Conferência",
     subtitle: "Confira os atletas e lance os minutos dos gols e cartões. Ao confirmar, os eventos entram no jogo e nas estatísticas."
   ) do %>
-    <%= form_with url: import_summula_match_path(@match), method: :post, class: "space-y-4" do %>
-      <%= hidden_field_tag "match_summula_import[confirm]", "1" %>
-      <%= hidden_field_tag "match_summula_import[token]", @import_token %>
-
       <div class="grid gap-4 md:grid-cols-2">
         <div class="form-control gap-2">
           <label class="label-text font-medium" for="match_summula_import_left_team_id">Equipe da esquerda no sistema</label>
@@ -153,7 +153,6 @@
         <%= link_to "Cancelar", match_path(@match), class: "btn btn-outline" %>
         <%= button_tag "Confirmar importação", class: "btn btn-primary" %>
       </div>
-    <% end %>
   <% end %>
 </section>
 
@@ -272,3 +271,4 @@
     <% end %>
   <% end %>
 </section>
+<% end %>
