@@ -92,9 +92,15 @@ class MatchesController < ApplicationController
     @match_report = @match.match_report || @match.build_match_report(status: :rascunho, source_id: "report-#{@match.source_id}")
     form_params = match_form_params
 
+    if autosave_request?
+      Rails.logger.info("[match autosave] received match_id=#{@match.id} format=#{request.format} event_sheet_present=#{form_params.key?(:event_sheet)} event_sheet_teams=#{form_params[:event_sheet]&.keys&.join(',')}")
+    end
+
     ActiveRecord::Base.transaction do
       @match.update!(match_params)
-      @match.sync_event_sheet!(form_params[:event_sheet]) if form_params.key?(:event_sheet)
+      if form_params.key?(:event_sheet)
+        @match.sync_event_sheet!(form_params[:event_sheet])
+      end
       if match_report_form_params.present?
         @match_report.assign_attributes(match_report_form_params)
         @match_report.source_id ||= "report-#{@match.source_id}"
@@ -104,6 +110,12 @@ class MatchesController < ApplicationController
         @match_report.save!
       end
       @match.sync_competition_state!
+    end
+
+    if autosave_request? && form_params.key?(:event_sheet)
+      event_sheet_events = @match.match_events.where("source_id LIKE ?", "event-sheet-#{@match.id}-%")
+      goal_minutes = event_sheet_events.where(kind: "gol").pluck(:minute).compact
+      Rails.logger.info("[match autosave] committed match_id=#{@match.id} event_count=#{event_sheet_events.count} goal_count=#{goal_minutes.size} goal_minutes=#{goal_minutes.join(',')}")
     end
 
     if autosave_request?

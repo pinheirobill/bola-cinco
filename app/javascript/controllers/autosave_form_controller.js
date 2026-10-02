@@ -3,6 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 const INPUT_DELAY_MS = 600
 
 export default class extends Controller {
+  static values = { debug: Boolean }
   static targets = ["flag", "status"]
 
   connect() {
@@ -11,6 +12,7 @@ export default class extends Controller {
     this.needsSubmit = false
     this.statusTimeout = null
     this.lastSnapshot = this.snapshot()
+    this.log("connected", { method: this.element.method, action: this.element.action })
   }
 
   disconnect() {
@@ -19,16 +21,21 @@ export default class extends Controller {
   }
 
   queue(event) {
-    if (!this.hasChanged()) return
+    if (!this.hasChanged()) {
+      this.log("change ignored", { event: event?.type, reason: "unchanged" })
+      return
+    }
 
     if (this.submitting) {
       this.needsSubmit = true
+      this.log("change queued", { event: event?.type, reason: "submit in progress" })
       return
     }
 
     this.clearTimer()
 
     const delay = event?.type === "input" ? INPUT_DELAY_MS : 0
+    this.log("save queued", { event: event?.type, delay })
     this.timeout = window.setTimeout(() => this.submit(), delay)
   }
 
@@ -37,6 +44,11 @@ export default class extends Controller {
 
     if (!this.element.checkValidity()) {
       this.needsSubmit = false
+      this.log("submit blocked", {
+        invalidFields: Array.from(this.element.elements)
+          .filter((field) => typeof field.checkValidity === "function" && !field.checkValidity())
+          .map((field) => ({ name: field.name, message: field.validationMessage }))
+      })
       return
     }
 
@@ -44,12 +56,27 @@ export default class extends Controller {
     this.submitting = true
     this.submittedSnapshot = this.snapshot()
     if (this.hasFlagTarget) this.flagTarget.disabled = false
+    this.log("submitting", {
+      method: this.element.method,
+      action: this.element.action,
+      autosaveFlagEnabled: this.hasFlagTarget && !this.flagTarget.disabled
+    })
     this.element.requestSubmit()
+  }
+
+  log(message, details = {}) {
+    if (this.hasDebugValue && this.debugValue) {
+      console.info(`[autosave-form] ${message}`, details)
+    }
   }
 
   complete(event) {
     this.submitting = false
     if (this.hasFlagTarget) this.flagTarget.disabled = true
+    this.log("request completed", {
+      success: event.detail.success,
+      status: event.detail.fetchResponse?.response?.status
+    })
 
     if (event.detail.success) {
       this.lastSnapshot = this.submittedSnapshot

@@ -464,7 +464,7 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
             @athlete.id.to_s => {
               yellow_card: "1",
               red_card: "1",
-              goal_minutes: "05, 12",
+              goal_minutes: %w[05 12],
               substitution_minutes: %w[18]
             }
           },
@@ -478,6 +478,7 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     }, as: :turbo_stream
 
     assert_response :success
+    assert_turbo_stream action: :replace, target: "match-score-card"
     @match.reload
 
     yellow_card = @match.match_events.find_by!(team: @team, athlete: @athlete, kind: "cartao_amarelo")

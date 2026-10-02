@@ -108,7 +108,7 @@
 <% end %>
 
 <%= turbo_frame_tag "match-editor" do %>
-<%= form_with(model: @match, url: match_path(@match), method: :patch, class: "space-y-6", data: { turbo_stream: true, controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" }) do |f| %>
+<%= form_with(model: @match, url: match_path(@match), method: :patch, class: "space-y-6", data: { turbo_stream: true, controller: "autosave-form", autosave_form_debug_value: Rails.env.development? || Rails.env.test?, action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" }) do |f| %>
   <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
   <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
   <section class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:items-start">
