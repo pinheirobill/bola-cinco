@@ -132,7 +132,7 @@ class MatchesController < ApplicationController
             })
           ]
         end
-        format.html { redirect_to edit_match_path(@match) }
+        format.html { head :no_content }
       end
     end
 

@@ -107,7 +107,8 @@
   </script>
 <% end %>
 
-<%= form_with(model: @match, url: match_path(@match), method: :patch, class: "space-y-6", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" }) do |f| %>
+<%= turbo_frame_tag "match-editor" do %>
+<%= form_with(model: @match, url: match_path(@match), method: :patch, class: "space-y-6", data: { turbo_stream: true, controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" }) do |f| %>
   <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
   <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
   <section class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:items-start">
@@ -248,6 +249,7 @@
     </div>
   </section>
 
+<% end %>
 <% end %>
 
 <dialog id="match-participation-modal" class="modal">

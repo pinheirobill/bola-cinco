@@ -26,7 +26,7 @@
 
   <div class="space-y-6">
     <% sides.each do |side| %>
-      <% display_athletes = side[:athletes] + side[:participations].values.filter_map(&:athlete).reject { |athlete| side[:athletes].any? { |existing| existing.id == athlete.id } } %>
+      <% display_athletes = (side[:athletes] + side[:participations].values.filter_map(&:athlete)).uniq(&:id).sort_by { |athlete| [athlete.shirt_number_sort_key, athlete.name.to_s.downcase] } %>
       <% display_count = display_athletes.uniq(&:id).size %>
 
       <div class="overflow-hidden rounded-3xl border border-base-300 bg-base-100">
