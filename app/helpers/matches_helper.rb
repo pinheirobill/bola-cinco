@@ -43,6 +43,7 @@ module MatchesHelper
     {
       yellow_card: state[:yellow_card],
       red_card: state[:red_card],
+      goal_count: state[:goal_count],
       goal_minutes: state[:goal_minutes],
       goal_minutes_list: goal_minutes_list,
       substitution_minutes: state[:substitution_minutes],

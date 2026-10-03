@@ -156,6 +156,7 @@ class Match < ApplicationRecord
     {
       yellow_card: event_sheet_events_for(team, athlete, "cartao_amarelo").any?,
       red_card: event_sheet_events_for(team, athlete, "cartao_vermelho").any?,
+      goal_count: goal_events.size,
       goal_minutes: goal_minutes_list.reject(&:blank?).join(", "),
       goal_minutes_list: goal_minutes_list,
       substitution_minutes: substitution_minutes_list.reject(&:blank?).join(", "),
@@ -296,10 +297,36 @@ class Match < ApplicationRecord
 
     managed_source_ids.concat(sync_event_sheet_boolean!(team, athlete, "cartao_amarelo", row_params[:yellow_card], "Cartão amarelo da súmula"))
     managed_source_ids.concat(sync_event_sheet_boolean!(team, athlete, "cartao_vermelho", row_params[:red_card], "Cartão vermelho da súmula"))
-    managed_source_ids.concat(sync_event_sheet_minutes!(team, athlete, "gol", row_params[:goal_minutes], "Gol lançado pela súmula"))
+    if row_params.key?(:goal_count)
+      managed_source_ids.concat(sync_event_sheet_goal_count!(team, athlete, row_params[:goal_count]))
+    else
+      managed_source_ids.concat(sync_event_sheet_minutes!(team, athlete, "gol", row_params[:goal_minutes], "Gol lançado pela súmula"))
+    end
     managed_source_ids.concat(sync_event_sheet_minutes!(team, athlete, "substituicao", row_params[:substitution_minutes], "Substituição lançada pela súmula"))
 
     managed_source_ids
+  end
+
+  def sync_event_sheet_goal_count!(team, athlete, value)
+    count = value.to_s.match?(/\A\d+\z/) ? value.to_i.clamp(0, 9) : 0
+    events = event_sheet_events_for(team, athlete, "gol")
+    count.times.map do |index|
+      event = events[index] || match_events.find_or_initialize_by(source_id: event_sheet_source_id(team, athlete, "gol", index + 1))
+      event.assign_attributes(
+        kind: "gol",
+        team: team,
+        athlete: athlete,
+        minute: nil,
+        period: nil,
+        notes: "Gol lançado pela súmula",
+        source_data: event.source_data.merge("event_sheet" => true, "event_sheet_kind" => "gol", "event_sheet_index" => index + 1)
+      )
+      event.source_id = event_sheet_source_id(team, athlete, "gol", index + 1)
+      event.save!
+      event.source_id
+    end.tap do |managed_source_ids|
+      events.reject { |event| managed_source_ids.include?(event.source_id) }.each(&:destroy!)
+    end
   end
 
   def sync_event_sheet_own_goals!(team, team_params)

@@ -88,8 +88,6 @@
                 </tr>
               </thead>
               <tbody>
-                <% goal_count = match.public_send(side[:score_field]).to_i %>
-                <% goal_count = 1 if goal_count <= 0 %>
                 <% athlete_rows = display_athletes.map do |side_athlete| %>
                   <% participation = side[:participations][side_athlete.id] %>
                   <% side_state = match_event_sheet_state(match, side[:team], side_athlete) %>
@@ -99,15 +97,8 @@
                     participation_badge: match_participation_status_badge(participation&.status || "pendente"),
                     state: side_state,
                     substitution_minutes: match_event_sheet_minutes_list(side_state, :substitution, count: 5),
-                    goal_minutes: match_event_sheet_minutes_list(side_state, :goal, count: goal_count)
+                    goal_count: side_state[:goal_count]
                   } %>
-                <% end %>
-                <% goal_owners = Array.new(goal_count) %>
-                <% athlete_rows.each_with_index do |row, athlete_index| %>
-                  <% row[:goal_minutes].each_with_index do |minute, goal_index| %>
-                    <% next if minute.blank? %>
-                    <% goal_owners[goal_index] ||= athlete_index %>
-                  <% end %>
                 <% end %>
                 <% athlete_rows.each_with_index do |row, athlete_index| %>
                   <% athlete = row[:athlete] %>
@@ -209,51 +200,21 @@
                       </div>
                     </td>
                     <td class="align-top">
-                      <div
-                        class="space-y-2 rounded-2xl border border-base-300 bg-base-200 p-2 shadow-sm"
-                        data-controller="match-event-goals"
-                        data-match-event-goals-field-name-value="<%= match_event_sheet_field_name(side[:key], athlete.id, :goal_minutes) %>"
-                        data-match-event-goals-item-label-value="Gol"
-                        data-match-event-goals-score-selector-value="#match_<%= side[:score_field] %>"
-                        data-match-event-goals-fixed-count-value="<%= goal_count %>"
-                      >
+                      <div class="space-y-2 rounded-2xl border border-base-300 bg-base-200 p-2 shadow-sm">
                         <div class="flex items-center justify-between gap-3">
                           <div class="min-w-0">
                             <p class="text-[0.65rem] uppercase tracking-[0.28em] text-base-content/45">Gols</p>
-                            <p class="truncate text-xs text-base-content/60">Gol 1 fica sempre aberto</p>
+                            <p class="truncate text-xs text-base-content/60">Quantidade de gols do atleta</p>
                           </div>
                         </div>
-                        <div class="flex flex-nowrap gap-1 overflow-x-auto pb-1" data-match-event-goals-target="fields">
-                          <% row[:goal_minutes].each_with_index do |minute, index| %>
-                            <% owner_index = goal_owners[index] %>
-                            <% owner_row = owner_index.present? ? athlete_rows[owner_index] : nil %>
-                            <% locked_by_other = owner_index.present? && owner_index != athlete_index %>
-                            <% if locked_by_other && owner_row.present? %>
-                              <div class="flex w-[2.75rem] flex-none flex-col gap-0.5 rounded-xl bg-base-100 px-1 py-1 opacity-60" data-goal-slot="true">
-                                <div class="text-center text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-base-content/60"><%= index + 1 %></div>
-                                <div class="flex h-7 items-center justify-center rounded-lg border border-dashed border-base-300 text-[0.58rem] text-base-content/45" title="<%= owner_row[:athlete].name %>">
-                                  <%= owner_row[:athlete].name.to_s.split.first %>
-                                </div>
-                              </div>
-                            <% else %>
-                              <div class="flex w-[2.75rem] flex-none flex-col gap-0.5 rounded-xl bg-base-100 px-1 py-1" data-minute-row="true" data-goal-slot="true">
-                                <div class="text-center text-[0.55rem] font-semibold uppercase tracking-[0.14em] text-base-content/60"><%= index + 1 %></div>
-                                <input
-                                  type="text"
-                                  name="<%= match_event_sheet_field_name(side[:key], athlete.id, :goal_minutes) %>[]"
-                                  value="<%= minute %>"
-                                  class="input input-bordered input-sm min-w-0 h-7 w-full px-0 text-center text-xs tabular-nums"
-                                  placeholder="05"
-                                  maxlength="2"
-                                  inputmode="numeric"
-                                  autocomplete="off"
-                                  data-match-event-goals-target="minute"
-                                  data-action="input->match-event-goals#refresh input->autosave-form#queue change->autosave-form#submit blur->autosave-form#submit"
-                                >
-                              </div>
-                            <% end %>
-                          <% end %>
-                        </div>
+                        <%= number_field_tag match_event_sheet_field_name(side[:key], athlete.id, :goal_count),
+                          row[:goal_count],
+                          min: 0,
+                          max: 9,
+                          step: 1,
+                          class: "input input-bordered input-sm h-7 w-16 px-1 text-center text-xs tabular-nums",
+                          aria: { label: "Quantidade de gols de #{athlete.name}" },
+                          data: { action: "input->autosave-form#queue change->autosave-form#submit blur->autosave-form#submit" } %>
                       </div>
                     </td>
                   </tr>

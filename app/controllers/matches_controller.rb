@@ -114,8 +114,8 @@ class MatchesController < ApplicationController
 
     if autosave_request? && form_params.key?(:event_sheet)
       event_sheet_events = @match.match_events.where("source_id LIKE ?", "event-sheet-#{@match.id}-%")
-      goal_minutes = event_sheet_events.where(kind: "gol").pluck(:minute).compact
-      Rails.logger.info("[match autosave] committed match_id=#{@match.id} event_count=#{event_sheet_events.count} goal_count=#{goal_minutes.size} goal_minutes=#{goal_minutes.join(',')}")
+      goals = event_sheet_events.where(kind: "gol")
+      Rails.logger.info("[match autosave] committed match_id=#{@match.id} event_count=#{event_sheet_events.count} goal_count=#{goals.count} goal_minutes=#{goals.pluck(:minute).compact.join(',')}")
     end
 
     if autosave_request?
@@ -236,7 +236,7 @@ class MatchesController < ApplicationController
     event_sheet = params.dig(:match, :event_sheet)
     return {} unless event_sheet.respond_to?(:to_unsafe_h)
 
-    # Athlete IDs are dynamic keys and each field can contain an array of minutes.
+    # Athlete IDs are dynamic keys, and fields include counts and minute arrays.
     # Match#sync_event_sheet! only applies entries for the match's roster and known event fields.
     { event_sheet: event_sheet.to_unsafe_h }
   end

@@ -259,15 +259,15 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Atletas"
     assert_includes response.body, "Cartões"
     assert_includes response.body, "Até 5 tempos da súmula"
-    assert_includes response.body, "Gol 1 fica sempre aberto"
+    assert_includes response.body, "Quantidade de gols do atleta"
     assert_includes response.body, @athlete.name
     assert_includes response.body, @athlete_b.name
 
     document = Nokogiri::HTML(response.body)
-    team_a_goal_inputs = document.css(%(input[name="match[event_sheet][team_a][#{@athlete.id}][goal_minutes][]"]))
-    team_b_goal_inputs = document.css(%(input[name="match[event_sheet][team_b][#{@athlete_b.id}][goal_minutes][]"]))
+    team_a_goal_inputs = document.css(%(input[name="match[event_sheet][team_a][#{@athlete.id}][goal_count]"]))
+    team_b_goal_inputs = document.css(%(input[name="match[event_sheet][team_b][#{@athlete_b.id}][goal_count]"]))
 
-    assert_equal 4, team_a_goal_inputs.size
+    assert_equal 1, team_a_goal_inputs.size
     assert_equal 1, team_b_goal_inputs.size
   end
 
@@ -464,13 +464,13 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
             @athlete.id.to_s => {
               yellow_card: "1",
               red_card: "1",
-              goal_minutes: %w[05 12],
+              goal_count: "2",
               substitution_minutes: %w[18]
             }
           },
           team_b: {
             @athlete_b.id.to_s => {
-              goal_minutes: ""
+              goal_count: "0"
             }
           }
         }
@@ -492,7 +492,8 @@ class PhaseFourFormsTest < ActionDispatch::IntegrationTest
     assert_equal @team, red_card.team
     assert_equal @athlete, red_card.athlete
     assert_equal "cartao_vermelho", red_card.kind
-    assert_equal [5, 12], goals.pluck(:minute)
+    assert_equal 2, goals.count
+    assert_equal [nil, nil], goals.pluck(:minute)
     assert_equal [18], substitutions.pluck(:minute)
   end
 

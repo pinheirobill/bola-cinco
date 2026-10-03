@@ -34,6 +34,12 @@ class MatchGoalMinuteAutosaveTest < ApplicationSystemTestCase
       category: @category,
       name: "Atleta Autosave"
     )
+    @second_athlete = Athlete.create!(
+      source_id: "athlete-goal-autosave-second-#{@suffix}",
+      team: @team_a,
+      category: @category,
+      name: "Segundo Atleta Autosave"
+    )
     @match = Match.create!(
       source_id: "match-goal-autosave-#{@suffix}",
       championship: @championship,
@@ -48,6 +54,7 @@ class MatchGoalMinuteAutosaveTest < ApplicationSystemTestCase
   teardown do
     @match&.destroy!
     @athlete&.destroy!
+    @second_athlete&.destroy!
     @team_a&.destroy!
     @team_b&.destroy!
     @category&.destroy!
@@ -55,14 +62,26 @@ class MatchGoalMinuteAutosaveTest < ApplicationSystemTestCase
     Warden.test_reset!
   end
 
-  test "autosaves a player's goal minute while editing the match sheet" do
+  test "autosaves each player's goal count while editing the match sheet" do
     visit edit_match_path(@match)
 
-    goal_minute = find("input[name='match[event_sheet][team_a][#{@athlete.id}][goal_minutes][]']")
-    goal_minute.fill_in(with: "8")
+    goal_count = find("input[name='match[event_sheet][team_a][#{@athlete.id}][goal_count]']")
+    goal_count.fill_in(with: "2")
 
     assert_selector("[data-autosave-form-target='status']", text: "Salvo", wait: 5)
-    assert_equal 8, @match.match_events.find_by!(team: @team_a, athlete: @athlete, kind: "gol").minute
+    assert_equal 2, @match.match_events.where(team: @team_a, athlete: @athlete, kind: "gol").count
+    assert_equal [nil, nil], @match.match_events.where(team: @team_a, athlete: @athlete, kind: "gol").pluck(:minute)
+
+    second_count = find("input[name='match[event_sheet][team_a][#{@second_athlete.id}][goal_count]']")
+    second_count.fill_in(with: "1")
+    second_count.send_keys(:tab)
+    assert_text "Salvando...", wait: 5
+    assert_selector("[data-autosave-form-target='status']", text: "Salvo", wait: 5)
+    assert_equal 1, @match.match_events.where(team: @team_a, athlete: @second_athlete, kind: "gol").count
+
+    visit edit_match_path(@match)
+    assert_selector("input[name='match[event_sheet][team_a][#{@athlete.id}][goal_count]'][value='2']")
+    assert_selector("input[name='match[event_sheet][team_a][#{@second_athlete.id}][goal_count]'][value='1']")
   end
 
   test "saves edits made during a slow autosave before navigating away" do
@@ -84,16 +103,16 @@ class MatchGoalMinuteAutosaveTest < ApplicationSystemTestCase
       }
     JAVASCRIPT
 
-    goal_minutes = all("input[name='match[event_sheet][team_a][#{@athlete.id}][goal_minutes][]']")
-    goal_minutes.first.fill_in(with: "8")
-    goal_minutes.first.send_keys(:tab)
+    goal_count = find("input[name='match[event_sheet][team_a][#{@athlete.id}][goal_count]']")
+    goal_count.fill_in(with: "1")
+    goal_count.send_keys(:tab)
     assert_text "Salvando...", wait: 5
 
-    goal_minutes[1].fill_in(with: "9")
-    goal_minutes[1].send_keys(:tab)
+    goal_count.fill_in(with: "2")
+    goal_count.send_keys(:tab)
     click_link "Equipes"
 
     assert_current_path teams_path, wait: 10
-    assert_equal [8, 9], @match.match_events.where(team: @team_a, athlete: @athlete, kind: "gol").order(:minute).pluck(:minute)
+    assert_equal 2, @match.match_events.where(team: @team_a, athlete: @athlete, kind: "gol").count
   end
 end
