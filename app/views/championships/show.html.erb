@@ -89,6 +89,7 @@
 
 <section class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
   <div class="space-y-6">
+    <% if current_user&.admin? || @championship.manageable_by?(current_user) %>
     <%= surface_card(
       title: "Operação do campeonato",
       subtitle: "Fluxos que o usuário normalmente procura para administrar jogo, disciplina e comunicação.",
@@ -102,6 +103,7 @@
         <%= link_to "Suspensões", suspensions_path, class: "btn btn-outline btn-block justify-start" %>
         <%= link_to "Parceiros", partners_path, class: "btn btn-outline btn-block justify-start" %>
       </div>
+    <% end %>
     <% end %>
 
     <%= surface_card(title: "Últimos jogos", subtitle: "Partidas recentes com placar e contexto.", classes: "self-start") do %>
