@@ -64,4 +64,36 @@ class MatchGoalMinuteAutosaveTest < ApplicationSystemTestCase
     assert_selector("[data-autosave-form-target='status']", text: "Salvo", wait: 5)
     assert_equal 8, @match.match_events.find_by!(team: @team_a, athlete: @athlete, kind: "gol").minute
   end
+
+  test "saves edits made during a slow autosave before navigating away" do
+    @match.update!(score_a: 2)
+    visit edit_match_path(@match)
+
+    execute_script <<~JAVASCRIPT
+      const originalFetch = window.fetch.bind(window)
+      window.fetch = (input, init) => {
+        const method = (init?.method || input.method || "GET").toUpperCase()
+        const url = input.url || input.toString()
+        const response = originalFetch(input, init)
+
+        if (method === "PATCH" && url.includes("/matches/#{@match.id}")) {
+          return response.then((result) => new Promise((resolve) => window.setTimeout(() => resolve(result), 1500)))
+        }
+
+        return response
+      }
+    JAVASCRIPT
+
+    goal_minutes = all("input[name='match[event_sheet][team_a][#{@athlete.id}][goal_minutes][]']")
+    goal_minutes.first.fill_in(with: "8")
+    goal_minutes.first.send_keys(:tab)
+    assert_text "Salvando...", wait: 5
+
+    goal_minutes[1].fill_in(with: "9")
+    goal_minutes[1].send_keys(:tab)
+    click_link "Equipes"
+
+    assert_current_path teams_path, wait: 10
+    assert_equal [8, 9], @match.match_events.where(team: @team_a, athlete: @athlete, kind: "gol").order(:minute).pluck(:minute)
+  end
 end

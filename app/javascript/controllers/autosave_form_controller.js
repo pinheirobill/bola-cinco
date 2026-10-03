@@ -9,13 +9,16 @@ export default class extends Controller {
   connect() {
     this.timeout = null
     this.submitting = false
-    this.needsSubmit = false
+    this.pendingVisit = null
     this.statusTimeout = null
     this.lastSnapshot = this.snapshot()
+    this.boundBeforeVisit = this.beforeVisit.bind(this)
+    document.addEventListener("turbo:before-visit", this.boundBeforeVisit)
     this.log("connected", { method: this.element.method, action: this.element.action })
   }
 
   disconnect() {
+    document.removeEventListener("turbo:before-visit", this.boundBeforeVisit)
     this.clearTimer()
     this.clearStatusTimer()
   }
@@ -27,7 +30,6 @@ export default class extends Controller {
     }
 
     if (this.submitting) {
-      this.needsSubmit = true
       this.log("change queued", { event: event?.type, reason: "submit in progress" })
       return
     }
@@ -39,11 +41,21 @@ export default class extends Controller {
     this.timeout = window.setTimeout(() => this.submit(), delay)
   }
 
+  beforeVisit(event) {
+    if (!this.submitting && !this.hasChanged()) return
+
+    event.preventDefault()
+    this.pendingVisit = event.detail.url
+    this.log("navigation paused until save completes", { url: this.pendingVisit })
+
+    if (!this.submitting) this.submit()
+  }
+
   submit() {
+    this.clearTimer()
     if (!this.hasChanged() || this.submitting) return
 
     if (!this.element.checkValidity()) {
-      this.needsSubmit = false
       this.log("submit blocked", {
         invalidFields: Array.from(this.element.elements)
           .filter((field) => typeof field.checkValidity === "function" && !field.checkValidity())
@@ -85,13 +97,18 @@ export default class extends Controller {
       this.showStatus("Erro ao salvar", "alert-error", 1400)
     }
 
-    if (event.detail.success && this.needsSubmit && this.hasChanged()) {
-      this.needsSubmit = false
-      this.queue({ type: "change" })
+    if (event.detail.success && this.hasChanged()) {
+      this.log("resubmitting edits made during request")
+      this.submit()
       return
     }
 
-    this.needsSubmit = false
+    if (event.detail.success && this.pendingVisit && !this.hasChanged()) {
+      const url = this.pendingVisit
+      this.pendingVisit = null
+      this.log("resuming navigation after save", { url })
+      window.Turbo.visit(url)
+    }
   }
 
   hasChanged() {
