@@ -26,10 +26,11 @@ class ChampionshipPhotosController < ApplicationController
     processed = []
     uploads.each { |upload| processed << process_photo(upload) }
     existing_photo_count = @championship.photos_attachments.count
-    attachables = processed.map do |file|
+    attachables = uploads.zip(processed).map do |upload, file|
+      filename = File.basename(upload.original_filename.to_s, ".*").presence || "foto"
       {
         io: file.open,
-        filename: file.basename.to_s,
+        filename: "#{filename}.jpg",
         content_type: "image/jpeg"
       }
     end
