@@ -1,4 +1,4 @@
-require "image_processing/mini_magick"
+require "image_processing/vips"
 
 class ChampionshipPhotosController < ApplicationController
   MAX_UPLOAD_SIZE = 20.megabytes
@@ -58,7 +58,7 @@ class ChampionshipPhotosController < ApplicationController
       raise ArgumentError, "Envie fotos nos formatos JPG, PNG ou WebP."
     end
 
-    ImageProcessing::MiniMagick.source(upload.tempfile)
+    ImageProcessing::Vips.source(upload.tempfile)
       .resize_to_limit(MAX_DIMENSION, MAX_DIMENSION)
       .convert("jpg")
       .saver(quality: 78, strip: true)

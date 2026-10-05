@@ -1,4 +1,6 @@
 class Match < ApplicationRecord
+  MAX_EVENT_SHEET_GOAL_COUNT = 99
+
   EVENT_SHEET_PREFIX = "event-sheet".freeze
   EVENT_SHEET_KINDS = {
     yellow_card: "cartao_amarelo",
@@ -324,7 +326,7 @@ class Match < ApplicationRecord
   end
 
   def sync_event_sheet_goal_count!(team, athlete, value)
-    count = value.to_s.match?(/\A\d+\z/) ? value.to_i.clamp(0, 9) : 0
+    count = value.to_s.match?(/\A\d+\z/) ? value.to_i.clamp(0, MAX_EVENT_SHEET_GOAL_COUNT) : 0
     events = event_sheet_events_for(team, athlete, "gol")
     count.times.map do |index|
       event = events[index] || match_events.find_or_initialize_by(source_id: event_sheet_source_id(team, athlete, "gol", index + 1))

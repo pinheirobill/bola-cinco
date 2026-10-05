@@ -7,7 +7,7 @@ class TeamsController < ApplicationController
 
   def show
     @team = scoped_teams.includes(:entity, category: :championships, athletes: [], team_athletes: :athlete, home_matches: %i[category team_a team_b winner], away_matches: %i[category team_a team_b winner], standing_rows: :championship).find(params[:id])
-    @team_athletes = @team.team_athletes.includes(athlete: :linked_teams).order(created_at: :desc)
+    @team_athletes = @team.team_athletes.includes(athlete: [:team, :linked_teams]).order(created_at: :desc)
     @team_athlete_ids = @team.athletes.map(&:id)
     @available_athletes = available_athletes_for(@team).sort_by do |athlete|
       [ athlete.team.name.to_s.downcase, athlete.shirt_number_sort_key, athlete.quick_label.downcase, athlete.name.downcase ]
@@ -172,7 +172,7 @@ class TeamsController < ApplicationController
   end
 
   def available_athletes_for(team)
-    Athlete.for_picker
+    Athlete.for_picker.with_attached_photo
   end
 
   def athlete_statistics_for(team, championship)

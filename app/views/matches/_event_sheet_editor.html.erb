@@ -216,7 +216,7 @@
                         <%= number_field_tag match_event_sheet_field_name(side[:key], athlete.id, :goal_count),
                           row[:goal_count],
                           min: 0,
-                          max: 9,
+                          max: Match::MAX_EVENT_SHEET_GOAL_COUNT,
                           step: 1,
                           class: "input input-bordered input-sm h-7 w-16 px-1 text-center text-xs tabular-nums",
                           aria: { label: "Quantidade de gols de #{athlete.name}" },
