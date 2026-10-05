@@ -32,6 +32,7 @@ Rails.application.routes.draw do
     resources :team_links, only: %i[create destroy], controller: "athlete_team_links"
   end
   resources :championships, only: %i[index new create show update] do
+    resources :photos, only: %i[index create destroy], controller: "championship_photos"
     get :setup, on: :member, path: "configuracao"
     get :equipes, on: :member, path: "equipes"
     get :duplas, on: :member, path: "duplas"
@@ -53,6 +54,7 @@ Rails.application.routes.draw do
     get "rodadas/:rodada_id/jogos.xlsx", to: "tranca/round_exports#games", as: :round_games
     get "jogos.xlsx", to: "tranca/round_exports#all_games", as: :tranca_games
     get :classificacao, on: :member, path: "classificacao"
+    get :artilheiros, on: :member, path: "artilheiros"
     post :generate_tranca_round, on: :member, path: "tranca/gerar-rodada"
     post :create_tranca_second_stage, on: :member, path: "tranca/criar-segunda-etapa"
     post :create_tranca_second_stage_quarterfinals, on: :member, path: "tranca/criar-quartas-segunda-etapa"

@@ -1,0 +1,37 @@
+<% content_for :title, "Artilheiros | #{@championship.name} | Arena" %>
+
+<%= page_header(
+  title: "#{@championship.name} · Artilheiros",
+  subtitle: "Todos os atletas com gols registrados neste campeonato.",
+  badge: @championship.status.to_s.tr("_", " ").humanize,
+  actions: [
+    link_to("Voltar ao campeonato", championship_path(@championship), class: "btn btn-outline"),
+    link_to("Programação", programacao_championship_path(@championship), class: "btn btn-outline")
+  ]
+) %>
+
+<%= render "championships/football_navigation", championship: @championship, current: "artilheiros" %>
+
+<%= stats_grid([
+  { label: "Artilheiros", value: @top_scorers.size, value_class: "text-2xl" },
+  { label: "Gols registrados", value: @top_scorers.sum(&:goals), value_class: "text-2xl" }
+], columns: "md:grid-cols-2") %>
+
+<%= surface_card(title: "Ranking de gols", subtitle: "Ordenado pelo total de gols registrados nas súmulas.") do %>
+  <% if @top_scorers.any? %>
+    <div class="space-y-3">
+      <% @top_scorers.each_with_index do |athlete, index| %>
+        <div class="flex items-center gap-4 rounded-2xl bg-base-200 p-4">
+          <span class="badge badge-outline badge-lg"><%= index + 1 %></span>
+          <div class="min-w-0 grow">
+            <p class="truncate font-semibold"><%= athlete.name %></p>
+            <p class="text-sm text-base-content/70"><%= athlete.team_name %></p>
+          </div>
+          <span class="badge badge-primary"><%= athlete.goals %> gols</span>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <%= empty_state(title: "Sem gols registrados", description: "Os artilheiros aparecerão aqui quando houver gols nas súmulas.") %>
+  <% end %>
+<% end %>

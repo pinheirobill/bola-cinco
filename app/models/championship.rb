@@ -88,6 +88,7 @@ class Championship < ApplicationRecord
   has_many :match_reports, through: :matches
   has_many :suspensions, dependent: :destroy
   has_one_attached :logo
+  has_many_attached :photos
 
   enum :modality, MODALITIES, default: :football
   enum :status, {

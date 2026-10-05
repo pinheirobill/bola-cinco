@@ -121,16 +121,16 @@
       </div>
     <% end %>
 
-    <%= surface_card(title: "Top atletas", subtitle: "Ranking geral do campeonato.", actions: [tag.span("#{@top_athletes.size} atletas", class: "badge badge-outline")], classes: "self-start") do %>
+    <%= surface_card(title: "Artilheiros", subtitle: "Gols marcados no campeonato.", actions: [tag.span("#{@top_scorers.size} atletas", class: "badge badge-outline"), link_to("Ver todos", artilheiros_championship_path(@championship), class: "btn btn-outline btn-sm")], classes: "self-start") do %>
       <div class="space-y-3">
-        <% if @top_athletes.any? %>
-          <% @top_athletes.each do |athlete| %>
+        <% if @top_scorers.any? %>
+          <% @top_scorers.each do |athlete| %>
             <%= ranking_entry_card(athlete) %>
           <% end %>
         <% else %>
           <%= empty_state(
-            title: "Sem atletas em destaque",
-            description: "Os atletas mais relevantes aparecerão aqui quando houver eventos registrados."
+            title: "Sem gols registrados",
+            description: "Os artilheiros aparecerão aqui quando houver gols registrados nas súmulas."
           ) %>
         <% end %>
       </div>

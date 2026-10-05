@@ -2,7 +2,7 @@ require "base64"
 require "fileutils"
 
 class ChampionshipsController < ApplicationController
-  skip_before_action :authenticate_user!, only: %i[index show]
+  skip_before_action :authenticate_user!, only: %i[index show artilheiros]
 
   def index
     @championships = if user_signed_in?
@@ -204,6 +204,13 @@ class ChampionshipsController < ApplicationController
           type: "application/pdf", disposition: "attachment"
       end
     end
+  end
+
+  def artilheiros
+    @championship = championship_lookup
+    return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+
+    @top_scorers = @championship.top_scorers(nil)
   end
 
   def generate_tranca_round

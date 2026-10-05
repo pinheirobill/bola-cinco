@@ -5,50 +5,12 @@
   subtitle: "#{@match.category.name} · #{[@match.team_a&.name, @match.team_b&.name].compact.join(' x ')}",
   badge: "Jogos",
   actions: [
-    link_to("Voltar", matches_path, class: "btn btn-outline"),
+    link_to("Voltar à programação", programacao_championship_path(@match.championship), class: "btn btn-outline"),
     link_to("Editar súmula", edit_match_path(@match), class: "btn btn-outline"),
     button_tag("Importar súmula", type: "button", class: "btn btn-primary", onclick: "document.getElementById('match-summula-import-modal').showModal()"),
     link_to("Classificação", standing_rows_path, class: "btn btn-primary")
   ]
 ) %>
-
-<section class="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm">
-  <div class="flex flex-wrap items-start justify-between gap-4">
-    <div>
-      <div class="badge badge-outline">Onboarding do jogo</div>
-      <h2 class="mt-3 text-3xl font-black tracking-tight">Súmula e evento</h2>
-      <p class="mt-2 text-sm text-base-content/70">
-        Organize a partida no mesmo fluxo visual da súmula impressa: cabeçalho, escalações, relatório e eventos.
-      </p>
-      <p class="mt-2 text-xs font-semibold uppercase tracking-[0.25em] text-base-content/50">Súmula centralizada</p>
-    </div>
-
-    <div class="rounded-3xl border border-base-300 bg-base-200 p-4">
-      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Placar atual</p>
-      <p class="mt-2 text-3xl font-black"><%= @match.score_a || "-" %> x <%= @match.score_b || "-" %></p>
-      <p class="mt-1 text-sm text-base-content/60"><%= @match.status.titleize %></p>
-      <div class="mt-3 rounded-2xl border border-primary/30 bg-primary/10 p-3">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Vencedor da partida</p>
-        <p class="mt-1 text-lg font-bold text-primary"><%= @match.winner_label %></p>
-      </div>
-    </div>
-  </div>
-
-  <div class="mt-6 grid gap-3 md:grid-cols-3">
-    <%= link_to "#cabecalho", class: "rounded-2xl border border-base-300 bg-base-200 px-4 py-3 text-left hover:border-primary" do %>
-      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Etapa 1</p>
-      <p class="mt-1 font-semibold">Cabeçalho da súmula</p>
-    <% end %>
-    <%= link_to edit_match_path(@match), class: "rounded-2xl border border-base-300 bg-base-200 px-4 py-3 text-left hover:border-primary" do %>
-      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Etapa 2</p>
-      <p class="mt-1 font-semibold">Abrir editor da súmula</p>
-    <% end %>
-    <div class="rounded-2xl border border-base-300 bg-base-200 px-4 py-3">
-      <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Etapa 3</p>
-      <p class="mt-1 font-semibold">Eventos registrados na súmula</p>
-    </div>
-  </div>
-</section>
 
 <dialog id="match-summula-import-modal" class="modal">
   <div class="modal-box max-w-2xl">

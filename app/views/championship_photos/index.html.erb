@@ -1,0 +1,53 @@
+<% content_for :title, "Fotos | #{@championship.name} | Arena" %>
+
+<%= page_header(
+  title: "Fotos do campeonato",
+  subtitle: "#{@championship.name} · #{@championship.modality_label}",
+  actions: [link_to("Voltar ao campeonato", championship_path(@championship), class: "btn btn-outline")]
+) %>
+
+<% if @championship.football? %>
+  <%= render "championships/football_navigation", championship: @championship, current: "fotos" %>
+<% else %>
+  <nav class="mb-6 flex flex-wrap gap-2" aria-label="Navegação do campeonato">
+    <%= link_to "Portal", championship_path(@championship), class: "btn btn-outline" %>
+    <%= link_to "Duplas", duplas_championship_path(@championship), class: "btn btn-outline" %>
+    <%= link_to "Partidas", partidas_championship_path(@championship), class: "btn btn-outline" %>
+    <%= link_to "Classificação", classificacao_championship_path(@championship), class: "btn btn-outline" %>
+    <%= link_to "Fotos", championship_photos_path(@championship), class: "btn btn-primary" %>
+  </nav>
+<% end %>
+
+<% if user_signed_in? && @championship.manageable_by?(current_user) %>
+  <%= surface_card(title: "Adicionar fotos", subtitle: "As imagens são reduzidas para até 1920 px e salvas em JPG. Máximo de 20 MB por arquivo; até 5 MB após redução.") do %>
+    <%= form_with scope: :championship_photo, url: championship_photos_path(@championship), multipart: true, class: "flex flex-col gap-4 sm:flex-row sm:items-end" do |form| %>
+      <div class="grow">
+        <%= form.label :photos, "Escolha uma ou mais fotos", class: "label font-semibold" %>
+        <%= form.file_field :photos, multiple: true, accept: "image/jpeg,image/png,image/webp", required: true, class: "file-input file-input-bordered w-full" %>
+      </div>
+      <%= form.submit "Enviar fotos", class: "btn btn-primary" %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<section class="mt-6">
+  <% if @photos.any? %>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <% @photos.each do |photo| %>
+        <figure class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+          <%= link_to rails_blob_path(photo, disposition: "inline"), target: "_blank", rel: "noopener" do %>
+            <%= image_tag photo, alt: "Foto do campeonato #{@championship.name}", loading: "lazy", class: "aspect-[4/3] w-full object-cover" %>
+          <% end %>
+          <figcaption class="flex items-center justify-between gap-2 p-3 text-sm text-base-content/60">
+            <span><%= l(photo.created_at, format: :long) %></span>
+            <% if user_signed_in? && @championship.manageable_by?(current_user) %>
+              <%= button_to "Remover", championship_photo_path(@championship, photo), method: :delete, class: "btn btn-outline btn-error btn-xs", data: { turbo_confirm: "Remover esta foto do campeonato?" } %>
+            <% end %>
+          </figcaption>
+        </figure>
+      <% end %>
+    </div>
+  <% else %>
+    <%= empty_state(title: "Ainda não há fotos", description: "As fotos do campeonato aparecerão aqui depois que forem enviadas.") %>
+  <% end %>
+</section>
