@@ -154,14 +154,30 @@ class Match < ApplicationRecord
     substitution_minutes_list = substitution_events.map { |event| event.minute&.to_s.presence || "" }
 
     {
-      yellow_card: event_sheet_events_for(team, athlete, "cartao_amarelo").any?,
-      red_card: event_sheet_events_for(team, athlete, "cartao_vermelho").any?,
+      yellow_card_count: event_sheet_events_for(team, athlete, "cartao_amarelo").size,
+      red_card_count: event_sheet_events_for(team, athlete, "cartao_vermelho").size,
       goal_count: goal_events.size,
       goal_minutes: goal_minutes_list.reject(&:blank?).join(", "),
       goal_minutes_list: goal_minutes_list,
       substitution_minutes: substitution_minutes_list.reject(&:blank?).join(", "),
       substitution_minutes_list: substitution_minutes_list
     }
+  end
+
+  def previous_card_counts_for(athletes, kind)
+    athlete_ids = athletes.map(&:id)
+    return {} if athlete_ids.empty?
+
+    previous_matches = championship.matches.where.not(id: id)
+    previous_matches = if round_number.present?
+      previous_matches.where("round_number < ?", round_number)
+    elsif scheduled_on.present?
+      previous_matches.where("scheduled_on < ?", scheduled_on)
+    else
+      previous_matches.none
+    end
+
+    championship.match_events.where(match_id: previous_matches.select(:id), athlete_id: athlete_ids, kind: kind).group(:athlete_id).count
   end
 
   def sync_pending_participations!
@@ -295,8 +311,8 @@ class Match < ApplicationRecord
   def sync_event_sheet_row!(team, athlete, row_params)
     managed_source_ids = []
 
-    managed_source_ids.concat(sync_event_sheet_boolean!(team, athlete, "cartao_amarelo", row_params[:yellow_card], "Cartão amarelo da súmula"))
-    managed_source_ids.concat(sync_event_sheet_boolean!(team, athlete, "cartao_vermelho", row_params[:red_card], "Cartão vermelho da súmula"))
+    managed_source_ids.concat(sync_event_sheet_count!(team, athlete, "cartao_amarelo", row_params[:yellow_card_count], "Cartão amarelo da súmula"))
+    managed_source_ids.concat(sync_event_sheet_count!(team, athlete, "cartao_vermelho", row_params[:red_card_count], "Cartão vermelho da súmula"))
     if row_params.key?(:goal_count)
       managed_source_ids.concat(sync_event_sheet_goal_count!(team, athlete, row_params[:goal_count]))
     else
@@ -363,12 +379,11 @@ class Match < ApplicationRecord
     managed_source_ids
   end
 
-  def sync_event_sheet_boolean!(team, athlete, kind, value, notes)
+  def sync_event_sheet_count!(team, athlete, kind, value, notes)
+    count = value.to_s.match?(/\A\d+\z/) ? value.to_i.clamp(0, 9) : 0
     events = event_sheet_events_for(team, athlete, kind)
-    managed_source_ids = []
-
-    if truthy_param?(value)
-      event = match_events.find_by(source_id: event_sheet_source_id(team, athlete, kind, 1)) || events.first || match_events.find_or_initialize_by(source_id: event_sheet_source_id(team, athlete, kind, 1))
+    managed_source_ids = count.times.map do |index|
+      event = events[index] || match_events.find_or_initialize_by(source_id: event_sheet_source_id(team, athlete, kind, index + 1))
       event.assign_attributes(
         kind: kind,
         team: team,
@@ -376,15 +391,11 @@ class Match < ApplicationRecord
         minute: nil,
         period: nil,
         notes: notes,
-        source_data: event.source_data.merge(
-          "event_sheet" => true,
-          "event_sheet_kind" => kind,
-          "event_sheet_index" => 1
-        )
+        source_data: event.source_data.merge("event_sheet" => true, "event_sheet_kind" => kind, "event_sheet_index" => index + 1)
       )
-      event.source_id = event_sheet_source_id(team, athlete, kind, 1)
+      event.source_id = event_sheet_source_id(team, athlete, kind, index + 1)
       event.save!
-      managed_source_ids << event.source_id
+      event.source_id
     end
 
     events.reject { |event| managed_source_ids.include?(event.source_id) }.each(&:destroy!)

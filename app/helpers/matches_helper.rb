@@ -41,8 +41,8 @@ module MatchesHelper
     substitution_minutes_list = Array(state[:substitution_minutes_list]).map(&:to_s)
 
     {
-      yellow_card: state[:yellow_card],
-      red_card: state[:red_card],
+      yellow_card_count: state[:yellow_card_count],
+      red_card_count: state[:red_card_count],
       goal_count: state[:goal_count],
       goal_minutes: state[:goal_minutes],
       goal_minutes_list: goal_minutes_list,
