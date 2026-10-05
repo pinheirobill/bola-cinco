@@ -25,14 +25,23 @@ class ChampionshipPhotosController < ApplicationController
 
     processed = []
     uploads.each { |upload| processed << process_photo(upload) }
-    processed.each do |file|
-      file.open do |io|
-        @championship.photos.attach(io:, filename: file.basename, content_type: "image/jpeg")
-      end
+    existing_photo_count = @championship.photos_attachments.count
+    attachables = processed.map do |file|
+      {
+        io: file.open,
+        filename: file.basename.to_s,
+        content_type: "image/jpeg"
+      }
+    end
+    @championship.photos.attach(attachables)
+
+    saved_photo_count = @championship.photos_attachments.reload.count - existing_photo_count
+    unless saved_photo_count == processed.size
+      raise ActiveRecord::RecordNotSaved, "Nem todas as fotos foram salvas. Tente enviar menos fotos por vez."
     end
 
-    redirect_to championship_photos_path(@championship), notice: "#{processed.size} foto(s) adicionada(s)."
-  rescue ArgumentError, ImageProcessing::Error => e
+    redirect_to championship_photos_path(@championship), notice: "#{saved_photo_count} foto(s) adicionada(s)."
+  rescue ArgumentError, ImageProcessing::Error, ActiveRecord::RecordNotSaved => e
     redirect_to championship_photos_path(@championship), alert: e.message
   ensure
     processed&.each(&:close!)
