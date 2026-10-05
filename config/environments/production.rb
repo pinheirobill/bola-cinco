@@ -86,4 +86,5 @@ Rails.application.configure do
   # Enable DNS rebinding protection and other `Host` header attacks.
   config.hosts << /.*\.vercel\.app/
   config.hosts << /.*\.sslip\.io/
+  config.hosts << "arena.bola5.com.br"
 end
