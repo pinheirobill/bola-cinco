@@ -160,22 +160,18 @@
     </div>
   </section>
 
-  <section class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-    <div class="space-y-6">
-      <%= render "matches/event_sheet_editor",
-        f: f,
-        match: @match,
-        team_a_athletes: @team_a_athletes,
-        team_b_athletes: @team_b_athletes,
-        team_a_participations: @team_a_participations,
-        team_b_participations: @team_b_participations,
-        team_a_participations_by_athlete: @team_a_participations_by_athlete,
-        team_b_participations_by_athlete: @team_b_participations_by_athlete %>
-    </div>
+  <%= render "matches/event_summary", match: @match, match_events: @match_events %>
 
-    <div class="space-y-6 self-start">
-      <%= render "matches/event_summary", match: @match, match_events: @match_events %>
-    </div>
+  <section>
+    <%= render "matches/event_sheet_editor",
+      f: f,
+      match: @match,
+      team_a_athletes: @team_a_athletes,
+      team_b_athletes: @team_b_athletes,
+      team_a_participations: @team_a_participations,
+      team_b_participations: @team_b_participations,
+      team_a_participations_by_athlete: @team_a_participations_by_athlete,
+      team_b_participations_by_athlete: @team_b_participations_by_athlete %>
   </section>
 
 <% end %>
