@@ -176,7 +176,8 @@ class TeamsController < ApplicationController
       :short_name,
       :registration_status,
       :finance_status,
-      :group_key
+      :group_key,
+      :shield
     ])
   end
 

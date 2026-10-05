@@ -1,11 +1,16 @@
 <div class="rounded-2xl bg-base-200 p-4">
   <div class="flex flex-wrap items-start justify-between gap-3">
-    <div>
-      <p class="font-semibold"><%= link_to team.name, team_path(team), class: "link link-primary" %></p>
-      <p class="text-sm text-base-content/70"><%= team.entity.name %> · <%= team.category.name %></p>
-      <% unless compact %>
-        <p class="text-xs text-base-content/50 mt-1"><%= team.athletes.size %> atletas</p>
+    <div class="flex items-center gap-3">
+      <% if team.shield.attached? %>
+        <%= image_tag team.shield, alt: "Escudo de #{team.name}", class: "h-12 w-12 shrink-0 rounded-xl border border-base-300 bg-white object-contain p-1" %>
       <% end %>
+      <div>
+        <p class="font-semibold"><%= link_to team.name, team_path(team), class: "link link-primary" %></p>
+        <p class="text-sm text-base-content/70"><%= team.entity.name %> · <%= team.category.name %></p>
+        <% unless compact %>
+          <p class="text-xs text-base-content/50 mt-1"><%= team.athletes.size %> atletas</p>
+        <% end %>
+      </div>
     </div>
 
     <div class="flex flex-wrap gap-2">

@@ -469,7 +469,9 @@ class Championship < ApplicationRecord
       end
     end
 
-    totals.sort_by { |_athlete_id, goals| -goals }.first(limit).map do |athlete_id, goals|
+    ranked_totals = totals.sort_by { |_athlete_id, goals| -goals }
+    ranked_totals = ranked_totals.first(limit) if limit
+    ranked_totals.map do |athlete_id, goals|
       athlete = Athlete.includes(:team).find_by(source_id: athlete_id)
       ScorerEntry.new(
         athlete_id: athlete_id,

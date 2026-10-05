@@ -3,7 +3,7 @@
 <%= page_header(title: "Editar equipe", subtitle: @team.name,
   actions: [link_to("Voltar", team_path(@team), class: "btn btn-outline")]) %>
 
-<%= surface_card(title: "Nome da equipe") do %>
+<%= surface_card(title: "Nome e escudo da equipe") do %>
   <%= form_with model: @team, data: { turbo: false }, class: "space-y-5" do |form| %>
     <%= hidden_field_tag :edit_team, "1" %>
     <% if @team.errors.any? %>
@@ -12,6 +12,14 @@
     <div class="form-control gap-2">
       <%= form.label :name, "Nome da equipe / dupla", class: "label-text font-medium" %>
       <%= form.text_field :name, required: true, autofocus: true, class: "input input-bordered w-full" %>
+    </div>
+    <div class="form-control gap-3">
+      <%= form.label :shield, "Foto do escudo", class: "label-text font-medium" %>
+      <% if @team.shield.attached? %>
+        <%= image_tag @team.shield, alt: "Escudo de #{@team.name}", class: "h-24 w-24 rounded-2xl border border-base-300 bg-white object-contain p-2" %>
+      <% end %>
+      <%= form.file_field :shield, accept: "image/*", class: "file-input file-input-bordered w-full" %>
+      <p class="text-sm text-base-content/60">Envie uma imagem para usar como escudo da equipe.</p>
     </div>
     <div class="flex flex-wrap gap-3">
       <%= form.submit "Salvar alterações", class: "btn btn-primary" %>

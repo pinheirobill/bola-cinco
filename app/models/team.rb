@@ -3,6 +3,7 @@ class Team < ApplicationRecord
 
   belongs_to :entity
   belongs_to :category
+  has_one_attached :shield
   has_many :team_athletes, dependent: :delete_all
   has_many :athletes, through: :team_athletes
   has_many :match_events, dependent: :nullify

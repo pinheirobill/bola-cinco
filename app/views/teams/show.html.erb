@@ -1,5 +1,11 @@
 <% content_for :title, "#{@team.name} | Arena" %>
 
+<% if @team.shield.attached? %>
+  <div class="mb-4 flex justify-center">
+    <%= image_tag @team.shield, alt: "Escudo de #{@team.name}", class: "h-24 w-24 rounded-2xl border border-base-300 bg-white object-contain p-2" %>
+  </div>
+<% end %>
+
 <%= page_header(
   title: @team.name,
   subtitle: "#{@team.entity.name} · #{@team.category.name}",

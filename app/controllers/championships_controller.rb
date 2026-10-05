@@ -2,7 +2,10 @@ require "base64"
 require "fileutils"
 
 class ChampionshipsController < ApplicationController
-  skip_before_action :authenticate_user!, only: %i[index show artilheiros]
+  skip_before_action :authenticate_user!, only: %i[
+    index show equipes partidas rodadas programacao programacao_telao
+    download_football_round_summulas classificacao artilheiros
+  ]
 
   def index
     @championships = if user_signed_in?

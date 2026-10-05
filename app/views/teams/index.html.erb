@@ -27,7 +27,14 @@
         <tbody>
           <% @teams.each do |team| %>
             <tr>
-              <td class="font-medium"><%= team.name %></td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <% if team.shield.attached? %>
+                    <%= image_tag team.shield, alt: "Escudo de #{team.name}", class: "h-10 w-10 rounded-lg border border-base-300 bg-white object-contain p-1" %>
+                  <% end %>
+                  <span class="font-medium"><%= team.name %></span>
+                </div>
+              </td>
               <td><%= team.entity.name %></td>
               <td><%= team.category.name %></td>
               <td><%= team.athletes.size %></td>
