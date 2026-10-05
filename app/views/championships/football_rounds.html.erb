@@ -21,7 +21,7 @@
       </progress>
     </div>
   </div>
-<% elsif redraw_state["status"] == "completed" %>
+<% elsif redraw_state["status"] == "completed" && @championship.manageable_by?(current_user) %>
   <div class="alert alert-success mt-4">
     Sorteio concluído: <%= redraw_state["match_count"] %> partidas em <%= redraw_state["round_count"] %> rodadas.
     <%= link_to "Atualizar", rodadas_championship_path(@championship), class: "link font-semibold" %>

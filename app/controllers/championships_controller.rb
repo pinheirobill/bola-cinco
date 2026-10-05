@@ -115,7 +115,7 @@ class ChampionshipsController < ApplicationController
 
   def download_football_round_summulas
     @championship = championship_lookup
-    return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?
+    return forbidden! unless @championship.manageable_by?(current_user)
     return redirect_to programacao_championship_path(@championship), alert: "Esta súmula está disponível apenas para campeonatos de futebol." if @championship.tranca?
 
     round_number = params[:round_number].to_i

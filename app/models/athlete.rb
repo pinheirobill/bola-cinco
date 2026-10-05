@@ -135,16 +135,13 @@ class Athlete < ApplicationRecord
   def recent_performance_matches(limit = 5)
     return Match.none if championship.blank?
 
-    Match.joins(:match_participations)
-      .where(
-        championship_id: championship.id,
-        match_participations: {
-          athlete_id: id,
-          status: %w[confirmado convidado]
-        }
-      )
+    Match.where(
+      id: match_participations
+        .where(status: %w[confirmado convidado])
+        .select(:match_id),
+      championship_id: championship.id
+    )
       .includes(:category, :team_a, :team_b, :winner)
-      .distinct
       .order(scheduled_on: :desc, id: :desc)
       .limit(limit)
   end
