@@ -2,14 +2,71 @@
 
 <%= page_header(
   title: "Classificação",
-  subtitle: "Tabela consolidada por categoria.",
-  badge: "Tabela"
+  subtitle: @highlight_championship.present? ? "#{@highlight_championship.name} · classificação e destaques do campeonato." : "Tabela consolidada por categoria.",
+  badge: "Tabela",
+  actions: @highlight_championship.present? ? [link_to("Início do campeonato", championship_path(@highlight_championship), class: "btn btn-primary")] : []
 ) %>
 
 <%= stats_grid([
   { label: "Chaves", value: @standing_groups.size, value_class: "text-2xl" },
-  { label: "Linhas", value: @standing_groups.sum { |group| group.rows.size }, value_class: "text-2xl" }
-], columns: "md:grid-cols-2") %>
+  { label: "Equipes", value: @standing_groups.sum { |group| group.rows.size }, value_class: "text-2xl" },
+  { label: "Jogos concluídos", value: @completed_match_count || "—", value_class: "text-2xl" },
+  { label: "Gols marcados", value: @completed_goal_count || "—", value_class: "text-2xl" }
+], columns: "sm:grid-cols-2 xl:grid-cols-4") %>
+
+<% if @highlight_championship.present? && !@highlight_championship.tranca? %>
+  <section class="mb-6">
+    <div class="mb-4">
+      <h2 class="text-2xl font-black">Destaques do campeonato</h2>
+      <p class="mt-1 text-sm text-base-content/60">Artilharia, ataque e cartões registrados nas súmulas.</p>
+    </div>
+    <div class="grid gap-4 lg:grid-cols-3">
+      <%= surface_card(title: "Artilheiros", subtitle: "Gols nas partidas concluídas.") do %>
+        <% if @highlight_top_scorers.any? %>
+          <div class="space-y-3">
+            <% @highlight_top_scorers.first(3).each_with_index do |scorer, index| %>
+              <div class="flex items-center gap-3 rounded-2xl bg-base-200 p-3">
+                <span class="badge <%= index.zero? ? 'badge-primary' : 'badge-outline' %> badge-lg"><%= index + 1 %></span>
+                <div class="min-w-0 grow">
+                  <p class="truncate font-bold"><%= scorer.name %></p>
+                  <p class="truncate text-xs text-base-content/60"><%= scorer.team_name %></p>
+                </div>
+                <span class="text-lg font-black tabular-nums"><%= scorer.goals %></span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="rounded-2xl bg-base-200 p-4 text-sm text-base-content/65">Ainda não há gols registrados.</p>
+        <% end %>
+      <% end %>
+
+      <%= surface_card(title: "Melhor ataque", subtitle: "Equipe com mais gols marcados na classificação.") do %>
+        <% if @most_goals_row.present? %>
+          <div class="rounded-2xl bg-primary p-5 text-primary-content">
+            <p class="text-sm opacity-75">Mais gols marcados</p>
+            <%= link_to @most_goals_row.team.name, team_path(@most_goals_row.team), class: "mt-2 block text-xl font-black underline decoration-primary-content/40 underline-offset-4" %>
+            <p class="mt-3 text-4xl font-black tabular-nums"><%= @most_goals_row.goals_for %> <span class="text-base font-semibold">gols</span></p>
+            <p class="mt-1 text-sm opacity-75"><%= @most_goals_row.played %> jogos · saldo <%= @most_goals_row.goal_diff %></p>
+          </div>
+        <% else %>
+          <p class="rounded-2xl bg-base-200 p-4 text-sm text-base-content/65">Ainda não há equipes com jogos concluídos.</p>
+        <% end %>
+      <% end %>
+
+      <%= surface_card(title: "Fair play", subtitle: "Menos cartões registrados em jogos concluídos.") do %>
+        <% if @fewest_cards_row.present? %>
+          <div class="rounded-2xl bg-base-200 p-5">
+            <%= link_to @fewest_cards_row.team.name, team_path(@fewest_cards_row.team), class: "text-xl font-black link link-primary" %>
+            <p class="mt-3 text-4xl font-black tabular-nums"><%= @fewest_cards_total %> <span class="text-base font-semibold">cartões</span></p>
+            <p class="mt-1 text-sm text-base-content/65">🟨 <%= @fewest_cards_yellow %> amarelos · 🟥 <%= @fewest_cards_red %> vermelhos</p>
+          </div>
+        <% else %>
+          <p class="rounded-2xl bg-base-200 p-4 text-sm text-base-content/65">Ainda não há equipes com jogos concluídos.</p>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+<% end %>
 
 <%= surface_card do %>
   <div class="space-y-8">

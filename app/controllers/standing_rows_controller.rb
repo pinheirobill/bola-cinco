@@ -6,6 +6,9 @@ class StandingRowsController < ApplicationController
     @standing_groups = grouped_rows.group_by { |row| [row.category, row.group_key.to_s] }.map do |(category, group_key), rows|
       Championship::StandingGroup.new(category: category, group_key: group_key, rows: rows)
     end.sort_by { |group| [group.category.name.to_s.downcase, group.group_key.to_s.downcase] }
+
+    @highlight_championship = current_championship
+    load_football_highlights if @highlight_championship.present? && !@highlight_championship.tranca?
   end
 
   def create
@@ -65,6 +68,43 @@ class StandingRowsController < ApplicationController
     return current_championship if current_championship.present?
 
     Championship.order(season: :desc, created_at: :desc).first
+  end
+
+  def load_football_highlights
+    @highlight_standing_rows = @highlight_championship.standing_rows.includes(:team, :category).to_a
+    played_rows = @highlight_standing_rows.select { |row| row.played.to_i.positive? }
+    @most_goals_row = played_rows.max_by do |row|
+      [row.goals_for.to_i, row.goal_diff.to_i, row.points.to_i, -row.position.to_i]
+    end
+
+    card_totals = Hash.new { |hash, team_id| hash[team_id] = { yellow: 0, red: 0 } }
+    completed_matches = @highlight_championship.completed_matches.includes(match_events: :team).to_a
+    completed_matches.each do |match|
+      match.match_events.each do |event|
+        next if event.team_id.blank?
+
+        case event.kind
+        when "cartao_amarelo"
+          card_totals[event.team_id][:yellow] += 1
+        when "cartao_vermelho"
+          card_totals[event.team_id][:red] += 1
+        end
+      end
+    end
+
+    @fewest_cards_row = played_rows.min_by do |row|
+      totals = card_totals[row.team_id]
+      [totals[:yellow] + totals[:red], totals[:red], -row.points.to_i, row.team.name.to_s.downcase]
+    end
+    @fewest_cards_total = if @fewest_cards_row.present?
+      totals = card_totals[@fewest_cards_row.team_id]
+      totals[:yellow] + totals[:red]
+    end
+    @fewest_cards_yellow = @fewest_cards_row.present? ? card_totals[@fewest_cards_row.team_id][:yellow] : 0
+    @fewest_cards_red = @fewest_cards_row.present? ? card_totals[@fewest_cards_row.team_id][:red] : 0
+    @highlight_top_scorers = @highlight_championship.top_scorers(5)
+    @completed_match_count = completed_matches.size
+    @completed_goal_count = completed_matches.sum { |match| match.score_a.to_i + match.score_b.to_i }
   end
 
   def standing_row_params

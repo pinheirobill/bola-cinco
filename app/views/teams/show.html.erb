@@ -18,10 +18,23 @@
 ) %>
 
 <%= stats_grid([
-  { label: "Inscrição", value: @team.registration_status.titleize, value_class: "text-2xl" },
-  { label: "Financeiro", value: @team.finance_status.titleize, value_class: "text-2xl" },
-  { label: "Atletas", value: @team.athletes.count, value_class: "text-2xl" }
-], columns: "md:grid-cols-3") %>
+  { label: "Classificação", value: @team_standing_row ? "#{@team_standing_row.position}º · #{@team_standing_row.group_label}" : "—", value_class: "text-2xl" },
+  { label: "Pontos", value: @team_standing_row&.points || "—", value_class: "text-2xl" },
+  { label: "Jogos", value: @team_standing_row&.played || "—", value_class: "text-2xl" },
+  { label: "Vitórias", value: @team_standing_row&.wins || "—", value_class: "text-2xl" },
+  { label: "Empates", value: @team_standing_row&.draws || "—", value_class: "text-2xl" },
+  { label: "Derrotas", value: @team_standing_row&.losses || "—", value_class: "text-2xl" },
+  { label: "Gols marcados", value: @team_standing_row&.goals_for || "—", value_class: "text-2xl" },
+  { label: "Gols sofridos", value: @team_standing_row&.goals_against || "—", value_class: "text-2xl" },
+  { label: "Saldo de gols", value: @team_standing_row&.goal_diff || "—", value_class: "text-2xl" },
+  { label: "Cartões amarelos", value: @team_card_totals[:yellow], value_class: "text-2xl" },
+  { label: "Cartões vermelhos", value: @team_card_totals[:red], value_class: "text-2xl" },
+  { label: "Atletas", value: @team_athletes.size, value_class: "text-2xl" }
+], columns: "sm:grid-cols-2 xl:grid-cols-3") %>
+
+<% if @team_stats_championship.present? %>
+  <p class="-mt-3 text-sm text-base-content/60">Indicadores de <%= @team_stats_championship.name %>.</p>
+<% end %>
 
 <%= surface_card(
   title: "Campeonatos inscritos",
@@ -72,6 +85,31 @@
 
 <section class="grid gap-6 xl:grid-cols-2">
   <% can_manage_athletes = @team.manageable_by?(current_user) %>
+  <%= surface_card(title: "Destaques da equipe", subtitle: "Gols, assistências e cartões no campeonato em destaque.") do %>
+    <% if @team_athlete_stats.any? %>
+      <div class="space-y-3">
+        <% @team_athlete_stats.first(5).each_with_index do |stats, index| %>
+          <% athlete = stats[:athlete] %>
+          <%= link_to athlete_path(athlete), class: "flex items-center gap-4 rounded-2xl bg-base-200 p-4 transition hover:bg-base-300" do %>
+            <span class="badge badge-outline badge-lg"><%= index + 1 %></span>
+            <div class="min-w-0 grow">
+              <p class="truncate font-semibold"><%= athlete.name %></p>
+              <p class="text-sm text-base-content/65">Nº <%= athlete.shirt_number.presence || "—" %> · <%= athlete.position.presence || "Sem posição" %></p>
+            </div>
+            <div class="flex flex-wrap justify-end gap-2 text-xs">
+              <span class="badge badge-primary"><%= stats[:goals] %> gols</span>
+              <span class="badge badge-info"><%= stats[:assists] %> assist.</span>
+              <% if stats[:yellow_cards].positive? %><span class="badge badge-warning"><%= stats[:yellow_cards] %> amarelos</span><% end %>
+              <% if stats[:red_cards].positive? %><span class="badge badge-error"><%= stats[:red_cards] %> vermelhos</span><% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= empty_state(title: "Sem destaques estatísticos", description: "Os indicadores dos atletas aparecerão quando houver súmulas registradas neste campeonato.") %>
+    <% end %>
+  <% end %>
+
   <%= surface_card(
     title: "Atletas",
     actions: [

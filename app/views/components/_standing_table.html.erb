@@ -36,15 +36,18 @@
       </thead>
       <tbody>
         <% rows.each_with_index do |row, index| %>
-          <tr>
-            <td><%= position_offset + index + 1 %></td>
+          <% position = position_offset + index + 1 %>
+          <tr class="transition-colors hover:bg-primary/5">
+            <td>
+              <span class="badge <%= position == 1 ? 'badge-primary' : (position == 2 ? 'badge-secondary' : (position == 3 ? 'badge-accent' : 'badge-ghost')) %>"><%= position %></span>
+            </td>
             <td class="font-medium">
               <% team = row.display_team %>
               <% legacy_team = team.is_a?(Team) ? team : team&.legacy_team %>
               <% if legacy_team.present? %>
-                <%= link_to legacy_team.name, team_path(legacy_team), class: "link link-primary" %>
+                <%= link_to legacy_team.name, team_path(legacy_team), class: "link link-primary font-semibold" %>
               <% else %>
-                <%= team&.name || row.display_team_name %>
+                <span class="font-semibold"><%= team&.name || row.display_team_name %></span>
               <% end %>
             </td>
             <td><%= row.played %></td>

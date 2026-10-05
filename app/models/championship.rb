@@ -102,6 +102,7 @@ class Championship < ApplicationRecord
   validates :source_id, uniqueness: true
   validates :slug, uniqueness: true, allow_blank: true
   validates :modality, inclusion: { in: modalities.keys }
+  validates :primary_color, :secondary_color, format: { with: /\A#[0-9a-fA-F]{6}\z/ }, allow_blank: true
   before_validation :assign_source_id, on: :create
   before_validation :assign_slug, on: :create
 

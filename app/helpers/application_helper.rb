@@ -64,6 +64,26 @@ module ApplicationHelper
     championship&.logo&.attachment&.blob&.filename&.to_s
   end
 
+  def championship_brand_style
+    championship = @championship || @match&.championship || @team_stats_championship || @highlight_championship
+    return if championship.blank?
+
+    primary = championship.primary_color.to_s.match?(/\A#[0-9a-fA-F]{6}\z/) ? championship.primary_color : nil
+    secondary = championship.secondary_color.to_s.match?(/\A#[0-9a-fA-F]{6}\z/) ? championship.secondary_color : nil
+    styles = []
+    if primary.present?
+      styles << "--color-primary: #{primary}"
+      styles << "--color-primary-content: #{championship_content_color(primary)}"
+    end
+    if secondary.present?
+      styles << "--color-secondary: #{secondary}"
+      styles << "--color-secondary-content: #{championship_content_color(secondary)}"
+      styles << "--color-accent: #{secondary}"
+      styles << "--color-accent-content: #{championship_content_color(secondary)}"
+    end
+    styles.join("; ")
+  end
+
   def status_badge(status)
     tag.span status.to_s.tr("_", " ").humanize, class: ["badge", status_badge_class(status)]
   end
@@ -89,5 +109,16 @@ module ApplicationHelper
     elsif (match = url.match(%r{youtu\.be/([^?&]+)}))
       match[1]
     end
+  end
+
+  private
+
+  def championship_content_color(color)
+    channels = color.delete_prefix("#").scan(/../).map { |channel| Integer(channel, 16) / 255.0 }
+    luminance = channels.map do |channel|
+      channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055)**2.4
+    end.then { |red, green, blue| (0.2126 * red) + (0.7152 * green) + (0.0722 * blue) }
+
+    luminance > 0.179 ? "#111827" : "#FFFFFF"
   end
 end

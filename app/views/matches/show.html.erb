@@ -1,4 +1,5 @@
 <% content_for :title, "#{@match.code} | Arena" %>
+<% can_manage_match = @match.championship.manageable_by?(current_user) %>
 
 <%= page_header(
   title: @match.code,
@@ -6,12 +7,13 @@
   badge: "Jogos",
   actions: [
     link_to("Voltar à programação", programacao_championship_path(@match.championship), class: "btn btn-outline"),
-    link_to("Editar súmula", edit_match_path(@match), class: "btn btn-outline"),
-    button_tag("Importar súmula", type: "button", class: "btn btn-primary", onclick: "document.getElementById('match-summula-import-modal').showModal()"),
+    (can_manage_match ? link_to("Editar súmula", edit_match_path(@match), class: "btn btn-outline") : nil),
+    (can_manage_match ? button_tag("Importar súmula", type: "button", class: "btn btn-primary", onclick: "document.getElementById('match-summula-import-modal').showModal()") : nil),
     link_to("Classificação", standing_rows_path, class: "btn btn-primary")
-  ]
+  ].compact
 ) %>
 
+<% if can_manage_match %>
 <dialog id="match-summula-import-modal" class="modal">
   <div class="modal-box max-w-2xl">
     <h3 class="text-2xl font-bold">Importar súmula</h3>
@@ -39,12 +41,27 @@
     <button>close</button>
   </form>
 </dialog>
+<% end %>
+
+<div class="mb-6 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm md:p-7">
+  <p class="mb-4 text-center text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50">
+    <%= @match.status_finalizado? || @match.status_wo? ? "Placar final" : "Placar" %>
+  </p>
+  <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 md:gap-8">
+    <p class="truncate text-right text-lg font-black md:text-2xl"><%= @match.team_a_label.presence || "Equipe A" %></p>
+    <div class="flex items-center gap-2 md:gap-4" aria-label="Placar <%= @match.score_a || '-' %> a <%= @match.score_b || '-' %>">
+      <span class="text-4xl font-black tabular-nums tracking-tight md:text-6xl"><%= @match.score_a || "–" %></span>
+      <span class="text-xl font-bold text-base-content/45 md:text-3xl">×</span>
+      <span class="text-4xl font-black tabular-nums tracking-tight md:text-6xl"><%= @match.score_b || "–" %></span>
+    </div>
+    <p class="truncate text-left text-lg font-black md:text-2xl"><%= @match.team_b_label.presence || "Equipe B" %></p>
+  </div>
+</div>
 
 <%= stats_grid([
-  { label: "Placar", value: "#{@match.score_a || '-'} x #{@match.score_b || '-'}", value_class: "text-3xl" },
   { label: "Status", value: @match.status.titleize, value_class: "text-2xl" },
   { label: "Campeonato", value: @match.championship.name, value_class: "text-lg" }
-], columns: "md:grid-cols-3") %>
+], columns: "md:grid-cols-2") %>
 
 <section id="cabecalho" class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
   <%= surface_card(
@@ -111,7 +128,7 @@
 </section>
 
 <section id="escalacoes" class="grid gap-6 xl:grid-cols-2">
-  <%= surface_card(title: "Equipe A", subtitle: @match.team_a&.name || "Sem equipe") do %>
+  <%= surface_card(title: @match.team_a_label.presence || "Equipe A") do %>
     <% if @team_a_athletes.any? %>
       <div class="overflow-hidden rounded-3xl border border-base-300">
         <table class="table">
@@ -163,7 +180,7 @@
     <% end %>
   <% end %>
 
-  <%= surface_card(title: "Equipe B", subtitle: @match.team_b&.name || "Sem equipe") do %>
+  <%= surface_card(title: @match.team_b_label.presence || "Equipe B") do %>
     <% if @team_b_athletes.any? %>
       <div class="overflow-hidden rounded-3xl border border-base-300">
         <table class="table">

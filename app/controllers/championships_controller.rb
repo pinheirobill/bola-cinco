@@ -1612,6 +1612,8 @@ class ChampionshipsController < ApplicationController
       :registration_end,
       :notes,
       :logo,
+      :primary_color,
+      :secondary_color,
       { rules: {},
         scoring: [
           :win,

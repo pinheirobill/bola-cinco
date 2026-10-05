@@ -16,7 +16,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-theme="<%= user_signed_in? ? current_theme_name : "tranca" %>" class="min-h-screen bg-base-200 text-base-content">
+  <body data-theme="<%= user_signed_in? ? current_theme_name : "tranca" %>" style="<%= championship_brand_style %>" class="min-h-screen bg-base-200 text-base-content">
     <div class="min-h-screen theme-background pb-20 lg:pb-0">
       <header class="sticky top-0 z-50 border-b border-base-300/70 bg-base-100/90 backdrop-blur-xl">
         <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">

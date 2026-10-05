@@ -14,6 +14,16 @@ class TeamsController < ApplicationController
     end
     @available_teams = Team.includes(:category).order(:name)
     @team_championships = @team.category.championships.order(season: :desc, created_at: :desc)
+    public_championships = @team_championships.where.not(status: :rascunho)
+    @team_stats_championship = public_championships.find_by(id: current_championship&.id) || public_championships.first
+    @team_standing_row = if @team_stats_championship.present?
+      @team.standing_rows.find_by(championship: @team_stats_championship, category: @team.category)
+    end
+    @team_athlete_stats = athlete_statistics_for(@team, @team_stats_championship)
+    @team_card_totals = {
+      yellow: @team_athlete_stats.sum { |stats| stats[:yellow_cards] },
+      red: @team_athlete_stats.sum { |stats| stats[:red_cards] }
+    }
     tranca_championship_ids = @team_championships.where(modality: :tranca).select(:id)
     tranca_dupla_ids = Tranca::Dupla.where(championship_id: tranca_championship_ids, source_id: @team.source_id).select(:id)
     @tranca_matches = Tranca::Partida.includes(:category, :dupla_a, :dupla_b, :winner, :tranca_mesa)
@@ -163,6 +173,54 @@ class TeamsController < ApplicationController
 
   def available_athletes_for(team)
     Athlete.for_picker
+  end
+
+  def athlete_statistics_for(team, championship)
+    return [] if championship.blank?
+
+    athletes = team.athletes.to_a
+    athletes_by_id = athletes.index_by(&:id)
+    athletes_by_source_id = athletes.index_by { |athlete| athlete.source_id.to_s }
+    statistics = athletes.index_with do
+      { goals: 0, assists: 0, yellow_cards: 0, red_cards: 0 }
+    end
+
+    matches = championship.matches.where(status: %w[finalizado wo])
+      .where("team_a_id = :team_id OR team_b_id = :team_id", team_id: team.id)
+      .includes(:match_events)
+
+    matches.each do |match|
+      event_goals = Hash.new(0)
+      match.match_events.each do |event|
+        athlete = athletes_by_id[event.athlete_id]
+        next unless athlete
+
+        case event.kind
+        when "gol"
+          event_goals[athlete.id] += 1
+        when "assistencia"
+          statistics[athlete][:assists] += 1
+        when "cartao_amarelo"
+          statistics[athlete][:yellow_cards] += 1
+        when "cartao_vermelho"
+          statistics[athlete][:red_cards] += 1
+        end
+      end
+
+      goals_by_athlete_id = event_goals.dup
+      match.scorers.to_h.each do |source_id, goals|
+        athlete = athletes_by_source_id[source_id.to_s]
+        goals_by_athlete_id[athlete.id] = [goals_by_athlete_id[athlete.id], goals.to_i].max if athlete
+      end
+      goals_by_athlete_id.each do |athlete_id, goals|
+        statistics[athletes_by_id.fetch(athlete_id)][:goals] += goals
+      end
+    end
+
+    statistics.map do |athlete, stats|
+      stats.merge(athlete: athlete)
+    end.select { |stats| stats.except(:athlete).values.any?(&:positive?) }
+      .sort_by { |stats| [-stats[:goals], -stats[:assists], stats[:yellow_cards] + stats[:red_cards], stats[:athlete].name.downcase] }
   end
 
   def team_params

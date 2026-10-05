@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_180000) do
   create_schema "extensions"
 
   # These are extensions that must be enabled in order to support this database
@@ -153,12 +153,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_160000) do
     t.string "modality", default: "football", null: false
     t.string "name", null: false
     t.text "notes"
+    t.string "primary_color"
     t.integer "public_signup_visits_count", default: 0, null: false
     t.date "registration_end"
     t.date "registration_start"
     t.json "rules", default: {}, null: false
     t.json "scoring", default: {}, null: false
     t.integer "season", null: false
+    t.string "secondary_color"
     t.string "slug"
     t.string "source_id", null: false
     t.date "start_date"

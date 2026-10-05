@@ -74,8 +74,8 @@ end %>
         <div class="rounded-3xl border border-base-300 bg-base-200/70 p-5">
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h3 class="text-lg font-semibold">Logo do campeonato</h3>
-              <p class="mt-1 text-sm text-base-content/70">Essa imagem aparece nas telas públicas da Tranca e nos PDFs baixados.</p>
+              <h3 class="text-lg font-semibold">Identidade visual do campeonato</h3>
+              <p class="mt-1 text-sm text-base-content/70">O logo e as cores aparecem no portal público deste campeonato.</p>
             </div>
             <% if championship_logo_attached?(@championship) %>
               <span class="badge badge-success">Enviada</span>
@@ -101,8 +101,27 @@ end %>
               <%= file_field_tag "championship[logo]", id: "championship_logo", accept: "image/*", class: "file-input file-input-bordered w-full" %>
               <p class="text-xs text-base-content/60">PNG, JPG ou WEBP funcionam melhor no PDF.</p>
             </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="form-control gap-2">
+                <%= label_tag "championship_primary_color", "Cor principal", class: "label-text font-medium" %>
+                <%= color_field_tag "championship[primary_color]", @championship.primary_color.presence || "#14532d", id: "championship_primary_color", class: "h-12 w-full cursor-pointer rounded-xl border border-base-300 bg-base-100 p-1" %>
+                <p class="text-xs text-base-content/60">Botões, links e chamadas principais.</p>
+              </div>
+              <div class="form-control gap-2">
+                <%= label_tag "championship_secondary_color", "Cor secundária", class: "label-text font-medium" %>
+                <%= color_field_tag "championship[secondary_color]", @championship.secondary_color.presence || "#f4b400", id: "championship_secondary_color", class: "h-12 w-full cursor-pointer rounded-xl border border-base-300 bg-base-100 p-1" %>
+                <p class="text-xs text-base-content/60">Destaques, acentos e detalhes visuais.</p>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+              <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-base-content/50">Prévia das cores salvas</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="rounded-xl bg-primary p-3 text-center text-sm font-bold text-primary-content">Principal</div>
+                <div class="rounded-xl bg-secondary p-3 text-center text-sm font-bold text-secondary-content">Secundária</div>
+              </div>
+            </div>
             <div class="flex justify-end">
-              <%= submit_tag @championship.logo.attached? ? "Trocar logo" : "Enviar logo", class: "btn btn-outline" %>
+              <%= submit_tag "Salvar identidade visual", class: "btn btn-outline" %>
             </div>
           <% end %>
         </div>
