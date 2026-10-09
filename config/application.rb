@@ -14,7 +14,8 @@ module BolaCinco
     # Audited stores model changes in YAML. Rememberable writes TimeWithZone
     # values when a user selects "remember me", so permit the Rails time types
     # while keeping Active Record's safe YAML loading enabled.
-    config.active_record.yaml_column_permitted_classes += [
+    config.active_record.yaml_column_permitted_classes = [
+      Symbol,
       ActiveSupport::TimeWithZone,
       ActiveSupport::TimeZone,
       Time
