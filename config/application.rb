@@ -11,6 +11,15 @@ module BolaCinco
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
 
+    # Audited stores model changes in YAML. Rememberable writes TimeWithZone
+    # values when a user selects "remember me", so permit the Rails time types
+    # while keeping Active Record's safe YAML loading enabled.
+    config.active_record.yaml_column_permitted_classes += [
+      ActiveSupport::TimeWithZone,
+      ActiveSupport::TimeZone,
+      Time
+    ]
+
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
