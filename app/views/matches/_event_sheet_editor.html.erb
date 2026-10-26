@@ -78,15 +78,15 @@
           <% previous_yellow_cards = match.previous_card_counts_for(display_athletes, "cartao_amarelo") %>
           <% previous_red_cards = match.previous_card_counts_for(display_athletes, "cartao_vermelho") %>
           <div class="overflow-x-auto">
-            <table class="table">
+            <table class="table w-full min-w-[72rem] table-fixed">
               <thead class="bg-base-200">
                 <tr>
                   <th class="w-16">Nº</th>
-                  <th>Jogador</th>
-                  <th>Status</th>
-                  <th class="w-[16rem] text-center">Substituições</th>
-                  <th class="w-[12rem] text-center">Cartões</th>
-                  <th class="w-[18rem] text-center">Gols</th>
+                  <th class="w-[14rem]">Jogador</th>
+                  <th class="w-[12rem]">Status</th>
+                  <th class="w-[17rem] text-center">Substituições</th>
+                  <th class="w-[15rem] text-center">Cartões</th>
+                  <th class="w-[14rem] text-center">Gols</th>
                 </tr>
               </thead>
               <tbody>

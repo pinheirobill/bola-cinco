@@ -5,10 +5,12 @@ export default class extends Controller {
     teamSelectionMode: {
       type: String,
       default: "filter"
-    }
+    },
+    createUrl: String,
+    categoryId: String
   }
 
-  static targets = ["item", "search", "teamFilter", "visibleCount", "selectedCount", "fallbackMessage"]
+  static targets = ["item", "search", "teamFilter", "visibleCount", "selectedCount", "fallbackMessage", "newName", "newShirt", "newPosition", "createMessage"]
 
   connect() {
     this.applyFilters({ syncSelection: true })
@@ -135,6 +137,89 @@ export default class extends Controller {
     })
 
     this.refresh()
+  }
+
+  async createAthlete() {
+    const teamId = this.hasTeamFilterTarget ? this.teamFilterTarget.value : ""
+    const name = this.newNameTarget.value.trim()
+    if (!teamId || !name) {
+      this.showCreateMessage("Informe o nome e selecione uma equipe.", true)
+      return
+    }
+
+    const button = this.element.querySelector('[data-action~="athlete-picker#createAthlete"]')
+    button.disabled = true
+    this.showCreateMessage("Cadastrando…")
+    try {
+      const response = await fetch(this.createUrlValue, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || ""
+        },
+        body: JSON.stringify({ athlete: {
+          name,
+          team_id: teamId,
+          category_id: this.categoryIdValue,
+          shirt_number: this.newShirtTarget.value.trim(),
+          position: this.newPositionTarget.value.trim()
+        } })
+      })
+      const payload = await response.json()
+      if (!response.ok) throw new Error((payload.errors || ["Não foi possível cadastrar o atleta."]).join(" "))
+
+      const item = this.buildAthleteItem(payload, teamId)
+      const list = this.element.querySelector('[data-athlete-picker-list]')
+      list?.querySelector("[data-athlete-picker-empty]")?.remove()
+      list?.prepend(item)
+      this.newNameTarget.value = ""
+      this.newShirtTarget.value = ""
+      this.newPositionTarget.value = ""
+      this.applyFilters({ syncSelection: false })
+      this.showCreateMessage("Atleta cadastrado e selecionado. Salve a participação para incluí-lo na súmula.")
+    } catch (error) {
+      this.showCreateMessage(error.message, true)
+    } finally {
+      button.disabled = false
+    }
+  }
+
+  buildAthleteItem(athlete, teamId) {
+    const item = document.createElement("label")
+    item.className = "group cursor-pointer rounded-2xl border border-primary bg-base-200 p-4 ring-2 ring-primary/30"
+    item.dataset.athletePickerTarget = "item"
+    item.dataset.searchIndex = [athlete.name, athlete.shirt_number, athlete.position].filter(Boolean).join(" ").toLowerCase()
+    item.dataset.teamId = teamId
+    item.dataset.teamIds = teamId
+
+    const checkbox = document.createElement("input")
+    checkbox.type = "checkbox"
+    checkbox.name = "match_participation[athlete_ids][]"
+    checkbox.value = athlete.id
+    checkbox.checked = true
+    checkbox.className = "sr-only"
+    checkbox.dataset.action = "change->athlete-picker#refresh"
+    item.append(checkbox)
+
+    const title = document.createElement("p")
+    title.className = "break-words text-base font-bold leading-tight"
+    title.textContent = athlete.name
+    const details = document.createElement("p")
+    details.className = "mt-2 text-sm text-base-content/70"
+    details.textContent = `Camisa ${athlete.shirt_number || "-"} · ${athlete.position || "Sem posição"}`
+    const selected = document.createElement("span")
+    selected.dataset.athletePickerSelectedMark = ""
+    selected.className = "badge badge-success badge-outline mt-2"
+    selected.textContent = "Selecionado"
+    item.append(title, details, selected)
+    return item
+  }
+
+  showCreateMessage(message, isError = false) {
+    this.createMessageTarget.textContent = message
+    this.createMessageTarget.classList.toggle("text-error", isError)
+    this.createMessageTarget.classList.toggle("text-success", !isError)
   }
 
   inputFor(item) {

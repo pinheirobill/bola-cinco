@@ -112,8 +112,13 @@
   <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
   <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
   <div class="flex flex-wrap justify-end gap-3">
-    <%= link_to "Voltar", match_path(@match), class: "btn btn-outline" %>
-    <%= link_to "Classificação", standing_rows_path, class: "btn btn-primary" %>
+    <%= link_to "Voltar", match_path(@match), class: "btn btn-outline", data: { turbo_frame: "_top" } %>
+    <%= link_to "Classificação", standing_rows_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
+    <%= button_tag "Finalizar súmula",
+      type: "submit",
+      class: "btn btn-success",
+      data: { turbo_frame: "_top" },
+      onclick: "this.form.querySelector('[name=\"match[status]\"]').value = 'finalizado'" %>
   </div>
 
   <section class="rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm xl:p-5">
@@ -178,7 +183,9 @@
 <% end %>
 
 <dialog id="match-participation-modal" class="modal">
-  <div class="modal-box max-w-5xl" data-controller="athlete-picker">
+  <div class="modal-box max-w-6xl" data-controller="athlete-picker"
+       data-athlete-picker-create-url-value="<%= athletes_path %>"
+       data-athlete-picker-category-id-value="<%= @match.category_id %>">
     <h3 class="text-2xl font-bold">Adicionar participação</h3>
     <p class="mt-2 text-sm text-base-content/70">
       Selecione um ou mais atletas que realmente participaram do jogo. A equipe só define o vínculo da participação, mas a busca usa todos os atletas cadastrados do sistema.
@@ -202,7 +209,7 @@
                      disabled: true %>
       </div>
 
-      <div class="grid gap-3 lg:grid-cols-[1fr_18rem_auto_auto] lg:items-end">
+      <div class="grid gap-3 lg:grid-cols-[minmax(18rem,1fr)_12rem_12rem] lg:items-end">
         <div>
           <label class="label">
             <span class="label-text font-medium">Buscar atleta</span>
@@ -216,7 +223,7 @@
           >
         </div>
 
-        <div class="rounded-2xl border border-dashed border-base-300 bg-base-200 px-4 py-3 text-sm text-base-content/75 lg:col-span-4">
+        <div class="rounded-2xl border border-dashed border-base-300 bg-base-200 px-4 py-3 text-sm text-base-content/75 lg:col-span-3">
           A lista abaixo mostra todos os atletas cadastrados do sistema. Use a equipe apenas para gravar o vínculo correto na súmula.
         </div>
 
@@ -231,14 +238,26 @@
         </div>
       </div>
 
+      <details class="rounded-2xl border border-base-300 bg-base-200 p-4">
+        <summary class="cursor-pointer font-semibold">Cadastrar atleta novo</summary>
+        <p class="mt-1 text-sm text-base-content/70">O atleta será cadastrado na equipe selecionada acima e já poderá ser incluído na súmula.</p>
+        <div class="mt-3 grid gap-3 sm:grid-cols-3">
+          <label class="form-control gap-1 sm:col-span-2"><span class="label-text">Nome completo</span><input class="input input-bordered" type="text" required data-athlete-picker-target="newName"></label>
+          <label class="form-control gap-1"><span class="label-text">Camisa</span><input class="input input-bordered" type="text" data-athlete-picker-target="newShirt"></label>
+          <label class="form-control gap-1"><span class="label-text">Posição</span><input class="input input-bordered" type="text" data-athlete-picker-target="newPosition"></label>
+          <div class="flex items-end"><button type="button" class="btn btn-secondary" data-action="athlete-picker#createAthlete">Cadastrar e selecionar</button></div>
+        </div>
+        <p class="mt-2 text-sm" role="status" data-athlete-picker-target="createMessage"></p>
+      </details>
+
       <div class="flex flex-wrap gap-3">
         <button type="button" class="btn btn-outline btn-sm" data-action="athlete-picker#selectVisible">Selecionar visíveis</button>
         <button type="button" class="btn btn-ghost btn-sm" data-action="athlete-picker#clearSelection">Limpar seleção</button>
       </div>
 
       <div class="max-h-[32rem] overflow-y-auto rounded-3xl border border-base-300 bg-base-100 p-3">
+        <div class="grid gap-3 sm:grid-cols-2" data-athlete-picker-list>
         <% if @available_participation_athletes.any? %>
-          <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <% @available_participation_athletes.each do |athlete| %>
               <% athlete_team_ids = ([athlete.team_id] + athlete.linked_teams.map(&:id)).compact.uniq %>
               <label
@@ -264,42 +283,35 @@
                     </div>
 
                     <div class="min-w-0 flex-1">
-                      <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0">
-                          <div class="flex flex-wrap items-center gap-2">
-                            <p class="truncate text-base font-bold"><%= athlete.name %></p>
-                            <span class="badge badge-success badge-outline opacity-0 transition" data-athlete-picker-selected-mark>Selecionado</span>
-                          </div>
-                          <p class="mt-1 text-xs uppercase tracking-[0.3em] text-base-content/50">Apelido / nome curto</p>
-                          <p class="truncate text-sm font-semibold text-base-content/75"><%= athlete.quick_label %></p>
-                        </div>
-                        <div class="flex shrink-0 flex-col items-end gap-2">
+                      <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
                           <span class="badge badge-primary badge-outline">Camisa <%= athlete.shirt_number.presence || "-" %></span>
                           <span class="badge badge-neutral"><%= athlete.position.presence || "Sem posição" %></span>
+                          <span class="badge badge-success badge-outline opacity-0 transition" data-athlete-picker-selected-mark>Selecionado</span>
+                        </div>
+                        <div class="mt-2 min-w-0">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <p class="break-words text-base font-bold leading-tight"><%= athlete.name %></p>
+                          </div>
+                          <p class="mt-1 text-sm text-base-content/70"><%= athlete.quick_label.presence || "Sem apelido" %></p>
                         </div>
                       </div>
 
-                      <div class="mt-3 grid gap-2 text-xs text-base-content/65 sm:grid-cols-2">
-                        <div class="rounded-xl bg-base-100 px-3 py-2">
-                          <span class="block uppercase tracking-[0.25em] text-base-content/40">Equipe atual</span>
-                          <span class="mt-1 block truncate font-semibold text-base-content"><%= athlete.team.picker_label %></span>
-                        </div>
-                        <div class="rounded-xl bg-base-100 px-3 py-2">
-                          <span class="block uppercase tracking-[0.25em] text-base-content/40">Documento</span>
-                          <span class="mt-1 block truncate font-semibold text-base-content"><%= athlete.preferred_document.presence || "Sem documento" %></span>
-                        </div>
+                      <div class="mt-3 space-y-1 border-t border-base-300 pt-2 text-xs text-base-content/70">
+                        <p class="break-words"><span class="font-semibold">Equipe:</span> <%= athlete.team.picker_label %></p>
+                        <p class="break-words"><span class="font-semibold">Documento:</span> <%= athlete.preferred_document.presence || "Sem documento" %></p>
                       </div>
                     </div>
                   </div>
                 </div>
               </label>
             <% end %>
-          </div>
         <% else %>
-          <div class="rounded-2xl border border-dashed border-base-300 p-6 text-sm text-base-content/70">
+          <div data-athlete-picker-empty class="col-span-full rounded-2xl border border-dashed border-base-300 p-6 text-sm text-base-content/70">
             Não há atletas cadastrados disponíveis para vincular nesta partida.
           </div>
         <% end %>
+        </div>
       </div>
 
       <div class="flex flex-wrap gap-3">
