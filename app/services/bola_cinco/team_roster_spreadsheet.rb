@@ -8,20 +8,38 @@ module BolaCinco
 
     MAX_BYTES = 5.megabytes
     MAX_ROWS = 2_000
+    MAX_COLUMNS = 64
     HEADERS = %w[equipe numero nome rg cpf dnascimento].freeze
+    HEADER_ALIASES = {
+      "team_name" => %w[equipe time],
+      "shirt_number" => %w[numero numerocamisa ncamisa camisa],
+      "athlete_name" => %w[nome nomecompleto atleta],
+      "rg" => %w[rg],
+      "cpf" => %w[cpf],
+      "birth_date" => %w[dnascimento datanascimento datadenascimento nascimento],
+      "email" => %w[email],
+      "cell_phone" => %w[celular telefone telefonecelular],
+      "birth_certificate" => %w[certidaonascimento certidaodenascimento],
+      "position" => %w[posicao],
+      "passport" => %w[passaporte],
+      "voter_id" => %w[tituloeleitor titulodeeleitor],
+      "gender" => %w[genero sexo],
+      "document" => %w[documento outrodocumento]
+    }.freeze
 
-    def self.read(upload)
-      raise InvalidFile, "Selecione uma planilha .xlsx de até 5 MB." unless upload.respond_to?(:tempfile) &&
-        File.extname(upload.original_filename).downcase == ".xlsx" && upload.size <= MAX_BYTES
+    def self.read(upload, require_team: true)
+      raise InvalidFile, "Selecione uma planilha .xlsx de até 5 MB." unless upload.respond_to?(:tempfile) && upload.tempfile.present?
+      raise InvalidFile, "O arquivo precisa estar no formato .xlsx." unless File.extname(upload.original_filename).downcase == ".xlsx"
+      raise InvalidFile, "A planilha deve ter até 5 MB." if upload.size > MAX_BYTES
 
-      new(upload.tempfile.path).rows
+      new(upload.tempfile.path).rows(require_team: require_team)
     end
 
     def initialize(path)
       @path = path
     end
 
-    def rows
+    def rows(require_team: true)
       Zip::File.open(@path) do |zip|
         if zip.entries.size > 1_500 || zip.entries.sum(&:size) > 30.megabytes
           raise InvalidFile, "Planilha muito grande. Utilize um arquivo com até #{MAX_ROWS} linhas."
@@ -47,26 +65,31 @@ module BolaCinco
         end
         sheet_rows = xml(zip, target).xpath("//*[local-name()='sheetData']/*[local-name()='row']")
         header = sheet_rows.find { |row| row["r"] == "1" }
-        unless header && normalized_headers(cells(header, strings)).first(HEADERS.length) == HEADERS
-          raise InvalidFile, "Cabeçalho inválido. Use as colunas equipe, numero, nome, RG, CPF e D.Nascimento."
+        raise InvalidFile, "A planilha precisa ter cabeçalhos na primeira linha." unless header
+
+        header_names = normalized_headers(cells(header, strings))
+        columns = HEADER_ALIASES.transform_values do |aliases|
+          header_names.index { |name| aliases.include?(name) }
+        end
+        unless columns["athlete_name"] && (!require_team || columns["team_name"])
+          required = require_team ? "equipe e nome" : "nome"
+          raise InvalidFile, "Cabeçalho inválido. Inclua as colunas #{required}."
         end
 
         result = sheet_rows.filter_map do |row|
           next if row["r"].to_i <= 1
 
-          values = cells(row, strings)
+          values = cells(row, strings, birth_date_column: columns["birth_date"])
           next if values.all? { |value, error| value.blank? && error.blank? }
 
-          {
+          HEADER_ALIASES.keys.index_with do |field|
+            index = columns[field]
+            value = index ? values.dig(index, 0).to_s : ""
+            %w[rg cpf].include?(field) ? normalize_rg(value) : value
+          end.merge(
             "line" => row["r"].to_i,
-            "team_name" => values[0][0],
-            "shirt_number" => values[1][0],
-            "athlete_name" => values[2][0],
-            "rg" => values[3][0],
-            "cpf" => values[4][0],
-            "birth_date" => values[5][0],
-            "file_error" => values.filter_map(&:last).first
-          }
+            "file_error" => columns.values.compact.filter_map { |index| values.dig(index, 1) }.first
+          )
         end
 
         raise InvalidFile, "A planilha está vazia." if result.empty?
@@ -132,14 +155,15 @@ module BolaCinco
       end
     end
 
-    def cells(row, strings)
-      values = Array.new(6) { ["", nil] }
+    def cells(row, strings, birth_date_column: nil)
+      values = []
       is_header_row = row["r"].to_i <= 1
 
       row.xpath("./*[local-name()='c']").each do |cell|
-        column = cell["r"].to_s[/\A[A-Z]+/]
-        index = %w[A B C D E F].index(column)
-        next unless index
+        column = cell["r"].to_s[/\A[A-Z]{1,3}/]
+        next unless column
+        index = column.each_char.reduce(0) { |number, letter| number * 26 + letter.ord - "A".ord + 1 } - 1
+        next if index >= MAX_COLUMNS
 
         if cell.at_xpath("./*[local-name()='f']") || cell["t"] == "e"
           values[index] = ["", "Substitua fórmulas ou erros por texto simples."]
@@ -157,10 +181,10 @@ module BolaCinco
         end
 
         value = value.to_s.squish
-        value = parse_birth_date(value).to_s if index == 5 && value.present? && !is_header_row
+        value = parse_birth_date(value).to_s if index == birth_date_column && value.present? && !is_header_row
         values[index] = [value, nil]
       end
-      values
+      values.map { |value| value || ["", nil] }
     end
   end
 end

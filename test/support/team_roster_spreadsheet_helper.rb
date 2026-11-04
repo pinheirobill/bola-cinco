@@ -1,5 +1,6 @@
 require "zip"
 require "tempfile"
+require "rack/test"
 
 module TeamRosterSpreadsheetHelper
   def roster_spreadsheet_upload(rows, headers: %w[equipe numero nome RG CPF D.Nascimento], shared: false)
@@ -33,8 +34,7 @@ module TeamRosterSpreadsheetHelper
     file.write(buffer.string)
     file.rewind
     (@spreadsheet_files ||= []) << file
-    ActionDispatch::Http::UploadedFile.new(tempfile: file, filename: "equipes.xlsx",
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    Rack::Test::UploadedFile.new(file.path, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", true)
   end
 
   def cleanup_spreadsheets

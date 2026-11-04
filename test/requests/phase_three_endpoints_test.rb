@@ -195,6 +195,43 @@ class PhaseThreeEndpointsTest < ActionDispatch::IntegrationTest
     refute_includes team_b.reload.athletes, athlete
   end
 
+  test "creates and links an athlete inline with only name and email" do
+    team = Team.create!(source_id: "team-phase-three-inline", entity: @entity, category: @category, name: "Time inline")
+
+    assert_difference ["Athlete.count", "TeamAthlete.count"], 1 do
+      post team_team_athletes_path(team), params: {
+        team_athlete: {
+          athlete: {
+            name: "Marina Inline",
+            email: "marina@example.test",
+            team_id: -1,
+            category_id: -1,
+            source_id: "forged-athlete-id"
+          }
+        }
+      }
+    end
+
+    assert_redirected_to team_path(team)
+    athlete = Athlete.find_by!(name: "Marina Inline")
+    assert_equal "marina@example.test", athlete.email
+    assert_equal team.id, athlete.team_id
+    assert_equal @category.id, athlete.category_id
+    refute_equal "forged-athlete-id", athlete.source_id
+    assert TeamAthlete.exists?(team: team, athlete: athlete)
+  end
+
+  test "does not allow users without team access to create inline athletes" do
+    team = Team.create!(source_id: "team-phase-three-inline-blocked", entity: @entity, category: @category, name: "Time protegido")
+    sign_in users(:two)
+
+    assert_no_difference "Athlete.count" do
+      post team_team_athletes_path(team), params: { team_athlete: { athlete: { name: "Sem acesso", email: "no@example.test" } } }
+    end
+
+    assert_response :forbidden
+  end
+
   test "links multiple athletes at once to a team" do
     primary_team = Team.create!(
       source_id: "team-phase-three-5-primary",

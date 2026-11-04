@@ -2,6 +2,12 @@ class TeamAthletesController < ApplicationController
   def create
     return forbidden! unless scoped_team.manageable_by?(current_user)
 
+    submitted_athlete = params.fetch(:team_athlete, ActionController::Parameters.new)[:athlete]
+    if submitted_athlete.present?
+      attributes = params.expect(team_athlete: { athlete: [:name, :email] })[:athlete]
+      return create_athlete(attributes)
+    end
+
     created = []
     skipped = []
 
@@ -43,6 +49,33 @@ class TeamAthletesController < ApplicationController
   end
 
   private
+
+  def create_athlete(attributes)
+    championship = scoped_team.championship || scoped_team.category.championship || scoped_team.category.championships.first
+    if !current_user.admin? && (championship.blank? || !championship.athlete_registration_open? || championship.athlete_limit_reached_for?(scoped_team))
+      return redirect_to team_path(scoped_team), alert: "O cadastro de atletas está fechado ou a equipe atingiu o limite."
+    end
+
+    athlete = Athlete.new(
+      source_id: default_source_id("athlete"),
+      team: scoped_team,
+      category: scoped_team.category,
+      name: attributes[:name].to_s.squish,
+      email: attributes[:email].to_s.strip.presence,
+      status: :pendente,
+      registration_submitted_at: Time.current
+    )
+
+    if athlete.save
+      record = scoped_team.team_athletes.find_or_create_by!(athlete: athlete) do |link|
+        link.source_id = "team-athlete-#{scoped_team.id}-#{athlete.id}"
+      end
+      sync_tranca_dupla_membership_from_team_athlete(record) if scoped_team.championship&.tranca?
+      redirect_to team_path(scoped_team), notice: "Atleta cadastrado e vinculado à equipe."
+    else
+      redirect_to team_path(scoped_team), alert: athlete.errors.full_messages.to_sentence
+    end
+  end
 
   def scoped_team
     @scoped_team ||= Team.find(params[:team_id])

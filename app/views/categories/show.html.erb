@@ -31,6 +31,7 @@
   subtitle: @category.championships.map(&:name).presence&.join(" · ") || @category.championship_name || "Categoria compartilhada",
   badge: "#{@category.teams.size} equipes",
   actions: [
+    (@team_import_championship && @category.teams.any? ? link_to("Importar Excel", new_championship_team_import_path(@team_import_championship, category_id: @category.id, return_to_category: "1"), class: "btn btn-outline") : nil),
     (current_user&.admin? && current_championship.present? ? button_to("Duplicar como nova", duplicate_category_path(@category), method: :post, class: "btn btn-primary", data: { turbo_confirm: "Criar uma cópia disponível para vinculação?" }) : nil)
   ],
   title_editor: title_editor
@@ -68,7 +69,8 @@
   <% else %>
     <%= empty_state(
       title: "Nenhuma equipe nesta categoria",
-      description: "Quando a categoria receber equipes, elas vão aparecer nesta tabela."
+      description: "Importe uma planilha com equipes e atletas para começar. Cada linha da planilha representa um atleta.",
+      action: (@team_import_championship ? link_to("Importar equipes e atletas do Excel", new_championship_team_import_path(@team_import_championship, category_id: @category.id, return_to_category: "1"), class: "btn btn-primary") : nil)
     ) %>
   <% end %>
 <% end %>

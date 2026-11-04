@@ -7,6 +7,10 @@ class CategoriesController < ApplicationController
 
   def show
     @category = scoped_categories.includes(:championship, :championships, teams: :entity, matches: %i[team_a team_b winner], standing_rows: :team).find(params[:id])
+    manageable_championships = (@category.championships.to_a + [@category.championship].compact).uniq.select do |championship|
+      !championship.tranca? && championship.manageable_by?(current_user)
+    end
+    @team_import_championship = manageable_championships.find { |championship| championship.id == current_championship&.id } || manageable_championships.first
   end
 
   def update

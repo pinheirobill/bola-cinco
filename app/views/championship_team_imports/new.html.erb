@@ -1,24 +1,37 @@
-<% content_for :title, "#{@championship.name} | Importar equipes | Arena" %>
+<% import_title = @target_team ? "Importar atletas" : "Importar equipes e atletas" %>
+<% content_for :title, "#{@championship.name} | #{import_title} | Arena" %>
 
 <%= page_header(
-  title: "Importar equipes",
-  subtitle: @championship.name,
-  actions: [link_to("Voltar ao campeonato", championship_path(@championship), class: "btn btn-outline")]
+  title: import_title,
+  subtitle: @target_team ? "#{@championship.name} · #{@category.name} · #{@target_team.name}" : @championship.name,
+  actions: [
+    (@target_team ? link_to("Voltar à equipe", team_path(@target_team), class: "btn btn-outline") : nil),
+    (!@target_team && @return_to_category && @category ? link_to("Voltar à categoria", category_path(@category), class: "btn btn-outline") : nil),
+    (!@target_team && !@return_to_category ? link_to("Voltar ao campeonato", championship_path(@championship), class: "btn btn-outline") : nil)
+  ].compact
 ) %>
 
 <section class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-  <%= surface_card(title: "1. Formato da planilha", subtitle: "Use o modelo do Excel da equipe para importar várias equipes de uma vez.") do %>
+  <%= surface_card(title: "1. Formato da planilha", subtitle: @target_team ? "Uma linha por atleta desta equipe." : "Uma linha por atleta. Linhas com o mesmo nome de equipe ficam juntas.") do %>
     <p class="text-base-content/70">
-      A planilha precisa ter as colunas <strong>equipe</strong>, <strong>numero</strong>, <strong>nome</strong>, <strong>RG</strong>, <strong>CPF</strong> e <strong>D.Nascimento</strong>.
-      Cada linha vira um atleta. Linhas com o mesmo nome de equipe entram no mesmo time.
+      Inclua a coluna obrigatória <strong>nome</strong><%= " e equipe" unless @target_team %>. Os demais dados são opcionais: <strong>numero</strong>, <strong>RG</strong>, <strong>CPF</strong>, <strong>D.Nascimento</strong>, <strong>email</strong>, <strong>celular</strong>, <strong>certidão de nascimento</strong>, <strong>posição</strong>, <strong>passaporte</strong>, <strong>título de eleitor</strong>, <strong>gênero</strong> e <strong>documento</strong>.
     </p>
     <div class="mt-4 rounded-2xl bg-base-200 p-4 text-sm text-base-content/70">
-      <p><strong>Regra de vínculo:</strong> se houver RG, o atleta já cadastrado é reaproveitado. Se só houver nome, um novo atleta é criado.</p>
+      <p><strong>Formato:</strong> envie um arquivo .xlsx de até 5 MB. Se houver RG, o sistema reaproveita o cadastro existente<%= @target_team ? " nesta equipe" : "" %>. Campos preenchidos não são sobrescritos.</p>
     </div>
   <% end %>
 
-  <%= surface_card(title: "2. Enviar planilha", subtitle: "A importação cria as equipes e os atletas de forma automática.") do %>
+  <%= surface_card(title: "2. Importar planilha", subtitle: @target_team ? "Os atletas serão adicionados a #{@target_team.name}." : "A importação cria as equipes e os atletas de forma automática.") do %>
     <%= form_with url: championship_team_import_path(@championship), scope: :team_import, multipart: true, data: { turbo: false }, class: "space-y-5" do |form| %>
+      <%= form.hidden_field :return_to_category, value: @return_to_category ? "1" : "0" %>
+      <% if @target_team %>
+        <%= form.hidden_field :team_id, value: @target_team.id %>
+        <%= form.hidden_field :category_id, value: @category.id %>
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4 text-sm">
+          <p class="font-semibold"><%= @target_team.name %></p>
+          <p class="text-base-content/65"><%= @category.name %></p>
+        </div>
+      <% else %>
       <div class="form-control gap-2">
         <%= form.label :category_id, "Categoria do campeonato", class: "label-text font-medium" %>
         <%= form.select :category_id,
@@ -28,11 +41,12 @@
               required: true,
               disabled: @categories.blank? %>
       </div>
+      <% end %>
 
       <div class="form-control gap-2">
-        <%= form.label :file, "Planilha de equipes (.xlsx)", class: "label-text font-medium" %>
+        <%= form.label :file, "Planilha de atletas (.xlsx)", class: "label-text font-medium" %>
         <%= form.file_field :file, accept: ".xlsx", required: @categories.any?, class: "file-input file-input-bordered w-full", disabled: @categories.blank? %>
-        <p class="text-sm text-base-content/60">Use a aba "Atletas" e mantenha os cabeçalhos do modelo do Excel.</p>
+        <p class="text-sm text-base-content/60"><%= @target_team ? "Cada linha será cadastrada nesta equipe. As outras colunas opcionais podem ser omitidas." : "A coluna equipe define em qual equipe cada atleta será cadastrado. As outras colunas opcionais podem ser omitidas." %></p>
       </div>
 
       <% if @categories.any? %>

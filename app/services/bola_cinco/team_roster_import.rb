@@ -6,13 +6,17 @@ module BolaCinco
 
     attr_reader :championship, :category, :rows
 
-    def initialize(championship:, category:, rows:)
+    def initialize(championship:, category:, rows:, target_team: nil)
       @championship = championship
       @category = category
-      @rows = rows
+      @rows = normalize_rows(rows)
+      @target_team = target_team
 
-      unless championship.is_a?(Championship) && category.is_a?(Category) && category.championship_id == championship.id
+      unless championship.is_a?(Championship) && category.is_a?(Category) && championship.categories.exists?(id: category.id)
         raise InvalidImport, "Selecione uma categoria deste campeonato."
+      end
+      if target_team.present? && (target_team.category_id != category.id || !championship.teams.exists?(id: target_team.id))
+        raise InvalidImport, "Selecione uma equipe desta categoria e campeonato."
       end
       raise InvalidImport, "Quantidade de linhas inválida." unless rows.is_a?(Array) && rows.any? && rows.size <= TeamRosterSpreadsheet::MAX_ROWS
     end
@@ -24,12 +28,13 @@ module BolaCinco
       end
     end
 
-    def call
+    def call(max_athletes_per_team: nil)
       result = nil
       championship.with_lock do
         result = preview
         errors = result.select { |entry| entry[:error].present? }
         raise InvalidImport, errors.map { |entry| "Linha #{entry[:line]}: #{entry[:error]}" }.join(" · ") if errors.any?
+        enforce_target_team_limit!(result, max_athletes_per_team)
 
         result.each { |entry| register_team!(entry) }
       end
@@ -38,16 +43,52 @@ module BolaCinco
 
     private
 
+    def normalize_rows(source_rows)
+      return source_rows unless source_rows.is_a?(Array)
+
+      source_rows.each_with_index.map do |row, index|
+        next row if row.is_a?(Hash)
+
+        values = Array(row)
+        {
+          "line" => index + 2,
+          "team_name" => values[0],
+          "shirt_number" => values[1],
+          "athlete_name" => values[2],
+          "rg" => values[3],
+          "cpf" => values[4],
+          "birth_date" => values[5],
+          "email" => values[6],
+          "cell_phone" => values[7],
+          "birth_certificate" => values[8],
+          "position" => values[9],
+          "passport" => values[10],
+          "voter_id" => values[11],
+          "gender" => values[12],
+          "document" => values[13]
+        }
+      end
+    end
+
     def grouped_rows
+      return { normalize(@target_team.name) => rows } if @target_team
+
       rows.group_by { |row| normalize(row["team_name"]) }
+    end
+
+    def enforce_target_team_limit!(result, limit)
+      return if @target_team.blank? || limit.to_i <= 0
+
+      total = @target_team.athletes.count + result.sum { |entry| entry[:created_athletes].to_i }
+      raise InvalidImport, "A planilha ultrapassa o limite de #{limit} atletas para esta equipe." if total > limit.to_i
     end
 
     def preview_team(team_rows)
       first_row = team_rows.first
-      team_name = first_row["team_name"].to_s.squish
+      team_name = (@target_team&.name || first_row["team_name"]).to_s.squish
       team_signature = team_signature_for(team_name, team_rows)
-      team_source_id = team_source_id_for(team_signature)
-      team = Team.find_by(source_id: team_source_id)
+      team_source_id = @target_team&.source_id || team_source_id_for(team_signature)
+      team = @target_team || Team.find_by(source_id: team_source_id)
       team_error = nil
       team_error ||= "Informe o nome da equipe." if team_name.blank?
 
@@ -72,8 +113,8 @@ module BolaCinco
 
     def preview_athlete(team_signature, row)
       athlete_name = row["athlete_name"].to_s.squish
-      rg = row["rg"].to_s.squish
-      cpf = row["cpf"].to_s.squish
+      rg = normalize_document(row["rg"])
+      cpf = normalize_document(row["cpf"])
       shirt_number = row["shirt_number"].to_s.squish
       birth_date = parse_birth_date(row["birth_date"])
       error = row["file_error"].presence
@@ -88,6 +129,14 @@ module BolaCinco
         cpf: cpf,
         shirt_number: shirt_number,
         birth_date: birth_date,
+        email: row["email"].to_s.squish,
+        cell_phone: row["cell_phone"].to_s.squish,
+        birth_certificate: row["birth_certificate"].to_s.squish,
+        position: row["position"].to_s.squish,
+        passport: row["passport"].to_s.squish,
+        voter_id: row["voter_id"].to_s.squish,
+        gender: row["gender"].to_s.squish,
+        document: row["document"].to_s.squish,
         team_signature: team_signature,
         athlete: athlete,
         action: action,
@@ -96,16 +145,18 @@ module BolaCinco
     end
 
     def register_team!(entry)
-      team = Team.find_or_initialize_by(source_id: entry[:team_source_id])
-      team.assign_attributes(
-        entity: entity_for(entry),
-        category: category,
-        name: entry[:team_name],
-        short_name: entry[:team_name].truncate(40),
-        registration_status: :aprovada,
-        finance_status: :pendente
-      )
-      team.save!
+      team = @target_team || Team.find_or_initialize_by(source_id: entry[:team_source_id])
+      unless @target_team
+        team.assign_attributes(
+          entity: entity_for(entry),
+          category: category,
+          name: entry[:team_name],
+          short_name: entry[:team_name].truncate(40),
+          registration_status: :aprovada,
+          finance_status: :pendente
+        )
+        team.save!
+      end
 
       entry[:athletes].each do |athlete_entry|
         register_athlete!(team, athlete_entry)
@@ -122,6 +173,14 @@ module BolaCinco
         rg: athlete.rg.presence || entry[:rg],
         cpf: athlete.cpf.presence || entry[:cpf],
         birth_date: athlete.birth_date || entry[:birth_date],
+        email: athlete.email.presence || entry[:email],
+        cell_phone: athlete.cell_phone.presence || entry[:cell_phone],
+        birth_certificate: athlete.birth_certificate.presence || entry[:birth_certificate],
+        position: athlete.position.presence || entry[:position],
+        passport: athlete.passport.presence || entry[:passport],
+        voter_id: athlete.voter_id.presence || entry[:voter_id],
+        gender: athlete.gender.presence || entry[:gender],
+        document: athlete.document.presence || entry[:document],
         status: athlete.status || :pendente,
         registration_submitted_at: athlete.registration_submitted_at || Time.current
       )
@@ -143,7 +202,8 @@ module BolaCinco
     end
 
     def load_existing_athletes
-      @existing_athletes ||= Athlete.where.not(rg: [ nil, "" ]).includes(:team, :category).to_a
+      scope = @target_team ? @target_team.athletes : Athlete
+      @existing_athletes ||= scope.where.not(rg: [ nil, "" ]).includes(:team, :category).to_a
     end
 
     def entity_for(entry)

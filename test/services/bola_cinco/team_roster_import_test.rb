@@ -80,9 +80,64 @@ class BolaCinco::TeamRosterImportTest < ActiveSupport::TestCase
     end
   end
 
+  test "imports optional athlete registration fields" do
+    headers = %w[equipe nome email celular certidao_de_nascimento posicao passaporte titulo_de_eleitor genero documento]
+    rows = ["Equipe Delta", "Marina Souza", "marina@example.test", "11999999999", "cert-1", "Defesa", "pass-1", "titulo-1", "feminino", "doc-1"]
+    spreadsheet = roster_spreadsheet_upload([rows], headers: headers)
+    parsed_rows = BolaCinco::TeamRosterSpreadsheet.read(spreadsheet)
+
+    service(parsed_rows).call
+    athlete = @category.athletes.find_by!(name: "Marina Souza")
+
+    assert_equal "marina@example.test", athlete.email
+    assert_equal "11999999999", athlete.cell_phone
+    assert_equal "cert-1", athlete.birth_certificate
+    assert_equal "Defesa", athlete.position
+    assert_equal "pass-1", athlete.passport
+    assert_equal "titulo-1", athlete.voter_id
+    assert_equal "feminino", athlete.gender
+    assert_equal "doc-1", athlete.document
+  end
+
+  test "accepts a category shared with the selected championship" do
+    shared_championship = Championship.create!(source_id: SecureRandom.uuid, name: "Outro campeonato", season: 2026, modality: :football)
+    @category.championship_categories.create!(source_id: SecureRandom.uuid, championship: shared_championship)
+
+    assert_difference "Team.count", 1 do
+      service([["Equipe Compartilhada", "8", "Lucas Silva", "", "", ""]], championship: shared_championship).call
+    end
+  end
+
+  test "imports an athlete roster into an existing team without moving a matching rg from another team" do
+    target_team = create_team("Equipe Alvo")
+    external_category = Category.create!(source_id: SecureRandom.uuid, championship: Championship.create!(source_id: SecureRandom.uuid, name: "Externo", season: 2026), name: "Outra categoria")
+    external_team = create_team("Equipe Externa", category: external_category)
+    external_athlete = Athlete.create!(source_id: SecureRandom.uuid, team: external_team, category: external_category, name: "Carlos Silva", rg: "123456")
+    rows = [{ "line" => 2, "athlete_name" => "Carlos Silva", "rg" => "123.456", "email" => "carlos@example.test" }]
+
+    assert_difference "Athlete.count", 1 do
+      BolaCinco::TeamRosterImport.new(championship: @championship, category: @category, target_team: target_team, rows: rows).call
+    end
+
+    imported_athlete = target_team.athletes.find_by!(rg: "123456")
+    assert_equal "carlos@example.test", imported_athlete.email
+    assert_equal external_team.id, external_athlete.reload.team_id
+  end
+
   private
 
-  def service(rows)
-    BolaCinco::TeamRosterImport.new(championship: @championship, category: @category, rows: rows)
+  def service(rows, championship: @championship)
+    BolaCinco::TeamRosterImport.new(championship: championship, category: @category, rows: rows)
+  end
+
+  def create_team(name, category: @category)
+    Team.create!(
+      source_id: SecureRandom.uuid,
+      entity: Entity.create!(source_id: SecureRandom.uuid, name: name),
+      category: category,
+      name: name,
+      registration_status: :aprovada,
+      finance_status: :pendente
+    )
   end
 end

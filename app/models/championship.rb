@@ -21,6 +21,9 @@ class Championship < ApplicationRecord
     "tranca" => "Tranca"
   }.freeze
 
+  # The slug migration loads this model before the modality column exists.
+  attribute :modality, :string
+
   COMPETITION_MODES = {
     "pontuacao" => "Pontuação por chaves",
     "mata_mata" => "Mata-mata eliminatório",

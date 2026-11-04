@@ -6,7 +6,7 @@ class TeamsController < ApplicationController
   end
 
   def show
-    @team = scoped_teams.includes(:entity, category: :championships, athletes: [], team_athletes: :athlete, home_matches: %i[category team_a team_b winner], away_matches: %i[category team_a team_b winner], standing_rows: :championship).find(params[:id])
+    @team = scoped_teams.includes(:entity, category: [:championship, :championships], athletes: [], team_athletes: :athlete, home_matches: %i[category team_a team_b winner], away_matches: %i[category team_a team_b winner], standing_rows: :championship).find(params[:id])
     @team_athletes = @team.team_athletes.includes(athlete: [:team, :linked_teams]).order(created_at: :desc)
     @team_athlete_ids = @team.athletes.map(&:id)
     @available_athletes = available_athletes_for(@team).sort_by do |athlete|
@@ -14,6 +14,8 @@ class TeamsController < ApplicationController
     end
     @available_teams = Team.includes(:category).order(:name)
     @team_championships = @team.category.championships.order(season: :desc, created_at: :desc)
+    import_championships = (@team_championships.to_a + [@team.category.championship].compact).uniq.reject(&:tranca?)
+    @team_import_championship = import_championships.find { |championship| championship.id == current_championship&.id } || import_championships.first
     public_championships = @team_championships.where.not(status: :rascunho)
     @team_stats_championship = public_championships.find_by(id: current_championship&.id) || public_championships.first
     @team_standing_row = if @team_stats_championship.present?

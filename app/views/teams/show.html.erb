@@ -12,6 +12,7 @@
   badge: "Equipe",
   actions: [
     (@team.manageable_by?(current_user) ? link_to("Editar equipe", edit_team_path(@team), class: "btn btn-outline") : nil),
+    (@team.manageable_by?(current_user) && @team_import_championship && (current_user.admin? || (@team_import_championship.athlete_registration_open? && !@team_import_championship.athlete_limit_reached_for?(@team))) ? link_to("Importar atletas", new_championship_team_import_path(@team_import_championship, category_id: @team.category_id, team_id: @team.id), class: "btn btn-outline") : nil),
     (current_user&.admin? && @team.registration_status_pendente? ? button_to("Confirmar inscrição", confirm_registration_team_path(@team), method: :patch, class: "btn btn-primary", data: { turbo_confirm: "Confirmar a inscrição desta equipe?" }) : nil),
     (current_user&.admin? && @team.registration_status_pendente? ? button_to("Rejeitar inscrição", reject_registration_team_path(@team), method: :patch, class: "btn btn-outline btn-error", data: { turbo_confirm: "Rejeitar a inscrição desta equipe?" }) : nil)
   ].compact
@@ -140,6 +141,28 @@
           title: "Nenhum atleta vinculado",
           description: "Os atletas desta equipe aparecerão aqui quando forem cadastrados."
         ) %>
+      <% end %>
+
+      <% team_championship = @team.championship || @team.category.championship || @team.category.championships.first %>
+      <% can_create_athlete = can_manage_athletes && (current_user&.admin? || (team_championship&.athlete_registration_open? && !team_championship.athlete_limit_reached_for?(@team))) %>
+      <% if can_create_athlete %>
+        <details class="rounded-2xl border border-base-300 bg-base-100">
+          <summary class="cursor-pointer px-4 py-3 font-semibold">Cadastrar atleta rapidamente</summary>
+          <div class="border-t border-base-300 p-4">
+            <p class="mb-3 text-sm text-base-content/65">Cadastre um atleta com os dados essenciais. Você pode completar o cadastro depois.</p>
+            <%= form_with url: team_team_athletes_path(@team), scope: :team_athlete, class: "grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end" do %>
+              <div class="form-control gap-2">
+                <%= label_tag "team_athlete_athlete_name", "Nome", class: "label-text font-medium" %>
+                <%= text_field_tag "team_athlete[athlete][name]", nil, id: "team_athlete_athlete_name", class: "input input-bordered w-full", required: true, autocomplete: "name" %>
+              </div>
+              <div class="form-control gap-2">
+                <%= label_tag "team_athlete_athlete_email", "E-mail", class: "label-text font-medium" %>
+                <%= email_field_tag "team_athlete[athlete][email]", nil, id: "team_athlete_athlete_email", class: "input input-bordered w-full", autocomplete: "email" %>
+              </div>
+              <%= submit_tag "Cadastrar atleta", class: "btn btn-primary" %>
+            <% end %>
+          </div>
+        </details>
       <% end %>
     </div>
   <% end %>
