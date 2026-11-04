@@ -73,7 +73,7 @@ class User < ApplicationRecord
     dono_da_quadra: "dono_da_quadra",
     tecnico_do_time: "tecnico_do_time",
     jogador_do_time: "jogador_do_time"
-  }, default: :adm_master
+  }, default: :jogador_do_time
 
   validates :preferred_theme, inclusion: { in: THEMES.keys }
 

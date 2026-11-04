@@ -1,5 +1,7 @@
 class MatchParticipationsController < ApplicationController
   def create
+    return head :forbidden unless current_user.can_manage_championship?(match.championship)
+
     if batch_selected_athlete_ids.any?
       create_participations_from_selection
     else
@@ -10,13 +12,20 @@ class MatchParticipationsController < ApplicationController
 
   def update
     record = match_participation
+    return head :forbidden unless authorized_to_manage_participation?(record)
+    return head :not_found if params[:match_id].present? && record.match_id != params[:match_id].to_i
+
     record.assign_attributes(match_participation_params)
     save_match_participation(record, notice: "Participação atualizada.")
   end
 
   def destroy
-    match_participation.destroy!
-    redirect_to return_path(match_participation.match), notice: "Participação removida."
+    record = match_participation
+    return head :forbidden unless authorized_to_manage_participation?(record)
+    return head :not_found if params[:match_id].present? && record.match_id != params[:match_id].to_i
+
+    record.destroy!
+    redirect_to return_path(record.match), notice: "Participação removida."
   end
 
   private
@@ -27,6 +36,10 @@ class MatchParticipationsController < ApplicationController
 
   def match_participation
     @match_participation ||= MatchParticipation.find(params[:id])
+  end
+
+  def authorized_to_manage_participation?(record)
+    current_user.can_manage_championship?(record.match.championship)
   end
 
   def match_participation_params

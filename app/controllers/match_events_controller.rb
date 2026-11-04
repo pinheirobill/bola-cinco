@@ -69,6 +69,8 @@ class MatchEventsController < ApplicationController
 
   def create
     record = match_event_scope.new(match_event_params)
+    return head :forbidden unless authorized_to_manage_event?(record)
+
     record.source_id = default_source_id("event") if record.source_id.blank?
 
     MatchEvent.transaction do
@@ -101,6 +103,8 @@ class MatchEventsController < ApplicationController
   end
 
   def update
+    return head :forbidden unless authorized_to_manage_event?(match_event)
+
     if html_form_submission?
       if match_event.update(match_event_params)
         redirect_to match_event_path(match_event), notice: "Evento atualizado."
@@ -116,6 +120,8 @@ class MatchEventsController < ApplicationController
   end
 
   def destroy
+    return head :forbidden unless authorized_to_manage_event?(match_event)
+
     match_event.destroy!
 
     return redirect_to return_path_for(match_event), notice: "Evento removido." if html_form_submission?
@@ -286,7 +292,12 @@ class MatchEventsController < ApplicationController
     return match.match_events if match.present?
     return scoped_championship.match_events if params[:championship_id].present?
 
-    MatchEvent.all
+    MatchEvent.none
+  end
+
+  def authorized_to_manage_event?(event)
+    championship = event.championship || (event.match&.championship)
+    championship.present? && current_user.can_manage_championship?(championship)
   end
 
   def scoped_championship

@@ -87,4 +87,32 @@ class MatchParticipationsTest < ActionDispatch::IntegrationTest
     assert_equal "ausente", JSON.parse(response.body)["status"]
     assert_equal "ausente", @participation.reload.status
   end
+
+  test "a signed-in user without championship access cannot update or delete participation" do
+    sign_out @user
+    sign_in users(:two)
+
+    patch match_participation_path(@participation),
+      params: { autosave: "1", match_participation: { status: "confirmado" } },
+      as: :json
+
+    assert_response :forbidden
+    assert_equal "pendente", @participation.reload.status
+
+    delete match_participation_path(@participation)
+    assert_response :forbidden
+    assert MatchParticipation.exists?(@participation.id)
+  end
+
+  test "a signed-in user without championship access cannot create participation" do
+    sign_out @user
+    sign_in users(:two)
+
+    post match_match_participations_path(@match), params: {
+      match_participation: { team_id: @team.id, athlete_name: "Invadido", status: "confirmado" }
+    }
+
+    assert_response :forbidden
+    assert_not MatchParticipation.exists?(athlete_name: "Invadido")
+  end
 end

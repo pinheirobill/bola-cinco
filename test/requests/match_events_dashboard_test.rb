@@ -199,4 +199,30 @@ class MatchEventsDashboardTest < ActionDispatch::IntegrationTest
     refute_includes response.body, @athlete_b.name
     refute_includes response.body, "Setembro 2026"
   end
+
+  test "a signed-in user without championship access cannot mutate its match events" do
+    event = MatchEvent.find_by!(source_id: "event-events-a")
+    sign_out users(:one)
+    sign_in users(:two)
+
+    patch match_event_path(event), params: { match_event: { notes: "alterado" } }, as: :json
+    assert_response :forbidden
+    assert_equal "Gol de abertura", event.reload.notes
+
+    delete match_event_path(event), as: :json
+    assert_response :forbidden
+    assert MatchEvent.exists?(event.id)
+  end
+
+  test "a signed-in user without championship access cannot create match events" do
+    sign_out users(:one)
+    sign_in users(:two)
+
+    post match_match_events_path(@match_a), params: {
+      match_event: { kind: "gol", team_id: @team_a.id, notes: "não autorizado" }
+    }, as: :json
+
+    assert_response :forbidden
+    assert_not MatchEvent.exists?(notes: "não autorizado")
+  end
 end
