@@ -12,6 +12,11 @@ class ChampionshipFormatModeTest < ApplicationSystemTestCase
       name: "Campeonato System Format",
       season: 2026
     )
+    @category = Category.create!(
+      source_id: "category-system-format-#{@suffix}",
+      championship: @championship,
+      name: "Mirim"
+    )
 
     @championship.update!(
       format: {
@@ -33,8 +38,21 @@ class ChampionshipFormatModeTest < ApplicationSystemTestCase
 
     click_button "Fase de grupos + mata-mata"
 
-    assert_text "Campeonato atualizado."
     assert_equal "grupos_mata_mata", @championship.reload.format_data["mode"]
+  end
+
+  test "persists category-specific formats and cross-group scheduling" do
+    visit setup_championship_path(@championship, step: "format")
+
+    select "Pontuação / todos contra todos", from: "championship_format_categoryFormats_#{@category.id}_mode"
+    fill_in "championship_format_categoryFormats_#{@category.id}_groupCount", with: 2
+    select "Uma chave contra a outra", from: "championship_format_categoryFormats_#{@category.id}_schedule"
+
+    assert_text "Salvo"
+    saved_format = @championship.reload.format_data.dig("categoryFormats", @category.id.to_s)
+    assert_equal "pontuacao", saved_format["mode"]
+    assert_equal "2", saved_format["groupCount"]
+    assert_equal "cross_groups", saved_format["schedule"]
   end
 
   test "shows the expected match count explanation" do

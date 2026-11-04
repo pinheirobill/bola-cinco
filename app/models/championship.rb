@@ -121,6 +121,35 @@ class Championship < ApplicationRecord
     default_format.deep_merge(format.presence || {})
   end
 
+  # Competition rules can vary by category while older championships continue
+  # to inherit the championship-wide defaults.
+  def format_for(category)
+    overrides = format_data.fetch("categoryFormats", {})
+    format_data.except("categoryFormats").deep_merge(overrides.fetch(category.id.to_s, {}).to_h)
+  end
+
+  def mode_for(category)
+    format_for(category)["mode"].to_s.presence || format_data["mode"].to_s
+  end
+
+  def groups_mode_for?(category)
+    mode_for(category).in?(%w[pontuacao grupos_mata_mata melhor_campanha_final])
+  end
+
+  def knockout_mode_for?(category)
+    mode_for(category) == "mata_mata"
+  end
+
+  def group_count_for(category)
+    value = format_for(category).fetch("groupCount", group_count).to_i
+    value.positive? ? value : 1
+  end
+
+  def matches_per_opponent_for(category)
+    value = format_for(category).fetch("matchesPerOpponent", matches_per_opponent).to_i
+    value.positive? ? value : 1
+  end
+
   def tiebreakers
     Array(scoring_data.fetch("tiebreakers", default_scoring.fetch("tiebreakers")))
   end
@@ -243,6 +272,11 @@ class Championship < ApplicationRecord
 
     configured_value = scoring["qualifiedPerGroup"] || format["qualifiedPerGroup"] || default_scoring.fetch("qualifiedPerGroup")
     configured_value.to_i.clamp(1, 16)
+  end
+
+  def qualified_per_group_for(category)
+    configured = format_data.dig("categoryFormats", category.id.to_s, "qualifiedPerGroup")
+    (configured.presence || format_data["qualifiedPerGroup"] || scoring_data["qualifiedPerGroup"]).to_i.clamp(1, 16)
   end
 
   def group_count
@@ -599,7 +633,7 @@ class Championship < ApplicationRecord
               goals_against: stats[:goals_against],
               goal_diff: stats[:goal_diff],
               points: stats[:points],
-              qualified: group_stage_and_knockout_mode? ? index < qualified_per_group : nil
+              qualified: mode_for(category) == "grupos_mata_mata" ? index < qualified_per_group_for(category) : nil
             )
           end
         end
@@ -611,13 +645,13 @@ class Championship < ApplicationRecord
   end
 
   def advance_group_stage_knockout_from!(match)
-    return unless group_stage_and_knockout_mode?
+    return unless mode_for(match.category).in?(%w[grupos_mata_mata melhor_campanha_final])
     return unless match.classification_phase?
     return unless match.status_finalizado? || match.status_wo?
     return unless group_stage_complete_for?(match.category)
     return if matches.where(category_id: match.category_id, phase: "mata_mata", round_number: 1).exists?
 
-    draw_group_stage_knockout_round_for!(match.category)
+    mode_for(match.category) == "melhor_campanha_final" ? draw_seeded_final_round_for!(match.category) : draw_group_stage_knockout_round_for!(match.category)
   end
 
   def advance_knockout_from!(match)
@@ -639,12 +673,13 @@ class Championship < ApplicationRecord
   end
 
   def draw_initial_knockout_round!
-    raise ArgumentError, "campeonato precisa estar em mata-mata" unless format_data["mode"].to_s == "mata_mata"
+    raise ArgumentError, "campeonato precisa ter categoria em mata-mata" unless categories.any? { |category| knockout_mode_for?(category) }
 
     created_matches = []
 
     transaction do
       categories.includes(:teams).find_each do |category|
+        next unless knockout_mode_for?(category)
         next if matches.where(category_id: category.id, phase: "mata_mata", round_number: 1).exists?
 
         shuffled_teams = participating_teams_for(category).shuffle
@@ -675,31 +710,61 @@ class Championship < ApplicationRecord
       disable_team_signups!
 
       created_matches =
-        if knockout_only_mode?
+        if categories.all? { |category| knockout_mode_for?(category) }
           draw_initial_knockout_round!
         else
           draw_initial_group_stage_round!
         end
 
       update!(status: :em_andamento) unless finalizado?
-      rebuild_standings! unless knockout_only_mode?
+      rebuild_standings! unless categories.all? { |category| knockout_mode_for?(category) }
       created_matches
     end
   end
 
   def draw_initial_group_stage_round!
-    raise ArgumentError, "campeonato precisa estar em pontuação ou grupos + mata-mata" if knockout_only_mode?
+    raise ArgumentError, "campeonato precisa ter categorias configuradas para classificação" if categories.none? { |category| groups_mode_for?(category) }
 
     created_matches = []
 
     transaction do
       categories.includes(:teams).find_each do |category|
+        if knockout_mode_for?(category)
+          next if matches.where(category_id: category.id, phase: "mata_mata", round_number: 1).exists?
+          participating_teams_for(category).shuffle.each_slice(2).with_index(1) do |pair, index|
+            next if pair.size < 2
+            created_matches << matches.create!(
+              source_id: knockout_match_source_id(category, index), category: category,
+              code: knockout_match_code(category, index), phase: "mata_mata", round_number: 1,
+              team_a: pair[0], team_b: pair[1], status: :agendado
+            )
+          end
+          next
+        end
+        next unless groups_mode_for?(category)
         next if classification_matches_for(category).any?
 
         participating_teams = participating_teams_for(category)
         next if participating_teams.size < 2
 
-        initial_group_assignments_for(participating_teams).each do |group_key, group_teams|
+        assignments = initial_group_assignments_for(participating_teams, category: category)
+        if format_for(category)["schedule"] == "cross_groups" && assignments.size > 1
+          cross_group_pairings(assignments).each_with_index do |(team_a, team_b), pair_index|
+            matches_per_opponent_for(category).times do |repetition_index|
+              repetition = repetition_index + 1
+              group_key = "Geral"
+              created_matches << matches.create!(
+                source_id: classification_match_source_id(category, group_key, team_a, team_b, repetition),
+                category: category, code: classification_match_code(category, group_key, team_a, team_b, repetition),
+                phase: "grupos", group_key: group_key, round_number: pair_index + 1,
+                team_a: team_a, team_b: team_b, status: :agendado
+              )
+            end
+          end
+          next
+        end
+
+        assignments.each do |group_key, group_teams|
           next if group_teams.size < 2
 
           if matches_per_team.positive?
@@ -724,7 +789,7 @@ class Championship < ApplicationRecord
             end
 
             pairings.each_with_index do |(team_a, team_b), pair_index|
-              matches_per_opponent.times do |repetition_index|
+              matches_per_opponent_for(category).times do |repetition_index|
                 repetition = repetition_index + 1
                 created_matches << matches.create!(
                   source_id: classification_match_source_id(category, group_key, team_a, team_b, repetition),
@@ -853,7 +918,7 @@ class Championship < ApplicationRecord
   end
 
   def draw_group_stage_knockout_round_for!(category)
-    raise ArgumentError, "campeonato precisa estar em grupos + mata-mata" unless group_stage_and_knockout_mode?
+    raise ArgumentError, "categoria precisa estar em grupos + mata-mata" unless mode_for(category) == "grupos_mata_mata"
     return [] unless group_stage_complete_for?(category)
     return [] if matches.where(category_id: category.id, phase: "mata_mata", round_number: 1).exists?
 
@@ -866,7 +931,7 @@ class Championship < ApplicationRecord
       group_standings.each_slice(2) do |left_group, right_group|
         next if right_group.blank?
 
-        pair_count = [qualified_per_group, left_group.rows.size, right_group.rows.size].min
+        pair_count = [qualified_per_group_for(category), left_group.rows.size, right_group.rows.size].min
         pair_count.times do |index|
           left_row = left_group.rows[index]
           right_row = right_group.rows[pair_count - 1 - index]
@@ -887,6 +952,23 @@ class Championship < ApplicationRecord
     end
 
     created_matches
+  end
+
+  def draw_seeded_final_round_for!(category)
+    return [] if matches.where(category: category, phase: "mata_mata", round_number: 1).exists?
+    rows = standing_rows.where(category: category).includes(:team).to_a
+      .group_by(&:group_key).values.max_by(&:size).to_a.sort_by(&:position).first(3)
+    return [] unless rows.size == 3
+
+    transaction do
+      semi = matches.create!(source_id: "seeded-semi-#{id}-#{category.id}", category: category,
+        code: "#{category.name.parameterize.upcase}-SEMI", phase: "mata_mata", round_number: 1,
+        team_a: rows[1].team, team_b: rows[2].team, status: :agendado)
+      matches.create!(source_id: "seeded-final-#{id}-#{category.id}", category: category,
+        code: "#{category.name.parameterize.upcase}-FINAL", phase: "mata_mata", round_number: 2,
+        team_a: rows[0].team, status: :agendado)
+      [semi]
+    end
   end
 
   def featured_partners(limit = 6)
@@ -1048,6 +1130,15 @@ class Championship < ApplicationRecord
       .sort_by { |round_number, _| round_number.to_i }
 
     return if rounds.size < 2
+
+    if category_matches.first&.category && mode_for(category_matches.first.category) == "melhor_campanha_final"
+      semi = rounds.first.last.first
+      final = rounds.second.last.first
+      winner = semi&.knockout_winner
+      return if final.blank? || winner.blank?
+      final.update_columns(team_b_id: winner.id, updated_at: Time.current) unless final.team_b_id == winner.id
+      return
+    end
 
     previous_winners = rounds.first.last.sort_by(&:id).map do |match|
       knockout_winner = match.knockout_winner
@@ -1214,16 +1305,17 @@ class Championship < ApplicationRecord
     approved_teams.presence || category.teams.to_a
   end
 
-  def initial_group_assignments_for(teams)
+  def initial_group_assignments_for(teams, category: nil)
     teams = Array(teams).sort_by { |team| team.name.to_s.downcase }
 
     if teams.any? { |team| team.group_key.present? }
       teams.group_by { |team| team.group_key.to_s.presence || "Geral" }.sort_by { |group_key, _| group_key.to_s.downcase }.to_h
     else
-      buckets = Array.new(group_count) { [] }
+      configured_group_count = category ? group_count_for(category) : group_count
+      buckets = Array.new(configured_group_count) { [] }
 
       teams.each_with_index do |team, index|
-        buckets[index % group_count] << team
+        buckets[index % configured_group_count] << team
       end
 
       buckets.each_with_index.each_with_object({}) do |(group_teams, index), hash|
@@ -1232,6 +1324,12 @@ class Championship < ApplicationRecord
         hash[group_label_for(index)] = group_teams
       end
     end
+  end
+
+  def cross_group_pairings(assignments)
+    keys = assignments.keys
+    return [] unless keys.size == 2
+    assignments.fetch(keys[0]).product(assignments.fetch(keys[1]))
   end
 
   def group_label_for(index)

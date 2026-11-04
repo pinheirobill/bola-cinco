@@ -121,7 +121,114 @@ class ChampionshipCompetitionModesTest < ActiveSupport::TestCase
     assert_equal ["A"], @championship.standing_rows.where(category: @category).pluck(:group_key).uniq
   end
 
+  test "uses category-specific cross-group matches and a single overall standings group" do
+    category, teams = create_category_with_teams("Pre Mirim", %w[P1 P2 P3 P4 P5 P6])
+    configure_category(category, "mode" => "pontuacao", "groupCount" => 2, "schedule" => "cross_groups")
+
+    @championship.finalize_registrations!
+    matches = @championship.matches.where(category: category, phase: "grupos")
+
+    assert_equal 9, matches.count
+    assert_equal ["Geral"], matches.distinct.pluck(:group_key)
+    matches.each do |match|
+      assert_not_equal teams.index(match.team_a).even?, teams.index(match.team_b).even?
+      match.update!(score_a: 1, score_b: 0, status: :finalizado)
+      match.sync_competition_state!
+    end
+
+    rows = @championship.standing_rows.where(category: category, group_key: "Geral").order(:position)
+    assert_equal teams.map(&:id).sort, rows.map(&:team_id).sort
+    assert_equal [3, 3, 3, 3, 3, 3], rows.map(&:played)
+    assert_equal [9, 9, 9, 0, 0, 0], rows.map(&:points).sort.reverse
+  end
+
+  test "creates all round-robin matches for a category with one group" do
+    category, = create_category_with_teams("Infantil", %w[I1 I2 I3 I4])
+    configure_category(category, "mode" => "pontuacao", "groupCount" => 1, "schedule" => "within_groups")
+
+    @championship.finalize_registrations!
+    matches = @championship.matches.where(category: category, phase: "grupos")
+
+    assert_equal 6, matches.count
+    assert_equal ["A"], matches.distinct.pluck(:group_key)
+  end
+
+  test "sends the best campaign directly to a final after the round robin" do
+    category, teams = create_category_with_teams("Juvenil", %w[J1 J2 J3])
+    configure_category(category, "mode" => "melhor_campanha_final", "groupCount" => 1)
+
+    @championship.finalize_registrations!
+    classification_matches = @championship.matches.where(category: category, phase: "grupos")
+    assert_equal 3, classification_matches.count
+
+    classification_matches.each do |match|
+      winner = [match.team_a, match.team_b].include?(teams.first) ? teams.first : teams.second
+      score_a, score_b = match.team_a == winner ? [2, 0] : [0, 2]
+      match.update!(score_a: score_a, score_b: score_b, status: :finalizado)
+      match.sync_competition_state!
+    end
+
+    semifinal = @championship.matches.find_by!(category: category, phase: "mata_mata", round_number: 1)
+    final = @championship.matches.find_by!(category: category, phase: "mata_mata", round_number: 2)
+    assert_equal [teams.second, teams.third].sort_by(&:id), [semifinal.team_a, semifinal.team_b].sort_by(&:id)
+    assert_equal teams.first, final.team_a
+    assert_nil final.team_b
+
+    semifinal_winner = semifinal.team_b
+    semifinal.update!(score_a: 0, score_b: 1, status: :finalizado)
+    semifinal.sync_competition_state!
+    assert_equal semifinal_winner, final.reload.team_b
+  end
+
+  test "finalizes a championship with a different schedule for every category" do
+    pre_mirim, = create_category_with_teams("Pre Mirim Misto", %w[PM1 PM2 PM3 PM4 PM5 PM6])
+    mirim, = create_category_with_teams("Mirim Misto", %w[M1 M2 M3 M4 M5 M6])
+    infantil, = create_category_with_teams("Infantil Misto", %w[I1 I2 I3 I4])
+    juvenil, = create_category_with_teams("Juvenil Misto", %w[J1 J2 J3])
+    configure_category(pre_mirim, "mode" => "pontuacao", "groupCount" => 2, "schedule" => "cross_groups")
+    configure_category(mirim, "mode" => "pontuacao", "groupCount" => 2, "schedule" => "cross_groups")
+    configure_category(infantil, "mode" => "pontuacao", "groupCount" => 1, "schedule" => "within_groups")
+    configure_category(juvenil, "mode" => "melhor_campanha_final", "groupCount" => 1)
+
+    @championship.finalize_registrations!
+
+    assert_equal 9, @championship.matches.where(category: pre_mirim, phase: "grupos").count
+    assert_equal 9, @championship.matches.where(category: mirim, phase: "grupos").count
+    assert_equal 6, @championship.matches.where(category: infantil, phase: "grupos").count
+    assert_equal 3, @championship.matches.where(category: juvenil, phase: "grupos").count
+    assert_equal "Geral", @championship.matches.where(category: pre_mirim, phase: "grupos").first.group_key
+    assert_equal "Geral", @championship.matches.where(category: mirim, phase: "grupos").first.group_key
+    assert_equal "A", @championship.matches.where(category: infantil, phase: "grupos").first.group_key
+  end
+
   private
+
+  def configure_category(category, attributes)
+    category_formats = @championship.format_data.fetch("categoryFormats", {}).deep_dup
+    category_formats[category.id.to_s] = attributes
+    @championship.update!(format: @championship.format_data.merge("categoryFormats" => category_formats))
+  end
+
+  def create_category_with_teams(name, labels)
+    category = Category.create!(
+      source_id: "cat-#{name.parameterize}-competition-modes",
+      championship: @championship,
+      name: name
+    )
+    teams = labels.map do |label|
+      entity = Entity.create!(
+        source_id: "entity-#{label.downcase}-#{name.parameterize}-competition-modes",
+        name: "Escola #{label}"
+      )
+      Team.create!(
+        source_id: "team-#{label.downcase}-#{name.parameterize}-competition-modes",
+        entity: entity,
+        category: category,
+        name: "Time #{label}"
+      )
+    end
+    [category, teams]
+  end
 
   def play_classification_match!(code:, group_key:, team_a:, team_b:, score_a:, score_b:)
     match = Match.create!(

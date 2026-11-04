@@ -199,6 +199,39 @@ end %>
             <p class="text-xs text-base-content/60">Escolha o formato clicando em um card. O sistema ajusta a pontuação e a classificação de acordo com o modo.</p>
           </section>
 
+          <% unless @championship.tranca? %>
+            <section class="space-y-4 rounded-3xl border border-primary/30 bg-base-200/70 p-5">
+              <div>
+                <h3 class="text-lg font-semibold">Formato por categoria</h3>
+                <p class="mt-1 text-sm text-base-content/70">Defina regras específicas para cada categoria. Categorias sem alteração usam o formato geral.</p>
+              </div>
+              <div class="space-y-4">
+                <% @championship.categories.order(:name).each do |category| %>
+                  <% category_format = @championship.format_for(category) %>
+                  <div class="grid gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 md:grid-cols-4">
+                    <div class="md:col-span-4 font-semibold"><%= category.name %></div>
+                    <div class="form-control gap-2">
+                      <%= label_tag "championship_format_categoryFormats_#{category.id}_mode", "Formato", class: "label-text font-medium" %>
+                      <%= select_tag "championship[format][categoryFormats][#{category.id}][mode]", options_for_select([["Pontuação / todos contra todos", "pontuacao"], ["Grupos + mata-mata", "grupos_mata_mata"], ["Mata-mata", "mata_mata"], ["Melhor campanha direto à final", "melhor_campanha_final"]], @championship.format_data.dig("categoryFormats", category.id.to_s, "mode").presence || selected_mode), class: "select select-bordered w-full" %>
+                    </div>
+                    <div class="form-control gap-2">
+                      <%= label_tag "championship_format_categoryFormats_#{category.id}_groupCount", "Quantidade de chaves", class: "label-text font-medium" %>
+                      <%= number_field_tag "championship[format][categoryFormats][#{category.id}][groupCount]", @championship.format_data.dig("categoryFormats", category.id.to_s, "groupCount") || 1, min: 1, class: "input input-bordered w-full" %>
+                    </div>
+                    <div class="form-control gap-2">
+                      <%= label_tag "championship_format_categoryFormats_#{category.id}_schedule", "Confrontos", class: "label-text font-medium" %>
+                      <%= select_tag "championship[format][categoryFormats][#{category.id}][schedule]", options_for_select([["Dentro de cada chave", "within_groups"], ["Uma chave contra a outra", "cross_groups"]], category_format["schedule"] || "within_groups"), class: "select select-bordered w-full" %>
+                    </div>
+                    <div class="form-control gap-2">
+                      <%= label_tag "championship_format_categoryFormats_#{category.id}_qualifiedPerGroup", "Classificados por chave", class: "label-text font-medium" %>
+                      <%= number_field_tag "championship[format][categoryFormats][#{category.id}][qualifiedPerGroup]", category_format["qualifiedPerGroup"] || @championship.qualified_per_group, min: 1, class: "input input-bordered w-full" %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </section>
+          <% end %>
+
           <section class="space-y-4 rounded-3xl border border-base-300 bg-base-200/70 p-5">
             <div>
               <h3 class="text-lg font-semibold">Configuração básica</h3>

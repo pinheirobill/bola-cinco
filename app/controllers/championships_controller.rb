@@ -803,7 +803,7 @@ class ChampionshipsController < ApplicationController
   def draw_knockout_round
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
-    return redirect_to setup_championship_path(@championship, step: "teams"), alert: "O sorteio inicial só está disponível em mata-mata." unless @championship.format_data["mode"].to_s == "mata_mata"
+    return redirect_to setup_championship_path(@championship, step: "teams"), alert: "O sorteio inicial só está disponível em categorias configuradas para mata-mata." unless @championship.categories.any? { |category| @championship.knockout_mode_for?(category) }
 
     created_matches = @championship.draw_initial_knockout_round!
     redirect_to setup_championship_path(@championship, step: "teams"), notice: "#{created_matches.size} jogos da primeira rodada sorteados."
@@ -1629,7 +1629,8 @@ class ChampionshipsController < ApplicationController
           :mode,
           :teamCount,
           :groupCount,
-          :matchesPerTeam
+          :matchesPerTeam,
+          { categoryFormats: {} }
         ] }
     ])
   end
