@@ -208,6 +208,10 @@ end %>
         </div>
       <% end %>
 
+      <% format_settings_url = @championship.tranca? ? championship_path(@championship) : create_categories_with_formats_championship_path(@championship) %>
+      <% format_settings_method = @championship.tranca? ? :patch : :post %>
+      <%= form_with url: format_settings_url, method: format_settings_method, html: { id: "championship-format-settings-form" }, class: "space-y-6", data: { current_mode: @championship.format_data["mode"], controller: "competition-mode" } do %>
+        <%= hidden_field_tag :current_step, "format" %>
           <% unless @championship.tranca? %>
             <section class="space-y-4 rounded-3xl border border-primary/30 bg-base-200/70 p-5">
               <div>
@@ -277,12 +281,12 @@ end %>
               <div class="rounded-2xl border border-base-300 bg-base-100 p-5">
                 <h4 class="font-semibold"><%= @championship.categories.exists? ? "Adicionar categorias" : "Crie as categorias e defina as regras" %></h4>
                 <% if mastercup_category_suggestions.first[:name].present? %>
-                  <p class="mt-1 text-sm text-base-content/70">Estas são sugestões editáveis. Elas só serão criadas e vinculadas ao campeonato quando você salvar.</p>
+                <p class="mt-1 text-sm text-base-content/70">Estas são sugestões editáveis, não obrigatórias. Remova as que não vai usar; as categorias preenchidas serão criadas e vinculadas ao salvar.</p>
                 <% else %>
-                  <p class="mt-1 text-sm text-base-content/70">Adicione quantas categorias precisar. Cada uma pode ter quantidade de equipes, chaves e formato próprios. Elas serão vinculadas ao campeonato ao salvar.</p>
+                  <p class="mt-1 text-sm text-base-content/70">Adicione quantas categorias precisar. Cada uma pode ter quantidade de equipes, chaves e formato próprios. Linhas sem nome são ignoradas.</p>
                 <% end %>
 
-                <%= form_with url: create_categories_with_formats_championship_path(@championship), method: :post, html: { id: "category-setup-form" }, class: "mt-4 space-y-4", data: { controller: "category-setup", category_setup_next_index_value: mastercup_category_suggestions.size } do %>
+                <div class="mt-4 space-y-4" data-controller="category-setup" data-category-setup-next-index-value="<%= mastercup_category_suggestions.size %>">
                   <div class="space-y-4" data-category-setup-target="rows">
                     <% mastercup_category_suggestions.each_with_index do |suggestion, index| %>
                       <%= render "category_setup_fields", index: index, suggestion: suggestion %>
@@ -295,17 +299,12 @@ end %>
 
                   <div class="flex flex-wrap justify-between gap-3">
                     <%= button_tag "Adicionar outra categoria", type: "button", class: "btn btn-outline btn-sm", data: { action: "category-setup#add" } %>
-                    <%= submit_tag "Salvar categorias e continuar", class: "btn btn-primary" %>
                   </div>
-                <% end %>
+                </div>
               </div>
             </section>
           <% end %>
 
-      <%= form_with url: championship_path(@championship), method: :patch, html: { id: "championship-format-settings-form" }, class: "space-y-6", data: { current_mode: @championship.format_data["mode"], controller: "autosave-form competition-mode", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
-        <%= hidden_field_tag :current_step, "format" %>
-        <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
-        <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
         <div class="space-y-6">
           <% category_format_overrides = @championship.format_data.fetch("categoryFormats", {}) %>
           <% all_categories_have_specific_rules = @championship.categories.any? && @championship.categories.all? do |category|
@@ -419,17 +418,11 @@ end %>
           </section>
 
           <div class="flex flex-wrap justify-end gap-3">
-            <%= button_tag "Voltar", type: "submit", name: "step", value: "data", class: "btn btn-outline" %>
+            <%= link_to "Voltar", setup_championship_path(@championship, step: "data"), class: "btn btn-outline" %>
+            <%= button_tag "Salvar e ir para a próxima etapa", type: "submit", name: "step", value: "registrations", class: "btn btn-primary" %>
           </div>
         </div>
       <% end %>
-      <div class="mt-4 flex justify-end">
-        <% if @championship.categories.none? %>
-          <%= link_to "Continuar sem criar categorias", setup_championship_path(@championship, step: "registrations"), class: "btn btn-ghost", data: { turbo_confirm: "As categorias sugeridas ou preenchidas nesta etapa ainda não foram salvas e não aparecerão em Equipes. Continuar sem criar categorias?" } %>
-        <% else %>
-          <%= link_to "Próxima etapa", setup_championship_path(@championship, step: "registrations"), class: "btn btn-outline" %>
-        <% end %>
-      </div>
     <% end %>
 
   </section>

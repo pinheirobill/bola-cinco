@@ -858,6 +858,10 @@ class ChampionshipsController < ApplicationController
     return forbidden! unless @championship.manageable_by?(current_user)
     return forbidden! if @championship.tranca?
 
+    championship_attributes = params[:championship].present? ? championship_params.to_h.symbolize_keys : {}
+    championship_attributes[:format] = @championship.format_data.merge(championship_attributes[:format].to_h) if championship_attributes[:format].present?
+    championship_attributes[:scoring] = @championship.scoring_data.merge(championship_attributes[:scoring].to_h) if championship_attributes[:scoring].present?
+
     submitted_categories = params[:categories]
     submitted_categories = submitted_categories.values if submitted_categories.is_a?(ActionController::Parameters)
     rows = Array(submitted_categories).filter_map do |attributes|
@@ -872,7 +876,6 @@ class ChampionshipsController < ApplicationController
       permitted_attributes.to_h.symbolize_keys
     end
     rows.reject! { |attributes| attributes[:name].to_s.strip.blank? }
-    return redirect_to setup_championship_path(@championship, step: "format"), alert: "Adicione ao menos uma categoria pelo nome." if rows.empty?
 
     configured_rows = rows.map { |attributes| normalize_category_format_attributes(attributes) }
     duplicate_names = configured_rows.group_by { |attributes| normalized_category_name(attributes.fetch("name")) }.select { |_name, matches| matches.size > 1 }.keys
@@ -882,16 +885,24 @@ class ChampionshipsController < ApplicationController
     end
 
     ActiveRecord::Base.transaction do
-      formats = @championship.format_data.fetch("categoryFormats", {}).deep_dup
+      format_data = @championship.format_data.merge(championship_attributes.fetch(:format, {}).to_h)
+      formats = format_data.fetch("categoryFormats", {}).to_h.deep_dup
       configured_rows.each do |attributes|
         category = @championship.categories.create!(name: attributes.delete("name"), source_id: "category-#{SecureRandom.hex(8)}")
         formats[category.id.to_s] = attributes
       end
 
-      @championship.update!(format: @championship.format_data.merge("categoryFormats" => formats))
+      championship_attributes[:format] = format_data.merge("categoryFormats" => formats)
+      @championship.update!(championship_attributes)
     end
 
-    redirect_to setup_championship_path(@championship, step: "registrations"), notice: "Categorias e formatos salvos e vinculados ao campeonato. Continue configurando as inscrições."
+    destination = params[:step].presence_in(%w[data registrations]) || "registrations"
+    notice = if configured_rows.any?
+      "Formato e categorias salvos e vinculados ao campeonato. Continue configurando as inscrições."
+    else
+      "Formato salvo sem criar categorias. Continue configurando as inscrições."
+    end
+    redirect_to setup_championship_path(@championship, step: destination), notice: notice
   rescue ArgumentError => e
     redirect_to setup_championship_path(@championship, step: "format"), alert: e.message
   rescue ActiveRecord::RecordInvalid => e

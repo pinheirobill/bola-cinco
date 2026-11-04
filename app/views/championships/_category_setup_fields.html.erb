@@ -9,12 +9,12 @@
   <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <div class="form-control gap-2 sm:col-span-2">
       <%= label_tag "category_#{index}_name", "Nome da categoria", class: "label-text font-medium" %>
-      <%= text_field_tag "categories[#{index}][name]", suggestion[:name], id: "category_#{index}_name", placeholder: "Ex.: Infantil", class: "input input-bordered w-full", required: true %>
+    <%= text_field_tag "categories[#{index}][name]", suggestion[:name], id: "category_#{index}_name", placeholder: "Ex.: Infantil", class: "input input-bordered w-full" %>
     </div>
 
     <div class="form-control gap-2">
       <%= label_tag "category_#{index}_team_count", "Equipes previstas", class: "label-text font-medium" %>
-      <%= number_field_tag "categories[#{index}][teamCount]", suggestion[:team_count], id: "category_#{index}_team_count", min: 2, step: 1, placeholder: "Ex.: 6", class: "input input-bordered w-full", required: true %>
+      <%= number_field_tag "categories[#{index}][teamCount]", suggestion[:team_count], id: "category_#{index}_team_count", min: 2, step: 1, placeholder: "Ex.: 6", class: "input input-bordered w-full" %>
     </div>
 
     <div class="form-control gap-2">
@@ -29,7 +29,7 @@
 
     <div class="form-control gap-2">
       <%= label_tag "category_#{index}_group_count", "Quantidade de chaves", class: "label-text font-medium" %>
-      <%= number_field_tag "categories[#{index}][groupCount]", suggestion[:group_count], id: "category_#{index}_group_count", min: 1, step: 1, class: "input input-bordered w-full", required: true %>
+      <%= number_field_tag "categories[#{index}][groupCount]", suggestion[:group_count], id: "category_#{index}_group_count", min: 1, step: 1, class: "input input-bordered w-full" %>
     </div>
 
     <div class="form-control gap-2">
@@ -42,18 +42,18 @@
 
     <div class="form-control gap-2">
       <%= label_tag "category_#{index}_matches_per_opponent", "Jogos contra cada adversário", class: "label-text font-medium" %>
-      <%= number_field_tag "categories[#{index}][matchesPerOpponent]", suggestion[:matches_per_opponent], id: "category_#{index}_matches_per_opponent", min: 1, step: 1, class: "input input-bordered w-full", required: true %>
+      <%= number_field_tag "categories[#{index}][matchesPerOpponent]", suggestion[:matches_per_opponent], id: "category_#{index}_matches_per_opponent", min: 1, step: 1, class: "input input-bordered w-full" %>
     </div>
 
     <div class="form-control gap-2">
       <%= label_tag "category_#{index}_matches_per_team", "Limite de jogos por equipe", class: "label-text font-medium" %>
-      <%= number_field_tag "categories[#{index}][matchesPerTeam]", suggestion[:matches_per_team], id: "category_#{index}_matches_per_team", min: 0, step: 1, class: "input input-bordered w-full", required: true %>
+      <%= number_field_tag "categories[#{index}][matchesPerTeam]", suggestion[:matches_per_team], id: "category_#{index}_matches_per_team", min: 0, step: 1, class: "input input-bordered w-full" %>
       <span class="text-xs text-base-content/60">Use 0 para todos os confrontos; o limite se aplica aos jogos dentro das chaves.</span>
     </div>
 
     <div class="form-control gap-2">
       <%= label_tag "category_#{index}_qualified_per_group", "Classificados por chave", class: "label-text font-medium" %>
-      <%= number_field_tag "categories[#{index}][qualifiedPerGroup]", suggestion[:qualified_per_group], id: "category_#{index}_qualified_per_group", min: 1, max: 16, step: 1, class: "input input-bordered w-full", required: true %>
+      <%= number_field_tag "categories[#{index}][qualifiedPerGroup]", suggestion[:qualified_per_group], id: "category_#{index}_qualified_per_group", min: 1, max: 16, step: 1, class: "input input-bordered w-full" %>
       <span class="text-xs text-base-content/60">Usado quando o formato inclui mata-mata após os grupos.</span>
     </div>
 
