@@ -853,36 +853,89 @@ class ChampionshipsController < ApplicationController
     redirect_to setup_championship_path(@championship, step: "teams"), alert: e.record.errors.full_messages.to_sentence
   end
 
-  def create_mastercup_categories
+  def create_categories_with_formats
     @championship = championship_lookup
     return forbidden! unless @championship.manageable_by?(current_user)
     return forbidden! if @championship.tranca?
 
-    categories = {}
-    specifications = [
-      ["Pré Mirim", { "teamCount" => 6, "mode" => "pontuacao", "groupCount" => 2, "schedule" => "cross_groups", "matchesPerOpponent" => 1, "matchesPerTeam" => 0 }],
-      ["Mirim", { "teamCount" => 6, "mode" => "pontuacao", "groupCount" => 2, "schedule" => "cross_groups", "matchesPerOpponent" => 1, "matchesPerTeam" => 0 }],
-      ["Infantil", { "teamCount" => 4, "mode" => "pontuacao", "groupCount" => 1, "schedule" => "within_groups", "matchesPerOpponent" => 1, "matchesPerTeam" => 0 }],
-      ["Juvenil", { "teamCount" => 3, "mode" => "melhor_campanha_final", "groupCount" => 1, "schedule" => "within_groups", "matchesPerOpponent" => 1, "matchesPerTeam" => 0 }]
-    ]
+    submitted_categories = params[:categories]
+    submitted_categories = submitted_categories.values if submitted_categories.is_a?(ActionController::Parameters)
+    rows = Array(submitted_categories).filter_map do |attributes|
+      next unless attributes.is_a?(ActionController::Parameters) || attributes.is_a?(Hash)
 
-    ActiveRecord::Base.transaction do
-      specifications.each do |name, format|
-        category = @championship.categories.find do |existing|
-          I18n.transliterate(existing.name).parameterize == I18n.transliterate(name).parameterize
-        end
-        category ||= @championship.categories.create!(name: name, source_id: "category-#{SecureRandom.hex(8)}")
-        categories[category.id.to_s] = format
+      permitted_attributes = if attributes.is_a?(ActionController::Parameters)
+        attributes.permit(:name, :teamCount, :mode, :groupCount, :schedule, :matchesPerOpponent, :matchesPerTeam, :qualifiedPerGroup)
+      else
+        ActionController::Parameters.new(attributes)
+          .permit(:name, :teamCount, :mode, :groupCount, :schedule, :matchesPerOpponent, :matchesPerTeam, :qualifiedPerGroup)
       end
+      permitted_attributes.to_h.symbolize_keys
+    end
+    rows.reject! { |attributes| attributes[:name].to_s.strip.blank? }
+    return redirect_to setup_championship_path(@championship, step: "format"), alert: "Adicione ao menos uma categoria pelo nome." if rows.empty?
 
-      current_format = @championship.format_data
-      @championship.update!(format: current_format.merge("categoryFormats" => current_format.fetch("categoryFormats", {}).merge(categories)))
+    configured_rows = rows.map { |attributes| normalize_category_format_attributes(attributes) }
+    duplicate_names = configured_rows.group_by { |attributes| normalized_category_name(attributes.fetch("name")) }.select { |_name, matches| matches.size > 1 }.keys
+    existing_names = @championship.categories.map { |category| normalized_category_name(category.name) }
+    if duplicate_names.any? || configured_rows.any? { |attributes| existing_names.include?(normalized_category_name(attributes.fetch("name"))) }
+      return redirect_to setup_championship_path(@championship, step: "format"), alert: "Cada categoria precisa ter um nome único neste campeonato."
     end
 
-    redirect_to setup_championship_path(@championship, step: "format"), notice: "Categorias e formatos da Master Cup configurados. Agora vincule as equipes de cada categoria."
+    ActiveRecord::Base.transaction do
+      formats = @championship.format_data.fetch("categoryFormats", {}).deep_dup
+      configured_rows.each do |attributes|
+        category = @championship.categories.create!(name: attributes.delete("name"), source_id: "category-#{SecureRandom.hex(8)}")
+        formats[category.id.to_s] = attributes
+      end
+
+      @championship.update!(format: @championship.format_data.merge("categoryFormats" => formats))
+    end
+
+    redirect_to setup_championship_path(@championship, step: "format"), notice: "Categorias e formatos salvos. Agora vincule as equipes previstas em cada categoria."
+  rescue ArgumentError => e
+    redirect_to setup_championship_path(@championship, step: "format"), alert: e.message
   rescue ActiveRecord::RecordInvalid => e
     redirect_to setup_championship_path(@championship, step: "format"), alert: e.record.errors.full_messages.to_sentence
   end
+
+  def normalize_category_format_attributes(attributes)
+    name = attributes[:name].to_s.strip
+    mode = attributes[:mode].to_s
+    schedule = attributes[:schedule].to_s
+    team_count = Integer(attributes[:teamCount].to_s, 10)
+    group_count = Integer(attributes[:groupCount].to_s, 10)
+    matches_per_opponent = Integer(attributes[:matchesPerOpponent].to_s, 10)
+    matches_per_team = Integer(attributes[:matchesPerTeam].to_s, 10)
+    qualified_per_group = Integer((attributes[:qualifiedPerGroup].presence || 1).to_s, 10)
+
+    raise ArgumentError, "Formato inválido para #{name}." unless mode.in?(%w[pontuacao grupos_mata_mata mata_mata melhor_campanha_final])
+    raise ArgumentError, "Escolha um tipo de confronto válido para #{name}." unless schedule.in?(%w[within_groups cross_groups])
+    raise ArgumentError, "Informe ao menos 2 equipes para #{name}." unless team_count >= 2
+    raise ArgumentError, "O número de chaves precisa ficar entre 1 e o total de equipes em #{name}." unless group_count.between?(1, team_count)
+    raise ArgumentError, "Jogos entre chaves está disponível para exatamente 2 chaves em #{name}." if schedule == "cross_groups" && group_count != 2
+    raise ArgumentError, "Jogos por adversário precisa ser pelo menos 1 em #{name}." unless matches_per_opponent.positive?
+    raise ArgumentError, "O limite de jogos por equipe não pode ser negativo em #{name}." if matches_per_team.negative?
+
+    {
+      "name" => name,
+      "teamCount" => team_count,
+      "mode" => mode,
+      "groupCount" => group_count,
+      "schedule" => schedule,
+      "matchesPerOpponent" => matches_per_opponent,
+      "matchesPerTeam" => matches_per_team,
+      "qualifiedPerGroup" => qualified_per_group.clamp(1, 16)
+    }
+  rescue ArgumentError => e
+    raise e if e.message.start_with?("Informe", "Escolha", "O número", "Jogos", "O limite", "Formato")
+
+    raise ArgumentError, "Preencha números válidos para equipes, chaves e jogos em #{name}."
+  end
+
+  def normalized_category_name(name)
+    I18n.transliterate(name.to_s).parameterize
+  end
+  private :normalize_category_format_attributes, :normalized_category_name
 
   def detach_category
     @championship = championship_lookup

@@ -80,7 +80,7 @@ Rails.application.routes.draw do
     patch :finalize_registrations, on: :member, path: "finalizar-inscricoes"
     patch :attach_category, on: :member, path: "vincular-categoria"
     post :create_category, on: :member, path: "criar-categoria"
-    post :create_mastercup_categories, on: :member, path: "criar-categorias-mastercup"
+    post :create_categories_with_formats, on: :member, path: "criar-categorias-e-formatos"
     patch :detach_category, on: :member, path: "remover-categoria"
     post :draw_knockout_round, on: :member, path: "sortear-primeira-rodada"
     post :invite_recent_tranca_duplas, on: :member, path: "tranca/convidar-duplas"

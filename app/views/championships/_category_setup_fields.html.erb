@@ -1,0 +1,65 @@
+<% row_number = index.to_s == "NEW_RECORD" ? "Nova categoria" : "Categoria #{index.to_i + 1}" %>
+<fieldset class="rounded-2xl border border-base-300 bg-base-200/50 p-4" data-category-setup-row>
+  <legend class="sr-only"><%= row_number %></legend>
+  <div class="mb-4 flex items-center justify-between gap-3">
+    <h4 class="font-semibold" data-category-setup-row-title><%= row_number %></h4>
+    <%= button_tag "Remover", type: "button", class: "btn btn-ghost btn-xs text-error", data: { action: "category-setup#remove", category_setup_remove: true }, aria: { label: "Remover #{row_number.downcase}" } %>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="form-control gap-2 sm:col-span-2">
+      <%= label_tag "category_#{index}_name", "Nome da categoria", class: "label-text font-medium" %>
+      <%= text_field_tag "categories[#{index}][name]", suggestion[:name], id: "category_#{index}_name", placeholder: "Ex.: Infantil", class: "input input-bordered w-full", required: true %>
+    </div>
+
+    <div class="form-control gap-2">
+      <%= label_tag "category_#{index}_team_count", "Equipes previstas", class: "label-text font-medium" %>
+      <%= number_field_tag "categories[#{index}][teamCount]", suggestion[:team_count], id: "category_#{index}_team_count", min: 2, step: 1, placeholder: "Ex.: 6", class: "input input-bordered w-full", required: true %>
+    </div>
+
+    <div class="form-control gap-2">
+      <%= label_tag "category_#{index}_mode", "Formato da competição", class: "label-text font-medium" %>
+      <%= select_tag "categories[#{index}][mode]", options_for_select([
+        ["Pontos e classificação geral", "pontuacao"],
+        ["Grupos com mata-mata", "grupos_mata_mata"],
+        ["Mata-mata eliminatório", "mata_mata"],
+        ["Melhor campanha direto à final", "melhor_campanha_final"]
+      ], suggestion[:mode]), id: "category_#{index}_mode", class: "select select-bordered w-full" %>
+    </div>
+
+    <div class="form-control gap-2">
+      <%= label_tag "category_#{index}_group_count", "Quantidade de chaves", class: "label-text font-medium" %>
+      <%= number_field_tag "categories[#{index}][groupCount]", suggestion[:group_count], id: "category_#{index}_group_count", min: 1, step: 1, class: "input input-bordered w-full", required: true %>
+    </div>
+
+    <div class="form-control gap-2">
+      <%= label_tag "category_#{index}_schedule", "Confrontos da fase", class: "label-text font-medium" %>
+      <%= select_tag "categories[#{index}][schedule]", options_for_select([
+        ["Dentro de cada chave (todos contra todos)", "within_groups"],
+        ["Uma chave contra a outra", "cross_groups"]
+      ], suggestion[:schedule]), id: "category_#{index}_schedule", class: "select select-bordered w-full" %>
+    </div>
+
+    <div class="form-control gap-2">
+      <%= label_tag "category_#{index}_matches_per_opponent", "Jogos contra cada adversário", class: "label-text font-medium" %>
+      <%= number_field_tag "categories[#{index}][matchesPerOpponent]", suggestion[:matches_per_opponent], id: "category_#{index}_matches_per_opponent", min: 1, step: 1, class: "input input-bordered w-full", required: true %>
+    </div>
+
+    <div class="form-control gap-2">
+      <%= label_tag "category_#{index}_matches_per_team", "Limite de jogos por equipe", class: "label-text font-medium" %>
+      <%= number_field_tag "categories[#{index}][matchesPerTeam]", suggestion[:matches_per_team], id: "category_#{index}_matches_per_team", min: 0, step: 1, class: "input input-bordered w-full", required: true %>
+      <span class="text-xs text-base-content/60">Use 0 para todos os confrontos; o limite se aplica aos jogos dentro das chaves.</span>
+    </div>
+
+    <div class="form-control gap-2">
+      <%= label_tag "category_#{index}_qualified_per_group", "Classificados por chave", class: "label-text font-medium" %>
+      <%= number_field_tag "categories[#{index}][qualifiedPerGroup]", suggestion[:qualified_per_group], id: "category_#{index}_qualified_per_group", min: 1, max: 16, step: 1, class: "input input-bordered w-full", required: true %>
+      <span class="text-xs text-base-content/60">Usado quando o formato inclui mata-mata após os grupos.</span>
+    </div>
+
+    <div class="rounded-xl bg-base-100 p-3 text-xs leading-relaxed text-base-content/70 sm:col-span-2 xl:col-span-4">
+      <strong class="text-base-content">Como será aplicado:</strong>
+      <span>Com 1 chave, todos jogam entre si. Com 2 chaves e confronto entre elas, a classificação fica geral; dentro das chaves, cada uma tem sua tabela. Na opção de melhor campanha direto à final, 2º e 3º disputam a semifinal.</span>
+    </div>
+  </div>
+</fieldset>

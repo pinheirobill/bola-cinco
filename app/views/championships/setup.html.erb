@@ -6,8 +6,8 @@
   badge: "Onboarding",
   actions: [
     link_to("Visão geral", championship_path(@championship), class: "btn btn-outline"),
-    link_to("Classificação", standing_rows_path, class: "btn btn-primary")
-  ]
+    (@championship.matches.exists? ? link_to("Classificação", standing_rows_path, class: "btn btn-primary") : nil)
+  ].compact
 ) %>
 
 <% step_labels = if @championship.tranca?
@@ -31,118 +31,119 @@ end %>
 <%= championship_stepper(@championship, @step, step_labels, path_helper: :setup_championship_path) %>
 
 <% if @step == "data" %>
-  <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
-    <%= surface_card(title: "Etapa 1. Dados", subtitle: "Atualize as datas do campeonato.") do %>
+  <%= form_with url: championship_path(@championship), method: :patch, multipart: true, local: true, class: "space-y-6", data: { controller: "color-preview", action: "input->color-preview#update change->color-preview#update", turbo: false } do %>
+    <%= hidden_field_tag :current_step, "data" %>
+    <section class="mx-auto grid w-full max-w-7xl items-start gap-6 lg:grid-cols-[1.25fr_1fr]">
+    <%= surface_card(title: "Etapa 1. Dados", subtitle: "Defina o calendário do campeonato. Todas as datas são opcionais e podem ser preenchidas depois.") do %>
       <div class="space-y-6">
-        <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-5", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
-          <%= hidden_field_tag :current_step, "data" %>
-          <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
-          <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
-
-          <div class="grid gap-4 md:grid-cols-2">
+        <div class="grid gap-6 md:grid-cols-2">
+          <section class="space-y-3 rounded-2xl border border-base-300 bg-base-200/50 p-4" aria-labelledby="registration-dates-heading">
+            <div>
+              <h3 id="registration-dates-heading" class="font-semibold">Período de inscrições</h3>
+              <p class="mt-1 text-sm text-base-content/60">Quando os times poderão se inscrever? Opcional.</p>
+            </div>
             <div class="form-control gap-2">
               <%= label_tag "championship_registration_start", "Início das inscrições", class: "label-text font-medium" %>
               <%= date_field_tag "championship[registration_start]", @championship.registration_start, id: "championship_registration_start", class: "input input-bordered w-full" %>
             </div>
-
             <div class="form-control gap-2">
               <%= label_tag "championship_registration_end", "Fim das inscrições", class: "label-text font-medium" %>
               <%= date_field_tag "championship[registration_end]", @championship.registration_end, id: "championship_registration_end", class: "input input-bordered w-full" %>
             </div>
+          </section>
 
+          <section class="space-y-3 rounded-2xl border border-base-300 bg-base-200/50 p-4" aria-labelledby="championship-dates-heading">
+            <div>
+              <h3 id="championship-dates-heading" class="font-semibold">Período do campeonato</h3>
+              <p class="mt-1 text-sm text-base-content/60">Quando os jogos devem acontecer? Opcional.</p>
+            </div>
             <div class="form-control gap-2">
               <%= label_tag "championship_start_date", "Início do campeonato", class: "label-text font-medium" %>
               <%= date_field_tag "championship[start_date]", @championship.start_date, id: "championship_start_date", class: "input input-bordered w-full" %>
             </div>
-
             <div class="form-control gap-2">
               <%= label_tag "championship_end_date", "Fim do campeonato", class: "label-text font-medium" %>
               <%= date_field_tag "championship[end_date]", @championship.end_date, id: "championship_end_date", class: "input input-bordered w-full" %>
             </div>
-          </div>
+          </section>
+        </div>
 
-          <div class="form-control gap-2">
-            <%= label_tag "championship_notes", "Regulamento / observações", class: "label-text font-medium" %>
-            <%= text_area_tag "championship[notes]", @championship.notes, id: "championship_notes", rows: 6, class: "textarea textarea-bordered w-full" %>
-          </div>
+        <div class="form-control gap-2">
+          <%= label_tag "championship_notes", "Regulamento e observações", class: "label-text font-medium" %>
+          <%= text_area_tag "championship[notes]", @championship.notes, id: "championship_notes", rows: 4, class: "textarea textarea-bordered w-full", placeholder: "Inclua regras gerais ou informações importantes para as equipes (opcional)." %>
+        </div>
 
-          <div class="flex flex-wrap gap-3">
-            <%= button_tag "Próxima etapa", type: "submit", name: "step", value: "format", class: "btn btn-outline" %>
+      </div>
+    <% end %>
+
+    <section id="championship-visual-identity" class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-semibold">Identidade visual</h2>
+          <p class="mt-1 text-sm text-base-content/70">Logo e cores do portal público. Opcional.</p>
+        </div>
+        <% if championship_logo_attached?(@championship) %>
+          <span class="badge badge-success">Logo enviada</span>
+        <% end %>
+      </div>
+
+      <div class="mt-5 border-t border-base-300 pt-5">
+        <% if championship_logo_attached?(@championship) %>
+          <div class="mb-5 flex items-center gap-4 rounded-2xl bg-base-100 p-4">
+            <%= championship_logo_tag(@championship, class: "h-20 w-20 rounded-2xl border border-base-300 bg-white object-contain p-2") %>
+            <div class="min-w-0">
+              <p class="font-semibold"><%= championship_logo_filename(@championship) %></p>
+              <p class="mt-1 text-xs text-base-content/50">Escolha outro arquivo para trocar o logo.</p>
+            </div>
           </div>
         <% end %>
 
-        <div class="rounded-3xl border border-base-300 bg-base-200/70 p-5">
-          <div class="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h3 class="text-lg font-semibold">Identidade visual do campeonato</h3>
-              <p class="mt-1 text-sm text-base-content/70">O logo e as cores aparecem no portal público deste campeonato.</p>
-            </div>
-            <% if championship_logo_attached?(@championship) %>
-              <span class="badge badge-success">Enviada</span>
-            <% else %>
-              <span class="badge badge-outline">Não enviada</span>
-            <% end %>
+        <div class="space-y-5">
+          <div class="form-control gap-2">
+            <%= label_tag "championship_logo", "Logo do campeonato", class: "label-text font-medium" %>
+            <%= file_field_tag "championship[logo]", id: "championship_logo", accept: "image/png,image/jpeg,image/webp", class: "file-input file-input-bordered w-full" %>
+            <p class="text-xs text-base-content/60">PNG, JPG ou WEBP. Você também pode adicionar o logo depois.</p>
           </div>
 
-          <% if championship_logo_attached?(@championship) %>
-            <div class="mt-4 flex items-center gap-4 rounded-2xl bg-base-100 p-4">
-              <%= championship_logo_tag(@championship, class: "h-20 w-20 rounded-2xl border border-base-300 bg-white object-contain p-2") %>
-              <div class="min-w-0">
-                <p class="font-semibold"><%= championship_logo_filename(@championship) %></p>
-                <p class="mt-1 text-xs text-base-content/50">Troque a imagem abaixo para atualizar a identidade visual.</p>
-              </div>
-            </div>
-          <% end %>
-
-          <%= form_with url: championship_path(@championship), method: :patch, multipart: true, local: true, class: "mt-4 space-y-4", data: { turbo: false } do %>
-            <%= hidden_field_tag :current_step, "data" %>
+          <div class="grid gap-4 sm:grid-cols-2">
             <div class="form-control gap-2">
-              <%= label_tag "championship_logo", "Enviar ou trocar logo", class: "label-text font-medium" %>
-              <%= file_field_tag "championship[logo]", id: "championship_logo", accept: "image/*", class: "file-input file-input-bordered w-full" %>
-              <p class="text-xs text-base-content/60">PNG, JPG ou WEBP funcionam melhor no PDF.</p>
+              <%= label_tag "championship_primary_color", "Cor principal", class: "label-text font-medium" %>
+              <%= color_field_tag "championship[primary_color]", @championship.primary_color.presence || "#14532d", id: "championship_primary_color", class: "h-12 w-full cursor-pointer rounded-xl border border-base-300 bg-base-100 p-1", data: { color_preview_target: "primaryInput" } %>
+              <p class="text-xs text-base-content/60">Use nos botões e chamadas principais.</p>
             </div>
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div class="form-control gap-2">
-                <%= label_tag "championship_primary_color", "Cor principal", class: "label-text font-medium" %>
-                <%= color_field_tag "championship[primary_color]", @championship.primary_color.presence || "#14532d", id: "championship_primary_color", class: "h-12 w-full cursor-pointer rounded-xl border border-base-300 bg-base-100 p-1" %>
-                <p class="text-xs text-base-content/60">Botões, links e chamadas principais.</p>
+            <div class="form-control gap-2">
+              <%= label_tag "championship_secondary_color", "Cor secundária", class: "label-text font-medium" %>
+              <%= color_field_tag "championship[secondary_color]", @championship.secondary_color.presence || "#f4b400", id: "championship_secondary_color", class: "h-12 w-full cursor-pointer rounded-xl border border-base-300 bg-base-100 p-1", data: { color_preview_target: "secondaryInput" } %>
+              <p class="text-xs text-base-content/60">Use em destaques e detalhes.</p>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-base-300 bg-base-100 p-4" aria-live="polite">
+            <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-base-content/50">Prévia das cores escolhidas</p>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="rounded-xl border border-base-300 p-3">
+                <p class="text-sm font-semibold">Principal</p>
+                <div class="mt-2 h-12 rounded-lg border border-base-300" style="background-color: <%= @championship.primary_color.presence || '#14532d' %>" data-color-preview-target="primarySwatch"></div>
+                <p class="mt-2 font-mono text-xs text-base-content/60" data-color-preview-target="primaryValue"><%= @championship.primary_color.presence || "#14532d" %></p>
               </div>
-              <div class="form-control gap-2">
-                <%= label_tag "championship_secondary_color", "Cor secundária", class: "label-text font-medium" %>
-                <%= color_field_tag "championship[secondary_color]", @championship.secondary_color.presence || "#f4b400", id: "championship_secondary_color", class: "h-12 w-full cursor-pointer rounded-xl border border-base-300 bg-base-100 p-1" %>
-                <p class="text-xs text-base-content/60">Destaques, acentos e detalhes visuais.</p>
+              <div class="rounded-xl border border-base-300 p-3">
+                <p class="text-sm font-semibold">Secundária</p>
+                <div class="mt-2 h-12 rounded-lg border border-base-300" style="background-color: <%= @championship.secondary_color.presence || '#f4b400' %>" data-color-preview-target="secondarySwatch"></div>
+                <p class="mt-2 font-mono text-xs text-base-content/60" data-color-preview-target="secondaryValue"><%= @championship.secondary_color.presence || "#f4b400" %></p>
               </div>
             </div>
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-base-content/50">Prévia das cores salvas</p>
-              <div class="grid grid-cols-2 gap-3">
-                <div class="rounded-xl bg-primary p-3 text-center text-sm font-bold text-primary-content">Principal</div>
-                <div class="rounded-xl bg-secondary p-3 text-center text-sm font-bold text-secondary-content">Secundária</div>
-              </div>
-            </div>
-            <div class="flex justify-end">
-              <%= submit_tag "Salvar identidade visual", class: "btn btn-outline" %>
-            </div>
-          <% end %>
+            <p class="mt-3 text-xs text-base-content/60">A prévia acompanha as cores escolhidas. Salve para aplicá-las ao portal.</p>
+          </div>
+
         </div>
       </div>
-    <% end %>
-
-    <%= surface_card(title: "Resumo") do %>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Status atual</p>
-        <p class="mt-2 text-lg font-semibold"><%= @championship.status.titleize %></p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Período de inscrição</p>
-        <p class="mt-2 text-lg font-semibold"><%= [@championship.registration_start, @championship.registration_end].compact.join(" até ").presence || "Não definido" %></p>
-      </div>
-      <div class="rounded-2xl bg-base-200 p-4">
-        <p class="text-xs uppercase tracking-[0.25em] text-base-content/50">Padrão importado</p>
-        <p class="mt-2 text-sm text-base-content/70">As datas e o regulamento podem ser ajustados sem recriar o campeonato.</p>
-      </div>
-    <% end %>
-  </section>
+    </section>
+    </section>
+    <div class="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 border-t border-base-300 pt-5">
+      <p class="text-sm text-base-content/60">Calendário, regulamento e identidade visual serão salvos juntos. As datas são opcionais.</p>
+      <%= button_tag "Salvar e ir para Formato", type: "submit", name: "step", value: "format", class: "btn btn-primary" %>
+    </div>
+  <% end %>
 <% elsif @step == "format" %>
   <% selected_mode = @championship.format_data["mode"].to_s %>
   <% mode_explanation = case selected_mode
@@ -155,7 +156,7 @@ end %>
   end %>
   <section class="grid gap-6">
     <%= surface_card(title: "Etapa 2. Formato e regras", subtitle: "Configure o modo de disputa, pontuação e critérios de desempate.") do %>
-      <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-6", data: { current_mode: @championship.format_data["mode"], controller: "autosave-form competition-mode", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
+      <%= form_with url: championship_path(@championship), method: :patch, html: { id: "championship-format-mode-form" }, class: "space-y-6", data: { current_mode: @championship.format_data["mode"], controller: "autosave-form competition-mode", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
         <%= hidden_field_tag :current_step, "format" %>
         <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
         <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
@@ -198,6 +199,8 @@ end %>
             </div>
             <p class="text-xs text-base-content/60">Escolha o formato clicando em um card. O sistema ajusta a pontuação e a classificação de acordo com o modo.</p>
           </section>
+        </div>
+      <% end %>
 
           <% unless @championship.tranca? %>
             <section class="space-y-4 rounded-3xl border border-primary/30 bg-base-200/70 p-5">
@@ -205,19 +208,19 @@ end %>
                 <h3 class="text-lg font-semibold">Formato por categoria</h3>
                 <p class="mt-1 text-sm text-base-content/70">Cada categoria pode ter seu próprio formato e número previsto de equipes. A quantidade vinculada precisa bater antes de finalizar as inscrições; categorias sem alterações usam os valores gerais.</p>
               </div>
-              <% mastercup_template = @championship.name.to_s.match?(/master\s*cup/i) %>
-              <% if mastercup_template %>
-                <%= button_to "Aplicar configuração da Master Cup", create_mastercup_categories_championship_path(@championship), method: :post, data: { turbo_confirm: "Vamos criar as categorias que faltam e aplicar as regras informadas às quatro categorias. Continuar?" }, class: "btn btn-primary btn-sm" %>
-              <% end %>
+
+              <% mastercup_category_suggestions = if @championship.name.to_s.match?(/master\s*cup/i) && @championship.categories.none?
+                [
+                  { name: "Pré Mirim", team_count: 6, mode: "pontuacao", group_count: 2, schedule: "cross_groups", matches_per_opponent: 1, matches_per_team: 0, qualified_per_group: 1 },
+                  { name: "Mirim", team_count: 6, mode: "pontuacao", group_count: 2, schedule: "cross_groups", matches_per_opponent: 1, matches_per_team: 0, qualified_per_group: 1 },
+                  { name: "Infantil", team_count: 4, mode: "pontuacao", group_count: 1, schedule: "within_groups", matches_per_opponent: 1, matches_per_team: 0, qualified_per_group: 1 },
+                  { name: "Juvenil", team_count: 3, mode: "melhor_campanha_final", group_count: 1, schedule: "within_groups", matches_per_opponent: 1, matches_per_team: 0, qualified_per_group: 1 }
+                ]
+              else
+                [ { name: "", team_count: "", mode: "pontuacao", group_count: 1, schedule: "within_groups", matches_per_opponent: 1, matches_per_team: 0, qualified_per_group: 1 } ]
+              end %>
+
               <% if @championship.categories.exists? %>
-                <div class="rounded-2xl border border-info/30 bg-info/10 p-4 text-sm">
-                  <p class="font-semibold">Exemplo para este campeonato</p>
-                  <ul class="mt-2 list-inside list-disc space-y-1 text-base-content/80">
-                    <li>Pré-mirim e Mirim: Pontuação, 2 chaves, jogos entre as chaves, classificação geral e 1 jogo por adversário.</li>
-                    <li>Infantil: Pontuação, 1 chave, todos contra todos, 1 jogo por adversário.</li>
-                    <li>Juvenil: Melhor campanha direto à final, 1 chave, 1 jogo por adversário.</li>
-                  </ul>
-                </div>
                 <div class="space-y-4">
                   <% @championship.categories.order(:name).each do |category| %>
                   <% category_format = @championship.format_for(category) %>
@@ -263,29 +266,68 @@ end %>
                   </div>
                   <% end %>
                 </div>
-              <% else %>
-                <div class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-6">
-                  <p class="font-semibold">Nenhuma categoria vinculada a este campeonato</p>
-                  <p class="mt-1 text-sm text-base-content/70">Crie as quatro categorias e aplique as regras informadas de uma vez. Depois, vincule as equipes na etapa Equipes.</p>
-                  <% unless mastercup_template %>
-                    <%= link_to "Ir para Equipes e criar categorias", setup_championship_path(@championship, step: "teams"), class: "btn btn-primary btn-sm mt-4" %>
-                  <% end %>
-                  <p class="mt-2 text-xs text-base-content/60">Pré Mirim e Mirim: 2 chaves de 3, jogos entre chaves e classificação geral. Infantil: 4 equipes em chave única. Juvenil: melhor campanha direto à final.</p>
-                </div>
               <% end %>
+
+              <div class="rounded-2xl border border-base-300 bg-base-100 p-5">
+                <h4 class="font-semibold"><%= @championship.categories.exists? ? "Adicionar categorias" : "Crie as categorias e defina as regras" %></h4>
+                <% if mastercup_category_suggestions.first[:name].present? %>
+                  <p class="mt-1 text-sm text-base-content/70">Preenchi uma sugestão com base no regulamento informado. Você pode editar, remover ou adicionar categorias antes de salvar.</p>
+                <% else %>
+                  <p class="mt-1 text-sm text-base-content/70">Adicione quantas categorias precisar. Cada uma pode ter quantidade de equipes, chaves e formato próprios.</p>
+                <% end %>
+
+                <%= form_with url: create_categories_with_formats_championship_path(@championship), method: :post, html: { id: "category-setup-form" }, class: "mt-4 space-y-4", data: { controller: "category-setup", category_setup_next_index_value: mastercup_category_suggestions.size } do %>
+                  <div class="space-y-4" data-category-setup-target="rows">
+                    <% mastercup_category_suggestions.each_with_index do |suggestion, index| %>
+                      <%= render "category_setup_fields", index: index, suggestion: suggestion %>
+                    <% end %>
+                  </div>
+
+                  <template data-category-setup-target="template">
+                    <%= render "category_setup_fields", index: "NEW_RECORD", suggestion: { name: "", team_count: "", mode: "pontuacao", group_count: 1, schedule: "within_groups", matches_per_opponent: 1, matches_per_team: 0, qualified_per_group: 1 } %>
+                  </template>
+
+                  <div class="flex flex-wrap justify-between gap-3">
+                    <%= button_tag "Adicionar outra categoria", type: "button", class: "btn btn-outline btn-sm", data: { action: "category-setup#add" } %>
+                    <%= submit_tag "Salvar categorias e formatos", class: "btn btn-primary" %>
+                  </div>
+                <% end %>
+              </div>
             </section>
           <% end %>
 
-          <section class="space-y-4 rounded-3xl border border-base-300 bg-base-200/70 p-5">
-            <div>
-              <h3 class="text-lg font-semibold">Configuração básica</h3>
-              <p class="mt-1 text-sm text-base-content/70">Padrões para categorias sem formato próprio. Nas categorias acima, configure equipes e regras individualmente.</p>
-            </div>
+      <%= form_with url: championship_path(@championship), method: :patch, html: { id: "championship-format-settings-form" }, class: "space-y-6", data: { current_mode: @championship.format_data["mode"], controller: "autosave-form competition-mode", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
+        <%= hidden_field_tag :current_step, "format" %>
+        <%= hidden_field_tag :autosave, "1", disabled: true, data: { autosave_form_target: "flag" } %>
+        <div class="alert alert-info hidden shadow-sm" role="status" aria-live="polite" data-autosave-form-target="status">Salvando...</div>
+        <div class="space-y-6">
+          <% category_format_overrides = @championship.format_data.fetch("categoryFormats", {}) %>
+          <% all_categories_have_specific_rules = @championship.categories.any? && @championship.categories.all? do |category|
+            category_rules = category_format_overrides[category.id.to_s].to_h
+            %w[mode groupCount matchesPerOpponent matchesPerTeam].all? { |key| category_rules.key?(key) }
+          end %>
+          <% mastercup_suggestions_visible = @championship.name.to_s.match?(/master\s*cup/i) && @championship.categories.none? %>
+          <% default_settings_open = !all_categories_have_specific_rules && !mastercup_suggestions_visible %>
+
+          <details id="championship-default-format-settings" class="group rounded-3xl border border-base-300 bg-base-200/70 p-5" <%= "open" if default_settings_open %>>
+            <summary class="flex list-none cursor-pointer items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+              <span>
+                <span class="block text-lg font-semibold">Configuração padrão</span>
+                <span class="mt-1 block text-sm text-base-content/70">Usada por categorias sem regras próprias; as regras específicas sempre prevalecem.</span>
+              </span>
+              <svg class="h-5 w-5 shrink-0 text-base-content/60 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+            </summary>
+            <div class="mt-5 space-y-4">
             <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-              <div class="form-control gap-2">
-                <%= label_tag "championship_format_team_count", "Quantidade de equipes", class: "label-text font-medium" %>
-                <%= number_field_tag "championship[format][teamCount]", @championship.format_data["teamCount"], id: "championship_format_team_count", class: "input input-bordered w-full" %>
-              </div>
+              <% unless selected_mode == "mata_mata" %>
+                <div class="form-control gap-2">
+                  <%= label_tag "championship_format_team_count", "Equipes na estimativa geral", class: "label-text font-medium" %>
+                  <%= number_field_tag "championship[format][teamCount]", @championship.format_data["teamCount"], id: "championship_format_team_count", class: "input input-bordered w-full" %>
+                  <p class="text-xs text-base-content/60">Não substitui a quantidade prevista em cada categoria.</p>
+                </div>
+              <% end %>
 
               <div data-competition-mode-target="groupCountField" class="<%= selected_mode == "mata_mata" ? "hidden" : "" %> form-control gap-2">
                 <%= label_tag "championship_format_group_count", "Quantidade de chaves", class: "label-text font-medium" %>
@@ -316,7 +358,8 @@ end %>
                 <p class="text-xs text-base-content/60">Usado somente em fase de grupos + mata-mata. Ex.: 2 faz os dois melhores de cada chave avançarem.</p>
               </div>
             </div>
-          </section>
+            </div>
+          </details>
 
           <section class="space-y-4 rounded-3xl border border-base-300 bg-base-200/70 p-5">
             <div>
@@ -804,14 +847,11 @@ end %>
 
         <div class="space-y-3">
           <h4 class="font-semibold">Disponíveis</h4>
-          <%= form_with url: create_category_championship_path(@championship), method: :post, class: "rounded-2xl border border-primary/30 bg-primary/5 p-4" do |form| %>
-            <p class="font-medium">Criar uma categoria para este campeonato</p>
-            <p class="mt-1 text-xs text-base-content/60">Use quando a faixa etária ainda não estiver cadastrada no sistema.</p>
-            <div class="mt-3 flex flex-col gap-2 sm:flex-row">
-              <%= form.text_field :name, name: "category[name]", placeholder: "Ex.: Pré Mirim", required: true, class: "input input-bordered w-full" %>
-              <%= form.submit "Criar categoria", class: "btn btn-primary" %>
-            </div>
-          <% end %>
+          <div class="rounded-2xl border border-primary/30 bg-primary/5 p-4">
+            <p class="font-medium">Precisa criar uma categoria nova?</p>
+            <p class="mt-1 text-xs text-base-content/60">Crie e configure o formato dela na etapa 2, sem precisar escolher uma categoria de outro campeonato.</p>
+            <%= link_to "Criar categoria e definir formato", setup_championship_path(@championship, step: "format"), class: "btn btn-primary btn-sm mt-3" %>
+          </div>
           <% if @available_categories_to_link.any? %>
             <% @available_categories_to_link.each do |category| %>
               <% highlighted = @highlight_category_id.present? && category.id == @highlight_category_id %>
