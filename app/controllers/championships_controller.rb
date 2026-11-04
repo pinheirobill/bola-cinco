@@ -65,6 +65,36 @@ class ChampionshipsController < ApplicationController
     render "championships/football_teams"
   end
 
+  def create_football_team
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return redirect_to equipes_championship_path(@championship), alert: "Esta ação está disponível apenas para campeonatos de futebol." if @championship.tranca?
+
+    attributes = params.expect(team: [:category_id, :name, :short_name])
+    category = @championship.categories.find(attributes[:category_id])
+    name = attributes[:name].to_s.squish
+    return redirect_to(equipes_championship_path(@championship, anchor: "category-#{category.id}"), alert: "Informe o nome da equipe.") if name.blank?
+
+    Entity.transaction do
+      entity = Entity.create!(source_id: "entity-manual-#{SecureRandom.hex(8)}", name: name)
+      Team.create!(
+        source_id: "team-manual-#{SecureRandom.hex(8)}",
+        entity: entity,
+        category: category,
+        name: name,
+        short_name: attributes[:short_name].to_s.squish.presence || name.truncate(40),
+        registration_status: :aprovada,
+        finance_status: :pendente
+      )
+    end
+
+    redirect_to equipes_championship_path(@championship, anchor: "category-#{category.id}"), notice: "Equipe adicionada à categoria #{category.name}."
+  rescue ActiveRecord::RecordNotFound
+    redirect_to equipes_championship_path(@championship), alert: "Selecione uma categoria deste campeonato."
+  rescue ActiveRecord::RecordInvalid => error
+    redirect_to equipes_championship_path(@championship, anchor: "category-#{category&.id}"), alert: error.record.errors.full_messages.to_sentence
+  end
+
   def partidas
     @championship = championship_lookup
     return forbidden! unless @championship.visible_by?(current_user) || @championship.publicly_visible? || current_user&.admin?

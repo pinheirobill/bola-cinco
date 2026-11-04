@@ -58,6 +58,43 @@ class ChampionshipTeamImportsTest < ActionDispatch::IntegrationTest
     assert_equal "carlos@example.test", @category.athletes.find_by!(name: "Carlos Silva").email
   end
 
+  test "championship teams page offers import and manual team creation per category" do
+    get equipes_championship_path(@championship)
+
+    assert_response :success
+    assert_select "a[href=?]", new_championship_team_import_path(@championship, category_id: @category.id, return_to_championship_teams: "1"), text: "Importar Excel"
+    assert_select "button", text: "Adicionar manualmente"
+    assert_select "dialog#manual-team-dialog-#{@category.id} input[name='team[name]']"
+
+    assert_difference ["Team.count", "Entity.count"], 1 do
+      post create_football_team_championship_path(@championship), params: {
+        team: { category_id: @category.id, name: "Equipe Manual", short_name: "Manual" }
+      }
+    end
+
+    assert_redirected_to equipes_championship_path(@championship, anchor: "category-#{@category.id}")
+    team = @category.teams.find_by!(name: "Equipe Manual")
+    assert_equal "Manual", team.short_name
+    assert_equal "Equipe Manual", team.entity.name
+    assert team.registration_status_aprovada?
+  end
+
+  test "import from championship teams page returns to the imported category" do
+    spreadsheet = roster_spreadsheet_upload([["Equipe Alfa", "10", "Carlos Silva", "", "", ""]])
+
+    assert_difference ["Team.count", "Athlete.count"], 1 do
+      post championship_team_import_path(@championship), params: {
+        team_import: {
+          category_id: @category.id,
+          return_to_championship_teams: "1",
+          file: spreadsheet
+        }
+      }
+    end
+
+    assert_redirected_to equipes_championship_path(@championship, anchor: "category-#{@category.id}")
+  end
+
   test "imports an optional roster spreadsheet directly into the selected team" do
     entity = Entity.create!(source_id: SecureRandom.uuid, name: "Equipe fixa")
     team = Team.create!(source_id: SecureRandom.uuid, entity: entity, category: @category, name: "Equipe fixa")

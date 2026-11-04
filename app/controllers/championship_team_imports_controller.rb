@@ -7,6 +7,7 @@ class ChampionshipTeamImportsController < ApplicationController
     @categories = @championship.categories.order(:name)
     @category = @target_team&.category || @categories.find_by(id: params[:category_id]) || @categories.first
     @return_to_category = params[:return_to_category] == "1"
+    @return_to_championship_teams = params[:return_to_championship_teams] == "1"
   end
 
   def create
@@ -14,6 +15,7 @@ class ChampionshipTeamImportsController < ApplicationController
     @category = @target_team&.category || @categories.find_by(id: params.dig(:team_import, :category_id)) || @categories.first
     raise ActiveRecord::RecordNotFound if @category.blank?
     @return_to_category = params.dig(:team_import, :return_to_category) == "1"
+    @return_to_championship_teams = params.dig(:team_import, :return_to_championship_teams) == "1"
 
     rows = BolaCinco::TeamRosterSpreadsheet.read(params.dig(:team_import, :file), require_team: @target_team.blank?)
     athlete_limit = current_user.admin? ? nil : @championship.max_athletes_per_team
@@ -27,6 +29,8 @@ class ChampionshipTeamImportsController < ApplicationController
       team_path(@target_team)
     elsif @return_to_category
       category_path(@category)
+    elsif @return_to_championship_teams
+      equipes_championship_path(@championship, anchor: "category-#{@category.id}")
     else
       championship_path(@championship)
     end
@@ -40,6 +44,7 @@ class ChampionshipTeamImportsController < ApplicationController
   rescue BolaCinco::TeamRosterSpreadsheet::InvalidFile, BolaCinco::TeamRosterImport::InvalidImport => error
     @categories ||= @championship.categories.order(:name)
     @return_to_category ||= params.dig(:team_import, :return_to_category) == "1"
+    @return_to_championship_teams ||= params.dig(:team_import, :return_to_championship_teams) == "1"
     flash.now[:alert] = error.message
     render :new, status: :unprocessable_entity
   end

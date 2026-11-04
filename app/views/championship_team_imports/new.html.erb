@@ -7,7 +7,8 @@
   actions: [
     (@target_team ? link_to("Voltar à equipe", team_path(@target_team), class: "btn btn-outline") : nil),
     (!@target_team && @return_to_category && @category ? link_to("Voltar à categoria", category_path(@category), class: "btn btn-outline") : nil),
-    (!@target_team && !@return_to_category ? link_to("Voltar ao campeonato", championship_path(@championship), class: "btn btn-outline") : nil)
+    (!@target_team && @return_to_championship_teams ? link_to("Voltar às equipes", equipes_championship_path(@championship, anchor: "category-#{@category&.id}"), class: "btn btn-outline") : nil),
+    (!@target_team && !@return_to_category && !@return_to_championship_teams ? link_to("Voltar ao campeonato", championship_path(@championship), class: "btn btn-outline") : nil)
   ].compact
 ) %>
 
@@ -24,6 +25,7 @@
   <%= surface_card(title: "2. Importar planilha", subtitle: @target_team ? "Os atletas serão adicionados a #{@target_team.name}." : "A importação cria as equipes e os atletas de forma automática.") do %>
     <%= form_with url: championship_team_import_path(@championship), scope: :team_import, multipart: true, data: { turbo: false }, class: "space-y-5" do |form| %>
       <%= form.hidden_field :return_to_category, value: @return_to_category ? "1" : "0" %>
+      <%= form.hidden_field :return_to_championship_teams, value: @return_to_championship_teams ? "1" : "0" %>
       <% if @target_team %>
         <%= form.hidden_field :team_id, value: @target_team.id %>
         <%= form.hidden_field :category_id, value: @category.id %>

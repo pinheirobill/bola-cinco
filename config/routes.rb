@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     resources :photos, only: %i[index create destroy], controller: "championship_photos"
     get :setup, on: :member, path: "configuracao"
     get :equipes, on: :member, path: "equipes"
+    post :create_football_team, on: :member, path: "equipes/adicionar"
     get :duplas, on: :member, path: "duplas"
     resource :dupla_import, only: %i[new create], controller: "tranca/dupla_imports", path: "duplas/importar" do
       post :preview
