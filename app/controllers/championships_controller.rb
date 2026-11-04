@@ -891,7 +891,7 @@ class ChampionshipsController < ApplicationController
       @championship.update!(format: @championship.format_data.merge("categoryFormats" => formats))
     end
 
-    redirect_to setup_championship_path(@championship, step: "format"), notice: "Categorias e formatos salvos. Agora vincule as equipes previstas em cada categoria."
+    redirect_to setup_championship_path(@championship, step: "registrations"), notice: "Categorias e formatos salvos e vinculados ao campeonato. Continue configurando as inscrições."
   rescue ArgumentError => e
     redirect_to setup_championship_path(@championship, step: "format"), alert: e.message
   rescue ActiveRecord::RecordInvalid => e

@@ -14,7 +14,7 @@ class ChampionshipSetupCategoriesTest < ActionDispatch::IntegrationTest
     get setup_championship_path(@championship, step: "format")
 
     assert_response :success
-    assert_includes response.body, "Você pode editar, remover ou adicionar categorias antes de salvar."
+    assert_includes response.body, "Estas são sugestões editáveis. Elas só serão criadas e vinculadas ao campeonato quando você salvar."
     assert_includes response.body, 'name="categories[0][name]"'
     %w[Pré\ Mirim Mirim Infantil Juvenil].each { |name| assert_includes response.body, "value=\"#{name}\"" }
     mode_form_end = response.body.index("</form>", response.body.index('id="championship-format-mode-form"'))
@@ -25,6 +25,9 @@ class ChampionshipSetupCategoriesTest < ActionDispatch::IntegrationTest
     assert_operator category_form_end, :<, settings_form_start
     assert_select "details#championship-default-format-settings[open]", count: 0
     assert_select "details#championship-default-format-settings > summary svg[aria-hidden='true']", count: 1
+    assert_select "input[type=submit][value='Salvar categorias e continuar']", count: 1
+    assert_select "a[data-turbo-confirm]", text: "Continuar sem criar categorias", count: 1
+    assert_select "a.step[data-turbo-confirm]", count: 3
     assert_equal 0, @championship.categories.count
   end
 
@@ -50,7 +53,7 @@ class ChampionshipSetupCategoriesTest < ActionDispatch::IntegrationTest
       post create_categories_with_formats_championship_path(@championship), params: { categories: submitted_categories }
     end
 
-    assert_redirected_to setup_championship_path(@championship, step: "format")
+    assert_redirected_to setup_championship_path(@championship, step: "registrations")
     formats = @championship.reload.format_data.fetch("categoryFormats")
     categories = @championship.categories.index_by(&:name)
 
@@ -63,6 +66,12 @@ class ChampionshipSetupCategoriesTest < ActionDispatch::IntegrationTest
     get setup_championship_path(@championship, step: "format")
     assert_response :success
     assert_select "details#championship-default-format-settings[open]", count: 0
+
+    get setup_championship_path(@championship, step: "teams")
+    assert_response :success
+    assert_includes response.body, "Vinculadas"
+    %w[Pré Mirim Mirim Infantil Juvenil].each { |name| assert_includes response.body, name }
+    assert_equal 4, @championship.categories.count
   end
 
   test "allows a championship to use custom category names and rules" do

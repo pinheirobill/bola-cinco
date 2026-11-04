@@ -24,9 +24,15 @@
     <ul class="steps steps-horizontal w-full">
       <% step_labels.each do |key, label| %>
         <% active = current_step == key %>
+        <% current_index = step_labels.keys.index(current_step) %>
+        <% target_index = step_labels.keys.index(key) %>
+        <% confirmation = if confirm_forward_navigation && target_index && current_index && target_index > current_index
+          "As categorias desta etapa ainda não foram salvas e não aparecerão em Equipes. Continuar sem criar categorias?"
+        end %>
         <%= link_to label, public_send(path_helper, championship, step: key),
           class: "step #{'step-primary' if active} text-sm font-medium #{'text-primary' if active}",
-          aria: { current: (active ? "step" : nil) } %>
+          aria: { current: (active ? "step" : nil) },
+          data: (confirmation ? { turbo_confirm: confirmation } : {}) %>
       <% end %>
     </ul>
   </div>

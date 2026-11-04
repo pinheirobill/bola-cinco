@@ -36,12 +36,13 @@ module UiHelper
     }
   end
 
-  def championship_stepper(championship, current_step, step_labels, path_helper: :championship_path)
+  def championship_stepper(championship, current_step, step_labels, path_helper: :championship_path, confirm_forward_navigation: false)
     render partial: "components/championship_stepper", locals: {
       championship: championship,
       current_step: current_step,
       step_labels: step_labels,
-      path_helper: path_helper
+      path_helper: path_helper,
+      confirm_forward_navigation: confirm_forward_navigation
     }
   end
 

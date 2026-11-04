@@ -28,7 +28,13 @@ else
   }
 end %>
 
-<%= championship_stepper(@championship, @step, step_labels, path_helper: :setup_championship_path) %>
+<%= championship_stepper(
+  @championship,
+  @step,
+  step_labels,
+  path_helper: :setup_championship_path,
+  confirm_forward_navigation: @step == "format" && !@championship.tranca? && @championship.categories.none?
+) %>
 
 <% if @step == "data" %>
   <%= form_with url: championship_path(@championship), method: :patch, multipart: true, local: true, class: "space-y-6", data: { controller: "color-preview", action: "input->color-preview#update change->color-preview#update", turbo: false } do %>
@@ -271,9 +277,9 @@ end %>
               <div class="rounded-2xl border border-base-300 bg-base-100 p-5">
                 <h4 class="font-semibold"><%= @championship.categories.exists? ? "Adicionar categorias" : "Crie as categorias e defina as regras" %></h4>
                 <% if mastercup_category_suggestions.first[:name].present? %>
-                  <p class="mt-1 text-sm text-base-content/70">Preenchi uma sugestão com base no regulamento informado. Você pode editar, remover ou adicionar categorias antes de salvar.</p>
+                  <p class="mt-1 text-sm text-base-content/70">Estas são sugestões editáveis. Elas só serão criadas e vinculadas ao campeonato quando você salvar.</p>
                 <% else %>
-                  <p class="mt-1 text-sm text-base-content/70">Adicione quantas categorias precisar. Cada uma pode ter quantidade de equipes, chaves e formato próprios.</p>
+                  <p class="mt-1 text-sm text-base-content/70">Adicione quantas categorias precisar. Cada uma pode ter quantidade de equipes, chaves e formato próprios. Elas serão vinculadas ao campeonato ao salvar.</p>
                 <% end %>
 
                 <%= form_with url: create_categories_with_formats_championship_path(@championship), method: :post, html: { id: "category-setup-form" }, class: "mt-4 space-y-4", data: { controller: "category-setup", category_setup_next_index_value: mastercup_category_suggestions.size } do %>
@@ -289,7 +295,7 @@ end %>
 
                   <div class="flex flex-wrap justify-between gap-3">
                     <%= button_tag "Adicionar outra categoria", type: "button", class: "btn btn-outline btn-sm", data: { action: "category-setup#add" } %>
-                    <%= submit_tag "Salvar categorias e formatos", class: "btn btn-primary" %>
+                    <%= submit_tag "Salvar categorias e continuar", class: "btn btn-primary" %>
                   </div>
                 <% end %>
               </div>
@@ -414,10 +420,16 @@ end %>
 
           <div class="flex flex-wrap justify-end gap-3">
             <%= button_tag "Voltar", type: "submit", name: "step", value: "data", class: "btn btn-outline" %>
-            <%= button_tag "Próxima etapa", type: "submit", name: "step", value: "registrations", class: "btn btn-outline" %>
           </div>
         </div>
       <% end %>
+      <div class="mt-4 flex justify-end">
+        <% if @championship.categories.none? %>
+          <%= link_to "Continuar sem criar categorias", setup_championship_path(@championship, step: "registrations"), class: "btn btn-ghost", data: { turbo_confirm: "As categorias sugeridas ou preenchidas nesta etapa ainda não foram salvas e não aparecerão em Equipes. Continuar sem criar categorias?" } %>
+        <% else %>
+          <%= link_to "Próxima etapa", setup_championship_path(@championship, step: "registrations"), class: "btn btn-outline" %>
+        <% end %>
+      </div>
     <% end %>
 
   </section>
@@ -426,7 +438,7 @@ end %>
   <section class="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
     <%= surface_card(
       title: tranca_setup ? "Configurar duplas" : "Configurar inscrições",
-      subtitle: tranca_setup ? "Defina os limites e o que os técnicos podem fazer no painel da dupla." : "Defina os limites e o que os técnicos podem fazer no painel do time."
+      subtitle: tranca_setup ? "Defina os limites e o que os técnicos podem fazer no painel da dupla." : "Defina os limites de atletas e membros da comissão técnica."
     ) do %>
       <%= form_with url: championship_path(@championship), method: :patch, class: "space-y-6", data: { controller: "autosave-form", action: "input->autosave-form#queue change->autosave-form#queue focusout->autosave-form#queue turbo:submit-end->autosave-form#complete" } do %>
         <%= hidden_field_tag :current_step, "registrations" %>
@@ -446,65 +458,31 @@ end %>
         </div>
 
         <% unless tranca_setup %>
-          <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
-            <h3 class="text-lg font-bold">Inscrições de atletas pelos técnicos</h3>
-            <p class="mt-1 text-sm text-base-content/70">Habilite o que os técnicos podem fazer pelo painel do time dele.</p>
-
-            <div class="mt-4 grid gap-3 md:grid-cols-3">
-              <% [
-                ["allow_register", "Permitir inscrição de atletas"],
-                ["allow_edit", "Permitir edição de atletas"],
-                ["allow_remove", "Permitir remoção de atletas"]
-              ].each do |key, label| %>
-                <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
-                  <%= hidden_field_tag "championship[rules][registration][athlete_actions][#{key}]", "0" %>
-                  <%= check_box_tag "championship[rules][registration][athlete_actions][#{key}]", "1", @championship.athlete_action_enabled?(key), class: "checkbox checkbox-primary" %>
-                  <span><%= label %></span>
-                </label>
-              <% end %>
-            </div>
-          </div>
+          <% %w[allow_register allow_edit allow_remove].each do |key| %>
+            <%= hidden_field_tag "championship[rules][registration][athlete_actions][#{key}]", @championship.athlete_action_enabled?(key) ? "1" : "0" %>
+          <% end %>
         <% end %>
 
-        <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
-          <h3 class="text-lg font-bold"><%= tranca_setup ? "Inscrições de duplas pelo site do campeonato" : "Inscrições de times pelo site do campeonato" %></h3>
-          <p class="mt-1 text-sm text-base-content/70"><%= tranca_setup ? "Quer receber a inscrição de novas duplas no seu campeonato?" : "Quer receber a inscrição de novos times no seu campeonato?" %></p>
-          <div class="mt-4">
-            <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
-              <%= hidden_field_tag "championship[rules][registration][team_signups][enabled]", "0" %>
-              <%= check_box_tag "championship[rules][registration][team_signups][enabled]", "1", @championship.team_signup_enabled?, class: "checkbox checkbox-primary" %>
-              <span>Inscrições abertas</span>
-            </label>
+        <% if tranca_setup %>
+          <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
+            <h3 class="text-lg font-bold">Inscrições de duplas pelo site do campeonato</h3>
+            <p class="mt-1 text-sm text-base-content/70">Quer receber a inscrição de novas duplas no seu campeonato?</p>
+            <div class="mt-4">
+              <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
+                <%= hidden_field_tag "championship[rules][registration][team_signups][enabled]", "0" %>
+                <%= check_box_tag "championship[rules][registration][team_signups][enabled]", "1", @championship.team_signup_enabled?, class: "checkbox checkbox-primary" %>
+                <span>Inscrições abertas</span>
+              </label>
+            </div>
           </div>
-        </div>
+        <% else %>
+          <%= hidden_field_tag "championship[rules][registration][team_signups][enabled]", @championship.team_signup_enabled? ? "1" : "0" %>
+        <% end %>
 
         <% unless tranca_setup %>
-          <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
-            <h3 class="text-lg font-bold">Ficha de inscrição de atletas</h3>
-            <p class="mt-1 text-sm text-base-content/70">Selecione quais itens devem ser exigidos nas inscrições de atletas.</p>
-
-            <div class="mt-4 overflow-x-auto">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Informação</th>
-                    <th>Configuração</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% Championship::REGISTRATION_FORM_FIELDS.each do |field_key, field_label| %>
-                    <tr>
-                      <td><%= field_label %></td>
-                      <td>
-                        <%= select_tag "championship[rules][registration][athlete_form][#{field_key}]", options_for_select(Championship::REGISTRATION_REQUIREMENT_OPTIONS.map { |value, label| [label, value] }, @championship.athlete_form_requirement(field_key)), class: "select select-bordered w-full max-w-xs" %>
-                      </td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            </div>
-            <p class="mt-3 text-xs text-base-content/50">Obs: a posição interfere no ranking de atletas.</p>
-          </div>
+          <% Championship::REGISTRATION_FORM_FIELDS.each do |field_key, _field_label| %>
+            <%= hidden_field_tag "championship[rules][registration][athlete_form][#{field_key}]", @championship.athlete_form_requirement(field_key) %>
+          <% end %>
 
           <div class="rounded-3xl border border-base-300 bg-base-200 p-5">
             <h3 class="text-lg font-bold">Súmula impressa</h3>
@@ -527,22 +505,15 @@ end %>
         <div class="space-y-2 text-sm text-base-content/70">
           <p><%= tranca_setup ? "Integrantes por dupla" : "Atletas por time" %>: <strong><%= @championship.max_athletes_per_team %></strong></p>
           <p>Comissão técnica: <strong><%= @championship.max_staff_members_per_team %></strong></p>
-          <p><%= tranca_setup ? "Dupla pode se inscrever" : "Time pode se inscrever" %>: <strong><%= @championship.team_signup_enabled? ? "Sim" : "Não" %></strong></p>
+          <% if tranca_setup %>
+            <p>Dupla pode se inscrever: <strong><%= @championship.team_signup_enabled? ? "Sim" : "Não" %></strong></p>
+          <% end %>
           <% unless tranca_setup %>
             <p>Súmula impressa: <strong><%= Championship::PRINTED_SUMMARY_FIELDS[@championship.printed_summary_field] || @championship.printed_summary_field.humanize %></strong></p>
           <% end %>
         </div>
       <% end %>
 
-      <% unless tranca_setup %>
-        <%= surface_card(title: "Permissões do técnico") do %>
-          <div class="space-y-2 text-sm text-base-content/70">
-            <p>Inscrever atletas: <strong><%= @championship.athlete_action_enabled?("allow_register") ? "Sim" : "Não" %></strong></p>
-            <p>Editar atletas: <strong><%= @championship.athlete_action_enabled?("allow_edit") ? "Sim" : "Não" %></strong></p>
-            <p>Remover atletas: <strong><%= @championship.athlete_action_enabled?("allow_remove") ? "Sim" : "Não" %></strong></p>
-          </div>
-        <% end %>
-      <% end %>
     </div>
   </section>
 <% elsif @step == "teams" %>
