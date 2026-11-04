@@ -798,6 +798,8 @@ class ChampionshipsController < ApplicationController
     redirect_to championship_path(@championship), notice: "Inscrições finalizadas. #{created_matches.size} jogos gerados."
   rescue ActiveRecord::RecordInvalid => e
     redirect_to championship_path(@championship), alert: e.record.errors.full_messages.join(" · ")
+  rescue ArgumentError => e
+    redirect_to setup_championship_path(@championship, step: "teams"), alert: e.message
   end
 
   def draw_knockout_round
@@ -836,6 +838,50 @@ class ChampionshipsController < ApplicationController
     redirect_to setup_championship_path(@championship, step: "teams"), alert: "Categoria inválida."
   rescue ActiveRecord::RecordInvalid => e
     redirect_to setup_championship_path(@championship, step: "teams"), alert: e.record.errors.full_messages.join(" · ")
+  end
+
+  def create_category
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+
+    name = params.dig(:category, :name).to_s.strip
+    return redirect_to(setup_championship_path(@championship, step: "teams"), alert: "Informe o nome da categoria.") if name.blank?
+
+    category = @championship.categories.create!(name: name, source_id: "category-#{SecureRandom.hex(8)}")
+    redirect_to setup_championship_path(@championship, step: "teams"), notice: "Categoria #{category.name} criada e vinculada ao campeonato."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to setup_championship_path(@championship, step: "teams"), alert: e.record.errors.full_messages.to_sentence
+  end
+
+  def create_mastercup_categories
+    @championship = championship_lookup
+    return forbidden! unless @championship.manageable_by?(current_user)
+    return forbidden! if @championship.tranca?
+
+    categories = {}
+    specifications = [
+      ["Pré Mirim", { "teamCount" => 6, "mode" => "pontuacao", "groupCount" => 2, "schedule" => "cross_groups", "matchesPerOpponent" => 1, "matchesPerTeam" => 0 }],
+      ["Mirim", { "teamCount" => 6, "mode" => "pontuacao", "groupCount" => 2, "schedule" => "cross_groups", "matchesPerOpponent" => 1, "matchesPerTeam" => 0 }],
+      ["Infantil", { "teamCount" => 4, "mode" => "pontuacao", "groupCount" => 1, "schedule" => "within_groups", "matchesPerOpponent" => 1, "matchesPerTeam" => 0 }],
+      ["Juvenil", { "teamCount" => 3, "mode" => "melhor_campanha_final", "groupCount" => 1, "schedule" => "within_groups", "matchesPerOpponent" => 1, "matchesPerTeam" => 0 }]
+    ]
+
+    ActiveRecord::Base.transaction do
+      specifications.each do |name, format|
+        category = @championship.categories.find do |existing|
+          I18n.transliterate(existing.name).parameterize == I18n.transliterate(name).parameterize
+        end
+        category ||= @championship.categories.create!(name: name, source_id: "category-#{SecureRandom.hex(8)}")
+        categories[category.id.to_s] = format
+      end
+
+      current_format = @championship.format_data
+      @championship.update!(format: current_format.merge("categoryFormats" => current_format.fetch("categoryFormats", {}).merge(categories)))
+    end
+
+    redirect_to setup_championship_path(@championship, step: "format"), notice: "Categorias e formatos da Master Cup configurados. Agora vincule as equipes de cada categoria."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to setup_championship_path(@championship, step: "format"), alert: e.record.errors.full_messages.to_sentence
   end
 
   def detach_category

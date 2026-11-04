@@ -1,5 +1,6 @@
 class PartnersController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
+  before_action :require_admin!, only: %i[create update destroy]
 
   def index
     @partners = scoped_partners.order(highlight: :desc, created_at: :desc)
@@ -71,6 +72,10 @@ class PartnersController < ApplicationController
   end
 
   private
+
+  def require_admin!
+    forbidden! unless current_user&.admin?
+  end
 
   def scoped_championship
     @scoped_championship ||= if params[:championship_id].present?

@@ -1,4 +1,6 @@
 class RefereesController < ApplicationController
+  before_action :require_admin!, only: %i[create update attach detach destroy]
+
   def index
     @referees = Referee.order(:name)
     @referee = Referee.new(status: :ativo)
@@ -75,6 +77,10 @@ class RefereesController < ApplicationController
   end
 
   private
+
+  def require_admin!
+    forbidden! unless current_user&.admin?
+  end
 
   def scoped_championship
     @scoped_championship ||= if params[:championship_id].present?

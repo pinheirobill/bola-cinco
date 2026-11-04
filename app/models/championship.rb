@@ -145,9 +145,20 @@ class Championship < ApplicationRecord
     value.positive? ? value : 1
   end
 
+  def team_count_for(category)
+    configured = format_data.dig("categoryFormats", category.id.to_s, "teamCount")
+    configured.present? ? configured.to_i : category.teams.size
+  end
+
   def matches_per_opponent_for(category)
     value = format_for(category).fetch("matchesPerOpponent", matches_per_opponent).to_i
     value.positive? ? value : 1
+  end
+
+  def matches_per_team_for(category)
+    configured = format_data.dig("categoryFormats", category.id.to_s, "matchesPerTeam")
+    value = configured.nil? ? matches_per_team : configured.to_i
+    value.positive? ? value : 0
   end
 
   def tiebreakers
@@ -707,6 +718,7 @@ class Championship < ApplicationRecord
 
   def finalize_registrations!
     transaction do
+      validate_category_team_counts!
       disable_team_signups!
 
       created_matches =
@@ -767,8 +779,8 @@ class Championship < ApplicationRecord
         assignments.each do |group_key, group_teams|
           next if group_teams.size < 2
 
-          if matches_per_team.positive?
-            limited_group_pairings_for(group_teams).each_with_index do |round_pairings, round_index|
+          if matches_per_team_for(category).positive?
+            limited_group_pairings_for(group_teams, matches_per_team: matches_per_team_for(category)).each_with_index do |round_pairings, round_index|
               round_pairings.each do |team_a, team_b|
                 created_matches << matches.create!(
                   source_id: classification_match_source_id(category, group_key, team_a, team_b, round_index + 1),
@@ -843,7 +855,7 @@ class Championship < ApplicationRecord
     raise ArgumentError, "As equipes precisam pertencer à mesma categoria." unless team_a.category_id == team_b.category_id
     raise ArgumentError, "As duas equipes precisam estar inscritas neste campeonato." unless categories.exists?(id: team_a.category_id)
 
-    group_key = initial_group_assignments_for(participating_teams_for(team_a.category))
+    group_key = initial_group_assignments_for(participating_teams_for(team_a.category), category: team_a.category)
       .find { |_key, group_teams| group_teams.include?(team_a) && group_teams.include?(team_b) }
       &.first
     raise ArgumentError, "As equipes precisam estar no mesmo grupo e aptas a jogar." if group_key.blank?
@@ -854,7 +866,7 @@ class Championship < ApplicationRecord
       team_a_id: team_a.id,
       team_b_id: team_b.id
     )
-    allowed_meetings = matches_per_team.positive? ? 1 : matches_per_opponent
+    allowed_meetings = matches_per_team_for(team_a.category).positive? ? 1 : matches_per_opponent_for(team_a.category)
     raise ArgumentError, "Essas equipes já atingiram o limite de confrontos." if same_pair.count >= allowed_meetings
 
     source_id = "manual-group-match-#{id}-#{SecureRandom.uuid}"
@@ -1007,6 +1019,22 @@ class Championship < ApplicationRecord
     data = (self[:format] || {}).deep_dup
     data["group_stage_redraw"] = state.merge(attributes.stringify_keys)
     update!(format: data)
+  end
+
+  def validate_category_team_counts!
+    mismatches = categories.filter_map do |category|
+      configured_count = format_data.dig("categoryFormats", category.id.to_s, "teamCount")
+      next if configured_count.blank?
+
+      actual_count = participating_teams_for(category).size
+      next if actual_count == configured_count.to_i
+
+      "#{category.name}: #{actual_count} de #{configured_count} equipes"
+    end
+
+    return if mismatches.empty?
+
+    raise ArgumentError, "Ajuste as equipes vinculadas antes de finalizar: #{mismatches.join('; ')}."
   end
 
   def standing_stats_for(team, group_key = "")
@@ -1206,7 +1234,7 @@ class Championship < ApplicationRecord
     stats[:goal_diff] = stats[:goals_for] - stats[:goals_against]
   end
 
-  def limited_group_pairings_for(group_teams)
+  def limited_group_pairings_for(group_teams, matches_per_team: self.matches_per_team)
     if group_teams.size == 9 && matches_per_team == 4
       teams_by_slot = group_teams
       rounds = Array.new(5) { [] }

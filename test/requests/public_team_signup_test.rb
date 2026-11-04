@@ -36,9 +36,16 @@ class PublicTeamSignupTest < ActionDispatch::IntegrationTest
     @team = Team.create!(
       source_id: "team-public-team-signup",
       entity: @entity,
-      category: @existing_category,
+      category: @category,
       name: "Time Público",
       short_name: "Público"
+    )
+
+    @foreign_team = Team.create!(
+      source_id: "team-public-team-signup-foreign",
+      entity: @entity,
+      category: @existing_category,
+      name: "Time de Outro Campeonato"
     )
 
     @tranca_championship = Championship.create!(
@@ -91,6 +98,8 @@ class PublicTeamSignupTest < ActionDispatch::IntegrationTest
   end
 
   test "selects an existing team without creating new records" do
+    sign_in users(:one)
+
     assert_no_difference -> { Entity.count } do
       assert_no_difference -> { Team.count } do
         post championship_team_signup_path(@championship), params: {
@@ -105,6 +114,34 @@ class PublicTeamSignupTest < ActionDispatch::IntegrationTest
 
     assert_response :redirect
     assert_equal @category, @team.reload.category
+  end
+
+  test "public signup cannot move an existing team from another championship" do
+    post championship_team_signup_path(@championship), params: {
+      team_signup: {
+        signup_mode: "existing",
+        team_id: @foreign_team.id,
+        category_id: @category.id
+      }
+    }
+
+    assert_response :unprocessable_entity
+    assert_equal @existing_category, @foreign_team.reload.category
+  end
+
+  test "public signup cannot reset a team already entered in the championship" do
+    @team.update!(registration_status: :aprovada)
+
+    post championship_team_signup_path(@championship), params: {
+      team_signup: {
+        signup_mode: "existing",
+        team_id: @team.id,
+        category_id: @category.id
+      }
+    }
+
+    assert_response :unprocessable_entity
+    assert @team.reload.registration_status_aprovada?
   end
 
   test "creates a new team when the public form is set to new team signup" do
@@ -176,6 +213,8 @@ class PublicTeamSignupTest < ActionDispatch::IntegrationTest
   end
 
   test "selects an existing tranca duo without creating new records" do
+    sign_in users(:one)
+
     assert_no_difference -> { Entity.count } do
       assert_no_difference -> { Team.count } do
         post championship_team_signup_path(@tranca_championship), params: {

@@ -61,7 +61,11 @@ class AthletesController < ApplicationController
     return forbidden! if championship.blank?
     return forbidden! unless current_user.admin? || (championship.athlete_editing_open? && athlete.manageable_by?(current_user))
 
-    if athlete.update(athlete_params)
+    attributes = athlete_params
+    protected_association_fields = %w[team_id category_id user_id]
+    return forbidden! if !current_user.admin? && (attributes.keys.map(&:to_s) & protected_association_fields).any?
+
+    if athlete.update(attributes)
       render json: athlete
     else
       render json: { errors: athlete.errors.full_messages }, status: :unprocessable_entity

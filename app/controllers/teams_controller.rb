@@ -40,7 +40,11 @@ class TeamsController < ApplicationController
   def create
     params_data = team_params
     category = Category.find(params_data[:category_id])
-    championship = current_championship || category.championship || category.championships.first
+    championship = current_championship
+    if !current_user.admin? && championship.present? && !championship.categories.exists?(id: category.id)
+      return forbidden!
+    end
+    championship ||= category.championship || category.championships.first
     return forbidden! if championship.blank?
     return forbidden! unless current_user.admin? || championship.team_signup_open?
 
@@ -98,7 +102,14 @@ class TeamsController < ApplicationController
   def update
     return forbidden! unless team.manageable_by?(current_user)
 
-    if team.update(team_params)
+    attributes = team_params
+    unless current_user.admin?
+      return forbidden! if attributes.key?(:category_id) && attributes[:category_id].to_s != team.category_id.to_s
+      return forbidden! if attributes.key?(:entity_id) && attributes[:entity_id].to_s != team.entity_id.to_s
+      return forbidden! if attributes.key?(:registration_status) || attributes.key?(:finance_status)
+    end
+
+    if team.update(attributes)
       sync_tranca_dupla_from_team(team) if team.championship&.tranca?
 
       respond_to do |format|

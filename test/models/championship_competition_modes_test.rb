@@ -153,6 +153,27 @@ class ChampionshipCompetitionModesTest < ActiveSupport::TestCase
     assert_equal ["A"], matches.distinct.pluck(:group_key)
   end
 
+  test "category-specific no-limit setting preserves the full round robin despite a global team cap" do
+    category, = create_category_with_teams("Infantil sem limite", %w[IL1 IL2 IL3 IL4])
+    @championship.update!(format: @championship.format_data.merge("matchesPerTeam" => 2))
+    configure_category(category, "mode" => "pontuacao", "groupCount" => 1, "schedule" => "within_groups", "matchesPerTeam" => 0)
+
+    @championship.finalize_registrations!
+
+    assert_equal 6, @championship.matches.where(category: category, phase: "grupos").count
+  end
+
+  test "does not finalize a category when linked teams do not match its configured count" do
+    category, = create_category_with_teams("Pré Mirim incompleto", %w[PMI1 PMI2 PMI3 PMI4 PMI5])
+    configure_category(category, "mode" => "pontuacao", "teamCount" => 6, "groupCount" => 2, "schedule" => "cross_groups")
+
+    error = assert_raises(ArgumentError) { @championship.finalize_registrations! }
+
+    assert_includes error.message, "Pré Mirim incompleto: 5 de 6 equipes"
+    assert @championship.reload.team_signup_enabled?
+    assert_empty @championship.matches.where(category: category, phase: "grupos")
+  end
+
   test "sends the best campaign directly to a final after the round robin" do
     category, teams = create_category_with_teams("Juvenil", %w[J1 J2 J3])
     configure_category(category, "mode" => "melhor_campanha_final", "groupCount" => 1)

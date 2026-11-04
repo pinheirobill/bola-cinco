@@ -203,39 +203,83 @@ end %>
             <section class="space-y-4 rounded-3xl border border-primary/30 bg-base-200/70 p-5">
               <div>
                 <h3 class="text-lg font-semibold">Formato por categoria</h3>
-                <p class="mt-1 text-sm text-base-content/70">Defina regras específicas para cada categoria. Categorias sem alteração usam o formato geral.</p>
+                <p class="mt-1 text-sm text-base-content/70">Cada categoria pode ter seu próprio formato e número previsto de equipes. A quantidade vinculada precisa bater antes de finalizar as inscrições; categorias sem alterações usam os valores gerais.</p>
               </div>
-              <div class="space-y-4">
-                <% @championship.categories.order(:name).each do |category| %>
+              <% mastercup_template = @championship.name.to_s.match?(/master\s*cup/i) %>
+              <% if mastercup_template %>
+                <%= button_to "Aplicar configuração da Master Cup", create_mastercup_categories_championship_path(@championship), method: :post, data: { turbo_confirm: "Vamos criar as categorias que faltam e aplicar as regras informadas às quatro categorias. Continuar?" }, class: "btn btn-primary btn-sm" %>
+              <% end %>
+              <% if @championship.categories.exists? %>
+                <div class="rounded-2xl border border-info/30 bg-info/10 p-4 text-sm">
+                  <p class="font-semibold">Exemplo para este campeonato</p>
+                  <ul class="mt-2 list-inside list-disc space-y-1 text-base-content/80">
+                    <li>Pré-mirim e Mirim: Pontuação, 2 chaves, jogos entre as chaves, classificação geral e 1 jogo por adversário.</li>
+                    <li>Infantil: Pontuação, 1 chave, todos contra todos, 1 jogo por adversário.</li>
+                    <li>Juvenil: Melhor campanha direto à final, 1 chave, 1 jogo por adversário.</li>
+                  </ul>
+                </div>
+                <div class="space-y-4">
+                  <% @championship.categories.order(:name).each do |category| %>
                   <% category_format = @championship.format_for(category) %>
-                  <div class="grid gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 md:grid-cols-4">
-                    <div class="md:col-span-4 font-semibold"><%= category.name %></div>
+                  <div class="grid gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 md:grid-cols-2 xl:grid-cols-3">
+                    <div class="flex flex-wrap items-baseline justify-between gap-2 md:col-span-2 xl:col-span-3">
+                      <span class="font-semibold"><%= category.name %></span>
+                      <span class="text-sm text-base-content/60"><%= pluralize(category.teams.size, "equipe vinculada", "equipes vinculadas") %></span>
+                    </div>
                     <div class="form-control gap-2">
                       <%= label_tag "championship_format_categoryFormats_#{category.id}_mode", "Formato", class: "label-text font-medium" %>
-                      <%= select_tag "championship[format][categoryFormats][#{category.id}][mode]", options_for_select([["Pontuação / todos contra todos", "pontuacao"], ["Grupos + mata-mata", "grupos_mata_mata"], ["Mata-mata", "mata_mata"], ["Melhor campanha direto à final", "melhor_campanha_final"]], @championship.format_data.dig("categoryFormats", category.id.to_s, "mode").presence || selected_mode), class: "select select-bordered w-full" %>
+                      <%= select_tag "championship[format][categoryFormats][#{category.id}][mode]", options_for_select([["Pontuação por pontos (sem mata-mata)", "pontuacao"], ["Grupos + mata-mata", "grupos_mata_mata"], ["Mata-mata", "mata_mata"], ["Melhor campanha vai direto à final", "melhor_campanha_final"]], category_format["mode"]), class: "select select-bordered w-full" %>
                     </div>
                     <div class="form-control gap-2">
-                      <%= label_tag "championship_format_categoryFormats_#{category.id}_groupCount", "Quantidade de chaves", class: "label-text font-medium" %>
-                      <%= number_field_tag "championship[format][categoryFormats][#{category.id}][groupCount]", @championship.format_data.dig("categoryFormats", category.id.to_s, "groupCount") || 1, min: 1, class: "input input-bordered w-full" %>
+                      <%= label_tag "championship_format_categoryFormats_#{category.id}_teamCount", "Equipes previstas", class: "label-text font-medium" %>
+                      <%= number_field_tag "championship[format][categoryFormats][#{category.id}][teamCount]", @championship.team_count_for(category), min: 2, class: "input input-bordered w-full" %>
+                      <span class="text-xs text-base-content/60">Atualmente vinculadas: <%= category.teams.size %>.</span>
                     </div>
                     <div class="form-control gap-2">
-                      <%= label_tag "championship_format_categoryFormats_#{category.id}_schedule", "Confrontos", class: "label-text font-medium" %>
+                      <%= label_tag "championship_format_categoryFormats_#{category.id}_groupCount", "Número de chaves", class: "label-text font-medium" %>
+                      <%= number_field_tag "championship[format][categoryFormats][#{category.id}][groupCount]", category_format["groupCount"], min: 1, class: "input input-bordered w-full" %>
+                      <span class="text-xs text-base-content/60">Ex.: 2 chaves para 6 equipes.</span>
+                    </div>
+                    <div class="form-control gap-2">
+                      <%= label_tag "championship_format_categoryFormats_#{category.id}_schedule", "Quem enfrenta quem", class: "label-text font-medium" %>
                       <%= select_tag "championship[format][categoryFormats][#{category.id}][schedule]", options_for_select([["Dentro de cada chave", "within_groups"], ["Uma chave contra a outra", "cross_groups"]], category_format["schedule"] || "within_groups"), class: "select select-bordered w-full" %>
+                      <span class="text-xs text-base-content/60">Com 1 chave, todos jogam entre si. Com 2, cada equipe enfrenta as da outra chave.</span>
                     </div>
                     <div class="form-control gap-2">
-                      <%= label_tag "championship_format_categoryFormats_#{category.id}_qualifiedPerGroup", "Classificados por chave", class: "label-text font-medium" %>
-                      <%= number_field_tag "championship[format][categoryFormats][#{category.id}][qualifiedPerGroup]", category_format["qualifiedPerGroup"] || @championship.qualified_per_group, min: 1, class: "input input-bordered w-full" %>
+                      <%= label_tag "championship_format_categoryFormats_#{category.id}_matchesPerOpponent", "Jogos contra cada adversário", class: "label-text font-medium" %>
+                      <%= number_field_tag "championship[format][categoryFormats][#{category.id}][matchesPerOpponent]", @championship.matches_per_opponent_for(category), min: 1, class: "input input-bordered w-full" %>
                     </div>
+                    <div class="form-control gap-2">
+                      <%= label_tag "championship_format_categoryFormats_#{category.id}_matchesPerTeam", "Limite de jogos por equipe", class: "label-text font-medium" %>
+                      <%= number_field_tag "championship[format][categoryFormats][#{category.id}][matchesPerTeam]", @championship.matches_per_team_for(category), min: 0, class: "input input-bordered w-full" %>
+                      <span class="text-xs text-base-content/60">0 = sem limite; todos contra todos usa todos os adversários.</span>
+                    </div>
+                    <% if category_format["mode"] == "grupos_mata_mata" %>
+                      <div class="form-control gap-2">
+                        <%= label_tag "championship_format_categoryFormats_#{category.id}_qualifiedPerGroup", "Classificados por chave", class: "label-text font-medium" %>
+                        <%= number_field_tag "championship[format][categoryFormats][#{category.id}][qualifiedPerGroup]", category_format["qualifiedPerGroup"] || @championship.qualified_per_group, min: 1, class: "input input-bordered w-full" %>
+                      </div>
+                    <% end %>
                   </div>
-                <% end %>
-              </div>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-6">
+                  <p class="font-semibold">Nenhuma categoria vinculada a este campeonato</p>
+                  <p class="mt-1 text-sm text-base-content/70">Crie as quatro categorias e aplique as regras informadas de uma vez. Depois, vincule as equipes na etapa Equipes.</p>
+                  <% unless mastercup_template %>
+                    <%= link_to "Ir para Equipes e criar categorias", setup_championship_path(@championship, step: "teams"), class: "btn btn-primary btn-sm mt-4" %>
+                  <% end %>
+                  <p class="mt-2 text-xs text-base-content/60">Pré Mirim e Mirim: 2 chaves de 3, jogos entre chaves e classificação geral. Infantil: 4 equipes em chave única. Juvenil: melhor campanha direto à final.</p>
+                </div>
+              <% end %>
             </section>
           <% end %>
 
           <section class="space-y-4 rounded-3xl border border-base-300 bg-base-200/70 p-5">
             <div>
               <h3 class="text-lg font-semibold">Configuração básica</h3>
-              <p class="mt-1 text-sm text-base-content/70">Campos essenciais do formato, organizados para leitura rápida.</p>
+              <p class="mt-1 text-sm text-base-content/70">Padrões para categorias sem formato próprio. Nas categorias acima, configure equipes e regras individualmente.</p>
             </div>
             <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
               <div class="form-control gap-2">
@@ -252,7 +296,11 @@ end %>
                 <%= label_tag "championship_format_matches_per_opponent", "Jogos por confronto", class: "label-text font-medium" %>
                 <%= number_field_tag "championship[format][matchesPerOpponent]", @championship.format_data["matchesPerOpponent"], id: "championship_format_matches_per_opponent", min: 1, step: 1, class: "input input-bordered w-full", disabled: selected_mode == "mata_mata" %>
                 <p class="text-xs text-base-content/60">Ex.: 1 vez na fase classificatória; 2 vezes em ida e volta.</p>
-                <p class="text-xs text-base-content/60"><%= @championship.matches_count_explanation %></p>
+                <% if @championship.format_data["categoryFormats"].present? %>
+                  <p class="text-xs text-base-content/60">A estimativa geral não soma regras diferentes por categoria. Use “Equipes previstas” em cada cartão; os jogos serão montados depois de vincular os times.</p>
+                <% else %>
+                  <p class="text-xs text-base-content/60"><%= @championship.matches_count_explanation %></p>
+                <% end %>
               </div>
 
               <div data-competition-mode-target="matchesPerTeamField" class="<%= selected_mode == "mata_mata" ? "hidden" : "" %> form-control gap-2">
@@ -756,6 +804,14 @@ end %>
 
         <div class="space-y-3">
           <h4 class="font-semibold">Disponíveis</h4>
+          <%= form_with url: create_category_championship_path(@championship), method: :post, class: "rounded-2xl border border-primary/30 bg-primary/5 p-4" do |form| %>
+            <p class="font-medium">Criar uma categoria para este campeonato</p>
+            <p class="mt-1 text-xs text-base-content/60">Use quando a faixa etária ainda não estiver cadastrada no sistema.</p>
+            <div class="mt-3 flex flex-col gap-2 sm:flex-row">
+              <%= form.text_field :name, name: "category[name]", placeholder: "Ex.: Pré Mirim", required: true, class: "input input-bordered w-full" %>
+              <%= form.submit "Criar categoria", class: "btn btn-primary" %>
+            </div>
+          <% end %>
           <% if @available_categories_to_link.any? %>
             <% @available_categories_to_link.each do |category| %>
               <% highlighted = @highlight_category_id.present? && category.id == @highlight_category_id %>

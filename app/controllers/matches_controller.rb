@@ -75,10 +75,12 @@ class MatchesController < ApplicationController
 
   def edit
     load_match_context
+    return forbidden! unless @match.championship.manageable_by?(current_user)
   end
 
   def import_summula
     @match = scoped_matches.find(params[:id])
+    return forbidden! unless @match.championship.manageable_by?(current_user)
 
     if params.dig(:match_summula_import, :confirm).present?
       confirm_summula_import
@@ -89,6 +91,8 @@ class MatchesController < ApplicationController
 
   def update
     @match = scoped_matches.find(params[:id])
+    return forbidden! unless @match.championship.manageable_by?(current_user)
+
     @match_report = @match.match_report || @match.build_match_report(status: :rascunho, source_id: "report-#{@match.source_id}")
     form_params = match_form_params
 

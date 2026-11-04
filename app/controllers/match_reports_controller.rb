@@ -9,6 +9,7 @@ class MatchReportsController < ApplicationController
 
   def show
     @match_report = match_report
+    return forbidden! unless report_match.championship.visible_by?(current_user) || current_user&.admin?
     respond_to do |format|
       format.html
       format.json { render json: match_report }
@@ -16,6 +17,8 @@ class MatchReportsController < ApplicationController
   end
 
   def create
+    return forbidden! unless match.championship.manageable_by?(current_user)
+
     record = match.match_report || match.build_match_report(match_report_params)
     record.source_id = default_source_id("report") if record.source_id.blank?
 
@@ -43,6 +46,8 @@ class MatchReportsController < ApplicationController
   end
 
   def update
+    return forbidden! unless report_match.championship.manageable_by?(current_user)
+
     if html_form_submission?
       match_report.assign_attributes(match_report_params)
       match_report.status = :rascunho
@@ -63,6 +68,8 @@ class MatchReportsController < ApplicationController
   end
 
   def approve
+    return forbidden! unless report_match.championship.manageable_by?(current_user)
+
     match_report.update!(
       status: :aprovado,
       approved_at: Time.current,
@@ -73,6 +80,8 @@ class MatchReportsController < ApplicationController
   end
 
   def destroy
+    return forbidden! unless report_match.championship.manageable_by?(current_user)
+
     match_report.destroy!
 
     return redirect_to match_path(match_report.match), notice: "Relatório removido." if html_form_submission?
@@ -84,6 +93,10 @@ class MatchReportsController < ApplicationController
 
   def scoped_match_reports
     scope = MatchReport.includes(:match, :referee)
+    unless current_user&.admin?
+      visible_championship_ids = Championship.publicly_visible.pluck(:id) | current_user.accessible_championships.pluck(:id)
+      scope = scope.joins(:match).where(matches: { championship_id: visible_championship_ids })
+    end
     scope = scope.joins(:match).where(matches: { championship_id: params[:championship_id] }) if params[:championship_id].present?
     scope
   end
@@ -94,6 +107,10 @@ class MatchReportsController < ApplicationController
 
   def match_report
     @match_report ||= MatchReport.find(params[:id])
+  end
+
+  def report_match
+    @report_match ||= match_report.match
   end
 
   def match_report_params

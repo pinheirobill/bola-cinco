@@ -52,6 +52,9 @@ class ChampionshipTeamSignupsController < ApplicationController
       else
         @team.errors.add(:team, "inválido") if team.nil?
       end
+      if team.present? && !team.manageable_by?(current_user)
+        @team.errors.add(:team, "não autorizada")
+      end
     else
       @team = Team.new(
         name: team_signup[:team_name],
@@ -140,11 +143,21 @@ class ChampionshipTeamSignupsController < ApplicationController
   end
 
   def signup_teams
-    if @championship.tranca?
-      Team.for_championship(@championship).includes(:entity, :category).order(:name)
+    championship_team_ids = Team.for_championship(@championship).select(:id)
+    teams = if @championship.tranca?
+      Team.where(id: championship_team_ids)
+    elsif current_user&.admin?
+      Team.all
+    elsif current_user
+      managed_team_ids = TeamMembership.status_ativo
+        .where(user: current_user, role: %w[tecnico capitao responsavel])
+        .select(:team_id)
+      Team.where(id: championship_team_ids).or(Team.where(id: managed_team_ids))
     else
-      Team.includes(:entity, :category).order(:name)
+      Team.where(id: championship_team_ids)
     end
+
+    teams.includes(:entity, :category).order(:name)
   end
 
   def signup_categories

@@ -1,6 +1,7 @@
 class SuspensionsController < ApplicationController
   def index
     return redirect_to championships_path, alert: "Crie ou selecione um campeonato antes de consultar suspensões." unless current_championship
+    return forbidden! unless scoped_championship.visible_by?(current_user) || current_user&.admin?
 
     Discipline::SuspensionLifecycle.new(championship: scoped_championship).sweep_expired!
     @suspensions = scoped_suspensions.order(created_at: :desc)
@@ -17,6 +18,7 @@ class SuspensionsController < ApplicationController
 
   def show
     @suspension = suspension
+    return forbidden! unless @suspension.championship.visible_by?(current_user) || current_user&.admin?
     @categories = scoped_championship.categories.order(:name)
     @teams = Team.for_championship(scoped_championship).order(:name)
     @athletes = Athlete.for_championship(scoped_championship).includes(:team).order(:name)
@@ -28,6 +30,8 @@ class SuspensionsController < ApplicationController
   end
 
   def create
+    return forbidden! unless scoped_championship.manageable_by?(current_user)
+
     record = scoped_championship.suspensions.new(suspension_params)
     record.source_id = default_source_id("suspension") if record.source_id.blank?
 
@@ -51,6 +55,8 @@ class SuspensionsController < ApplicationController
   end
 
   def update
+    return forbidden! unless suspension.championship.manageable_by?(current_user)
+
     if autosave_request?
       if suspension.update(suspension_params)
         head :no_content
@@ -76,6 +82,8 @@ class SuspensionsController < ApplicationController
   end
 
   def destroy
+    return forbidden! unless suspension.championship.manageable_by?(current_user)
+
     suspension.destroy!
 
     return redirect_to suspensions_path, notice: "Suspensão removida." if html_form_submission?
